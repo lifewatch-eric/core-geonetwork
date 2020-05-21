@@ -187,7 +187,7 @@
           <datacite:title/>
         </xsl:with-param>
       </xsl:call-template>
-
+<!-- 
       <xsl:for-each select="../gmd:alternateTitle">
         <xsl:call-template name="toDataciteLocalized">
           <xsl:with-param name="template">
@@ -195,7 +195,19 @@
           </xsl:with-param>
         </xsl:call-template>
       </xsl:for-each>
+-->
     </datacite:titles>
+    
+    <xsl:variable name="publicationDate"
+                  select="$metadata/gmd:identificationInfo/*/gmd:citation/*/gmd:date/*[gmd:dateType/*/@codeListValue = 'publication']/gmd:date/substring(*, 1, 4)"/>
+    <xsl:if test="$publicationDate != ''">
+      <datacite:publicationYear>
+        <xsl:value-of select="$publicationDate"/>
+      </datacite:publicationYear>
+    </xsl:if>
+    
+    <datacite:publisher>LifeWatch ERIC</datacite:publisher>
+    
   </xsl:template>
 
 
@@ -312,19 +324,34 @@
     <entry key="series">Dataset</entry>
     <entry key="service">Service</entry>
     <entry key="software">Software</entry>
+    
   </xsl:variable>
 
   <xsl:template mode="toDatacite"
                 match="gmd:hierarchyLevel/*/@codeListValue">
-    <xsl:variable name="key"
-                  select="."/>
-    <xsl:variable name="type"
-                  select="concat(upper-case(substring(.,1,1)), substring(., 2))"/>
-    <datacite:resourceType resourceTypeGeneral="{$scopeMapping//*[@key = $key]/text()}">
-      <xsl:value-of select="concat($key, '/', $type)"/>
+
+    <xsl:variable name="key" select="."/>
+
+    <xsl:variable name="key2">
+          <xsl:if test="contains($key, 'dataset_lifewatch')">
+            <xsl:value-of select="string('Dataset')"/>
+          </xsl:if>
+          <xsl:if test="contains($key, 'service_lifewatch')">
+            <xsl:value-of select="string('Service')"/>
+          </xsl:if>
+          <xsl:if test="contains($key, 'vre_lifewatch')">
+            <xsl:value-of select="string('Other')"/>
+          </xsl:if>
+          <xsl:if test="((not(contains($key, 'vre_lifewatch'))) and (not(contains($key, 'service_lifewatch'))) and (not(contains($key, 'dataset_lifewatch'))))">
+            <xsl:value-of select="$key"/>
+          </xsl:if>
+    </xsl:variable>
+ 	<xsl:variable name="type"
+                  select="concat(upper-case(substring($key2,1,1)), substring($key2, 2))"/>
+    <datacite:resourceType resourceTypeGeneral="{$key2}">
+      <xsl:value-of select="$key2"/>
     </datacite:resourceType>
   </xsl:template>
-
 
   <!--
    The main researchers involved
@@ -450,10 +477,8 @@ eg.
       TODO: Define who is the publisher ? Only one allowed.
   -->
   <xsl:template mode="toDatacite"
-                match="gmd:distributorContact[1]/*">
-    <datacite:publisher>
-      <xsl:value-of select="gmd:organisationName/gco:CharacterString"/>
-    </datacite:publisher>
+                match="gmd:MD_Metadata/gmd:identificationInfo/*/gmd:citation/*/gmd:date">
+    
 
     <!--
     The year when the data was
@@ -470,6 +495,7 @@ eg.
     publication or release date
     details
     -->
+    <!-- 
     <xsl:for-each select="$metadata/gmd:identificationInfo/*/gmd:citation/*/gmd:date/*[gmd:dateType/*/@codeListValue = 'publication']/gmd:date[* != '']/substring(*, 1, 4)">
       <xsl:sort select="." order="descending" />
       <xsl:if test="position() = 1">
@@ -478,6 +504,7 @@ eg.
         </datacite:publicationYear>
       </xsl:if>
     </xsl:for-each>
+     -->
   </xsl:template>
 
 
@@ -505,7 +532,6 @@ eg.
                 match="gmd:edition">
     <datacite:version><xsl:value-of select="gco:CharacterString"/></datacite:version>
   </xsl:template>
-
 
   <!--
   Any rights information for this

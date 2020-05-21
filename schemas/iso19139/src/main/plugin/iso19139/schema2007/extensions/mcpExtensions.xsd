@@ -1,0 +1,32 @@
+<!--
+<xs:schema xmlns:mcp="http://bluenet3.antcrc.utas.edu.au/mcp" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gsr="http://www.isotc211.org/2005/gsr" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:gss="http://www.isotc211.org/2005/gss" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gml="http://www.opengis.net/gml" xmlns:srv="http://www.isotc211.org/2005/srv" targetNamespace="http://bluenet3.antcrc.utas.edu.au/mcp" elementFormDefault="qualified" version="1.4">
+<xs:import namespace="http://www.isotc211.org/2005/gco" schemaLocation="../gco/gco.xsd"/>
+<xs:import namespace="http://www.isotc211.org/2005/gts" schemaLocation="../gts/gts.xsd"/>
+<xs:import namespace="http://www.isotc211.org/2005/gmd" schemaLocation="../gmd/gmd.xsd"/>
+<xs:import namespace="http://www.isotc211.org/2005/srv" schemaLocation="../srv/srv.xsd"/>
+<xs:import namespace="http://www.opengis.net/gml" schemaLocation="../gml/gml.xsd"/>
+
+
+  <xs:element name="MD_Metadata" substitutionGroup="gmd:MD_Metadata"
+                                 type="mcp:MD_Metadata_Type"/>
+
+  <xs:complexType name="MD_Metadata_Type">
+    <xs:annotation>
+      <xs:documentation>
+       Extends the metadata element to include revisionDate
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="gmd:MD_Metadata_Type">
+        <xs:sequence>
+          <xs:element name="revisionDate" type="gco:Date_PropertyType"
+                      minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute ref="gco:isoType" use="required"
+                      fixed="gmd:MD_Metadata"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+</xs:schema>
+-->

@@ -185,6 +185,227 @@
       <field name="featureTypes" tagName="featureTypes"/>
       <field name="versionIdentifier" tagName="versionIdentifier"/>
       <field name="_draft" tagName="draft"/>
+      
+      <!--  VRE LifeWatch -->
+      <field name="alternateIdentifier_vre" tagName="alternateIdentifier_vre"/>
+      <field name="url_vre" tagName="url_vre"/>
+      
+      <field name="contactPoint_vre" tagName="contactPoint_vre"/>
+      <field name="contactPoint_vre_variable" tagName="contactPoint_vre_variable"/>
+      <field name="address_vre_variable" tagName="address_vre_variable"/>
+      <field name="e_mail_vre_variable" tagName="e_mail_vre_variable"/>
+      <field name="coordinationTeam_vre" tagName="coordinationTeam_vre"/>
+      
+      <field name="address_vre" tagName="address_vre"/>
+      <field name="e_mail_vre" tagName="e_mail_vre"/>
+      
+      <field name="serviceName_vre" tagName="serviceName_vre"/>
+      <field name="serviceName_vre_variable" tagName="serviceName_vre_variable"/>
+      <field name="serviceDescription_vre_variable" tagName="serviceDescription_vre_variable"/>
+      <field name="serviceReference_vre_variable" tagName="serviceReference_vre_variable"/>
+      <field name="containServices_vre" tagName="containServices_vre"/>
+      
+      <field name="serviceDescription_vre" tagName="serviceDescription_vre"/>
+      <field name="serviceReference_vre" tagName="serviceReference_vre"/>
+      
+      <field name="license_vre" tagName="license_vre"/>
+      <field name="usageConditions_vre" tagName="usageConditions_vre"/>
+      <field name="howToCiteThisVRE_vre" tagName="howToCiteThisVRE_vre"/>
+      <field name="publicationsAboutThisVRE_vre" tagName="publicationsAboutThisVRE_vre"/>
+      <field name="vreFeedback_vre" tagName="vreFeedback_vre"/>
+      <field name="vreHelpdesk_vre" tagName="vreHelpdesk_vre"/>
+      <field name="vreOrder_vre" tagName="vreOrder_vre"/>
+      <field name="vreTraining_vre" tagName="vreTraining_vre"/>
+      <field name="vreUserManual_vre" tagName="vreUserManual_vre"/>
+      
+      <!-- <field name="author_vre_variable" tagName="author_vre_variable"/> -->
+      <field name="maintainer_vre_variable" tagName="maintainer_vre_variable"/>
+      <!-- <field name="author_vre" tagName="author_vre"/> -->
+      <field name="maintainer_vre" tagName="maintainer_vre"/>
+      
+      <field name="version_vre" tagName="version_vre"/>
+      <field name="lastUpdated_vre" tagName="lastUpdated_vre"/>
+      <field name="created_vre" tagName="created_vre"/>
+      <!--  End VRE LifeWatch -->
+       
+      <!--  Service LifeWatch -->
+      <field name="revisionDate_service" tagName="revisionDate_service"/>
+      <field name="contactPoint_service" tagName="contactPoint_service"/>
+      <field name="address_service" tagName="address_service"/>
+      <field name="keywords_service" tagName="keywords_service"/>
+      <field name="typeOfService_service" tagName="typeOfService_service"/>
+      <field name="typeOfAssociation_service" tagName="typeOfAssociation_service"/>
+      
+      <field name="operationName_service" tagName="operationName_service"/>
+      <field name="operationName_service_variable" tagName="operationName_service_variable"/>
+      <field name="webSite_service_variable" tagName="webSite_service_variable"/>
+      <field name="protocol_service_variable" tagName="protocol_service_variable"/>
+      <field name="descriptionOperation_service_variable" tagName="descriptionOperation_service_variable"/>
+      <field name="function_service_variable" tagName="function_service_variable"/>
+      <field name="containOperations_service" tagName="containOperations_service"/> 
+       
+      <field name="webSite_service" tagName="webSite_service"/>
+      <field name="protocol_service" tagName="protocol_service"/>
+      <field name="description_service" tagName="description_service"/>
+      <field name="function_service" tagName="function_service"/>
+      <field name="pid_service" tagName="pid_service"/>
+      <field name="charset_service" tagName="charset_service"/>
+      <field name="otherLanguage_service" tagName="otherLanguage_service"/>
+      <field name="tags_service" tagName="tags_service"/>
+      <field name="relatedServices_service" tagName="relatedServices_service"/>
+      <field name="requiredServices_service" tagName="requiredServices_service"/>
+      <field name="topicCategory_service" tagName="topicCategory_service"/>
+      <field name="serviceLanguage_service" tagName="serviceLanguage_service"/>
+      <field name="serviceTRL_service" tagName="serviceTRL_service"/>
+      <field name="serviceFunding_service" tagName="serviceFunding_service"/>
+      <field name="serviceLevelAgreement_service" tagName="serviceLevelAgreement_service"/>
+      <field name="servicePrice_service" tagName="servicePrice_service"/>
+      <field name="termsOfUse_service" tagName="termsOfUse_service"/>
+      <field name="serviceFeedback_service" tagName="serviceFeedback_service"/>
+      <field name="serviceHelpdesk_service" tagName="serviceHelpdesk_service"/>
+      <field name="serviceOrder_service" tagName="serviceOrder_service"/>
+      <field name="serviceTraining_service" tagName="serviceTraining_service"/>
+      <field name="serviceUserManual_service" tagName="serviceUserManual_service"/>
+      <!-- <field name="author_service" tagName="author_service"/>  -->
+      <field name="maintainer_service" tagName="maintainer_service"/>
+      <field name="version_service" tagName="version_service"/>
+      <field name="lastUpdated_service" tagName="lastUpdated_service"/>
+      <field name="created_service" tagName="created_service"/>
+      <!--  End Service LifeWatch -->
+      
+      <!--  Dataset LifeWatch -->
+      <field name="alternateIdentifier_dataset" tagName="alternateIdentifier_dataset"/>
+      
+      <field name="creator_dataset" tagName="creator_dataset"/>
+      <field name="id_creator_dataset_variable" tagName="id_creator_dataset_variable"/>
+      <field name="givenName_individualName_creator_dataset_variable" tagName="givenName_individualName_creator_dataset_variable"/>
+      <field name="surName_individualName_creator_dataset_variable" tagName="surName_individualName_creator_dataset_variable"/>
+      <field name="organizationName_creator_dataset_variable" tagName="organizationName_creator_dataset_variable"/>
+      <field name="electronicMailAddress_creator_dataset_variable" tagName="electronicMailAddress_creator_dataset_variable"/>
+      <field name="userId_creator_dataset_variable" tagName="userId_creator_dataset_variable"/>
+      <field name="references_creator_dataset_variable" tagName="references_creator_dataset_variable"/>
+      
+      <field name="metadataProvider_dataset" tagName="metadataProvider_dataset"/>
+      <field name="id_metadataProvider_dataset_variable" tagName="id_metadataProvider_dataset_variable"/>
+      <field name="givenName_individualName_metadataProvider_dataset_variable" tagName="givenName_individualName_metadataProvider_dataset_variable"/>
+      <field name="surName_individualName_metadataProvider_dataset_variable" tagName="surName_individualName_metadataProvider_dataset_variable"/>
+      <field name="organizationName_metadataProvider_dataset_variable" tagName="organizationName_metadataProvider_dataset_variable"/>
+      <field name="electronicMailAddress_metadataProvider_dataset_variable" tagName="electronicMailAddress_metadataProvider_dataset_variable"/>
+      <field name="references_metadataProvider_dataset_variable" tagName="references_metadataProvider_dataset_variable"/>
+      
+      <field name="contact_dataset" tagName="contact_dataset"/>
+      <field name="id_contact_dataset_variable" tagName="id_contact_dataset_variable"/>
+      <field name="givenName_individualName_contact_dataset_variable" tagName="givenName_individualName_contact_dataset_variable"/>
+      <field name="surName_individualName_contact_dataset_variable" tagName="surName_individualName_contact_dataset_variable"/>
+      <field name="organizationName_contact_dataset_variable" tagName="organizationName_contact_dataset_variable"/>
+      <field name="electronicMailAddress_contact_dataset_variable" tagName="electronicMailAddress_contact_dataset_variable"/>
+      <field name="references_contact_dataset_variable" tagName="references_contact_dataset_variable"/>
+      
+      <field name="associatedParty_dataset" tagName="associatedParty_dataset"/>
+      <field name="id_associatedParty_dataset_variable" tagName="id_associatedParty_dataset_variable"/>
+      <field name="givenName_individualName_associatedParty_dataset_variable" tagName="givenName_individualName_associatedParty_dataset_variable"/>
+      <field name="surName_individualName_associatedParty_dataset_variable" tagName="surName_individualName_associatedParty_dataset_variable"/>
+      <field name="organizationName_associatedParty_dataset_variable" tagName="organizationName_associatedParty_dataset_variable"/>
+      <field name="electronicMailAddress_associatedParty_dataset_variable" tagName="electronicMailAddress_associatedParty_dataset_variable"/>
+      
+      <field name="id_creator_dataset" tagName="id_creator_dataset"/>
+      <field name="givenName_individualName_creator_dataset" tagName="givenName_individualName_creator_dataset"/> 
+      <field name="surName_individualName_creator_dataset" tagName="surName_individualName_creator_dataset"/>
+      <field name="organizationName_creator_dataset" tagName="organizationName_creator_dataset"/>
+      <field name="electronicMailAddress_creator_dataset" tagName="electronicMailAddress_creator_dataset"/>
+      <field name="userId_creator_dataset" tagName="userId_creator_dataset"/>
+      <field name="references_creator_dataset" tagName="references_creator_dataset"/>
+      
+      <field name="id_metadataProvider_dataset" tagName="id_metadataProvider_dataset"/>
+      <field name="system_metadataProvider_dataset" tagName="system_metadataProvider_dataset"/>
+      <field name="scope_metadataProvider_dataset" tagName="scope_metadataProvider_dataset"/>
+      <field name="givenName_individualName_metadataProvider_dataset" tagName="givenName_individualName_metadataProvider_dataset"/>
+      <field name="surName_individualName_metadataProvider_dataset" tagName="surName_individualName_metadataProvider_dataset"/>
+      <field name="organizationName_metadataProvider_dataset" tagName="organizationName_metadataProvider_dataset"/>
+      <field name="electronicMailAddress_metadataProvider_dataset" tagName="electronicMailAddress_metadataProvider_dataset"/>
+      <field name="references_metadataProvider_dataset" tagName="references_metadataProvider_dataset"/>
+      
+      <field name="id_contact_dataset" tagName="id_contact_dataset"/>
+      <field name="system_contact_dataset" tagName="system_contact_dataset"/>
+      <field name="scope_contact_dataset" tagName="scope_contact_dataset"/>
+      <field name="givenName_individualName_contact_dataset" tagName="givenName_individualName_contact_dataset"/>
+      <field name="surName_individualName_contact_dataset" tagName="surName_individualName_contact_dataset"/>
+      <field name="organizationName_contact_dataset" tagName="organizationName_contact_dataset"/>
+      <field name="electronicMailAddress_contact_dataset" tagName="electronicMailAddress_contact_dataset"/>
+      <field name="references_contact_dataset" tagName="references_contact_dataset"/>
+      
+      <field name="id_associatedParty_dataset" tagName="id_associatedParty_dataset"/>
+      <field name="system_associatedParty_dataset" tagName="system_associatedParty_dataset"/>
+      <field name="scope_associatedParty_dataset" tagName="scope_associatedParty_dataset"/>
+      <field name="givenName_individualName_associatedParty_dataset" tagName="givenName_individualName_associatedParty_dataset"/>
+      <field name="surName_individualName_associatedParty_dataset" tagName="surName_individualName_associatedParty_dataset"/>
+      <field name="organizationName_associatedParty_dataset" tagName="organizationName_associatedParty_dataset"/>
+      <field name="electronicMailAddress_associatedParty_dataset" tagName="electronicMailAddress_associatedParty_dataset"/>
+      
+      <field name="language_dataset" tagName="language_dataset"/>
+      
+      <field name="keyword_keywordSet_dataset" tagName="keyword_keywordSet_dataset"/>
+      <field name="keywordThesaurus_keywordSet_dataset" tagName="keywordThesaurus_keywordSet_dataset"/>
+      
+      <field name="intellectualRights_dataset" tagName="intellectualRights_dataset"/>
+      
+      <field name="licenseName_licensed_dataset" tagName="licenseName_licensed_dataset"/>
+      <field name="url_licensed_dataset" tagName="url_licensed_dataset"/>
+      
+      <field name="url_online_distribution_dataset" tagName="url_online_distribution_dataset"/>
+      
+      <field name="geographicDescription_geographicCoverage_coverage_dataset" tagName="geographicDescription_geographicCoverage_coverage_dataset"/>
+      <field name="boundingCoordinates_geographicCoverage_coverage_dataset" tagName="boundingCoordinates_geographicCoverage_coverage_dataset"/>
+      <field name="westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" tagName="westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"/>
+      <field name="eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" tagName="eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"/>
+      <field name="northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" tagName="northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"/>
+      <field name="southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" tagName="southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"/>
+      
+      <field name="calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset" tagName="calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset"/>
+      <field name="calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset" tagName="calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset"/>
+      
+      <field name="taxonomicClassification_taxonomicCoverage_coverage_dataset" tagName="taxonomicClassification_taxonomicCoverage_coverage_dataset"/>
+      <field name="taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable" tagName="taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable"/>
+      <field name="taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable" tagName="taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable"/>
+      <field name="taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable" tagName="taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable"/>
+      <field name="commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable" tagName="commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable"/>
+      
+      <field name="para_description_methodStep_methods_dataset" tagName="para_description_methodStep_methods_dataset"/>      
+      <field name="bibtex_citation_methodStep_methods_dataset" tagName="bibtex_citation_methodStep_methods_dataset"/>      
+      <field name="instrumentation_methodStep_methods_dataset" tagName="instrumentation_methodStep_methods_dataset"/>      
+      <field name="methodStep_dataset" tagName="methodStep_dataset"/>
+	  <field name="software_dataset" tagName="software_dataset"/>
+      <field name="title_software_methodStep_methods_dataset_variable" tagName="title_software_methodStep_methods_dataset_variable"/>
+      <field name="references_software_methodStep_methods_dataset_variable" tagName="references_software_methodStep_methods_dataset_variable"/>
+              
+      <field name="para_samplingDescription_sampling_methods_dataset" tagName="para_samplingDescription_sampling_methods_dataset"/>
+      <field name="sampling_methods_dataset" tagName="sampling_methods_dataset"/>
+      <field name="title_project_dataset" tagName="title_project_dataset"/>
+     
+      <field name="personnelProject_dataset" tagName="personnelProject_dataset"/>
+      <field name="individualName_personnel_project_dataset_variable" tagName="individualName_personnel_project_dataset_variable"/>
+      <field name="positionName_personnel_project_dataset_variable" tagName="positionName_personnel_project_dataset_variable"/>
+      <field name="name_organization_personnel_project_dataset_variable" tagName="name_organization_personnel_project_dataset_variable"/>
+      
+      <field name="entityName_datatable_dataset_variable" tagName="entityName_datatable_dataset_variable"/>
+      <field name="formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset_variable" tagName="formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset_variable"/>
+      <field name="attributeName_attributeList_datatable_dataset_variable" tagName="attributeName_attributeList_datatable_dataset_variable"/>
+      <field name="attributeLabel_attributeList_datatable_dataset_variable" tagName="attributeLabel_attributeList_datatable_dataset_variable"/>
+      <field name="attributeDefinition_attributeList_datatable_dataset_variable" tagName="attributeDefinition_attributeList_datatable_dataset_variable"/>
+      <field name="standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset_variable" tagName="standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset_variable"/>
+      <field name="code_missingValueCode_attributeList_datatable_dataset_variable" tagName="code_missingValueCode_attributeList_datatable_dataset_variable"/>
+      <field name="propertyURI_attributeAnnotation_attributeList_datatable_dataset_variable" tagName="propertyURI_attributeAnnotation_attributeList_datatable_dataset_variable"/>
+      <field name="valueURI_attributeAnnotation_attributeList_datatable_dataset_variable" tagName="valueURI_attributeAnnotation_attributeList_datatable_dataset_variable"/>  
+      <field name="attributeList_datatable_dataset_variable" tagName="attributeList_datatable_dataset_variable"/>
+      <field name="datatable_dataset" tagName="datatable_dataset"/>
+
+      <!--  End Dataset LifeWatch -->
+      
+      
+      <!--  HierarchyLevel LifeWatch -->
+      <field name="hierarchyLevel" tagName="hierarchyLevel"/>
+      <!-- End HierarchyLevel LifeWatch -->
+      
     </dumpFields>
   </search>
 
@@ -340,6 +561,8 @@
     <Field name="specificationTitle"/>
     <Field name="levelName"/>
     <Field name="subject"/>
+    <!-- LifeWatch -->
+    <Field name="groupOwner"/>
   </tokenized>
 
   <!-- All Lucene numeric fields.

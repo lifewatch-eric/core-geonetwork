@@ -1564,6 +1564,33 @@
         </xsl:apply-templates>
       </xsl:when>
 
+	  <!-- VRE LifeWatch -->
+      <xsl:when test="$currTab='vre'">
+        <xsl:apply-templates mode="elementEP"
+                             select="gmd:vre|geonet:child[string(@name)='vre']">
+          <xsl:with-param name="schema" select="$schema"/>
+          <xsl:with-param name="edit" select="$edit"/>
+        </xsl:apply-templates>
+      </xsl:when>
+      
+      <!-- Service LifeWatch -->
+      <xsl:when test="$currTab='service'">
+        <xsl:apply-templates mode="elementEP"
+                             select="gmd:service|geonet:child[string(@name)='service']">
+          <xsl:with-param name="schema" select="$schema"/>
+          <xsl:with-param name="edit" select="$edit"/>
+        </xsl:apply-templates>
+      </xsl:when>
+      
+      <!-- Dataset LifeWatch -->
+      <xsl:when test="$currTab='dataset'">
+        <xsl:apply-templates mode="elementEP"
+                             select="gmd:dataset|geonet:child[string(@name)='dataset']">
+          <xsl:with-param name="schema" select="$schema"/>
+          <xsl:with-param name="edit" select="$edit"/>
+        </xsl:apply-templates>
+      </xsl:when>
+      
       <!-- maintenance tab -->
       <xsl:when test="$currTab='maintenance'">
         <xsl:apply-templates mode="elementEP"
@@ -1967,6 +1994,13 @@
           <xsl:with-param name="edit" select="$edit"/>
         </xsl:apply-templates>
 
+        <!--  LifeWatch -->
+        <xsl:apply-templates mode="elementEP"
+                         select="gmd:revisionDate|geonet:child[string(@name)='dateStamp']">
+           <xsl:with-param name="schema" select="$schema"/>
+           <xsl:with-param name="edit" select="$edit"/>
+        </xsl:apply-templates>
+        
         <!-- metadata contact info in its own box -->
 
         <xsl:for-each select="gmd:contact">
@@ -2234,6 +2268,13 @@
           <xsl:with-param name="edit" select="$edit"/>
         </xsl:apply-templates>
 
+		<!--  LifeWatch -->
+       <xsl:apply-templates mode="elementEP"
+                         select="gmd:revisionDate|geonet:child[string(@name)='dateStamp']">
+           <xsl:with-param name="schema" select="$schema"/>
+           <xsl:with-param name="edit" select="$edit"/>
+        </xsl:apply-templates>
+    
         <xsl:apply-templates mode="elementEP"
                              select="gmd:contact|geonet:child[string(@name)='contact']">
           <xsl:with-param name="schema" select="$schema"/>
@@ -2251,7 +2292,7 @@
           <xsl:with-param name="schema" select="$schema"/>
           <xsl:with-param name="edit" select="$edit"/>
         </xsl:apply-templates>
-
+          
         <xsl:apply-templates mode="elementEP"
                              select="gmd:metadataStandardVersion|geonet:child[string(@name)='metadataStandardVersion']">
           <xsl:with-param name="schema" select="$schema"/>
@@ -2384,6 +2425,13 @@
               <xsl:with-param name="edit" select="$edit"/>
             </xsl:apply-templates>
 
+			<!--  LifeWatch -->
+           <xsl:apply-templates mode="elementEP"
+                         select="gmd:revisionDate|geonet:child[string(@name)='dateStamp']">
+             <xsl:with-param name="schema" select="$schema"/>
+             <xsl:with-param name="edit" select="$edit"/>
+          </xsl:apply-templates>
+    
             <xsl:apply-templates mode="elementEP"
                                  select="gmd:dateStamp|geonet:child[string(@name)='dateStamp']">
               <xsl:with-param name="schema" select="$schema"/>
@@ -2395,7 +2443,7 @@
               <xsl:with-param name="schema" select="$schema"/>
               <xsl:with-param name="edit" select="$edit"/>
             </xsl:apply-templates>
-
+          
             <xsl:apply-templates mode="elementEP"
                                  select="gmd:metadataStandardVersion|geonet:child[string(@name)='metadataStandardVersion']">
               <xsl:with-param name="schema" select="$schema"/>
@@ -2693,12 +2741,20 @@
       <xsl:with-param name="edit" select="$edit"/>
     </xsl:apply-templates>
 
+    <!--  LifeWatch -->
+    <xsl:apply-templates mode="elementEP"
+                         select="gmd:revisionDate|geonet:child[string(@name)='dateStamp']">
+      <xsl:with-param name="schema" select="$schema"/>
+      <xsl:with-param name="edit" select="$edit"/>
+    </xsl:apply-templates>
+     
+     
     <xsl:apply-templates mode="elementEP"
                          select="gmd:metadataStandardName|geonet:child[string(@name)='metadataStandardName']">
       <xsl:with-param name="schema" select="$schema"/>
       <xsl:with-param name="edit" select="$edit"/>
     </xsl:apply-templates>
-
+          
     <xsl:apply-templates mode="elementEP"
                          select="gmd:metadataStandardVersion|geonet:child[string(@name)='metadataStandardVersion']">
       <xsl:with-param name="schema" select="$schema"/>
@@ -3978,7 +4034,37 @@
   <!-- ============================================================================= -->
   <!-- iso19139 complete tab template  -->
   <!-- ============================================================================= -->
+<!--  LifeWatch -->  
+<xsl:template mode="iso19139" match="gmd:revisionDate">
+   <xsl:param name="schema"/>
+   <xsl:param name="edit"/>
 
+   <xsl:choose>
+     <xsl:when test="$edit=true()">
+       <xsl:apply-templates mode="simpleElement" select=".">
+         <xsl:with-param name="schema"  select="$schema"/>
+         <xsl:with-param name="edit"   select="$edit"/>
+         
+         </xsl:apply-templates>
+      </xsl:when>
+    </xsl:choose>
+ </xsl:template>
+ <xsl:template mode="iso19139CompleteTab" match="gmd:revisionDate">
+   <xsl:param name="schema"/>
+   <xsl:param name="edit"/>
+
+   <xsl:choose>
+     <xsl:when test="$edit=true()">
+       <xsl:apply-templates mode="simpleElement" select=".">
+         <xsl:with-param name="schema"  select="$schema"/>
+         <xsl:with-param name="edit"   select="$edit"/>
+         
+         </xsl:apply-templates>
+      </xsl:when>
+    </xsl:choose>
+ </xsl:template>
+ <!--  end LifeWatch -->
+         
   <xsl:template name="iso19139CompleteTab">
     <xsl:param name="tabLink"/>
     <xsl:param name="schema"/>
@@ -4050,6 +4136,33 @@
         <xsl:with-param name="tabLink" select="$tabLink"/>
       </xsl:call-template>
 
+	  <!-- VRE LifeWatch -->
+	  <xsl:call-template name="displayTab">
+        <xsl:with-param name="tab" select="'vre'"/>
+        <xsl:with-param name="text" select="/root/gui/strings/vreTab"/>
+        <xsl:with-param name="indent" select="'&#xA0;&#xA0;&#xA0;'"/>
+        <xsl:with-param name="tabLink" select="$tabLink"/>
+      </xsl:call-template>
+      <!--  End LifeWatch -->
+      
+      <!--  Service LifeWatch -->
+	  <xsl:call-template name="displayTab">
+        <xsl:with-param name="tab" select="'service'"/>
+        <xsl:with-param name="text" select="/root/gui/strings/serviceTab"/>
+        <xsl:with-param name="indent" select="'&#xA0;&#xA0;&#xA0;'"/>
+        <xsl:with-param name="tabLink" select="$tabLink"/>
+      </xsl:call-template>
+      <!--  End Service LifeWatch -->
+      
+      <!--  Dataset LifeWatch -->
+	  <xsl:call-template name="displayTab">
+        <xsl:with-param name="tab" select="'dataset'"/>
+        <xsl:with-param name="text" select="/root/gui/strings/datasetTab"/>
+        <xsl:with-param name="indent" select="'&#xA0;&#xA0;&#xA0;'"/>
+        <xsl:with-param name="tabLink" select="$tabLink"/>
+      </xsl:call-template>
+      <!--  End Dataset LifeWatch -->
+      
       <xsl:call-template name="displayTab">
         <xsl:with-param name="tab" select="'constraints'"/>
         <xsl:with-param name="text" select="/root/gui/strings/constraintsTab"/>
@@ -4477,6 +4590,8 @@
     based on ISO profil for Switzerland recommendations. Feel free
     to adapt this list according to your needs.
   -->
+  
+  <!--  Original
   <xsl:template mode="iso19139"
                 match="
     gmd:identifier[gco:CharacterString]|
@@ -4536,8 +4651,70 @@
       <xsl:with-param name="edit" select="$edit"/>
     </xsl:call-template>
   </xsl:template>
+  -->
+  
+  <!--  LifeWatch customize --> 
+  <xsl:template mode="iso19139"
+                match="
+    gmd:identifier[gco:CharacterString]|
+    gmd:metadataStandardName[gco:CharacterString]|
+    gmd:metadataStandardVersion[gco:CharacterString]|
+    gmd:hierarchyLevelName[gco:CharacterString]|
+    gmd:revisionDate[gco:CharacterString]|
+    gmd:dataSetURI[gco:CharacterString]|
+    gmd:postalCode[gco:CharacterString]|
+    gmd:city[gco:CharacterString]|
+    gmd:administrativeArea[gco:CharacterString]|
+    gmd:voice[gco:CharacterString]|
+    gmd:facsimile[gco:CharacterString]|
+    gmd:MD_ScopeDescription/gmd:dataset[gco:CharacterString]|
+    gmd:MD_ScopeDescription/gmd:other[gco:CharacterString]|
+    gmd:hoursOfService[gco:CharacterString]|
+    gmd:applicationProfile[gco:CharacterString]|
+    gmd:CI_Series/gmd:page[gco:CharacterString]|
+    gmd:MD_BrowseGraphic/gmd:fileName[gco:CharacterString]|
+    gmd:MD_BrowseGraphic/gmd:fileType[gco:CharacterString]|
+    gmd:unitsOfDistribution[gco:CharacterString]|
+    gmd:amendmentNumber[gco:CharacterString]|
+    gmd:specification[gco:CharacterString]|
+    gmd:fileDecompressionTechnique[gco:CharacterString]|
+    gmd:turnaround[gco:CharacterString]|
+    gmd:fees[gco:CharacterString]|
+    gmd:userDeterminedLimitations[gco:CharacterString]|
+    gmd:RS_Identifier/gmd:codeSpace[gco:CharacterString]|
+    gmd:RS_Identifier/gmd:version[gco:CharacterString]|
+    gmd:edition[gco:CharacterString]|
+    gmd:ISBN[gco:CharacterString]|
+    gmd:ISSN[gco:CharacterString]|
+    gmd:errorStatistic[gco:CharacterString]|
+    gmd:schemaAscii[gco:CharacterString]|
+    gmd:softwareDevelopmentFileFormat[gco:CharacterString]|
+    gmd:MD_ExtendedElementInformation/gmd:shortName[gco:CharacterString]|
+    gmd:MD_ExtendedElementInformation/gmd:condition[gco:CharacterString]|
+    gmd:MD_ExtendedElementInformation/gmd:maximumOccurence[gco:CharacterString]|
+    gmd:MD_ExtendedElementInformation/gmd:domainValue[gco:CharacterString]|
+    gmd:densityUnits[gco:CharacterString]|
+    gmd:MD_RangeDimension/gmd:descriptor[gco:CharacterString]|
+    gmd:classificationSystem[gco:CharacterString]|
+    gmd:checkPointDescription[gco:CharacterString]|
+    gmd:transformationDimensionDescription[gco:CharacterString]|
+    gmd:orientationParameterDescription[gco:CharacterString]|
+    srv:SV_OperationChainMetadata/srv:name[gco:CharacterString]|
+    srv:SV_OperationMetadata/srv:invocationName[gco:CharacterString]|
+    srv:serviceTypeVersion[gco:CharacterString]|
+    srv:operationName[gco:CharacterString]|
+    srv:identifier[gco:CharacterString]
+    "
+                priority="100">
+    <xsl:param name="schema"/>
+    <xsl:param name="edit"/>
 
-
+    <xsl:call-template name="iso19139String">
+      <xsl:with-param name="schema" select="$schema"/>
+      <xsl:with-param name="edit" select="$edit"/>
+    </xsl:call-template>
+  </xsl:template>
+  
   <!-- =====================================================================
     Multilingual editor widget is composed of input box
     with a list of languages defined in current metadata record.

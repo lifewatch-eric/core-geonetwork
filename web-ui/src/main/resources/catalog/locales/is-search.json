@@ -499,5 +499,7 @@
     "userSearchUpdated": "Notendaleit vistuð",
     "userSearchUpdatedError": "Villa við að vista notendaleit",
     "seeDraft": "Þessi færsla er með afrit af útgáfu sem er að vinna. Smelltu hér til að sjá. ",
-    "seeNoDraft": "Þessi færsla er með samþykkta og birta útgáfu. Smelltu hér til að sjá. "
+    "seeNoDraft": "Þessi færsla er með samþykkta og birta útgáfu. Smelltu hér til að sjá. ",
+    "LW_VRE": "LifeWatch VRE",
+  	"title_LW": "Title"
 }

@@ -499,5 +499,7 @@
     "userSearchUpdated": "Pesquisa de usuário salva",
     "userSearchUpdatedError": "Erro ao salvar a pesquisa do usuário",
     "seeDraft": "Este registro tem uma versão com status de Cópia de Trabalho. Clique aqui para vê-la.",
-    "seeNoDraft": "Este registro tem uma versão com status de Aprovado e Publicado. Clique aqui para vê-la."
+    "seeNoDraft": "Este registro tem uma versão com status de Aprovado e Publicado. Clique aqui para vê-la.",
+    "LW_VRE": "LifeWatch VRE",
+  	"title_LW": "Title"
 }

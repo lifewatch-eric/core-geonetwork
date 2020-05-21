@@ -499,5 +499,7 @@
     "userSearchUpdated": "Recherche utilisateur sauvegardée",
     "userSearchUpdatedError": "Erreur lors de la sauvegarde de la recherche",
     "seeDraft": "Cette fiche a une version brouillon en cours de rédaction. Cliquer ici pour la voir.",
-    "seeNoDraft": "Cette fiche a une version approuvée. Cliquer ici pour la voir."
+    "seeNoDraft": "Cette fiche a une version approuvée. Cliquer ici pour la voir.",
+    "LW_VRE": "LifeWatch VRE",
+  	"title_LW": "Title"
 }

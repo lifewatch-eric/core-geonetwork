@@ -1900,6 +1900,33 @@
         </xsl:call-template>
       </xsl:when>
 
+	  <!--  VRE LifeWatch tab -->
+      <xsl:when test="$currTab='VRE'">
+        <xsl:apply-templates mode="elementEP"
+                             select="gmd:vre|geonet:child[string(@name)='vre']">
+          <xsl:with-param name="schema" select="$schema"/>
+          <xsl:with-param name="edit" select="$edit"/>
+        </xsl:apply-templates>
+      </xsl:when>
+      
+      <!--  Service LifeWatch tab -->
+      <xsl:when test="$currTab='Service'">
+        <xsl:apply-templates mode="elementEP"
+                             select="gmd:service|geonet:child[string(@name)='service']">
+          <xsl:with-param name="schema" select="$schema"/>
+          <xsl:with-param name="edit" select="$edit"/>
+        </xsl:apply-templates>
+      </xsl:when>
+
+      <!--  Dataset LifeWatch tab -->
+      <xsl:when test="$currTab='Dataset'">
+        <xsl:apply-templates mode="elementEP"
+                             select="gmd:dataset|geonet:child[string(@name)='dataset']">
+          <xsl:with-param name="schema" select="$schema"/>
+          <xsl:with-param name="edit" select="$edit"/>
+        </xsl:apply-templates>
+      </xsl:when>
+            
       <!-- identification tab -->
       <xsl:when test="$currTab='identification'">
         <xsl:apply-templates mode="elementEP"
@@ -2280,6 +2307,13 @@
           <xsl:with-param name="edit" select="$edit"/>
         </xsl:apply-templates>
 
+		<!-- LifeWatch -->
+		<xsl:apply-templates mode="elementEP"
+                             select="gmd:revisionDate|geonet:child[string(@name)='revisionDate']">
+          <xsl:with-param name="schema" select="$schema"/>
+          <xsl:with-param name="edit" select="$edit"/>
+        </xsl:apply-templates>
+        
         <xsl:if test="$core and $dataset">
           <xsl:apply-templates mode="elementEP" select="gmd:metadataStandardName|geonet:child[string(@name)='metadataStandardName']
           |gmd:metadataStandardVersion|geonet:child[string(@name)='metadataStandardVersion']">
@@ -2314,7 +2348,10 @@
       |gmd:portrayalCatalogueInfo|geonet:child[string(@name)='portrayalCatalogueInfo']
       |gmd:metadataConstraints|geonet:child[string(@name)='metadataConstraints']
       |gmd:applicationSchemaInfo|geonet:child[string(@name)='applicationSchemaInfo']
-      |gmd:metadataMaintenance|geonet:child[string(@name)='metadataMaintenance']">
+      |gmd:metadataMaintenance|geonet:child[string(@name)='metadataMaintenance']
+      |gmd:lifewatch|geonet:child[string(@name)='lifewatch']
+      |gmd:service|geonet:child[string(@name)='service']
+      |gmd:dataset|geonet:child[string(@name)='dataset']">
       <xsl:with-param name="schema" select="$schema"/>
       <xsl:with-param name="edit" select="$edit"/>
     </xsl:apply-templates>
@@ -2323,6 +2360,7 @@
       <xsl:with-param name="title" select="'Metadata Info'"/>
       <xsl:with-param name="content">
 
+		<!-- Original
         <xsl:apply-templates mode="elementEP" select="gmd:fileIdentifier|geonet:child[string(@name)='fileIdentifier']
           |gmd:language|geonet:child[string(@name)='language']
           |gmd:characterSet|geonet:child[string(@name)='characterSet']
@@ -2344,6 +2382,33 @@
           <xsl:with-param name="schema" select="$schema"/>
           <xsl:with-param name="edit" select="$edit"/>
         </xsl:apply-templates>
+        -->
+        <!--  LifeWatch customize -->
+        <xsl:apply-templates mode="elementEP" select="gmd:fileIdentifier|geonet:child[string(@name)='fileIdentifier']
+          |gmd:language|geonet:child[string(@name)='language']
+          |gmd:characterSet|geonet:child[string(@name)='characterSet']
+          |gmd:parentIdentifier|geonet:child[string(@name)='parentIdentifier']
+          |gmd:hierarchyLevel|geonet:child[string(@name)='hierarchyLevel']
+          |gmd:hierarchyLevelName|geonet:child[string(@name)='hierarchyLevelName']
+          |gmd:revisionDate|geonet:child[string(@name)='revisionDate']
+          |gmd:dateStamp|geonet:child[string(@name)='dateStamp']
+          |gmd:vre/gmd:LW_VRE/gmd:title_service|geonet:child[string(@name)='title_service']
+          |gmd:service/gmd:LW_Service/gmd:title_service|geonet:child[string(@name)='title_service']
+          |gmd:dataset/gmd:LW_Dataset/gmd:title_dataset|geonet:child[string(@name)='title_dataset']
+          |gmd:metadataStandardName|geonet:child[string(@name)='metadataStandardName']
+          |gmd:metadataStandardVersion|geonet:child[string(@name)='metadataStandardVersion']
+          |gmd:contact|geonet:child[string(@name)='contact']
+          |gmd:dataSetURI|geonet:child[string(@name)='dataSetURI']
+          |gmd:locale|geonet:child[string(@name)='locale']
+          |gmd:series|geonet:child[string(@name)='series']
+          |gmd:describes|geonet:child[string(@name)='describes']
+          |gmd:propertyType|geonet:child[string(@name)='propertyType']
+          |gmd:featureType|geonet:child[string(@name)='featureType']
+          |gmd:featureAttribute|geonet:child[string(@name)='featureAttribute']
+          ">
+          <xsl:with-param name="schema" select="$schema"/>
+          <xsl:with-param name="edit" select="$edit"/>
+         </xsl:apply-templates>
 
       </xsl:with-param>
       <xsl:with-param name="schema" select="$schema"/>
@@ -2400,6 +2465,7 @@
             |gmd:parentIdentifier|geonet:child[string(@name)='parentIdentifier']
             |gmd:hierarchyLevel|geonet:child[string(@name)='hierarchyLevel']
             |gmd:hierarchyLevelName|geonet:child[string(@name)='hierarchyLevelName']
+            |gmd:revisionDate|geonet:child[string(@name)='revisionDate']
             |gmd:dateStamp|geonet:child[string(@name)='dateStamp']
             |gmd:metadataStandardName|geonet:child[string(@name)='metadataStandardName']
             |gmd:metadataStandardVersion|geonet:child[string(@name)='metadataStandardVersion']
@@ -3769,6 +3835,11 @@
         <xsl:with-param name="menu">
           <item label="metadata">metadata</item>
           <item label="identificationTab">identification</item>
+          <!--  LifeWatch tab item -->
+          <item label="vreTab">vre</item>
+          <item label="serviceTab">service</item>
+          <item label="datasetTab">dataset</item>
+          <!-- End LifeWatch tab item -->
           <item label="maintenanceTab">maintenance</item>
           <item label="constraintsTab">constraints</item>
           <item label="spatialTab">spatial</item>

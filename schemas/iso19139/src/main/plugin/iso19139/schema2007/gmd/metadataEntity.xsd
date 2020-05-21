@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" targetNamespace="http://www.isotc211.org/2005/gmd" elementFormDefault="qualified" version="2012-07-13">
 	<!-- ================================= Annotation ================================ -->
 	<xs:annotation>
@@ -25,34 +24,87 @@
 		<xs:complexContent>
 			<xs:extension base="gco:AbstractObject_Type">
 				<xs:sequence>
-					<xs:element name="fileIdentifier" type="gco:CharacterString_PropertyType" minOccurs="0"/>
-					<xs:element name="language" type="gco:CharacterString_PropertyType" minOccurs="0"/>
-					<xs:element name="characterSet" type="gmd:MD_CharacterSetCode_PropertyType" minOccurs="0"/>
-					<xs:element name="parentIdentifier" type="gco:CharacterString_PropertyType" minOccurs="0"/>
-					<xs:element name="hierarchyLevel" type="gmd:MD_ScopeCode_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="hierarchyLevelName" type="gco:CharacterString_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="contact" type="gmd:CI_ResponsibleParty_PropertyType" maxOccurs="unbounded"/>
-					<xs:element name="dateStamp" type="gco:Date_PropertyType"/>
-					<xs:element name="metadataStandardName" type="gco:CharacterString_PropertyType" minOccurs="0"/>
-					<xs:element name="metadataStandardVersion" type="gco:CharacterString_PropertyType" minOccurs="0"/>
-					<xs:element name="dataSetURI" type="gco:CharacterString_PropertyType" minOccurs="0"/>
-					<xs:element name="locale" type="gmd:PT_Locale_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="spatialRepresentationInfo" type="gmd:MD_SpatialRepresentation_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="referenceSystemInfo" type="gmd:MD_ReferenceSystem_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="metadataExtensionInfo" type="gmd:MD_MetadataExtensionInformation_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="identificationInfo" type="gmd:MD_Identification_PropertyType" maxOccurs="unbounded"/>
-					<xs:element name="contentInfo" type="gmd:MD_ContentInformation_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="distributionInfo" type="gmd:MD_Distribution_PropertyType" minOccurs="0"/>
-					<xs:element name="dataQualityInfo" type="gmd:DQ_DataQuality_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="portrayalCatalogueInfo" type="gmd:MD_PortrayalCatalogueReference_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="metadataConstraints" type="gmd:MD_Constraints_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="applicationSchemaInfo" type="gmd:MD_ApplicationSchemaInformation_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="metadataMaintenance" type="gmd:MD_MaintenanceInformation_PropertyType" minOccurs="0"/>
-					<xs:element name="series" type="gmd:DS_Aggregate_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="describes" type="gmd:DS_DataSet_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="propertyType" type="gco:ObjectReference_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="featureType" type="gco:ObjectReference_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="featureAttribute" type="gco:ObjectReference_PropertyType" minOccurs="0" maxOccurs="unbounded"/>
+					<xs:element name="fileIdentifier"
+						type="gco:CharacterString_PropertyType" minOccurs="0" />
+					<xs:element name="language"
+						type="gco:CharacterString_PropertyType" minOccurs="0" />
+					<xs:element name="characterSet"
+						type="gmd:MD_CharacterSetCode_PropertyType" minOccurs="0" />
+					<xs:element name="parentIdentifier"
+						type="gco:CharacterString_PropertyType" minOccurs="0" />
+					<xs:element name="hierarchyLevel"
+						type="gmd:MD_ScopeCode_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="hierarchyLevelName"
+						type="gco:CharacterString_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="contact"
+						type="gmd:CI_ResponsibleParty_PropertyType" maxOccurs="unbounded" />
+					<xs:element name="dateStamp"
+						type="gco:Date_PropertyType" />
+					<xs:element name="metadataStandardName"
+						type="gco:CharacterString_PropertyType" minOccurs="0" />
+					<xs:element name="metadataStandardVersion"
+						type="gco:CharacterString_PropertyType" minOccurs="0" />
+					<xs:element name="dataSetURI"
+						type="gco:CharacterString_PropertyType" minOccurs="0" />
+					<xs:element name="locale"
+						type="gmd:PT_Locale_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="spatialRepresentationInfo"
+						type="gmd:MD_SpatialRepresentation_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="referenceSystemInfo"
+						type="gmd:MD_ReferenceSystem_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="metadataExtensionInfo"
+						type="gmd:MD_MetadataExtensionInformation_PropertyType"
+						minOccurs="0" maxOccurs="unbounded" />
+					<xs:element name="identificationInfo"
+						type="gmd:MD_Identification_PropertyType" maxOccurs="unbounded" />
+					<xs:element name="contentInfo"
+						type="gmd:MD_ContentInformation_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="distributionInfo"
+						type="gmd:MD_Distribution_PropertyType" minOccurs="0" />
+					<xs:element name="dataQualityInfo"
+						type="gmd:DQ_DataQuality_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="portrayalCatalogueInfo"
+						type="gmd:MD_PortrayalCatalogueReference_PropertyType"
+						minOccurs="0" maxOccurs="unbounded" />
+					<xs:element name="metadataConstraints"
+						type="gmd:MD_Constraints_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="applicationSchemaInfo"
+						type="gmd:MD_ApplicationSchemaInformation_PropertyType"
+						minOccurs="0" maxOccurs="unbounded" />
+					<xs:element name="metadataMaintenance"
+						type="gmd:MD_MaintenanceInformation_PropertyType" minOccurs="0" />
+					<xs:element name="series"
+						type="gmd:DS_Aggregate_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="describes"
+						type="gmd:DS_DataSet_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="propertyType"
+						type="gco:ObjectReference_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="featureType"
+						type="gco:ObjectReference_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="featureAttribute"
+						type="gco:ObjectReference_PropertyType" minOccurs="0"
+						maxOccurs="unbounded" />
+					<xs:element name="vre"
+						type="gmd:LW_VRE_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="service"
+						type="gmd:LW_Service_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="dataset"
+						type="gmd:LW_Dataset_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
 				</xs:sequence>
 			</xs:extension>
 		</xs:complexContent>
@@ -68,4 +120,1648 @@
 		<xs:attribute ref="gco:nilReason"/>
 	</xs:complexType>
 	<!-- =========================================================================== -->
+
+
+	<!-- VRE LifeWatch -->
+	
+	<xs:element name="LW_VRE" type="gmd:LW_VRE_Type"></xs:element>
+	<xs:complexType name="LW_VRE_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="alternateIdentifier_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1"
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="url_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="coordinationTeam_vre"
+						type="gmd:LW_CoordinationTeam_PropertyType" maxOccurs="unbounded"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="containServices_vre"
+						type="gmd:LW_ContainServices_PropertyType" maxOccurs="unbounded"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="managementInfo_vre"
+						type="gmd:LW_ManagementInfo_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element
+						name="vreContractualInformation_vre"
+						type="gmd:LW_VREContractualInformation_PropertyType" maxOccurs="1"
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="vreSupportInformation_vre"
+						type="gmd:LW_VRESupportInformation_PropertyType" maxOccurs="1"
+						minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:element name="LW_CoordinationTeam" type="gmd:LW_CoordinationTeam_Type"></xs:element>
+	<xs:complexType name="LW_CoordinationTeam_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="contactPoint_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="address_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="e_mail_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:element name="LW_ContainServices" type="gmd:LW_ContainServices_Type"></xs:element>
+	<xs:complexType name="LW_ContainServices_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="serviceName_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="serviceDescription_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="serviceReference_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:element name="LW_VREContractualInformation" type="gmd:LW_VREContractualInformation_Type"></xs:element>
+	<xs:complexType name="LW_VREContractualInformation_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="license_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="usageConditions_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="howToCiteThisVRE_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="publicationsAboutThisVRE_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:element name="LW_VRESupportInformation" type="gmd:LW_VRESupportInformation_Type"></xs:element>
+	<xs:complexType name="LW_VRESupportInformation_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="vreFeedback_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="vreHelpdesk_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="vreOrder_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="vreTraining_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="vreUserManual_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:element name="LW_ManagementInfo" type="gmd:LW_ManagementInfo_Type"></xs:element>
+	<xs:complexType name="LW_ManagementInfo_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<!-- <xs:element name="author_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element> -->
+					<xs:element name="maintainer_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="version_vre"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="lastUpdated_vre"
+						type="gco:Date_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="created_vre"
+						type="gco:Date_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="LW_VRE_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_VRE"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:complexType name="LW_CoordinationTeam_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_CoordinationTeam"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:complexType name="LW_ContainServices_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_ContainServices"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:complexType name="LW_VREContractualInformation_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_VREContractualInformation" />
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:complexType name="LW_VRESupportInformation_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_VRESupportInformation" />
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:complexType name="LW_ManagementInfo_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_ManagementInfo" />
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	
+	<!-- Service LifeWatch -->
+	
+	<xs:complexType name="LW_Service_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Service"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Service" type="gmd:LW_Service_Type"></xs:element>
+	<xs:complexType name="LW_Service_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="revisionDate_service"
+						type="gco:Date_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="technicalInformation_service"
+						type="gmd:LW_TechnicalInformation_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="containOperations_service"
+						type="gmd:LW_ContainOperations_PropertyType" maxOccurs="unbounded"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="managementInfo_service"
+						type="gmd:LW_ManagementInfoService_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="serviceClassificationInformation_service"
+						type="gmd:LW_ServiceClassificationInformation_PropertyType" maxOccurs="1"
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="serviceContractualInformation_service"
+						type="gmd:LW_ServiceContractualInformation_PropertyType" maxOccurs="1"
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="serviceSupportInformation_service"
+						type="gmd:LW_ServiceSupportInformation_PropertyType" maxOccurs="1"
+						minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- DateType - Service - Codelist -->
+	<xs:complexType name="LW_DateType_service_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_DateType_service"/>
+		</xs:sequence>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_DateType_service" type="gco:CodeListValue_Type" substitutionGroup="gco:CharacterString"/>
+	
+	
+	<xs:complexType name="LW_TechnicalInformation_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_TechnicalInformation"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_TechnicalInformation" type="gmd:LW_TechnicalInformation_Type"></xs:element>
+	<xs:complexType name="LW_TechnicalInformation_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="contactPoint_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="address_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="keywords_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="typeOfService_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="typeOfAssociation_service"
+						type="gmd:LW_TypeOfAssociation_service_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- TypeOfAssociation - TechnicalInformation - Service - Codelist -->
+	<xs:complexType name="LW_TypeOfAssociation_service_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_TypeOfAssociation_service"/>
+		</xs:sequence>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_TypeOfAssociation_service" type="gco:CodeListValue_Type" substitutionGroup="gco:CharacterString"/>
+	
+	<!-- ContainOperations - Service  -->
+	<xs:complexType name="LW_ContainOperations_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_ContainOperations"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_ContainOperations" type="gmd:LW_ContainOperations_Type"></xs:element>
+	<xs:complexType name="LW_ContainOperations_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="operationName_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="webSite_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="protocol_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="descriptionOperation_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="function_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="LW_ServiceClassificationInformation_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_ServiceClassificationInformation"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_ServiceClassificationInformation" type="gmd:LW_ServiceClassificationInformation_Type"></xs:element>
+	<xs:complexType name="LW_ServiceClassificationInformation_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="pid_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="tags_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="relatedServices_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="requiredServices_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="topicCategory_service"
+						type="gmd:LW_TopicCategory_service_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="serviceLanguage_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="otherLanguage_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="0">
+					</xs:element>
+					<xs:element name="charset_service"
+						type="gmd:MD_CharacterSetCode_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="serviceTRL_service"
+						type="gmd:LW_ServiceTRL_service_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- ServiceTRL - ServiceClassificationInformation - Service - Codelist -->
+	<xs:complexType name="LW_ServiceTRL_service_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_ServiceTRL_service"/>
+		</xs:sequence>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_ServiceTRL_service" type="gco:CodeListValue_Type" substitutionGroup="gco:CharacterString"/>
+	
+	<!-- TopicCategory - ServiceClassificationInformation - Service - Codelist -->
+	<xs:complexType name="LW_TopicCategory_service_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_TopicCategory_service"/>
+		</xs:sequence>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_TopicCategory_service" type="gco:CodeListValue_Type" substitutionGroup="gco:CharacterString"/>
+	
+	
+	<xs:complexType name="LW_ServiceContractualInformation_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_ServiceContractualInformation"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_ServiceContractualInformation" type="gmd:LW_ServiceContractualInformation_Type"></xs:element>
+	<xs:complexType name="LW_ServiceContractualInformation_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="serviceFunding_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="serviceLevelAgreement_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="servicePrice_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="termsOfUse_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="LW_ServiceSupportInformation_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_ServiceSupportInformation"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_ServiceSupportInformation" type="gmd:LW_ServiceSupportInformation_Type"></xs:element>
+	<xs:complexType name="LW_ServiceSupportInformation_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="serviceFeedback_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="serviceHelpdesk_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="serviceOrder_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="serviceTraining_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="serviceUserManual_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="LW_ManagementInfoService_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_ManagementInfoService"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_ManagementInfoService" type="gmd:LW_ManagementInfoService_Type"></xs:element>
+	<xs:complexType name="LW_ManagementInfoService_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<!-- <xs:element name="author_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element> -->
+					<xs:element name="maintainer_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="version_service"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="lastUpdated_service"
+						type="gco:Date_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="created_service"
+						type="gco:Date_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- End Service LifeWatch -->
+	
+	<!-- Dataset LifeWatch -->
+	<xs:complexType name="LW_Dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Dataset" type="gmd:LW_Dataset_Type"></xs:element>
+	<xs:complexType name="LW_Dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="alternateIdentifier_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="0">
+					</xs:element>
+					<xs:element name="creator_dataset"
+						type="gmd:LW_Creator_PropertyType" maxOccurs="unbounded"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="metadataProvider_dataset"
+						type="gmd:LW_MetadataProvider_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="contact_dataset"
+						type="gmd:LW_Contact_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="associatedParty_dataset"
+						type="gmd:LW_AssociatedParty_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="language_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="keywordSet_dataset"
+						type="gmd:LW_KeywordSet_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="intellectualRights_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="licensed_dataset"
+						type="gmd:LW_Licensed_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="distribution_dataset"
+						type="gmd:LW_Distribution_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="coverage_dataset"
+						type="gmd:LW_Coverage_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="methods_dataset"
+						type="gmd:LW_Methods_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="project_dataset"
+						type="gmd:LW_Project_dataset_PropertyType" maxOccurs="1"
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="datatable_dataset"
+						type="gmd:LW_Datatable_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Creator - Dataset -->
+	<xs:complexType name="LW_Creator_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Creator_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Creator_dataset" type="gmd:LW_Creator_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Creator_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="id_creator_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="individualName_creator_dataset"
+						type="gmd:LW_IndividualName_creator_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>	
+					<xs:element name="organizationName_creator_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="electronicMailAddress_creator_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="userId_creator_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="references_creator_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- IndividualName - Creator - Dataset -->
+	<xs:complexType name="LW_IndividualName_creator_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_IndividualName_creator_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_IndividualName_creator_dataset" type="gmd:LW_IndividualName_creator_dataset_Type"></xs:element>
+	<xs:complexType name="LW_IndividualName_creator_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="givenName_individualName_creator_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="surName_individualName_creator_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- MetadataProvider - Dataset -->
+	<xs:complexType name="LW_MetadataProvider_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_MetadataProvider_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_MetadataProvider_dataset" type="gmd:LW_MetadataProvider_dataset_Type"></xs:element>
+	<xs:complexType name="LW_MetadataProvider_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="id_metadataProvider_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="individualName_metadataProvider_dataset"
+						type="gmd:LW_IndividualName_metadataProvider_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>	
+					<xs:element name="organizationName_metadataProvider_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="electronicMailAddress_metadataProvider_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="references_metadataProvider_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- IndividualName - MetadataProvider - Dataset -->
+	<xs:complexType name="LW_IndividualName_metadataProvider_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_IndividualName_metadataProvider_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_IndividualName_metadataProvider_dataset" type="gmd:LW_IndividualName_metadataProvider_dataset_Type"></xs:element>
+	<xs:complexType name="LW_IndividualName_metadataProvider_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="givenName_individualName_metadataProvider_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="surName_individualName_metadataProvider_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Contact - Dataset -->
+	<xs:complexType name="LW_Contact_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Contact_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Contact_dataset" type="gmd:LW_Contact_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Contact_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="id_contact_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="individualName_contact_dataset"
+						type="gmd:LW_IndividualName_contact_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>		
+					<xs:element name="organizationName_contact_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="electronicMailAddress_contact_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="references_contact_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- IndividualName - Contact - Dataset -->
+	<xs:complexType name="LW_IndividualName_contact_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_IndividualName_contact_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_IndividualName_contact_dataset" type="gmd:LW_IndividualName_contact_dataset_Type"></xs:element>
+	<xs:complexType name="LW_IndividualName_contact_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="givenName_individualName_contact_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="surName_individualName_contact_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>	
+	<!-- AssociatedParty - Dataset -->
+	<xs:complexType name="LW_AssociatedParty_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_AssociatedParty_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_AssociatedParty_dataset" type="gmd:LW_AssociatedParty_dataset_Type"></xs:element>
+	<xs:complexType name="LW_AssociatedParty_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="id_associatedParty_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="individualName_associatedParty_dataset"
+						type="gmd:LW_IndividualName_associatedParty_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>	
+					<xs:element name="organizationName_associatedParty_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="electronicMailAddress_associatedParty_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- IndividualName - AssociatedParty - Dataset -->
+	<xs:complexType name="LW_IndividualName_associatedParty_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_IndividualName_associatedParty_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_IndividualName_associatedParty_dataset" type="gmd:LW_IndividualName_associatedParty_dataset_Type"></xs:element>
+	<xs:complexType name="LW_IndividualName_associatedParty_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="givenName_individualName_associatedParty_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="surName_individualName_associatedParty_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- KeywordSet - Dataset -->
+	<xs:complexType name="LW_KeywordSet_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_KeywordSet_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_KeywordSet_dataset" type="gmd:LW_KeywordSet_dataset_Type"></xs:element>
+	<xs:complexType name="LW_KeywordSet_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="keyword_keywordSet_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="keywordThesaurus_keywordSet_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Licensed - Dataset -->
+	<xs:complexType name="LW_Licensed_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Licensed_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Licensed_dataset" type="gmd:LW_Licensed_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Licensed_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="licenseName_licensed_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="url_licensed_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Distribution - Dataset -->
+	<xs:complexType name="LW_Distribution_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Distribution_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Distribution_dataset" type="gmd:LW_Distribution_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Distribution_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="online_distribution_dataset"
+						type="gmd:LW_Online_distribution_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Online - Distribution - Dataset -->
+	<xs:complexType name="LW_Online_distribution_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Distribution_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Online_distribution_dataset" type="gmd:LW_Online_distribution_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Online_distribution_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="url_online_distribution_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Coverage - Dataset -->
+	<xs:complexType name="LW_Coverage_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Coverage_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Coverage_dataset" type="gmd:LW_Coverage_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Coverage_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="geographicCoverage_coverage_dataset"
+						type="gmd:LW_GeographicCoverage_coverage_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="temporalCoverage_coverage_dataset"
+						type="gmd:LW_TemporalCoverage_coverage_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="taxonomicCoverage_coverage_dataset"
+						type="gmd:LW_TaxonomicCoverage_coverage_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- GeographicCoverage - Coverage - Dataset -->
+	<xs:complexType name="LW_GeographicCoverage_coverage_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_GeographicCoverage_coverage_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_GeographicCoverage_coverage_dataset" type="gmd:LW_GeographicCoverage_coverage_dataset_Type"></xs:element>
+	<xs:complexType name="LW_GeographicCoverage_coverage_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="geographicDescription_geographicCoverage_coverage_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="boundingCoordinates_geographicCoverage_coverage_dataset"
+						type="gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- BoundingCoordinates - GeographicCoverage - Coverage - Dataset -->
+	<xs:complexType name="LW_BoundingCoordinates_geographicCoverage_coverage_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_BoundingCoordinates_geographicCoverage_coverage_dataset" type="gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset_Type"></xs:element>
+	<xs:complexType name="LW_BoundingCoordinates_geographicCoverage_coverage_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- TemporalCoverage - Coverage - Dataset -->
+	<xs:complexType name="LW_TemporalCoverage_coverage_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_TemporalCoverage_coverage_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_TemporalCoverage_coverage_dataset" type="gmd:LW_TemporalCoverage_coverage_dataset_Type"></xs:element>
+	<xs:complexType name="LW_TemporalCoverage_coverage_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="rangeOfDates_temporalCoverage_coverage_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- RangeOfDates - TemporalCoverage - Coverage - Dataset -->
+	<xs:complexType name="LW_RangeOfDates_temporalCoverage_coverage_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_RangeOfDates_temporalCoverage_coverage_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_RangeOfDates_temporalCoverage_coverage_dataset" type="gmd:LW_RangeOfDates_temporalCoverage_coverage_dataset_Type"></xs:element>
+	<xs:complexType name="LW_RangeOfDates_temporalCoverage_coverage_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="beginDate_rangeOfDates_temporalCoverage_coverage_dataset"
+						type="gmd:LW_BeginDate_rangeOfDates_temporalCoverage_coverage_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="endDate_rangeOfDates_temporalCoverage_coverage_dataset"
+						type="gmd:LW_EndDate_rangeOfDates_temporalCoverage_coverage_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- BeginDate - RangeOfDates - TemporalCoverage - Coverage - Dataset -->
+	<xs:complexType name="LW_BeginDate_rangeOfDates_temporalCoverage_coverage_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_BeginDate_rangeOfDates_temporalCoverage_coverage_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_BeginDate_rangeOfDates_temporalCoverage_coverage_dataset" type="gmd:LW_BeginDate_rangeOfDates_temporalCoverage_coverage_dataset_Type"></xs:element>
+	<xs:complexType name="LW_BeginDate_rangeOfDates_temporalCoverage_coverage_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset"
+						type="gco:Date_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- EndDate - RangeOfDates - TemporalCoverage - Coverage - Dataset -->
+	<xs:complexType name="LW_EndDate_rangeOfDates_temporalCoverage_coverage_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_EndDate_rangeOfDates_temporalCoverage_coverage_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_EndDate_rangeOfDates_temporalCoverage_coverage_dataset" type="gmd:LW_EndDate_rangeOfDates_temporalCoverage_coverage_dataset_Type"></xs:element>
+	<xs:complexType name="LW_EndDate_rangeOfDates_temporalCoverage_coverage_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset"
+						type="gco:Date_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- TaxonomicCoverage - Coverage - Dataset -->
+	<xs:complexType name="LW_TaxonomicCoverage_coverage_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_TaxonomicCoverage_coverage_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_TaxonomicCoverage_coverage_dataset" type="gmd:LW_TaxonomicCoverage_coverage_dataset_Type"></xs:element>
+	<xs:complexType name="LW_TaxonomicCoverage_coverage_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="taxonomicClassification_taxonomicCoverage_coverage_dataset"
+						type="gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- TaxonomicClassification - TaxonomicCoverage - Coverage - Dataset -->
+	<xs:complexType name="LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset" type="gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset_Type"></xs:element>
+	<xs:complexType name="LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Methods - Dataset -->
+	<xs:complexType name="LW_Methods_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Methods_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Methods_dataset" type="gmd:LW_Methods_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Methods_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="methodStep_methods_dataset"
+						type="gmd:LW_MethodStep_methods_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="sampling_methods_dataset"
+						type="gmd:LW_Sampling_methods_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- MethodStep - Methods - Dataset -->
+	<xs:complexType name="LW_MethodStep_methods_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_MethodStep_methods_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_MethodStep_methods_dataset" type="gmd:LW_MethodStep_methods_dataset_Type"></xs:element>
+	<xs:complexType name="LW_MethodStep_methods_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="description_methodStep_methods_dataset"
+						type="gmd:LW_Description_methodStep_methods_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="citation_methodStep_methods_dataset"
+						type="gmd:LW_Citation_methodStep_methods_dataset_PropertyType" maxOccurs="1"
+						minOccurs="0">
+					</xs:element>
+					<xs:element name="instrumentation_methodStep_methods_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="0">
+					</xs:element>
+					<xs:element name="software_methodStep_methods_dataset"
+						type="gmd:LW_Software_methodStep_methods_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Description - MethodStep - Methods - Dataset -->
+	<xs:complexType name="LW_Description_methodStep_methods_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Description_methodStep_methods_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Description_methodStep_methods_dataset" type="gmd:LW_Description_methodStep_methods_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Description_methodStep_methods_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="para_description_methodStep_methods_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Citation - MethodStep - Methods - Dataset -->
+	<xs:complexType name="LW_Citation_methodStep_methods_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Citation_methodStep_methods_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Citation_methodStep_methods_dataset" type="gmd:LW_Citation_methodStep_methods_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Citation_methodStep_methods_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="bibtex_citation_methodStep_methods_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Software - MethodStep - Methods - Dataset -->
+	<xs:complexType name="LW_Software_methodStep_methods_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Software_methodStep_methods_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Software_methodStep_methods_dataset" type="gmd:LW_Software_methodStep_methods_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Software_methodStep_methods_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="title_software_methodStep_methods_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="references_software_methodStep_methods_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Sampling - Methods - Dataset -->
+	<xs:complexType name="LW_Sampling_methods_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Sampling_methods_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Sampling_methods_dataset" type="gmd:LW_Sampling_methods_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Sampling_methods_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="samplingDescription_sampling_methods_dataset"
+						type="gmd:LW_SamplingDescription_sampling_methods_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- SamplingDescription - Sampling - Methods - Dataset -->
+	<xs:complexType name="LW_SamplingDescription_sampling_methods_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_SamplingDescription_sampling_methods_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_SamplingDescription_sampling_methods_dataset" type="gmd:LW_SamplingDescription_sampling_methods_dataset_Type"></xs:element>
+	<xs:complexType name="LW_SamplingDescription_sampling_methods_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="para_samplingDescription_sampling_methods_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Project - Dataset -->
+	<xs:complexType name="LW_Project_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Project_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Project_dataset" type="gmd:LW_Project_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Project_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="title_project_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="personnel_project_dataset"
+						type="gmd:LW_Personnel_project_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Personnel - Project - Dataset -->
+	<xs:complexType name="LW_Personnel_project_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Personnel_project_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Personnel_project_dataset" type="gmd:LW_Personnel_project_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Personnel_project_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="individualName_personnel_project_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="positionName_personnel_project_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+					<xs:element name="organization_personnel_project_dataset"
+						type="gmd:LW_Organization_personnel_project_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Organization - Personnel - Project - Dataset -->
+	<xs:complexType name="LW_Organization_personnel_project_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Organization_personnel_project_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Organization_personnel_project_dataset" type="gmd:LW_Organization_personnel_project_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Organization_personnel_project_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="name_organization_personnel_project_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="unbounded" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Datatable - Dataset -->
+	<xs:complexType name="LW_Datatable_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Datatable_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Datatable_dataset" type="gmd:LW_Datatable_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Datatable_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="entityName_datatable_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="physical_datatable_dataset"
+						type="gmd:LW_Physical_datatable_dataset_PropertyType" maxOccurs="1"
+						minOccurs="1">
+					</xs:element>
+					<xs:element name="attributeList_datatable_dataset"
+						type="gmd:LW_AttributeList_datatable_dataset_PropertyType" maxOccurs="unbounded"
+						minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Physical - Datatable - Dataset -->
+	<xs:complexType name="LW_Physical_datatable_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Physical_datatable_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Physical_datatable_dataset" type="gmd:LW_Physical_datatable_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Physical_datatable_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="dataFormat_physical_datatable_dataset"
+						type="gmd:LW_DataFormat_physical_datatable_dataset_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- DataFormat - Physical - Datatable - Dataset -->
+	<xs:complexType name="LW_DataFormat_physical_datatable_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_DataFormat_physical_datatable_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_DataFormat_physical_datatable_dataset" type="gmd:LW_DataFormat_physical_datatable_dataset_Type"></xs:element>
+	<xs:complexType name="LW_DataFormat_physical_datatable_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="externallyDefinedFormat_dataFormat_physical_datatable_dataset"
+						type="gmd:LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- ExternallyDefinedFormat - DataFormat - Physical - Datatable - Dataset -->
+	<xs:complexType name="LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset" type="gmd:LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset_Type"></xs:element>
+	<xs:complexType name="LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- AttributeList - Datatable - Dataset -->
+	<xs:complexType name="LW_AttributeList_datatable_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_AttributeList_datatable_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_AttributeList_datatable_dataset" type="gmd:LW_AttributeList_datatable_dataset_Type"></xs:element>
+	<xs:complexType name="LW_AttributeList_datatable_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="attributeName_attributeList_datatable_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="attributeLabel_attributeList_datatable_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="attributeDefinition_attributeList_datatable_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="measurementScale_attributeList_datatable_dataset"
+						type="gmd:LW_MeasurementScale_attributeList_datatable_dataset_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+					<xs:element name="missingValueCode_attributeList_datatable_dataset"
+						type="gmd:LW_MissingValueCode_attributeList_datatable_dataset_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="attributeAnnotation_attributeList_datatable_dataset"
+						type="gmd:LW_AttributeAnnotation_attributeList_datatable_dataset_PropertyType" maxOccurs="unbounded" minOccurs="0">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- MeasurementScale - AttributeList - Datatable - Dataset -->
+	<xs:complexType name="LW_MeasurementScale_attributeList_datatable_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_MeasurementScale_attributeList_datatable_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_MeasurementScale_attributeList_datatable_dataset" type="gmd:LW_MeasurementScale_attributeList_datatable_dataset_Type"></xs:element>
+	<xs:complexType name="LW_MeasurementScale_attributeList_datatable_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="ratio_measurementScale_attributeList_datatable_dataset"
+						type="gmd:LW_Ratio_measurementScale_attributeList_datatable_dataset_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Ratio - MeasurementScale - AttributeList - Datatable - Dataset -->
+	<xs:complexType name="LW_Ratio_measurementScale_attributeList_datatable_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Ratio_measurementScale_attributeList_datatable_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Ratio_measurementScale_attributeList_datatable_dataset" type="gmd:LW_Ratio_measurementScale_attributeList_datatable_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Ratio_measurementScale_attributeList_datatable_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="unit_ratio_measurementScale_attributeList_datatable_dataset"
+						type="gmd:LW_Unit_ratio_measurementScale_attributeList_datatable_dataset_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- Unit - Ratio - MeasurementScale - AttributeList - Datatable - Dataset -->
+	<xs:complexType name="LW_Unit_ratio_measurementScale_attributeList_datatable_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_Unit_ratio_measurementScale_attributeList_datatable_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_Unit_ratio_measurementScale_attributeList_datatable_dataset" type="gmd:LW_Unit_ratio_measurementScale_attributeList_datatable_dataset_Type"></xs:element>
+	<xs:complexType name="LW_Unit_ratio_measurementScale_attributeList_datatable_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- MissingValueCode - AttributeList - Datatable - Dataset -->
+	<xs:complexType name="LW_MissingValueCode_attributeList_datatable_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_MissingValueCode_attributeList_datatable_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_MissingValueCode_attributeList_datatable_dataset" type="gmd:LW_MissingValueCode_attributeList_datatable_dataset_Type"></xs:element>
+	<xs:complexType name="LW_MissingValueCode_attributeList_datatable_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="code_missingValueCode_attributeList_datatable_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<!-- AttribiteAnnotation - AttributeList - Datatable - Dataset -->
+	<xs:complexType name="LW_AttributeAnnotation_attributeList_datatable_dataset_PropertyType">
+		<xs:sequence minOccurs="0">
+			<xs:element ref="gmd:LW_AttributeAnnotation_attributeList_datatable_dataset"/>
+		</xs:sequence>
+		<xs:attributeGroup ref="gco:ObjectReference"/>
+		<xs:attribute ref="gco:nilReason"/>
+	</xs:complexType>
+	
+	<xs:element name="LW_AttributeAnnotation_attributeList_datatable_dataset" type="gmd:LW_AttributeAnnotation_attributeList_datatable_dataset_Type"></xs:element>
+	<xs:complexType name="LW_AttributeAnnotation_attributeList_datatable_dataset_Type">
+		<xs:complexContent>
+			<xs:extension base="gco:AbstractObject_Type">
+				<xs:sequence>
+					<xs:element name="propertyURI_attributeAnnotation_attributeList_datatable_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="0">
+					</xs:element>
+					<xs:element name="valueURI_attributeAnnotation_attributeList_datatable_dataset"
+						type="gco:CharacterString_PropertyType" maxOccurs="1" minOccurs="1">
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<!-- End Dataset LifeWatch -->
+	
+	<!-- End LifeWatch -->
+		
 </xs:schema>

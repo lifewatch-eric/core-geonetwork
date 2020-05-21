@@ -499,5 +499,7 @@
     "userSearchUpdated": "Uživatelské hledání uloženo",
     "userSearchUpdatedError": "Chyba při ukládání hledání uživatele",
     "seeDraft": "Tento záznam má verzi pracovní kopie. Klikněte sem a uvidíte.",
-    "seeNoDraft": "Tento záznam má schválenou a publikovanou verzi. Klikněte sem a uvidíte ho."
+    "seeNoDraft": "Tento záznam má schválenou a publikovanou verzi. Klikněte sem a uvidíte ho.",
+    "LW_VRE": "LifeWatch VRE",
+  	"title_LW": "Title"
 }

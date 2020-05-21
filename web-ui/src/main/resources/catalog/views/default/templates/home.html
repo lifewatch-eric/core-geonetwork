@@ -64,108 +64,328 @@
     </div>
   </div>
 
+<!-- .gn-row-topics -->
+	<div class="row gn-row-topics text-center"
+		data-ng-show="searchInfo.count > 0" style="background-color: #ffffff; padding:0px;">
+		<div data-ng-class="fluidLayout ? 'container-fluid' : 'container'">
 
-  <div class="row gn-row-topics" data-ng-show="searchInfo.count > 0">
-    <div data-ng-class="fluidLayout ? 'container-fluid' : 'container'">
-      <div class="col-sm-12 col-md-9" data-ng-show="browse !== ''">
-        <h4>
-          <span data-translate="">browseBy</span>
-          <span
-            data-ng-show="searchInfo.facet['inspireThemes'].length > 0 && searchInfo.facet['topicCats'].length > 0">
-            <label data-ng-show="searchInfo.facet['inspireThemes'].length > 0">
-              <input type="radio" name="browse" value="inspire" data-ng-model="browse"/>
-              <span data-translate="">inspireThemes</span>
-            </label>
-            <label data-ng-show="searchInfo.facet['topicCats'].length > 0">
-              <input type="radio" name="browse" value="topics" data-ng-model="browse"/>
-              <span data-translate="">topics</span>
-            </label>
-          </span>
-          <label
-            data-ng-show="searchInfo.facet['inspireThemes'].length > 0 && searchInfo.facet['topicCats'].length == 0"><span
-            data-translate="">inspireThemes</span></label>
-          <label
-            data-ng-show="searchInfo.facet['topicCats'].length > 0 && searchInfo.facet['inspireThemes'].length == 0"><span
-            data-translate="">topics</span></label>
-        </h4>
+<style>
 
-  <!--       <div class="row">
-          <span id="chips-card" data-ng-repeat="(key, facet) in searchInfo.facet['topicCats']"
-                class="col-xs-6 col-sm-4 col-lg-3" data-ng-show="browse === 'topics'"> -->
-        <div class="row">
-          <span data-ng-repeat="(key, facet) in searchInfo.facet['topicCats']"
-                data-ng-show="browse === 'topics'"
-                class="col-xs-12 col-sm-6 col-md-4 chips-card">
-            <div class="badge-result badge-result-topic clearfix">
-              <a class="pull-left clearfix"
-                title="{{facet['@label']}}"
-                role="link"
-                data-ng-href="#/search?facet.q=topicCat%2F{{facet['@name']}}">
-                <span class="badge-icon badge-result-topic pull-left">
-                  <i class="fa fa-3x fa-table gn-icon gn-icon-{{facet['@name']}}"></i>
-                </span>
-                <span class="badge-text pull-left">
-                  <span class="gn-icon-label">{{facet['@label']}}</span>
-                </span>
-              </a>
-              <span class="badge pull-left">{{facet['@count']}}</span>
-            </div>
-          </span>
-          <span data-ng-repeat="(key, facet) in searchInfo.facet['inspireThemesURI'] track by $index"
-                data-ng-show="browse === 'inspire'"
-                class="col-xs-12 col-sm-6 col-md-4 chips-card">
-            <div class="badge-result badge-result-inspire clearfix">
-              <a class="pull-left clearfix bg-iti-{{facet['@name'].slice(facet['@name'].lastIndexOf('/')+1)}}"
-                title="{{facet['@label']}}"
-                data-ng-href="#/search?facet.q=inspireThemeURI%2F{{facet['@name'] | encodeURIComponent | encodeURIComponent}}">
-                <span class="badge-icon pull-left">
-                  <i class="fa fa-3x gn-icon iti-{{facet['@name'].slice(facet['@name'].lastIndexOf('/')+1)}}"></i>
-                </span>
-                <span class="badge-text pull-left">
-                  <span class="gn-icon-label">{{facet['@label']}}</span>
-                </span>
-              </a>
-              <span class="badge pull-left">{{facet['@count']}}</span>
-            </div>
-          </span>
-        </div>
-      </div>
-      <div class="col-sm-12 col-md-3" data-ng-show="searchInfo.facet['types'].length > 0">
-        <h4>
-          <span data-translate="">browseTypes</span>
-        </h4>
-        <div class="row">
-            <span data-ng-repeat="(key, facet) in searchInfo.facet['types']"
-                  data-ng-show="facet['@label']"
-                  class="col-xs-12 col-sm-6 col-md-12 chips-card">
-              <div class="badge-result badge-result-type pull-left">
-                <a title="{{facet['@label']}}"
-                  class="pull-left clearfix"
-                  data-ng-href="#/search?facet.q=type%2F{{facet['@name']}}">
-                  <span class="badge-icon pull-left">
-                    <i class="fa fa-3x fa-table gn-icon gn-icon-{{facet['@name']}}"></i>
-                  </span>
-                  <span class="badge-text pull-left">
-                    <span class="gn-icon-label">{{facet['@label']}}</span>
-                  </span>
-                </a>
-                <span class="badge pull-left">{{facet['@count']}}</span>
-              </div>
-            </span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- /.gn-row-topics -->
-  
-  <div class="row gn-row-info"
+.vre_card {
+	height: auto;
+	border-radius: 5px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #E4E4E4;
+	background-color: #F2F2F2;
+}
+
+.vre_card:hover {
+	cursor: pointer;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 1);
+}
+
+.overlay {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 100%;
+	width: 100%;
+	opacity: 0;
+	transition: .5s ease;
+	background-color: #008CBA;
+}
+
+.container:hover .overlay {
+	opacity: 1;
+}
+
+.text {
+	color: white;
+	font-size: 20px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	-webkit-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	text-align: center;
+}
+
+.row.text-center>div {
+	display: inline-block;
+	float: none;
+}
+</style>
+
+			<div class="col-sm-12 col-md-12 lg-12"
+				data-ng-show="searchInfo.facet['types'].length > 0"
+				style="text-align: center;">
+				<h2 style="color: #2A4F8A;">
+					<span data-translate="">browseTypes</span>
+					<hr>
+					<br>
+				</h2>
+				<div class="row text-center">
+					<div class="col-sm-3 col-md-3 col-lg-3 vre_card"
+						style="background-color: #E4E4E4; border: 0px; padding: 0px; cursor: pointer; text-align: center;"
+						onclick="window.location='#/search?facet.q=type%2Fvre_lifewatch'">
+						<div class="row">
+							<div class="col-sm-12 col-md-12 col-lg-12"
+								style="text-align: center; color: #2A4F8A">
+								<h4>
+									<br>Virtual Research Environment<br>
+								</h4>
+							</div>
+						</div>
+						<div class="row" style="background-color: #F2F2F2; border: 0px;">
+							<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
+							<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+								<br>
+								<svg width="100%" height="100%" version="1.1" id="Livello_1"
+									xmlns="http://www.w3.org/2000/svg"
+									xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+									viewBox="0 0 64 64"
+									style="enable-background: new 0 0 64 64; fill: #2A4F8A;"
+									xml:space="preserve">
+							  <g>
+								<g>
+									<g>
+										<path
+										d="M32.8,63H12.5c-3,0-5.5-2.5-5.5-5.5c0-1,0.3-1.9,0.8-2.8l10.4-17.6V23c0-0.6,0.5-1.1,1.1-1.1h5.6c0.6,0,1.1,0.5,1.1,1.1
+											v14.1l11.4,17.6c1.6,2.5,0.9,5.9-1.6,7.5C34.8,62.7,33.8,63,32.8,63L32.8,63z M20.4,24.1v13.3c0,0.2-0.1,0.4-0.2,0.6L9.7,55.9
+											c-0.9,1.6-0.4,3.5,1.2,4.5c0.5,0.3,1.1,0.5,1.7,0.5h20.3c1.8,0,3.2-1.4,3.2-3.2c0-0.6-0.2-1.2-0.5-1.7L23.9,38
+											c-0.1-0.2-0.2-0.4-0.2-0.6V24.1H20.4z" />
+										<path
+										d="M20.4,58.6h-7.7c-0.6,0-1.1-0.5-1.1-1.1c0-0.2,0.1-0.4,0.2-0.6l9.4-16.1l1.9,1.1l-8.5,14.4h5.8V58.6z" />
+										<path
+										d="M51.5,63h-10c-3.1,0-5.6-2.5-5.6-5.6V39.6c0-2.5,2-4.4,4.4-4.4h17.3c1.5,0,2.7,1.2,2.7,2.7c0,0.7-0.3,1.4-0.8,1.9
+											l-2.6,2.6v15.1C57.1,60.5,54.6,63,51.5,63z M40.4,37.4c-1.2,0-2.2,1-2.2,2.2v17.8c0,1.8,1.5,3.3,3.3,3.3h10
+											c1.8,0,3.3-1.5,3.3-3.3V41.9c0-0.3,0.1-0.6,0.3-0.8l2.9-2.9c0.2-0.2,0.2-0.5,0-0.7c-0.1-0.1-0.2-0.1-0.3-0.1H40.4z" />
+										<path
+										d="M51.5,58.6h-4.4v-2.2h3.3V41.9h2.2v15.6C52.6,58.1,52.1,58.6,51.5,58.6z" />
+										<path d="M40.4,41.9h3.3v2.2h-3.3V41.9z" />
+										<path d="M40.4,46.3h2.2v2.2h-2.2V46.3z" />
+										<path d="M40.4,50.8h3.3V53h-3.3V50.8z" />
+										<path d="M40.4,55.2h2.2v2.2h-2.2V55.2z" />
+										<path d="M29.3,55.2h2.2v2.2h-2.2V55.2z" />
+										<path d="M25.9,50.8h2.2V53h-2.2V50.8z" />
+									</g>
+								</g>
+								<g>
+									<path
+										d="M62.9,29.8c0-5.7-3.9-10.7-9.3-12.1C53.1,8.4,45.4,1,36.2,1c-5.6,0-11,2.7-14.4,7.2c-0.1,0-0.2-0.1-0.2-0.1
+										C21.4,8,21.2,7.9,21,7.8c-0.1,0-0.2-0.1-0.4-0.1c-0.2-0.1-0.4-0.1-0.6-0.2c-0.1,0-0.2-0.1-0.4-0.1c-0.2-0.1-0.5-0.1-0.7-0.1
+										c-0.1,0-0.2,0-0.3-0.1c-0.3,0-0.7-0.1-1-0.1c-5.1,0-9.3,4.2-9.3,9.3c0,0.1,0,0.3,0,0.4C4,19.2,1.1,24.1,1.1,29
+										c0,6.2,4.3,11.4,10.1,12.9l1.3-1.8c-5.3-0.9-9.4-5.5-9.4-11c0-4.3,2.8-8.7,6.6-10.6l0.6-0.3v-0.6c0-0.1,0-0.3,0-0.4l0-0.2l0-0.2
+										c0-0.1,0-0.2,0-0.3c0-4,3.2-7.2,7.2-7.2c0.3,0,0.6,0,0.9,0.1c0.1,0,0.2,0,0.2,0c0.3,0.1,0.5,0.1,0.8,0.2c0,0,0.1,0,0.1,0
+										c0.3,0.1,0.6,0.2,0.9,0.3c0.1,0,0.1,0.1,0.2,0.1c0.2,0.1,0.5,0.3,0.7,0.4c2,1.3,3.3,3.5,3.3,6.1c0,0.6,0.5,1,1,1c0.6,0,1-0.5,1-1
+										c0-2.8-1.3-5.4-3.3-7.1c3-3.9,7.8-6.3,12.7-6.3c8,0,14.6,6.3,15.3,14.3c-1.1-0.1-2.6-0.1-4.2,0.1c-0.6,0.1-1,0.6-0.9,1.2
+										c0.1,0.5,0.5,0.9,1,0.9c0.1,0,0.1,0,0.2,0c2.3-0.3,4.7,0,4.8,0c4.8,0.9,8.4,5.3,8.4,10.3c0,1.2-0.2,2.4-0.6,3.4l1.8,1.1
+										C62.6,33,62.9,31.4,62.9,29.8z" />
+								</g>
+							</g>
+				</svg>
+							</div>
+							<div class="col-xs-4 col-sm-4 col-md-4 lg-4"></div>
+						</div>
+						<div class="row" style="background-color: #F2F2F2; border: 0px;">
+							<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">&nbsp;</div>
+							<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10"
+								style="border: 0px; padding: 0px;">
+								<h5 style="text-align: left; color: #707070;">
+									<br>This section contains the catalogue of Virtual
+									Research Environment provided by LifeWatch ERIC<br> <br>
+								</h5>
+							</div>
+							<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">&nbsp;</div>
+						</div>
+					</div>
+					<div class="col-sm-1 col-md-1 col-lg-1"></div>
+					<div class="col-sm-3 col-md-3 col-lg-3 vre_card"
+						style="background-color: #E4E4E4; border: 0px; padding: 0px; cursor: pointer; text-align: center;"
+						onclick="window.location='#/search?facet.q=type%2Fdataset_lifewatch'">
+						<div class="row">
+							<div class="col-sm-12 col-md-12 col-lg-12"
+								style="text-align: center; color: #2A4F8A">
+								<h4>
+									<br>Dataset<br>
+								</h4>
+							</div>
+						</div>
+						<div class="row" style="background-color: #F2F2F2; border: 0px;">
+							<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
+							<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+								<br>
+								<svg version="1.1" id="Livello_1"
+									xmlns="http://www.w3.org/2000/svg"
+									xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+									viewBox="0 0 64 64"
+									style="enable-background: new 0 0 64 64; fill: #2A4F8A;"
+									xml:space="preserve">
+<g>
+	<g>
+		<g>
+			<path
+										d="M62,47l-1.6-0.3c-0.8-0.1-1.4-0.6-1.6-1.4c-0.3-0.7-0.2-1.5,0.3-2.1l1-1.4c0.3-0.5,0.3-1.1-0.1-1.5l-2.2-2.2
+				c-0.4-0.4-1-0.4-1.4-0.1L54.9,39c-0.6,0.4-1.4,0.5-2.1,0.2c-0.7-0.3-1.2-0.9-1.3-1.7l-0.3-1.7c-0.1-0.5-0.6-0.9-1.1-0.9H47
+				c-0.5,0-1,0.4-1.1,0.9l-0.4,2.1c-0.1,0.7-0.6,1.3-1.3,1.6c-0.7,0.3-1.5,0.2-2.1-0.2L40.3,38c-0.4-0.3-1-0.2-1.4,0.1l-2.2,2.2
+				c-0.4,0.4-0.4,1-0.1,1.5l1,1.4c0.5,0.6,0.6,1.4,0.3,2.1c-0.3,0.7-0.9,1.2-1.6,1.4L34.6,47c-0.5,0.1-0.9,0.6-0.9,1.1v3.1
+				c0,0.6,0.4,1,1,1.1l1.7,0.3c0.8,0.1,1.4,0.6,1.7,1.3c0.3,0.7,0.2,1.5-0.2,2.1l-0.9,1.4c-0.3,0.4-0.2,1,0.1,1.4l2.2,2.2
+				c0.4,0.4,1,0.4,1.5,0.1l1.4-1c0.6-0.5,1.4-0.6,2.1-0.3c0.7,0.3,1.2,0.9,1.4,1.6l0.3,1.6C46,63.6,46.4,64,47,64h3.1
+				c0.6,0,1-0.4,1.1-1l0.2-1.2c0.1-0.8,0.6-1.4,1.3-1.7c0.7-0.3,1.5-0.2,2.2,0.3l1,0.7c0.4,0.3,1.1,0.3,1.5-0.1l2.2-2.2
+				c0.4-0.4,0.4-1,0.1-1.4L58.7,56c-0.4-0.6-0.5-1.4-0.2-2.1c0.3-0.7,0.9-1.2,1.7-1.3l1.7-0.3c0.5-0.1,0.9-0.6,0.9-1.1v-3.1
+				C62.9,47.6,62.5,47.1,62,47L62,47z M60.6,50.3l-0.7,0.1c-1.5,0.2-2.8,1.2-3.4,2.6c-0.6,1.4-0.5,3,0.4,4.3l0.4,0.6l-0.9,0.9
+				l-0.2-0.1c-1.3-0.9-2.9-1.1-4.3-0.5c-1.5,0.6-2.5,1.9-2.7,3.4l0,0.2h-1.2L47.8,61c-0.3-1.5-1.3-2.7-2.8-3.3
+				c-1.4-0.6-3-0.4-4.3,0.6l-0.6,0.5l-0.9-0.9l0.4-0.6c0.9-1.3,1-2.9,0.4-4.3c-0.6-1.4-1.9-2.4-3.4-2.6l-0.7-0.1V49l0.7-0.1
+				c1.5-0.3,2.8-1.3,3.3-2.7c0.6-1.4,0.4-3-0.6-4.3l-0.5-0.6l0.9-0.9l1,0.7c1.2,0.8,2.8,1,4.2,0.4c1.4-0.6,2.4-1.8,2.7-3.3l0.2-1.2
+				h1.2l0.1,0.8c0.2,1.5,1.2,2.8,2.6,3.4c1.4,0.6,3,0.5,4.3-0.4l0.6-0.4l0.9,0.9l-0.4,0.6c-0.9,1.2-1.1,2.8-0.6,4.3
+				c0.6,1.4,1.8,2.5,3.3,2.7l0.7,0.1V50.3z M60.6,50.3" />
+		</g>
+		<path
+										d="M48.3,43.8c-3.1,0-5.6,2.5-5.6,5.6c0,3.1,2.5,5.6,5.6,5.6c3.1,0,5.6-2.5,5.6-5.6C53.9,46.3,51.4,43.8,48.3,43.8L48.3,43.8
+			z M48.3,52.8c-1.9,0-3.4-1.5-3.4-3.4c0-1.9,1.5-3.4,3.4-3.4c1.9,0,3.4,1.5,3.4,3.4C51.6,51.3,50.1,52.8,48.3,52.8L48.3,52.8z
+			 M48.3,52.8" />
+		<path
+										d="M29.2,46c-0.9,0-1.8,0-2.7,0c-0.5,0-1.1-0.1-1.6-0.1c-0.3,0-0.7,0-1-0.1c-0.7,0-1.4-0.1-2.1-0.2c-0.1,0-0.3,0-0.4,0
+			c-0.8-0.1-1.5-0.2-2.3-0.3c0,0,0,0-0.1,0c-3.8-0.6-7.1-1.4-9.6-2.4c0,0,0,0,0,0c-0.5-0.2-0.9-0.4-1.3-0.6c0,0-0.1,0-0.1-0.1
+			c-0.4-0.2-0.7-0.4-1.1-0.6c-0.1,0-0.2-0.1-0.2-0.1c-0.3-0.2-0.6-0.3-0.8-0.5c-0.1-0.1-0.2-0.1-0.3-0.2c-0.2-0.2-0.4-0.3-0.6-0.5
+			c-0.1-0.1-0.2-0.2-0.3-0.3c-0.1-0.1-0.3-0.3-0.4-0.4c-0.1-0.1-0.2-0.2-0.2-0.3c-0.1-0.1-0.2-0.3-0.3-0.4c-0.1-0.1-0.1-0.2-0.2-0.3
+			c-0.1-0.1-0.1-0.3-0.1-0.4c0-0.2-0.1-0.4-0.1-0.5v-9.2c0,0,0.1,0.1,0.1,0.1c0.2,0.2,0.5,0.4,0.8,0.6c4.2,3.2,12.7,5.7,24.9,5.7
+			c12.2,0,20.6-2.5,24.9-5.6c0.3-0.2,0.6-0.5,0.9-0.8v4.2c0,0.6,0.5,1.1,1.1,1.1c0.6,0,1.1-0.5,1.1-1.1V10.1c0-0.2-0.1-0.4-0.2-0.5
+			C55.8,4.7,46.1,0,29.2,0C12.3,0,2.6,4.7,1.3,9.6c-0.1,0.2-0.2,0.3-0.2,0.5v41.5c0,0.2,0,0.4,0.1,0.5c1.3,5.4,12,8.6,22.2,9.4
+			c0,0,0.1,0,0.1,0c0.6,0,1.1-0.5,1.1-1c0-0.6-0.4-1.2-1-1.2c-12.5-0.9-19.7-4.7-20.3-7.8c0-0.1,0-0.1,0-0.1v-9.4
+			c0,0,0.1,0.1,0.1,0.1c0.2,0.2,0.5,0.4,0.8,0.6c4.2,3.2,12.7,5.7,24.9,5.7c0.6,0,1.1-0.5,1.1-1.1C30.3,46.5,29.8,46,29.2,46
+			L29.2,46z M4,15.5c0.3,0.3,0.7,0.5,1.1,0.8c0.1,0.1,0.2,0.1,0.3,0.2c0.3,0.2,0.7,0.4,1,0.6c0.1,0.1,0.3,0.1,0.4,0.2
+			c0.4,0.2,0.8,0.4,1.3,0.6c0.1,0,0.1,0.1,0.2,0.1c0.5,0.2,1.1,0.4,1.7,0.6c0.2,0.1,0.3,0.1,0.5,0.2c0.5,0.2,0.9,0.3,1.4,0.4
+			c0.2,0.1,0.4,0.1,0.5,0.2c0.7,0.2,1.3,0.4,2.1,0.5c0.1,0,0.2,0,0.3,0.1c0.6,0.1,1.3,0.3,1.9,0.4c0.2,0,0.5,0.1,0.7,0.1
+			c0.6,0.1,1.3,0.2,2,0.3c0.2,0,0.3,0.1,0.5,0.1c0.8,0.1,1.7,0.2,2.6,0.3c0.2,0,0.4,0,0.7,0c0.7,0.1,1.4,0.1,2.2,0.1
+			c0.3,0,0.5,0,0.8,0c1,0,2,0.1,3,0.1c1,0,2,0,3-0.1c0.3,0,0.5,0,0.8,0c0.7,0,1.5-0.1,2.2-0.1c0.2,0,0.4,0,0.7,0
+			c0.9-0.1,1.8-0.2,2.6-0.3c0.2,0,0.3,0,0.5-0.1c0.7-0.1,1.3-0.2,2-0.3c0.2,0,0.5-0.1,0.7-0.1c0.7-0.1,1.3-0.2,1.9-0.4
+			c0.1,0,0.2,0,0.3-0.1c0.7-0.2,1.4-0.3,2.1-0.5c0.2-0.1,0.4-0.1,0.5-0.2c0.5-0.1,1-0.3,1.4-0.4c0.2-0.1,0.3-0.1,0.5-0.2
+			c0.6-0.2,1.1-0.4,1.7-0.6c0.1,0,0.1-0.1,0.2-0.1c0.5-0.2,0.9-0.4,1.3-0.6c0.1-0.1,0.3-0.1,0.4-0.2c0.4-0.2,0.7-0.4,1-0.6
+			c0.1-0.1,0.2-0.1,0.3-0.2c0.4-0.3,0.8-0.5,1.1-0.8c0.1-0.1,0.2-0.1,0.2-0.2c0.1-0.1,0.3-0.2,0.4-0.4v9.2c0,0.2,0,0.4-0.1,0.5
+			c0,0.1-0.1,0.3-0.1,0.4c0,0.1-0.1,0.2-0.2,0.3c-0.1,0.1-0.2,0.3-0.3,0.4c-0.1,0.1-0.2,0.2-0.2,0.3c-0.1,0.1-0.3,0.3-0.4,0.4
+			c-0.1,0.1-0.2,0.2-0.3,0.3c-0.2,0.2-0.4,0.3-0.6,0.5c-0.1,0.1-0.2,0.1-0.3,0.2c-0.3,0.2-0.5,0.3-0.8,0.5c-0.1,0-0.2,0.1-0.2,0.1
+			c-0.3,0.2-0.7,0.4-1.1,0.6c-0.1,0-0.1,0-0.1,0.1c-0.4,0.2-0.9,0.4-1.3,0.6c0,0,0,0,0,0c-2.6,1-5.8,1.9-9.6,2.4c0,0,0,0-0.1,0
+			c-0.7,0.1-1.5,0.2-2.3,0.3c-0.1,0-0.3,0-0.4,0c-0.7,0.1-1.4,0.1-2.1,0.2c-0.3,0-0.7,0-1,0.1c-0.5,0-1.1,0.1-1.6,0.1
+			c-0.9,0-1.8,0-2.7,0c-0.9,0-1.8,0-2.7,0c-0.5,0-1.1-0.1-1.6-0.1c-0.3,0-0.7,0-1-0.1c-0.7-0.1-1.4-0.1-2.1-0.2c-0.1,0-0.3,0-0.4,0
+			c-0.8-0.1-1.5-0.2-2.3-0.3c0,0,0,0-0.1,0c-3.8-0.6-7.1-1.4-9.6-2.4c0,0,0,0,0,0c-0.5-0.2-0.9-0.4-1.3-0.6c0,0-0.1,0-0.1-0.1
+			c-0.4-0.2-0.7-0.4-1.1-0.6c-0.1,0-0.2-0.1-0.2-0.1c-0.3-0.2-0.6-0.3-0.8-0.5c-0.1-0.1-0.2-0.1-0.3-0.2C5.3,27.2,5.1,27,5,26.9
+			c-0.1-0.1-0.2-0.2-0.3-0.3c-0.1-0.1-0.3-0.3-0.4-0.4C4.2,26,4.1,25.9,4,25.8c-0.1-0.1-0.2-0.3-0.3-0.4c-0.1-0.1-0.1-0.2-0.2-0.3
+			c-0.1-0.1-0.1-0.3-0.1-0.4c0-0.2-0.1-0.4-0.1-0.5v-9.2c0.1,0.1,0.3,0.2,0.4,0.4C3.9,15.4,4,15.4,4,15.5L4,15.5z M29.2,2.2
+			C44.4,2.2,55,6.7,55,10.7c0,4-10.6,8.4-25.8,8.4c-15.2,0-25.8-4.4-25.8-8.4C3.4,6.7,14,2.2,29.2,2.2L29.2,2.2z M29.2,2.2" />
+	</g>
+</g>
+</svg>
+							</div>
+							<div class="col-xs-4 col-sm-4 col-md-4 lg-4"></div>
+						</div>
+						<div class="row" style="background-color: #F2F2F2; border: 0px;">
+							<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">&nbsp;</div>
+							<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10"
+								style="border: 0px; padding: 0px;">
+								<h5 style="text-align: left; color: #707070;">
+									<br>This section contains the catalogue of Dataset
+									provided by LifeWatch ERIC<br> <br>
+								</h5>
+							</div>
+							<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">&nbsp;</div>
+						</div>
+					</div>
+					<div class="col-sm-1 col-md-1 col-lg-1"></div>
+					<div class="col-sm-3 col-md-3 col-lg-3 vre_card"
+						style="background-color: #E4E4E4; border: 0px; padding: 0px; cursor: pointer; text-align: center;"
+						onclick="window.location='#/search?facet.q=type%2Fservice_lifewatch'">
+						<div class="row">
+							<div class="col-sm-12 col-md-12 col-lg-12"
+								style="text-align: center; color: #2A4F8A">
+								<h4>
+									<br>Service<br>
+								</h4>
+							</div>
+						</div>
+						<div class="row" style="background-color: #F2F2F2; border: 0px;">
+							<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
+							<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+								<br>
+								<svg version="1.1" id="Livello_1"
+									xmlns="http://www.w3.org/2000/svg"
+									xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+									viewBox="0 0 64 64"
+									style="enable-background: new 0 0 64 64; fill: #2A4F8A;"
+									xml:space="preserve">
+<g>
+	<path
+										d="M4.3,53.3h2.1v-2.1H4.3c-1.2,0-2.1-1-2.1-2.1V6.4c0-1.2,1-2.1,2.1-2.1h46.9c1.2,0,2.1,1,2.1,2.1v2.1h2.1V6.4
+		c0-2.4-1.9-4.3-4.3-4.3H4.3C1.9,2.1,0,4,0,6.4v42.7C0,51.4,1.9,53.3,4.3,53.3L4.3,53.3z M4.3,53.3" />
+	<rect x="4.3" y="6.4" width="2.1" height="2.1" />
+	<rect x="8.5" y="6.4" width="2.1" height="2.1" />
+	<g>
+		<rect x="12.8" y="6.4" width="2.1" height="2.1" />
+		<path
+										d="M8.5,57.6c0,2.4,1.9,4.3,4.3,4.3h46.9c2.4,0,4.3-1.9,4.3-4.3V14.9c0-2.4-1.9-4.3-4.3-4.3H12.8c-2.4,0-4.3,1.9-4.3,4.3
+			V57.6z M10.7,14.9c0-1.2,1-2.1,2.1-2.1h46.9c1.2,0,2.1,1,2.1,2.1v42.7c0,1.2-1,2.1-2.1,2.1H12.8c-1.2,0-2.1-1-2.1-2.1V14.9z
+			 M10.7,14.9" />
+	</g>
+	<rect x="12.8" y="14.9" width="2.1" height="2.1" />
+	<rect x="17.1" y="14.9" width="2.1" height="2.1" />
+	<rect x="21.3" y="14.9" width="2.1" height="2.1" />
+	<rect x="12.8" y="19.2" width="46.9" height="2.1" />
+	<rect x="12.8" y="24.5" width="8.5" height="2.1" />
+	<rect x="12.8" y="28.8" width="6.4" height="2.1" />
+	<path
+										d="M36.3,33.1c-4.1,0-7.5,3.3-7.5,7.5c0,4.1,3.3,7.5,7.5,7.5c4.1,0,7.5-3.3,7.5-7.5C43.7,36.4,40.4,33.1,36.3,33.1L36.3,33.1z
+		 M36.3,45.9c-2.9,0-5.3-2.4-5.3-5.3c0-2.9,2.4-5.3,5.3-5.3c2.9,0,5.3,2.4,5.3,5.3C41.6,43.5,39.2,45.9,36.3,45.9L36.3,45.9z
+		 M36.3,45.9" />
+	<path
+										d="M53.3,37.3c0-0.6-0.5-1.1-1.1-1.1h-2.8c-0.2-0.7-0.5-1.4-0.8-2l2-2c0.4-0.4,0.4-1.1,0-1.5l-4.5-4.5c-0.4-0.4-1.1-0.4-1.5,0
+		l-2,2c-0.7-0.3-1.3-0.6-2-0.8v-2.8c0-0.6-0.5-1.1-1.1-1.1h-6.4c-0.6,0-1.1,0.5-1.1,1.1v2.8c-0.7,0.2-1.4,0.5-2,0.8l-2-2
+		c-0.4-0.4-1.1-0.4-1.5,0l-4.5,4.5c-0.4,0.4-0.4,1.1,0,1.5l2,2c-0.1,0.2-0.2,0.3-0.3,0.5c-0.2,0.5-0.4,1-0.6,1.5h-2.8
+		c-0.6,0-1.1,0.5-1.1,1.1v6.4c0,0.6,0.5,1.1,1.1,1.1h2.8c0.2,0.7,0.5,1.4,0.8,2l-2,2c-0.4,0.4-0.4,1.1,0,1.5l4.5,4.5
+		c0.4,0.4,1.1,0.4,1.5,0l2-2c0.7,0.3,1.3,0.6,2,0.8v2.8c0,0.6,0.5,1.1,1.1,1.1h6.4c0.6,0,1.1-0.5,1.1-1.1v-2.8
+		c0.7-0.2,1.4-0.5,2-0.8l2,2c0.4,0.4,1.1,0.4,1.5,0l4.5-4.5c0.4-0.4,0.4-1.1,0-1.5l-2-2c0.3-0.7,0.6-1.3,0.8-2h2.8
+		c0.6,0,1.1-0.5,1.1-1.1V37.3z M51.2,42.7h-2.6c-0.5,0-0.9,0.3-1,0.8c-0.3,1.1-0.7,2.1-1.2,3c-0.2,0.4-0.2,1,0.2,1.3l1.8,1.8l-3,3
+		l-1.8-1.8c-0.3-0.3-0.9-0.4-1.3-0.2c-0.9,0.6-2,1-3,1.2c-0.5,0.1-0.8,0.5-0.8,1v2.6h-4.3v-2.6c0-0.5-0.3-0.9-0.8-1
+		c-1.1-0.3-2.1-0.7-3-1.2c-0.4-0.2-1-0.2-1.3,0.2l-1.8,1.8l-3-3l1.8-1.8c0.3-0.3,0.4-0.9,0.2-1.3c-0.6-0.9-1-2-1.2-3
+		c-0.1-0.5-0.5-0.8-1-0.8h-2.6v-4.3h2.6c0.5,0,0.9-0.3,1-0.8c0.2-0.7,0.4-1.3,0.7-2c0.2-0.4,0.4-0.7,0.6-1.1c0.2-0.4,0.2-1-0.2-1.3
+		l-1.8-1.8l3-3l1.8,1.8c0.3,0.3,0.9,0.4,1.3,0.2c0.9-0.6,2-1,3-1.2c0.5-0.1,0.8-0.5,0.8-1v-2.5h4.3v2.6c0,0.5,0.3,0.9,0.8,1
+		c1.1,0.3,2.1,0.7,3,1.2c0.4,0.2,1,0.2,1.3-0.2l1.8-1.8l3,3l-1.8,1.8c-0.3,0.3-0.4,0.9-0.2,1.3c0.6,0.9,1,2,1.2,3
+		c0.1,0.5,0.5,0.8,1,0.8h2.6V42.7z M51.2,42.7" />
+	<rect x="53.3" y="55.5" width="6.4" height="2.1" />
+</g>
+</svg>
+							</div>
+							<div class="col-xs-4 col-sm-4 col-md-4 lg-4"></div>
+						</div>
+						<div class="row" style="background-color: #F2F2F2; border: 0px;">
+							<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">&nbsp;</div>
+							<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10"
+								style="border: 0px; padding: 0px;">
+								<h5 style="text-align: left; color: #707070;">
+									<br>This section contains the catalogue of Service
+									provided by LifeWatch ERIC<br> <br>
+								</h5>
+							</div>
+							<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1">&nbsp;</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /.gn-row-topics -->
+
+	<div class="row gn-row-info"
        data-ng-show="searchInfo.count > 0"
        data-ng-class="{'gn-info-list-blocks': type === 'blocks' || type === undefined, 'gn-info-list-large': type === 'large', 'gn-info-list-small': type === 'small'}">
     <div data-ng-class="fluidLayout ? 'container-fluid' : 'container'">
       <div class="col-sm-12">
 
       <!-- toggle buttons -->
-      <div id="info-toggle-buttons" class="btn-group pull-right" data-toggle="buttons">
+     <div id="info-toggle-buttons" class="btn-group pull-right" data-toggle="buttons">
         <button id="btn-toggle-blocks" type="button" class="btn btn-default"
                 data-ng-click="toggleListType('blocks')"
                 data-ng-model="type"
@@ -187,7 +407,7 @@
                 aria-label="{{'listTypeSmall' | translate}}">
           <i class="fa fa-align-justify" aria-hidden="true"></i>
         </button>
-      </div>
+      </div> 
 
       <tabset id="info-tabset pull-left" type="pills" justified="false" role="tablist">
         <tab heading="{{'lastRecords' | translate}}"

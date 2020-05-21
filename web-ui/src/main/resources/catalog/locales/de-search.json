@@ -499,5 +499,7 @@
     "userSearchUpdated": "Suche gespeichert",
     "userSearchUpdatedError": "Fehler beim Speichern der Suche",
     "seeDraft": "Von diesem Datensatz gibt es eine funktionierende Arbeitskopie. Klicken Sie hier, um diese Kopie zu sehen.",
-    "seeNoDraft": "Von diesem Datensatz gibt es eine genehmigte und veröffentlichte Version. Klicken Sie hier, um die Version anzuschauen."
+    "seeNoDraft": "Von diesem Datensatz gibt es eine genehmigte und veröffentlichte Version. Klicken Sie hier, um die Version anzuschauen.",
+    "LW_VRE": "LifeWatch VRE",
+  	"title_LW": "Title"
 }

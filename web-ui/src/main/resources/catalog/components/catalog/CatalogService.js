@@ -554,7 +554,11 @@
         'denominator', 'resolution', 'geoDesc', 'geoBox', 'inspirethemewithac',
         'status', 'status_text', 'crs', 'identifier', 'responsibleParty',
         'mdLanguage', 'datasetLang', 'type', 'link', 'crsDetails',
-        'creationDate', 'publicationDate', 'revisionDate'];
+        'creationDate', 'publicationDate', 'revisionDate', 'creator_dataset','metadataProvider_dataset','contact_dataset','associatedParty_dataset',
+        'coordinationTeam_vre','containServices_vre','containOperations_service','taxonomicClassification_taxonomicCoverage_coverage_dataset','personnelProject_dataset',
+        'methodStep_dataset','datatable_dataset','sampling_methods_dataset','author_vre','maintainer_vre','keyword_keywordSet_dataset',
+        'author_service','maintainer_service','keywords_service','tags_service','relatedServices_service','requiredServices_service',
+        'otherLanguage_service', 'publicationsAboutThisVRE_vre'];
       var listOfJsonFields = ['keywordGroup', 'crsDetails'];
       // See below; probably not necessary
       var record = this;
@@ -782,6 +786,561 @@
         }
         return this.allContacts;
       },
+      // LifeWatch Coordination Teams - VRE      
+      getAllCoordinationTeams_vre: function() {    	  
+        if (angular.isUndefined(this.allCoordinationTeams_vre) &&
+        	angular.isDefined(this.coordinationTeam_vre)) {
+        	this.allCoordinationTeams_vre =	{metadata: []};
+            for (var i = 0; i < this.coordinationTeam_vre.length; i++) {
+        	  var s = this.coordinationTeam_vre[i].split('|');
+      	  	  var coordinationTeam = {
+      	  			contactPoint_vre: s[0] || '',
+      	  			address_vre: s[1] || '',
+      	  			e_mail_vre: s[2] || ''      	  			
+      	  	  };
+                this.allCoordinationTeams_vre.metadata.push(coordinationTeam);
+            }
+        }
+        return this.allCoordinationTeams_vre;
+      },   
+      // LifeWatch Contain Services - VRE         
+      getAllContainServices_vre: function() {    	  
+        if (angular.isUndefined(this.allContainServices_vre) &&
+        	angular.isDefined(this.containServices_vre)) {
+        	this.allContainServices_vre =	{metadata: []};
+            for (var i = 0; i < this.containServices_vre.length; i++) {
+        	  var s = this.containServices_vre[i].split('|');
+      	  	  var containServices = {
+      	  			serviceName_vre: s[0] || '',
+      	  			serviceDescription_vre: s[1] || '',
+      	  			serviceReference_vre: s[2] || ''      	  			
+      	  	  };
+                this.allContainServices_vre.metadata.push(containServices);
+            }
+        }
+        return this.allContainServices_vre;
+      },
+      /** LifeWatch Publications - VRE
+       * Return an object containing metadata Publications
+       * as an array and resource tag as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllPublications_vre: function() {    	  
+        if (angular.isUndefined(this.allPublications_vre) &&
+        	angular.isDefined(this.publicationsAboutThisVRE_vre)) {
+        	this.allPublications_vre =	{metadata: []};                    	
+            for (var i = 0; i < this.publicationsAboutThisVRE_vre.length; i++) {
+                var s = this.publicationsAboutThisVRE_vre[i].split('--');                    
+                var publication = {
+                		publicationsAboutThisVRE_vre: s[0] || ''                   
+                };                  
+                this.allPublications_vre.metadata.push(publication);
+            }
+        }
+        return this.allPublications_vre;
+      },
+      /** LifeWatch Authors - VRE
+       * Return an object containing metadata Authors
+       * as an array and resource author as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllAuthors_vre: function() {    	  
+        if (angular.isUndefined(this.allAuthors_vre) &&
+        	angular.isDefined(this.author_vre)) {
+        	this.allAuthors_vre = {metadata: []};                    	
+            for (var i = 0; i < this.author_vre.length; i++) {
+                var s = this.author_vre[i].split('--');                    
+                var author = {
+                    author_vre: s[0] || ''                   
+                };                  
+                this.allAuthors_vre.metadata.push(author);
+            }
+        }
+        return this.allAuthors_vre;
+      }, 
+        
+      /** LifeWatch Maintainers - VRE
+       * Return an object containing metadata Maintainers
+       * as an array and resource maintainer as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllMaintainers_vre: function() {    	  
+        if (angular.isUndefined(this.allMaintainers_vre) &&
+        	angular.isDefined(this.maintainer_vre)) {
+        	this.allMaintainers_vre = {metadata: []};                    	
+            for (var i = 0; i < this.maintainer_vre.length; i++) {
+                var s = this.maintainer_vre[i].split('--');                    
+                var maintainer = {
+                    maintainer_vre: s[0] || ''                   
+                };                  
+                this.allMaintainers_vre.metadata.push(maintainer);
+            }
+        }
+        return this.allMaintainers_vre;
+      },
+      /** LifeWatch ContainOperations - Service
+       * Return an object containing metadata ContainOperations
+       * as an array and resource containOperation as array
+       *
+       * @return {{metadata: Array}}
+       */     
+      getAllContainOperations_service: function() {    	  
+        if (angular.isUndefined(this.allContainOperations_service) &&
+        	angular.isDefined(this.containOperations_service)) {
+        	this.allContainOperations_service =	{metadata: []};
+            for (var i = 0; i < this.containOperations_service.length; i++) {
+        	  var s = this.containOperations_service[i].split('|');
+      	  	  var containOperations = {
+      	          operationName_service: s[0] || '',
+                  webSite_service: s[1] || '',
+                  protocol_service: s[2] || '',
+                  descriptionOperation_service: s[3] || '',
+                  function_service: s[4] || ''
+      	  	  };
+                this.allContainOperations_service.metadata.push(containOperations);
+            }
+        }
+        return this.allContainOperations_service;
+      },  
+      /** LifeWatch Authors - Service
+       * Return an object containing metadata Authors
+       * as an array and resource author as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllAuthors_service: function() {    	  
+        if (angular.isUndefined(this.allAuthors_service) &&
+        	angular.isDefined(this.author_service)) {
+        	this.allAuthors_service =	{metadata: []};                    	
+            for (var i = 0; i < this.author_service.length; i++) {
+                var s = this.author_service[i].split('--');
+                var author = {
+                    author_service: s[0] || ''                   
+                };                  
+                this.allAuthors_service.metadata.push(author);
+            }
+        }
+        return this.allAuthors_service;
+      },
+      /** LifeWatch Maintainers - Service
+       * Return an object containing metadata Maintainers
+       * as an array and resource maintainer as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllMaintainers_service: function() {    	  
+        if (angular.isUndefined(this.allMaintainers_service) &&
+        	angular.isDefined(this.maintainer_service)) {
+        	this.allMaintainers_service =	{metadata: []};                    	
+            for (var i = 0; i < this.maintainer_service.length; i++) {
+                var s = this.maintainer_service[i].split('--');                    
+                var maintainer = {
+                    maintainer_service: s[0] || ''                   
+                };                  
+                this.allMaintainers_service.metadata.push(maintainer);
+            }
+        }
+        return this.allMaintainers_service;
+      },    
+      /** LifeWatch Keywords - Service
+       * Return an object containing metadata Keywords
+       * as an array and resource keyword as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllKeywords_service: function() {    	  
+        if (angular.isUndefined(this.allKeywords_service) &&
+        	angular.isDefined(this.keywords_service)) {
+        	this.allKeywords_service =	{metadata: []};                    	
+            for (var i = 0; i < this.keywords_service.length; i++) {
+                var s = this.keywords_service[i].split('--');                    
+                var keyword = {
+                    keyword_service: s[0] || ''                   
+                };                  
+                this.allKeywords_service.metadata.push(keyword);
+            }
+        }
+        return this.allKeywords_service;
+      }, 
+     /** LifeWatch Tags - Service
+       * Return an object containing metadata Tags
+       * as an array and resource tag as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllTags_service: function() {    	  
+          if (angular.isUndefined(this.allTags_service) &&
+          	angular.isDefined(this.tags_service)) {
+          	this.allTags_service =	{metadata: []};                    	
+              for (var i = 0; i < this.tags_service.length; i++) {
+                  var s = this.tags_service[i].split('--');                    
+                  var tag = {
+                      tag_service: s[0] || ''                   
+                  };                  
+                  this.allTags_service.metadata.push(tag);
+              }
+          }
+          return this.allTags_service;
+        },
+      /** LifeWatch OtherLanguage - Service
+       * Return an object containing metadata OtherLanguage
+       * as an array and resource tag as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllOtherLanguages_service: function() {    	  
+        if (angular.isUndefined(this.allOtherLanguages_service) &&
+        	angular.isDefined(this.otherLanguage_service)) {
+        	this.allOtherLanguages_service =	{metadata: []};  
+            for (var i = 0; i < this.otherLanguage_service.length; i++) {
+                var s = this.otherLanguage_service[i].split('--');                    
+                var otherLanguage = {
+                		otherLanguage_service: s[0] || ''                   
+                };                  
+                this.allOtherLanguages_service.metadata.push(otherLanguage);
+            }
+        }
+        return this.allOtherLanguages_service;
+      },
+      /** LifeWatch RelatedServices - Service
+       * Return an object containing metadata RelatedServices
+       * as an array and relatedServices as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllRelatedServices_service: function() {    	  
+        if (angular.isUndefined(this.allRelatedServices_service) &&
+        	angular.isDefined(this.relatedServices_service)) {
+        	this.allRelatedServices_service =	{metadata: []};                    	
+            for (var i = 0; i < this.relatedServices_service.length; i++) {
+                var s = this.relatedServices_service[i].split('--');                    
+                var relatedServices = {
+                    relatedServices_service: s[0] || ''                   
+                };                  
+                this.allRelatedServices_service.metadata.push(relatedServices);
+            }
+        }
+        return this.allRelatedServices_service;
+      },      
+    /** LifeWatch RequiredServices - Service
+       * Return an object containing metadata RequiredServices
+       * as an array and requiredServices as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllRequiredServices_service: function() {    	  
+        if (angular.isUndefined(this.allRequiredServices_service) &&
+        	angular.isDefined(this.requiredServices_service)) {
+        	this.allRequiredServices_service =	{metadata: []};                    	
+            for (var i = 0; i < this.requiredServices_service.length; i++) {
+                var s = this.requiredServices_service[i].split('--');                    
+                var requiredServices = {
+                    requiredServices_service: s[0] || ''                   
+                };                  
+                this.allRequiredServices_service.metadata.push(requiredServices);
+            }
+        }
+        return this.allRequiredServices_service;
+      },
+      /** LifeWatch Keywords - Dataset
+       * Return an object containing metadata Keyword
+       * as an array and resource keywords as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllKeywords_dataset: function() {   
+        if (angular.isUndefined(this.allKeywords_dataset) &&
+        	angular.isDefined(this.keyword_keywordSet_dataset)) {
+        	this.allKeywords_dataset =	{metadata: []};
+            for (var j = 0; j < this.keyword_keywordSet_dataset.length; j++) { 
+            	var keyword_attr = this.keyword_keywordSet_dataset[j].split('--');
+                var list_of_keyword = {
+                		keyword_keywordSet_dataset: keyword_attr[0] || ''   
+                };     
+                this.allKeywords_dataset.metadata.push(list_of_keyword);
+            } 
+        }
+        return this.allKeywords_dataset;
+      }, 
+       /** LifeWatch Creator - Dataset
+       * Return an object containing metadata Creator
+       * as an array and resource creators as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllCreators_dataset: function() {
+    	  
+        if (angular.isUndefined(this.allCreators_dataset) &&
+        	angular.isDefined(this.creator_dataset)) {
+        	this.allCreators_dataset =	{metadata: []};
+          for (var i = 0; i < this.creator_dataset.length; i++) {
+        	  var s = this.creator_dataset[i].split('|');
+      	  	var creator = {
+      	  			id_creator_dataset: s[0] || '',
+      	  			givenName_individualName_creator_dataset: s[1] || '',
+      	  			surName_individualName_creator_dataset: s[2] || '',
+      	  			organizationName_creator_dataset: s[3] || '',
+      	  			electronicMailAddress_creator_dataset: s[4] || '',
+      	  			userId_creator_dataset: s[5] || '',
+      	  			references_creator_dataset: s[6] || ''
+      	  	};
+            this.allCreators_dataset.metadata.push(creator);
+          }
+        }
+        return this.allCreators_dataset;
+      },
+      /** LifeWatch MetadataProvider - Dataset
+       * Return an object containing metadata Creator
+       * as an array and resource creators as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllMetadataProviders_dataset: function() {
+    	  
+        if (angular.isUndefined(this.allMetadataProviders_dataset) &&
+        	angular.isDefined(this.metadataProvider_dataset)) {
+        	this.allMetadataProviders_dataset =	{metadata: []};
+          for (var i = 0; i < this.metadataProvider_dataset.length; i++) {
+        	  var s = this.metadataProvider_dataset[i].split('|');
+      	  	var metadataProvider = {
+      	  			id_metadataProvider_dataset: s[0] || '',
+      	  			system_metadataProvider_dataset: s[1] || '',
+      	  			scope_metadataProvider_dataset: s[2] || '',
+      	  			givenName_individualName_metadataProvider_dataset: s[3] || '',
+      	  			surName_individualName_metadataProvider_dataset: s[4] || '',
+      	  			organizationName_metadataProvider_dataset: s[5] || '',
+      	  			electronicMailAddress_metadataProvider_dataset: s[6] || '',
+      	  			references_metadataProvider_dataset: s[7] || ''
+      	  	};
+            this.allMetadataProviders_dataset.metadata.push(metadataProvider);
+          }
+        }
+        return this.allMetadataProviders_dataset;
+      },
+      /** LifeWatch Contact - Dataset
+       * Return an object containing metadata Creator
+       * as an array and resource creators as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllContacts_dataset: function() {
+    	  
+        if (angular.isUndefined(this.allContacts_dataset) &&
+        	angular.isDefined(this.contact_dataset)) {
+        	this.allContacts_dataset =	{metadata: []};
+          for (var i = 0; i < this.contact_dataset.length; i++) {
+        	  var s = this.contact_dataset[i].split('|');
+      	  	var contact = {
+      	  			id_contact_dataset: s[0] || '',
+      	  			system_contact_dataset: s[1] || '',
+      	  			scope_contact_dataset: s[2] || '',
+      	  			givenName_individualName_contact_dataset: s[3] || '',
+      	  			surName_individualName_contact_dataset: s[4] || '',
+      	  			organizationName_contact_dataset: s[5] || '',
+      	  			electronicMailAddress_contact_dataset: s[6] || '',
+      	  			references_contact_dataset: s[7] || ''
+      	  	};
+            this.allContacts_dataset.metadata.push(contact);
+          }
+        }
+        return this.allContacts_dataset;
+      },   
+      /** LifeWatch AssociatedParty - Dataset
+       * Return an object containing metadata Creator
+       * as an array and resource creators as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllAssociatedParties_dataset: function() {
+    	  
+        if (angular.isUndefined(this.allAssociatedParties_dataset) &&
+        	angular.isDefined(this.associatedParty_dataset)) {
+        	this.allAssociatedParties_dataset =	{metadata: []};
+          for (var i = 0; i < this.associatedParty_dataset.length; i++) {
+        	  var s = this.associatedParty_dataset[i].split('|');
+      	  	var associatedParty = {
+      	  			id_associatedParty_dataset: s[0] || '',
+      	  			system_associatedParty_dataset: s[1] || '',
+      	  			scope_associatedParty_dataset: s[2] || '',
+      	  			givenName_individualName_associatedParty_dataset: s[3] || '',
+      	  			surName_individualName_associatedParty_dataset: s[4] || '',
+      	  			organizationName_associatedParty_dataset: s[5] || '',
+      	  			electronicMailAddress_associatedParty_dataset: s[6] || ''
+      	  	};
+            this.allAssociatedParties_dataset.metadata.push(associatedParty);
+          }
+        }
+        return this.allAssociatedParties_dataset;
+      },
+      /** LifeWatch TaxonomicCoverage - Dataset
+       * Return an object containing metadata Creator
+       * as an array and resource creators as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllTaxonomicCoverages_dataset: function() {
+    	  
+        if (angular.isUndefined(this.allTaxonomicCoverages_dataset) &&
+        	angular.isDefined(this.taxonomicClassification_taxonomicCoverage_coverage_dataset)) {
+        	this.allTaxonomicCoverages_dataset =	{metadata: []};
+          for (var i = 0; i < this.taxonomicClassification_taxonomicCoverage_coverage_dataset.length; i++) {
+        	  var s = this.taxonomicClassification_taxonomicCoverage_coverage_dataset[i].split('|');
+      	  	var taxonomicClassification_taxonomicCoverage_coverage = {
+      	  			taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset: s[0] || '',
+      	  			taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset: s[1] || '',
+      	  			taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset: s[2] || '',
+      	  			commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset: s[3] || ''
+      	  	};
+            this.allTaxonomicCoverages_dataset.metadata.push(taxonomicClassification_taxonomicCoverage_coverage);
+          }
+        }
+        return this.allTaxonomicCoverages_dataset;
+      },
+      /** LifeWatch ProjectPersonnel - Dataset
+       * Return an object containing metadata ProjectPersonnel
+       * as an array and resource projectPersonnel as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllProjectPersonnel_dataset: function() {    	  
+        if (angular.isUndefined(this.allProjectPersonnel_dataset) &&
+        	angular.isDefined(this.personnelProject_dataset)) {
+        	this.allProjectPersonnel_dataset =	{metadata: []};
+            for (var i = 0; i < this.personnelProject_dataset.length; i++) {
+        	  var s = this.personnelProject_dataset[i].split('|');
+      	  	  var personnelProject = {
+      	          individualName_personnel_project_dataset: s[0] || '',
+                  positionName_personnel_project_dataset: s[1] || '',
+                  name_organization_personnel_project_dataset: s[2] || ''
+      	  	  };
+                this.allProjectPersonnel_dataset.metadata.push(personnelProject);
+            }
+        }
+        return this.allProjectPersonnel_dataset;
+      }, 
+      /** LifeWatch MethodStep - Dataset
+       * Return an object containing metadata MethodStep
+       * as an array and resource methodStep as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllMethodSteps_dataset: function() {    	  
+        if (angular.isUndefined(this.allMethodSteps_dataset) &&
+        	angular.isDefined(this.methodStep_dataset)) {
+        	this.allMethodSteps_dataset =	{metadata: []};
+                    	
+            for (var i = 0; i < this.methodStep_dataset.length; i++) {
+                var s = this.methodStep_dataset[i].split('|');              
+                var para = s[0];
+                var bibtex = s[1];
+                var instrument = s[2];
+                var sw = s[3];
+                var instr_attr = instrument.split('--');  
+                var arrayInstr  = new Array();
+                for (var j = 0; j < instr_attr.length-1; j++) {       
+                    var list_of_instr = {
+                    		instrumentation_methodStep_methods_dataset: instr_attr[j] || ''   
+                    }     
+                    arrayInstr.push(list_of_instr);
+                }
+                var sw_attr = sw.split('^');  
+                var arrayInterno  = new Array();
+                for (var j = 0; j < sw_attr.length-1; j++) {  
+                    var sw_internal_att = sw_attr[j].split('--');
+                    for (var k = 0; k < sw_internal_att.length; k++) {             
+                         var list_of_sw = {
+                            title_software_methodStep_methods_dataset: sw_internal_att[0] || '',
+                            references_software_methodStep_methods_dataset: sw_internal_att[1] || ''
+                         } 
+                    }     
+                    arrayInterno.push(list_of_sw);
+                }
+                var methodStep = {
+                    para_description_methodStep_methods_dataset: para || '',
+                    bibtex_citation_methodStep_methods_dataset: bibtex || '',
+                    instrumentation_methodStep_methods_dataset: arrayInstr || '',
+                    software_methodStep_methods_dataset: arrayInterno || ''
+                };                  
+                this.allMethodSteps_dataset.metadata.push(methodStep);
+            }
+        }
+        return this.allMethodSteps_dataset;
+      }, 
+      /** LifeWatch Samplings - Dataset
+       * Return an object containing metadata Samplings
+       * as an array and resource samplings as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllSamplings_dataset: function() {   
+        if (angular.isUndefined(this.allSamplings_dataset) &&
+        	angular.isDefined(this.sampling_methods_dataset)) {
+        	this.allSamplings_dataset =	{metadata: []};
+            for (var j = 0; j < this.sampling_methods_dataset.length; j++) { 
+            	var sampling_attr = this.sampling_methods_dataset[j].split('--');
+                var list_of_sampling = {
+                	para_samplingDescription_sampling_methods_dataset: sampling_attr[0] || ''   
+                };     
+                this.allSamplings_dataset.metadata.push(list_of_sampling);
+            } 
+        }
+        return this.allSamplings_dataset;
+      }, 
+      /** LifeWatch Datatable - Dataset
+       * Return an object containing metadata Datatable
+       * as an array and resource datatable as array
+       *
+       * @return {{metadata: Array}}
+       */
+      getAllDatatables_dataset: function() {    	  
+        if (angular.isUndefined(this.allDatatables_dataset) &&
+        	angular.isDefined(this.datatable_dataset)) {
+        	this.allDatatables_dataset =	{metadata: []};              	
+            for (var i = 0; i < this.datatable_dataset.length; i++) {
+                var s = this.datatable_dataset[i].split('|');              
+                var entityName = s[0];
+                var formatName = s[1];
+                var attributeList = s[2];            
+                var attributeList_attr = attributeList.split('^');  
+                var arrayInterno  = new Array();
+                for (var j = 0; j < attributeList_attr.length-1; j++) {  
+                    var attributeList_internal_att = attributeList_attr[j].split('--');
+                    //alert(attributeList_attr);
+                    for (var k = 0; k < attributeList_internal_att.length; k++) {    
+                    	var arrayInterno2  = new Array(); 
+                    	var attributeAnnotation = attributeList_internal_att[5].split('°°');
+                    	for (var x = 0; x < attributeAnnotation.length-1; x++) {  
+                            var attributeList_internal_annotation = attributeAnnotation[x].split('##');
+                            var list_of_annotation = {
+                            	propertyURI_attributeAnnotation_attributeList_datatable_dataset: attributeList_internal_annotation[0] || '',
+                                valueURI_attributeAnnotation_attributeList_datatable_dataset: attributeList_internal_annotation[1] || ''
+                            };
+                            arrayInterno2.push(list_of_annotation); 	
+                        }
+                    	var list_of_aL = {
+                        	attributeName_attributeList_datatable_dataset: attributeList_internal_att[0] || '',
+                        	attributeLabel_attributeList_datatable_dataset: attributeList_internal_att[1] || '',
+                        	attributeDefinition_attributeList_datatable_dataset: attributeList_internal_att[2] || '',
+                        	standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset: attributeList_internal_att[3] || '',
+                        	code_missingValueCode_attributeList_datatable_dataset: attributeList_internal_att[4] || '',
+                        	attributeAnnotation_attributeList_datatable_dataset: arrayInterno2 || ''
+                         };
+                    }     
+                    arrayInterno.push(list_of_aL);
+                }
+                var dataTable = {
+                	entityName_datatable_dataset: entityName || '',
+                    formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset: formatName || '',
+                    attributeList_datatable_dataset: arrayInterno || ''
+                };                  
+                this.allDatatables_dataset.metadata.push(dataTable);
+            }
+        }
+        return this.allDatatables_dataset;
+      }, 
       /**
        * Deprecated. Use getAllContacts instead
        */

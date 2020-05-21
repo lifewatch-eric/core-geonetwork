@@ -511,6 +511,7 @@
                         select="generate-id(/root/gui/strings/inspireSection/metadata/title)"/>
         <xsl:with-param name="content">
 
+		  <!-- Original
           <xsl:call-template name="complexElementGuiWrapper">
             <xsl:with-param name="title"
                             select="string(/root/gui/*[name(.)=$schema]/element[@name='gmd:MD_Metadata']/label)"/>
@@ -534,8 +535,38 @@
               </xsl:apply-templates>
             </xsl:with-param>
           </xsl:call-template>
+ 		  -->
 
-
+		  <!-- LifeWatch Template -->
+          <xsl:call-template name="complexElementGuiWrapper">
+            <xsl:with-param name="title"
+                            select="string(/root/gui/*[name(.)=$schema]/element[@name='gmd:MD_Metadata']/label)"/>
+            <xsl:with-param name="content">
+              <xsl:apply-templates mode="elementEP"
+                                   select="
+                  ../../gmd:fileIdentifier|
+                  ../../gmd:language|
+                  ../../gmd:metadataStandardName|
+                  ../../gmd:metadataStandardName|
+                  ../../gmd:lifewatch/*/gmd:title_LifeWatch|
+                  ../../geonet:child[string(@name)='title_LifeWatch']|
+                  ../../gmd:metadataStandardVersion|
+                  ../../geonet:child[string(@name)='language']|
+                  ../../gmd:characterSet|
+                  ../../geonet:child[string(@name)='characterSet']|
+                  ../../gmd:contact|
+                  ../../geonet:child[string(@name)='contact']|
+                  ../../gmd:dateStamp|
+                  ../../geonet:child[string(@name)='dateStamp']|
+                  ../../gmd:revisionDate|
+                  ../../geonet:child[string(@name)='revisionDate']
+                  ">
+                <xsl:with-param name="schema" select="$schema"/>
+                <xsl:with-param name="edit" select="$edit"/>
+              </xsl:apply-templates>
+            </xsl:with-param>
+          </xsl:call-template>
+ 		  
         </xsl:with-param>
       </xsl:call-template>
     </xsl:for-each>

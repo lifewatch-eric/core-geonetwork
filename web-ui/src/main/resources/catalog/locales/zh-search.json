@@ -406,5 +406,7 @@
     "processesTool": "Use a WPS process",
     "wpsGetCapError": "Error while parsing WPS capabilities:",
     "wpsByUrl": "Search processes",
-    "wpsRecent": "Recent Processes"
+    "wpsRecent": "Recent Processes",
+    "LW_VRE": "LifeWatch VRE",
+  	"title_LW": "Title"
 }

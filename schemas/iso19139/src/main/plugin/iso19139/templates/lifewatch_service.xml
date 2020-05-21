@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2001-2016 Food and Agriculture Organization of the
+  ~ United Nations (FAO-UN), United Nations World Food Programme (WFP)
+  ~ and United Nations Environment Programme (UNEP)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or (at
+  ~ your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but
+  ~ WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+  ~
+  ~ Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
+  ~ Rome - Italy. email: geonetwork@osgeo.org
+  -->
+
+<MD_Metadata xmlns:gml="http://www.opengis.net/gml/3.2"
+	xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd"
+	xmlns="http://www.isotc211.org/2005/gmd">
+	<fileIdentifier>
+		<gco:CharacterString />
+	</fileIdentifier>
+	<language>
+		<LanguageCode codeList="" codeListValue="eng" />
+	</language>
+
+	<gmd:hierarchyLevel>
+		<gmd:MD_ScopeCode
+			codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_ScopeCode"
+			codeListValue="service_lifewatch" />
+	</gmd:hierarchyLevel>
+
+	<gmd:identificationInfo>
+		<MD_DataIdentification>
+			<gmd:citation>
+				<gmd:CI_Citation>
+					<gmd:title>
+						<gco:CharacterString>Template for LifeWatch Service
+						</gco:CharacterString>
+					</gmd:title>
+					<gmd:date>
+                  		<gmd:CI_Date>
+                     		<gmd:date>
+                        		<gco:Date></gco:Date>
+                    		 </gmd:date>
+                     		<gmd:dateType>
+                        		<gmd:CI_DateTypeCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode"
+                                             codeListValue="publication"/>
+                    		</gmd:dateType>
+                  		</gmd:CI_Date>
+               		</gmd:date>
+				</gmd:CI_Citation>
+			</gmd:citation>
+			<gmd:abstract>
+				<gco:CharacterString>Template LifeWatch - Service
+				</gco:CharacterString>
+			</gmd:abstract>
+			<gmd:status>
+				<gmd:MD_ProgressCode codeListValue="completed"
+					codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_ProgressCode" />
+			</gmd:status>
+			<gmd:pointOfContact>
+            <gmd:CI_ResponsibleParty>
+               <gmd:individualName>
+                  <gco:CharacterString></gco:CharacterString>
+               </gmd:individualName>
+               <gmd:organisationName>
+                  <gco:CharacterString></gco:CharacterString>
+               </gmd:organisationName>
+               <gmd:contactInfo>
+                  <gmd:CI_Contact>
+                     <gmd:address>
+                        <gmd:CI_Address>
+                           <gmd:electronicMailAddress gco:nilReason="missing">
+                              <gco:CharacterString/>
+                           </gmd:electronicMailAddress>
+                        </gmd:CI_Address>
+                     </gmd:address>
+                  </gmd:CI_Contact>
+               </gmd:contactInfo>
+               <gmd:role>
+                  <gmd:CI_RoleCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_RoleCode"
+                                   codeListValue="author"/>
+               </gmd:role>
+            </gmd:CI_ResponsibleParty>
+         </gmd:pointOfContact>
+		</MD_DataIdentification>
+	</gmd:identificationInfo>
+   
+	<gmd:service>
+		<gmd:LW_Service>
+			<!-- <gmd:revisionDate_service>
+				<gco:DateTime></gco:DateTime>
+			</gmd:revisionDate_service>  -->
+			<gmd:technicalInformation_service>
+				<gmd:LW_TechnicalInformation>
+					<gmd:contactPoint_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:contactPoint_service>
+					<gmd:address_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:address_service>
+					<gmd:keywords_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:keywords_service>
+					<gmd:typeOfService_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:typeOfService_service>
+					<gmd:typeOfAssociation_service>
+						 <LW_TypeOfAssociation_service codeListValue=""
+                                codeList="./resources/codeList.xml#LW_TypeOfAssociation_service"/>
+					</gmd:typeOfAssociation_service>
+				</gmd:LW_TechnicalInformation>
+			</gmd:technicalInformation_service>
+			<gmd:containOperations_service>
+				<gmd:LW_ContainOperations>
+					<gmd:operationName_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:operationName_service>
+					<!--<gmd:webSite_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:webSite_service>-->
+					<!--<gmd:protocol_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:protocol_service>-->
+					<gmd:descriptionOperation_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:descriptionOperation_service>
+					<gmd:function_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:function_service>
+				</gmd:LW_ContainOperations>
+			</gmd:containOperations_service>
+						<gmd:managementInfo_service>
+				<gmd:LW_ManagementInfoService>
+					<gmd:maintainer_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:maintainer_service>
+					<gmd:version_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:version_service>
+					<gmd:lastUpdated_service>
+						<gco:DateTime></gco:DateTime>
+					</gmd:lastUpdated_service>
+					<gmd:created_service>
+						<gco:DateTime></gco:DateTime>
+					</gmd:created_service>
+				</gmd:LW_ManagementInfoService>
+			</gmd:managementInfo_service>
+			<!-- <gmd:serviceClassificationInformation_service>
+				<gmd:LW_ServiceClassificationInformation>
+					<gmd:tags_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:tags_service>
+					<gmd:relatedServices_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:relatedServices_service>
+					<gmd:requiredServices_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:requiredServices_service>
+					<gmd:topicCategory_service>
+						<LW_TopicCategory_service codeListValue=""
+                                codeList="./resources/codeList.xml#LW_TopicCategory_service"/>
+					</gmd:topicCategory_service>
+					<gmd:serviceLanguage_service>
+						<gmd:LW_ServiceLanguage_service codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="eng"/>
+					</gmd:serviceLanguage_service>
+					<gmd:serviceTRL_service>
+						 <LW_ServiceTRL_service codeListValue=""
+                                codeList="./resources/codeList.xml#LW_ServiceTRL_service"/>
+					</gmd:serviceTRL_service>
+				</gmd:LW_ServiceClassificationInformation>
+			</gmd:serviceClassificationInformation_service> -->
+			<!-- <gmd:serviceContractualInformation_service>
+				<gmd:LW_ServiceContractualInformation>
+					<gmd:serviceFunding_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:serviceFunding_service>
+					<gmd:serviceLevelAgreement_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:serviceLevelAgreement_service>
+					<gmd:servicePrice_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:servicePrice_service>
+					<gmd:termsOfUse_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:termsOfUse_service>
+				</gmd:LW_ServiceContractualInformation>
+			</gmd:serviceContractualInformation_service> -->
+			<!-- <gmd:serviceSupportInformation_service>
+				<gmd:LW_ServiceSupportInformation>
+					<gmd:serviceFeedback_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:serviceFeedback_service>
+					<gmd:serviceHelpdesk_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:serviceHelpdesk_service>
+					<gmd:serviceOrder_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:serviceOrder_service>
+					<gmd:serviceTraining_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:serviceTraining_service>
+					<gmd:serviceUserManual_service>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:serviceUserManual_service>
+				</gmd:LW_ServiceSupportInformation>
+			</gmd:serviceSupportInformation_service> -->
+		</gmd:LW_Service>
+	</gmd:service>
+	
+	<gmd:distributionInfo xmlns:geonet="http://www.fao.org/geonetwork">
+      <gmd:MD_Distribution>
+         <gmd:transferOptions>
+            <gmd:MD_DigitalTransferOptions>
+               <gmd:onLine>
+                  <gmd:CI_OnlineResource>
+                     <gmd:linkage>
+                        <gmd:URL></gmd:URL>
+                     </gmd:linkage>
+                     <gmd:protocol>
+                        <gco:CharacterString>DOI</gco:CharacterString>
+                     </gmd:protocol>
+                     <gmd:applicationProfile gco:nilReason="missing">
+                        <gco:CharacterString/>
+                     </gmd:applicationProfile>
+                     <gmd:name gco:nilReason="missing">
+                        <gco:CharacterString/>
+                     </gmd:name>
+                     <gmd:description gco:nilReason="missing">
+                        <gco:CharacterString/>
+                     </gmd:description>
+                     <gmd:function>
+                        <gmd:CI_OnLineFunctionCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_OnLineFunctionCode"
+                                                   codeListValue=""/>
+                     </gmd:function>
+                  </gmd:CI_OnlineResource>
+               </gmd:onLine>
+            </gmd:MD_DigitalTransferOptions>
+         </gmd:transferOptions>
+      </gmd:MD_Distribution>
+  </gmd:distributionInfo>
+  
+</MD_Metadata>

@@ -1586,6 +1586,25 @@
         such as a use case
       </description>
     </entry>
+    <!-- LifeWatch -->
+    <entry>
+      <code>vre_lifewatch</code>
+      <label>Virtual Research Environment - LifeWatch</label>
+      <description>Catalogue Virtual Research Environment provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
+      <code>service_lifewatch</code>
+      <label>Service - LifeWatch</label>
+      <description>Catalogue Service provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
+      <code>dataset_lifewatch</code>
+      <label>Dataset - LifeWatch</label>
+      <description>Catalogue Dataset provided by LifeWatch ERIC
+      </description>
+    </entry>
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - -->
     <entry>
       <code>model</code>
@@ -1651,7 +1670,192 @@
         such as a use case
       </description>
     </entry>
+     <!-- LifeWatch -->
+    <entry>
+      <code>vre_lifewatch</code>
+      <label>Virtual Research Environment - LifeWatch</label>
+      <description>Catalogue Virtual Research Environment provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
+      <code>service_lifewatch</code>
+      <label>Service - LifeWatch</label>
+      <description>Catalogue Service provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
+      <code>dataset_lifewatch</code>
+      <label>Dataset - LifeWatch</label>
+      <description>Catalogue Dataset provided by LifeWatch ERIC
+      </description>
+    </entry>
   </codelist>
+  <!-- ==================================================== -->
+  <!-- LifeWatch Service -->
+  <codelist name="gmd:LW_TypeOfAssociation_service">
+    <entry>
+      <code>Loose</code>
+      <label>Loose</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Mixed</code>
+      <label>Mixed</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Tight</code>
+      <label>Tight</label>
+      <description>
+      </description>
+    </entry>
+  </codelist>
+  <codelist name="gmd:LW_ServiceTRL_service">
+    <entry>
+      <code>TRL 1 – Basic principles observed</code>
+      <label>TRL 1 – Basic principles observed</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>TRL 2 – Technology concept formulated</code>
+      <label>TRL 2 – Technology concept formulated</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>TRL 3 – Experimental proof of concept</code>
+      <label>TRL 3 – Experimental proof of concept</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>TRL 4 – Technology validated in lab</code>
+      <label>TRL 4 – Technology validated in lab</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>TRL 5 – Technology validated in relevant environment</code>
+      <label>TRL 5 – Technology validated in relevant environment</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>TRL 6 – Technology demonstrated in relevant environment</code>
+      <label>TRL 6 – Technology demonstrated in relevant environment</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>TRL 7 – System prototype demonstration in operational environment</code>
+      <label>TRL 7 – System prototype demonstration in operational environment</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>TRL 8 – System complete and qualified</code>
+      <label>TRL 8 – System complete and qualified</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>TRL 9 – Actual system proven in operational environment</code>
+      <label>TRL 9 – Actual system proven in operational environment</label>
+      <description>
+      </description>
+    </entry>
+  </codelist>
+  <codelist name="gmd:LW_TopicCategory_service">
+    <entry>
+      <code>Biology</code>
+      <label>Biology</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Biomedical science</code>
+      <label>Biomedical science</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Chemistry</code>
+      <label>Chemistry</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Computational biology</code>
+      <label>Computational biology</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Computer science</code>
+      <label>Computer science</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Experimental design and studies</code>
+      <label>Experimental design and studies</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Informatics</code>
+      <label>Informatics</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Laboratory techniques</code>
+      <label>Laboratory techniques</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Literature and language</code>
+      <label>Literature and language</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Mathematics</code>
+      <label>Mathematics</label>
+      <description>
+      </description>
+    </entry>
+     <entry>
+      <code>Medicine</code>
+      <label>Medicine</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Omics</code>
+      <label>Omics</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Physics</code>
+      <label>Physics</label>
+      <description>
+      </description>
+    </entry>
+    <entry>
+      <code>Other</code>
+      <label>Other</label>
+      <description>
+      </description>
+    </entry>
+    
+  </codelist>
+  
   <!-- ==================================================== -->
   <codelist name="gmd:MD_SpatialRepresentationTypeCode">
     <entry>
@@ -1865,6 +2069,25 @@
         networks
       </description>
     </entry>
+     <!-- LifeWatch -->
+    <entry>
+      <code>vre_lifewatch</code>
+      <label>Virtual Research Environment - LifeWatch</label>
+      <description>Catalogue Virtual Research Environment provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
+      <code>service_lifewatch</code>
+      <label>Service - LifeWatch</label>
+      <description>Catalogue Service provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
+      <code>dataset_lifewatch</code>
+      <label>Dataset - LifeWatch</label>
+      <description>Catalogue Dataset provided by LifeWatch ERIC
+      </description>
+    </entry>
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - -->
   </codelist>
   <!-- ==================================================== -->
@@ -2028,6 +2251,25 @@
       <description>Information applies to a capability which a service provider entity makes
         available to a service user entity through a set of interfaces that define a behaviour,
         such as a use case
+      </description>
+    </entry>
+     <!-- LifeWatch -->
+    <entry>
+      <code>vre_lifewatch</code>
+      <label>Virtual Research Environment - LifeWatch</label>
+      <description>Catalogue Virtual Research Environment provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
+      <code>dataset_lifewatch</code>
+      <label>Dataset - LifeWatch</label>
+      <description>Catalogue Dataset provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
+      <code>service_lifewatch</code>
+      <label>Service - LifeWatch</label>
+      <description>Catalogue Service provided by LifeWatch ERIC
       </description>
     </entry>
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - -->

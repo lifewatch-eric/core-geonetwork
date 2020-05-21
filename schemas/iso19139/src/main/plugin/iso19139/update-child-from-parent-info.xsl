@@ -46,6 +46,11 @@
   <xsl:param name="gmd-metadataConstraints"/>
   <xsl:param name="gmd-applicationSchemaInfo"/>
   <xsl:param name="gmd-metadataMaintenance"/>
+  
+  <!--  LifeWatch -->
+  <xsl:param name="gmd-vre"/>
+  <xsl:param name="gmd-service"/>
+  <xsl:param name="gmd-dataset"/>
 
   <!-- ================================================================= -->
 
@@ -70,9 +75,15 @@
       </xsl:call-template>
 
       <xsl:copy-of select="gmd:dateStamp"/>
+      
+      <!-- LifeWatch old -->
+      <xsl:copy-of select="gmd:revisionDate"/>
+      <xsl:copy-of select="gmd:vre/gmd:LW_VRE/gmd:title_vre"/>
+      <xsl:copy-of select="gmd:service/gmd:LW_Service/gmd:title_service"/>
+       <!-- End LifeWatch -->
+       
       <xsl:copy-of select="gmd:metadataStandardName"/>
       <xsl:copy-of select="gmd:metadataStandardVersion"/>
-
       <xsl:copy-of select="/root/child/gmd:MD_Metadata/gmd:dataSetURI"/>
       <xsl:copy-of select="gmd:locale"/>
 
@@ -240,6 +251,27 @@
         <xsl:with-param name="mode" select="'replace'"/>
       </xsl:call-template>
 
+	  <!-- VRE LifeWatch -->
+	  <xsl:call-template name="process">
+        <xsl:with-param name="update" select="$gmd-vre"/>
+        <xsl:with-param name="name" select="gmd:vre"/>
+        <xsl:with-param name="mode" select="$updateMode"/>
+      </xsl:call-template>
+      
+      <!-- Service LifeWatch -->
+	  <xsl:call-template name="process">
+        <xsl:with-param name="update" select="$gmd-service"/>
+        <xsl:with-param name="name" select="gmd:service"/>
+        <xsl:with-param name="mode" select="$updateMode"/>
+      </xsl:call-template>
+      
+      <!-- Dataset LifeWatch -->
+	  <xsl:call-template name="process">
+        <xsl:with-param name="update" select="$gmd-dataset"/>
+        <xsl:with-param name="name" select="gmd:dataset"/>
+        <xsl:with-param name="mode" select="$updateMode"/>
+      </xsl:call-template>
+      
       <!-- FIXME / TO BE DISCUSS following sections are preserved -->
       <xsl:copy-of select="/root/child/gmd:MD_Metadata/gmd:series"/>
       <xsl:copy-of select="/root/child/gmd:MD_Metadata/gmd:describes"/>

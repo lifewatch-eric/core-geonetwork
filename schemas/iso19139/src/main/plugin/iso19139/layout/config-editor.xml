@@ -51,6 +51,43 @@
     <for name="gmd:specificUsage" use="textarea"/>
     <for name="gmd:userNote" use="textarea"/>
     <for name="gmd:useLimitation" use="textarea"/>
+    
+    <!-- VRE LifeWatch -->
+    <for name="gmd:description_vre" use="textarea"/>
+    <for name="gmd:dateCreation_vre" use="data-gn-date-picker"/>
+    <for name="gmd:serviceDescription_vre" use="textarea"/>
+    <for name="gmd:usageConditions_vre" use="textarea"/>
+    <for name="gmd:howToCiteThisVRE_vre" use="textarea"/>
+    <for name="gmd:publicationsAboutThisVRE_vre" use="textarea"/>
+    <for name="gmd:vreFeedback_vre" use="textarea"/>
+    <for name="gmd:vreHelpdesk_vre" use="textarea"/>
+    <for name="gmd:vreOrder_vre" use="textarea"/>
+    <for name="gmd:vreTraining_vre" use="textarea"/>
+    <for name="gmd:vreUserManual_vre" use="textarea"/>
+    <for name="gmd:e_mail_vre" use="email"/>
+    <for name="gmd:lastUpdated_vre" use="data-gn-date-picker"/>
+    <for name="gmd:created_vre" use="data-gn-date-picker"/>
+    <!-- End VRE LifeWatch -->
+    
+     <!-- Service LifeWatch -->
+	<for name="gmd:description_service" use="textarea"/>
+	<for name="gmd:descriptionOperation_service" use="textarea"/>
+	<for name="gmd:date_service" use="data-gn-date-picker"/>
+	<for name="gmd:serviceLanguage_service" use="data-gn-language-picker"/>
+	<for name="gmd:otherLanguage_service" use="data-gn-language-picker"/>
+	<for name="gmd:lastUpdated_service" use="data-gn-date-picker"/>
+    <for name="gmd:created_service" use="data-gn-date-picker"/>
+     <!-- End Service LifeWatch -->
+    
+     <!-- Dataset LifeWatch -->
+	<for name="gmd:para_abstract_dataset" use="textarea"/>
+	<for name="gmd:calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset" use="data-gn-date-picker"/>
+	<for name="gmd:calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset" use="data-gn-date-picker"/>
+	<for name="gmd:para_description_methodStep_methods_dataset" use="textarea"/>
+	<for name="gmd:para_samplingDescription_sampling_methods_dataset" use="textarea"/>
+	<for name="gmd:language_dataset" use="data-gn-language-picker"/>
+     <!-- End Dataset LifeWatch -->
+     
     <!-- Example configuration to use thesaurus to populate a CharacterString field
     (including multilingual fields).
 
@@ -239,6 +276,74 @@
   <fieldsWithFieldset>
     <name>gmd:MD_Metadata</name>
     <name>gmd:identificationInfo</name>
+    
+    <!-- LifeWatch -->
+    <name>gmd:vre</name>
+    <name>gmd:coordinationTeam_vre</name>
+    <name>gmd:containServices_vre</name>
+    <name>gmd:vreContractualInformation_vre</name>
+    <name>gmd:vreSupportInformation_vre</name>
+    <name>gmd:managementInfo_vre</name>  
+    <!-- End LifeWatch -->
+    
+    <!-- Service LifeWatch -->
+    <name>gmd:service</name>
+    <name>gmd:technicalInformation_service</name>
+    <name>gmd:containOperations_service</name>
+    <name>gmd:basicServiceInformation_service</name>
+    <name>gmd:serviceClassificationInformation_service</name>
+    <name>gmd:serviceContractualInformation_service</name>
+    <name>gmd:serviceSupportInformation_service</name> 
+    <name>gmd:managementInfo_service</name>       
+    <!-- End Service LifeWatch -->
+    
+     <!-- Dataset LifeWatch -->
+    <name>gmd:dataset</name>
+    <name>gmd:creator_dataset</name>
+    <name>gmd:individualName_creator_dataset</name>
+    <name>gmd:contact_dataset</name>
+    <name>gmd:individualName_contact_dataset</name>
+    <name>gmd:metadataProvider_dataset</name>
+    <name>gmd:individualName_metadataProvider_dataset</name>
+    <name>gmd:associatedParty_dataset</name>
+    <name>gmd:individualName_associatedParty_dataset</name>
+    <!-- <name>gmd:abstract_dataset</name>  -->
+    <name>gmd:keywordSet_dataset</name>
+    <name>gmd:licensed_dataset</name>
+    <name>gmd:distribution_dataset</name>
+    <name>gmd:online_distribution_dataset</name>
+    <name>gmd:coverage_dataset</name>
+    <name>gmd:geographicCoverage_coverage_dataset</name>
+    <name>gmd:boundingCoordinates_geographicCoverage_coverage_dataset</name>
+    <name>gmd:temporalCoverage_coverage_dataset</name>
+    <name>gmd:rangeOfDates_temporalCoverage_coverage_dataset</name>
+    <name>gmd:beginDate_rangeOfDates_temporalCoverage_coverage_dataset</name>
+    <name>gmd:endDate_rangeOfDates_temporalCoverage_coverage_dataset</name>
+    <name>gmd:taxonomicCoverage_coverage_dataset</name>
+    <name>gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset</name>
+    <name>gmd:methods_dataset</name>
+    <name>gmd:methodStep_methods_dataset</name>
+    <name>gmd:description_methodStep_methods_dataset</name>
+    <name>gmd:citation_methodStep_methods_dataset</name>
+    <name>gmd:software_methodStep_methods_dataset</name>
+    <name>gmd:sampling_methods_dataset</name>
+    <name>gmd:samplingDescription_sampling_methods_dataset</name>
+    <name>gmd:project_dataset</name>
+    <name>gmd:personnel_project_dataset</name>
+    <name>gmd:organization_personnel_project_dataset</name>
+    <name>gmd:datatable_dataset</name>
+    <name>gmd:physical_datatable_dataset</name>
+    <name>gmd:dataFormat_physical_datatable_dataset</name>
+    <name>gmd:externallyDefinedFormat_dataFormat_physical_datatable_dataset</name>
+    <name>gmd:attributeList_datatable_dataset</name>
+    <name>gmd:measurementScale_attributeList_datatable_dataset</name>
+    <name>gmd:ratio_measurementScale_attributeList_datatable_dataset</name>
+    <name>gmd:unit_ratio_measurementScale_attributeList_datatable_dataset</name>
+    <name>gmd:missingValueCode_attributeList_datatable_dataset</name>
+    <name>gmd:attributeAnnotation_attributeList_datatable_dataset</name>
+    
+    <!-- End Dataset LifeWatch -->
+    
     <name>gmd:distributionInfo</name>
     <name>gmd:portrayalCatalogueInfo</name>
     <name>gmd:portrayalCatalogueCitation</name>
@@ -475,11 +580,13 @@
       </sidePanel>
 
       <tab id="inspire" default="true" mode="flat">
+        	
         <section name="identificationInfo">
+
           <!-- Metadata ID -->
           <field
             xpath="/gmd:MD_Metadata/gmd:fileIdentifier"/>
-
+            
           <!-- Metadata title -->
           <field
             xpath="/gmd:MD_Metadata/gmd:identificationInfo/*/gmd:citation/gmd:CI_Citation/gmd:title"/>
@@ -491,7 +598,6 @@
           <field
             xpath="/gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:abstract"
             if="count(gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification) > 0"/>
-
 
           <!-- Hierarchy Level -->
           <field xpath="/gmd:MD_Metadata/gmd:hierarchyLevel" />
@@ -525,7 +631,22 @@
               </snippet>
             </template>
           </action>
-
+          
+          <action type="add" btnLabel="hierarchyLevel"
+                  name="hierarchyLevel" or="hierarchyLevel"
+                  if="count(gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification) > 0"
+                  in="/gmd:MD_Metadata">
+            <template>
+              <snippet>
+                <gmd:hierarchyLevel>
+                  <gmd:MD_ScopeCode
+                    codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_ScopeCode"
+                    codeListValue="vre"/>
+                </gmd:hierarchyLevel>
+              </snippet>
+            </template>
+          </action>
+          
           <!-- Links to resources -->
           <field name="url" templateModeOnly="true" notDisplayedIfMissing="true"
                  xpath="/gmd:MD_Metadata/gmd:distributionInfo/gmd:MD_Distribution/gmd:transferOptions
@@ -2390,10 +2511,9 @@
             </template>
           </action>
 
-
           <field xpath="/gmd:MD_Metadata/gmd:dateStamp"/>
-
-
+          
+          <!-- LifeWatch -->
           <field xpath="/gmd:MD_Metadata/gmd:language" />
 
           <action type="add" btnLabel="metadataLanguage"
@@ -2416,7 +2536,7 @@
       <tab id="inspire_sds"
            mode="flat"
            displayIfRecord="gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/srv:serviceType/gco:LocalName = 'other'">
-
+        	
         <section name="inspire_sds_cc1">
 
           <!-- 4.4.1 TG4 : ensure gmd:DQ_DataQuality for service exists -->
@@ -2703,6 +2823,7 @@
             <field
               xpath="gmd:MD_Metadata/gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/gmd:referenceSystemIdentifier/gmd:RS_Identifier/gmd:code/gmx:Anchor"
               del="."/>
+            
             <!-- The useXmlSnippet="true" attribute is a workaround to keep backward compatibility since often
             the data-gn-crs-selector directive is used specifying a snippet as below although the developer wanted
             to use the hardcoded snipped in EditorXMLService.js. We need a way to specify if we really want
@@ -3070,7 +3191,7 @@
         <!-- CONFORMITY CLASS 3 -->
 
         <section name="inspire_sds_cc3">
-
+      
           <field
             xpath="/gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/srv:containsOperations"/>
 
@@ -3152,33 +3273,26 @@
         <section xpath="/gmd:MD_Metadata/gmd:spatialRepresentationInfo"/>
         <section xpath="/gmd:MD_Metadata/gmd:distributionInfo"/>
         <section xpath="/gmd:MD_Metadata/gmd:dataQualityInfo"/>
-        <section xpath="/gmd:MD_Metadata/gmd:contentInfo"/>
-        <section name="gmd:MD_Metadata">
-          <field xpath="/gmd:MD_Metadata/gmd:fileIdentifier"/>
-          <field xpath="/gmd:MD_Metadata/gmd:language" or="language" in="/gmd:MD_Metadata"/>
-          <field xpath="/gmd:MD_Metadata/gmd:characterSet"/>
-          <field xpath="/gmd:MD_Metadata/gmd:parentIdentifier" or="parentIdentifier"
-                 in="/gmd:MD_Metadata"/>
-          <field xpath="/gmd:MD_Metadata/gmd:hierarchyLevel" or="hierarchyLevel"
-                 in="/gmd:MD_Metadata"/>
-          <field xpath="/gmd:MD_Metadata/gmd:hierarchyLevelName" or="hierarchyLevelName"
-                 in="/gmd:MD_Metadata"/>
-          <field xpath="/gmd:MD_Metadata/gmd:dateStamp"/>
-          <field xpath="/gmd:MD_Metadata/gmd:metadataStandardName"/>
-          <field xpath="/gmd:MD_Metadata/gmd:metadataStandardVersion"/>
-          <field xpath="/gmd:MD_Metadata/gmd:contact" or="contact" in="/gmd:MD_Metadata"/>
-          <field xpath="/gmd:MD_Metadata/gmd:dataSetURI" or="dataSetURI" in="/gmd:MD_Metadata"/>
-          <field xpath="/gmd:MD_Metadata/gmd:locale" or="locale" in="/gmd:MD_Metadata"/>
-          <field xpath="/gmd:MD_Metadata/gmd:series"/>
-          <field xpath="/gmd:MD_Metadata/gmd:describes"/>
-          <field xpath="/gmd:MD_Metadata/gmd:propertyType"/>
-          <field xpath="/gmd:MD_Metadata/gmd:featureType"/>
-          <field xpath="/gmd:MD_Metadata/gmd:featureAttribute"/>
-        </section>
+        <section xpath="/gmd:MD_Metadata/gmd:contentInfo"/>  
+       
+        <!-- VRE LifeWatch -->
+        <section xpath="/gmd:MD_Metadata/gmd:vre"/>       
+        <!-- End VRE LifeWatch -->
+        
+        <!-- Service LifeWatch -->
+        <section xpath="/gmd:MD_Metadata/gmd:service"/> 
+        <!-- End Service LifeWatch -->
+        
+        <!-- Dataset LifeWatch -->
+        <section xpath="/gmd:MD_Metadata/gmd:dataset"/> 
+        <!-- End Dataset LifeWatch -->
+        
       </tab>
 
       <!-- Elements that should not use the "flat" mode -->
+      
       <flatModeExceptions>
+        <!-- LifeWatch 
         <for name="gmd:descriptiveKeywords"/>
         <for name="gmd:keyword"/>
         <for name="gmd:spatialResolution"/>
@@ -3189,8 +3303,75 @@
         <for name="gmd:processor"/>
         <for name="gmd:topicCategory"/>
         <for name="srv:parameters"/>
-      </flatModeExceptions>
-
+         -->
+        
+        <for name="gmd:onLine"/>
+        <for name="gmd:pointOfContact"/>
+        
+        <!-- VRE LifeWatch -->
+        <for name="gmd:alternateIdentifier_vre"/>
+        <for name="gmd:coordinationTeam_vre"/>
+        <for name="gmd:containServices_vre"/>
+        <!-- <for name="gmd:author_vre"/> -->
+        <for name="gmd:maintainer_vre"/>
+        <for name="gmd:vreContractualInformation_vre"/>
+        <for name="gmd:vreSupportInformation_vre"/>
+        <for name="gmd:publicationsAboutThisVRE_vre"/>
+        <for name="gmd:serviceReference_vre"/>
+		
+        <!-- Service LifeWatch -->
+        <for name="gmd:keywords_service"/>
+        <!-- <for name="gmd:author_service"/> -->
+        <for name="gmd:maintainer_service"/>
+        <for name="gmd:containOperations_service"/>
+		<for name="gmd:otherLanguage_service"/>
+		<for name="gmd:tags_service"/>
+		<for name="gmd:relatedServices_service"/>
+		<for name="gmd:requiredServices_service"/>
+		<for name="gmd:basicServiceInformation_service"/>
+		<for name="gmd:serviceClassificationInformation_service"/>
+		<for name="gmd:serviceContractualInformation_service"/>
+		<for name="gmd:serviceSupportInformation_service"/>
+		<for name="gmd:revisionDate_service"/>
+		<for name="gmd:pid_service"/>
+		<for name="gmd:serviceTRL_service"/>
+		<for name="gmd:charset_service"/>
+		<for name="gmd:otherLanguage_service"/>
+		<for name="gmd:serviceLevelAgreement_service"/>
+		<for name="gmd:webSite_service"/>
+		<for name="gmd:protocol_service"/>
+        
+        <!-- Dataset LifeWatch -->
+        <!--  <for name="gmd:keywordSet_dataset"/> -->
+        <for name="gmd:keyword_keywordSet_dataset"/>
+        <for name="gmd:creator_dataset"/>
+        <for name="gmd:userId_creator_dataset"/>
+        <for name="gmd:references_creator_dataset"/>
+        <for name="gmd:metadataProvider_dataset"/>
+        <for name="gmd:references_metadataProvider_dataset"/>
+        <for name="gmd:contact_dataset"/>
+        <for name="gmd:references_contact_dataset"/>
+        <for name="gmd:associatedParty_dataset"/>
+        <for name="gmd:taxonomicCoverage_coverage_dataset"/>
+        <for name="gmd:commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset"/>
+        <for name="gmd:methodStep_methods_dataset"/>
+        <for name="gmd:citation_methodStep_methods_dataset"/>
+        <for name="gmd:instrumentation_methodStep_methods_dataset"/>
+        <for name="gmd:software_methodStep_methods_dataset"/>
+        <for name="gmd:sampling_methods_dataset"/>
+        <for name="gmd:project_dataset"/>
+        <for name="gmd:personnel_project_dataset"/>
+        <for name="gmd:attributeList_datatable_dataset"/>
+        <for name="gmd:missingValueCode_attributeList_datatable_dataset"/>
+        <for name="gmd:datatable_dataset"/>
+        <for name="gmd:attributeAnnotation_attributeList_datatable_dataset"/>
+        <for name="gmd:alternateIdentifier_dataset"/>
+        <for name="gmd:methods_dataset"/>
+        <for name="gmd:datatable_dataset"/>
+        <for name="gmd:propertyURI_attributeAnnotation_attributeList_datatable_dataset"/>
+       </flatModeExceptions>
+	  
+	  
       <!--
       To configure the type of transformations
       or the number of keyword allowed for e
@@ -3228,6 +3409,28 @@
         <section xpath="/gmd:MD_Metadata/gmd:identificationInfo" or="identificationInfo"
                  in="/gmd:MD_Metadata"/>
       </tab>
+      
+      <!-- VRE LifeWatch -->
+      <tab id="vre" default="true">
+        	<section xpath="/gmd:MD_Metadata/gmd:vre" or="vre"
+                 in="/gmd:MD_Metadata"/>
+      </tab>
+      <!-- End VRE LifeWatch -->
+      
+      <!-- Service LifeWatch -->
+      <tab id="service" default="true">
+        	<section xpath="/gmd:MD_Metadata/gmd:service" or="service"
+                 in="/gmd:MD_Metadata"/>
+      </tab>
+      <!-- End Service LifeWatch -->
+      
+       <!-- Dataset LifeWatch -->
+      <tab id="dataset" default="true">
+        	<section xpath="/gmd:MD_Metadata/gmd:dataset" or="dataset"
+                 in="/gmd:MD_Metadata"/>
+      </tab>
+      <!-- End Dataset LifeWatch -->
+      
       <tab id="distributionInfo">
         <section xpath="/gmd:MD_Metadata/gmd:distributionInfo" or="distributionInfo"
                  in="/gmd:MD_Metadata"/>
@@ -3263,7 +3466,7 @@
                  in="/gmd:MD_Metadata"/>
           <field xpath="/gmd:MD_Metadata/gmd:hierarchyLevelName" or="hierarchyLevelName"
                  in="/gmd:MD_Metadata"/>
-          <field xpath="/gmd:MD_Metadata/gmd:dateStamp"/>
+          <field xpath="/gmd:MD_Metadata/gmd:dateStamp"/>    
           <field xpath="/gmd:MD_Metadata/gmd:metadataStandardName"/>
           <field xpath="/gmd:MD_Metadata/gmd:metadataStandardVersion"/>
           <field xpath="/gmd:MD_Metadata/gmd:contact" or="contact" in="/gmd:MD_Metadata"/>
@@ -3274,6 +3477,7 @@
           <field xpath="/gmd:MD_Metadata/gmd:featureType"/>
           <field xpath="/gmd:MD_Metadata/gmd:featureAttribute"/>
         </section>
+
       </tab>
       <tab id="metadataConstraints" toggle="true">
         <section xpath="/gmd:MD_Metadata/gmd:metadataConstraints" or="metadataConstraints"
@@ -3360,7 +3564,47 @@
         <template>
           <![CDATA[<gmd:LanguageCode xmlns:gmd='http://www.isotc211.org/2005/gmd' codeListValue='{{value}}'/>]]></template>
       </field>
+      
+      <!-- LifeWatch ServiceLanguage_service -->
+      <field name="serviceLanguage_service"
+             xpath="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:serviceLanguage_service"
+             use="data-gn-language-picker"
+             insertMode="gn_replace"
+             removable="true">
+        <template>
+           <![CDATA[<gmd:LanguageCode xmlns:gmd='http://www.isotc211.org/2005/gmd' codeListValue='{{value}}'/>]]></template>
+      </field>
 
+	  <!-- LifeWatch OtherLanguage_service -->
+      <field name="otherLanguage_service"
+             xpath="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:otherLanguage_service"
+             use="data-gn-language-picker"
+             insertMode="gn_replace"
+             removable="true">
+        <template>
+           <![CDATA[<gmd:LanguageCode xmlns:gmd='http://www.isotc211.org/2005/gmd' codeListValue='{{value}}'/>]]></template>
+      </field>
+      
+      <!-- LifeWatch Charset_service -->
+      <field name="charset_service"
+             xpath="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:charset_service"
+             use="data-gn-language-picker"
+             insertMode="gn_replace"
+             removable="true">
+        <template>
+           <![CDATA[<gmd:MD_CharacterSetCode codeListValue='{{value}}' xmlns:gmd='http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_CharacterSetCode'/>]]></template>
+      </field>
+      
+      <!-- LifeWatch Language_dataset -->
+      <field name="language_dataset"
+             xpath="gmd:dataset/gmd:LW_Dataset/gmd:language_dataset"
+             use="data-gn-language-picker"
+             insertMode="gn_replace"
+             removable="true">
+        <template>
+           <![CDATA[<gmd:MD_CharacterSetCode codeListValue='{{value}}' xmlns:gmd='http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_CharacterSetCode'/>]]></template>
+      </field>
+      
       <!-- Insert, or replace if existing, the parent identifier.
       Warning: Duplicates may be inserted.
       -->

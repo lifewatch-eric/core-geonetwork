@@ -499,5 +499,7 @@
     "userSearchUpdated": "사용자 검색을 저장하였습니다",
     "userSearchUpdatedError": "사용자 검색을 저장하는 중 오류 발생",
     "seeDraft": "This record has a working copy version. Click here to see it.",
-    "seeNoDraft": "This record has an approved and published version. Click here to see it."
+    "seeNoDraft": "This record has an approved and published version. Click here to see it.",
+    "LW_VRE": "LifeWatch VRE",
+  	"title_LW": "Title"
 }

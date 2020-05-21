@@ -1865,6 +1865,14 @@
           <gml:identifier codeSpace="ISOTC211/19115">utilitiesCommunication</gml:identifier>
         </CodeDefinition>
       </codeEntry>
+      <!-- LifeWatch -->
+      <codeEntry>
+        <CodeDefinition gml:id="MD_TopicCategoryCode_vre_LifeWatch">
+          <gml:description>Catalogue Virtual Research Environment
+          </gml:description>
+          <gml:identifier codeSpace="ISOTC211/19115">vre</gml:identifier>
+        </CodeDefinition>
+      </codeEntry>
     </CodeListDictionary>
   </codelistItem>
   <!--=== MD_TopologyLevelCode ===-->
