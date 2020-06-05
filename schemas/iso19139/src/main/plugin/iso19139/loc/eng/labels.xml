@@ -3554,6 +3554,11 @@
     <label>Upper cardinality</label>
     <description>Upper cardinality</description>
   </element>
+
+  <element name="xlink:type">
+    <label>Link</label>
+    <description>Link type</description>
+  </element>
  
   <!-- VRE LifeWatch -->
    <element name="gmd:LW_VRE" id="1001.0">
@@ -4761,5 +4766,5 @@
     <description>The persistent URI used to identify a value from a vocabulary</description>
     <condition>mandatory</condition>
   </element>
-  
+
 </labels>
