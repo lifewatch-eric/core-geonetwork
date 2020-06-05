@@ -529,13 +529,14 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>schema-dublin-core</artifactId>
       <version>${gn.schemas.version}</version>
-    </dependency>
+    </dependency> 
+    <!-- 
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>schema-iso19115-3.2018</artifactId>
       <version>${gn.schemas.version}</version>
     </dependency>
-
+	 -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>wfsfeature-harvester</artifactId>
@@ -763,11 +764,13 @@
                   <targetPath>${basedir}/src/main/webapp/WEB-INF/data/config/schema_plugins
                   </targetPath>
                 </resource>
+                <!-- 
                 <resource>
                   <directory>${project.basedir}/../schemas/iso19115-3.2018/src/main/plugin</directory>
                   <targetPath>${basedir}/src/main/webapp/WEB-INF/data/config/schema_plugins
                   </targetPath>
                 </resource>
+                 -->
                 <!-- Copy the documentation in the webapp. -->
                 <resource>
                   <directory>${project.basedir}/../docs/manuals/target/doc</directory>

@@ -159,13 +159,13 @@
     </xsl:call-template>
 
     <!-- Charset Encoding -->
-    <xsl:variable name="characterSet">
+    <xsl:variable name="lang">
       <xsl:apply-templates mode="elementFop" select="./gmd:identificationInfo/*/gmd:characterSet">
         <xsl:with-param name="schema" select="$schema"/>
       </xsl:apply-templates>
     </xsl:variable>
     <xsl:call-template name="blockElementFop">
-      <xsl:with-param name="block" select="$characterSet"/>
+      <xsl:with-param name="block" select="$lang"/>
     </xsl:call-template>
 
     <!-- Hierarchy Level -->

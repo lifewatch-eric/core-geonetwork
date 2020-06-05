@@ -300,7 +300,8 @@
              };
 
              var initTooltip = function(event) {
-               if (!isInitialized && gnCurrentEdit.displayTooltips) {
+               //Lifewatch edit ( original: if (!isInitialized && gnCurrentEdit.displayTooltips))
+               if (!isInitialized && !gnCurrentEdit.displayTooltips) {
                  // Retrieve field information (there is a cache)
                  gnSchemaManagerService
                   .getElementInfo(attrs.gnFieldTooltip)

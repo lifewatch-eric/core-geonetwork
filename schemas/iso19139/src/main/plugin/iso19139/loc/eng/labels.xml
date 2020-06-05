@@ -914,7 +914,7 @@
     </description>
     <condition>mandatory</condition>
   </element>
-  <element name="gmd:dataset" id="154.0">
+  <element name="gmd:dataset_original" id="154.0">
     <description>Dataset to which the information applies</description>
     <condition/>
     <label>Dataset</label>
@@ -1214,10 +1214,11 @@
     <description>Date of the edition (YYYY-MM-DD)</description>
   </element>
   <element name="gmd:electronicMailAddress" id="386.0">
-    <label>Electronic mail address</label>
+    <label>Electronic mail address *</label>
     <description>Address of the electronic mailbox of the responsible organization or
       individual
     </description>
+    <condition>mandatory</condition>
   </element>
   <element name="gmd:environmentDescription" id="44.0">
     <label>Environment description</label>
@@ -1492,10 +1493,11 @@
     <condition>mandatory</condition>
   </element>
   <element name="gmd:individualName" id="375.0">
-    <label>Individual name</label>
+    <label>Individual name *</label>
     <description>Name of the responsible person- surname, given name, title separated by a
       delimiter
     </description>
+    <condition>mandatory</condition>
     <_condition>Conditional / organisationName and positionName not documented?</_condition>
   </element>
   <element name="gmd:initiativeType" id="66.5">
@@ -2121,9 +2123,9 @@
     </description>
   </element>
   <element name="gmd:organisationName" id="376.0">
-    <label>Organisation name</label>
+    <label>Organisation name *</label>
     <description>Name of the responsible organization</description>
-    <condition>conditional</condition>
+    <condition>mandatory</condition>
   </element>
   <element name="gmd:orientationParameterAvailability" id="172.0">
     <label>Orientation parameter availability</label>
@@ -2207,12 +2209,13 @@
     <condition>mandatory</condition>
   </element>
   <element name="gmd:pointOfContact" id="29.0">
-    <label>Point of contact</label>
+    <label>Point of contact *</label>
     <btnLabel>Add contact</btnLabel>
     <btnClass>fa fa-user-plus</btnClass>
     <description>Identification of, and means of communication with, person(s) and
       organizations(s) associated with the resource(s)
     </description>
+    <condition>mandatory</condition>
   </element>
   <element name="gmd:polygon" id="342.0">
     <label>Polygon</label>
@@ -3551,4 +3554,1212 @@
     <label>Upper cardinality</label>
     <description>Upper cardinality</description>
   </element>
+ 
+  <!-- VRE LifeWatch -->
+   <element name="gmd:LW_VRE" id="1001.0">
+    <label>Virtual Research Environment</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:vre" id="1003.0">
+    <label>Virtual Research Environment</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+   <element name="gmd:alternateIdentifier_vre" id="1004.0">
+    <label>Alternate Identifier</label>
+    <description>It is the alternate identifier of the VRE</description>
+    <condition>mandatory</condition>
+  </element>
+   <element name="gmd:url_vre" id="1008.0">
+    <label>Url</label>
+    <description>It is the link to the resource</description>
+    <condition>mandatory</condition>
+  </element>
+  
+  <element name="gmd:LW_CoordinationTeam" id="1009.0">
+    <label>Coordination Team</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:coordinationTeam_vre" id="1010.0">
+    <label>Coordination Team</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:contactPoint_vre" id="1011.0">
+    <label>Individual Name</label>
+    <description>It is the full name of the contact person</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:address_vre" id="1012.0">
+    <label>Address</label>
+    <description>It is the affiliation of the contact person</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:e_mail_vre" id="1013.0">
+    <label>E-Mail</label>
+    <description>It is the email address of the contact person</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:LW_ContainServices" id="1014.0">
+    <label>Contain Services</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:containServices_vre" id="1015.0">
+    <label>Contain Services</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:serviceName_vre" id="1016.0">
+    <label>Service Name</label>
+    <description>It is the name of the service included in the VRE</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:serviceDescription_vre" id="1017.0">
+    <label>Service Description</label>
+    <description>It is the description of the service included in the VRE</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:serviceReference_vre" id="1018.0">
+    <label>Service Reference (id)</label>
+    <description>It is the unique identifier used to refer to the service included on the VRE</description>
+    <condition>mandatory</condition>
+  </element>
+  
+  <element name="gmd:LW_VREContractualInformation" id="1019.0">
+    <label>
+    VRE Contractual Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)
+    </label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:vreContractualInformation_vre" id="1020.0">
+     <label>
+    VRE Contractual Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)
+    </label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:license_vre" id="1021.0">
+    <label>License</label>
+    <description>"It specifies what can and cannot be done with the VRE. It grants permissions and states restrictions. It can be:
+- open license: it grants permission to access, re-use and redistribute a work with few or no restrictions (e.g., Creative Commons Licenses)
+- all rights reserved copyright: it does not allow to take and repurpose a work and requires the owner's permission to use it"</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:usageConditions_vre" id="1022.0">
+    <label>Usage Conditions</label>
+    <description>It indicates the potential usage conditions and other restrictions for the VRE usage</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:howToCiteThisVRE_vre" id="1023.0">
+    <label>How to cite this VRE</label>
+    <description>It represent the reference of the VRE</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:publicationsAboutThisVRE_vre" id="1024.0">
+    <label>Publications about this VRE</label>
+    <description>It represents the list of the scientific publications related to this VRE</description>
+    <condition>mandatory</condition>
+  </element>
+  
+   <element name="gmd:vreSupportInformation_vre" id="1026.0">
+    <label>VRE Support Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:LW_VRESupportInformation" id="1027.0">
+    <label>VRE Support Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:vreFeedback_vre" id="1028.0">
+    <label>VRE Feedback</label>
+    <description>It is the email address or the web page to send feedback about the VRE</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:vreHelpdesk_vre" id="1029.0">
+    <label>VRE Helpdesk</label>
+    <description>It is the link to the Help Desk of the VRE</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:vreOrder_vre" id="1030.0">
+    <label>VRE Order</label>
+    <description>It is the email address or the web page to the Order of the VRE</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:vreTraining_vre" id="1031.0">
+    <label>VRE Training</label>
+    <description>It includes the link of the available resources related to the VRE for training purposes</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:vreUserManual_vre" id="1032.0">
+    <label>VRE User Manual</label>
+    <description>It is the link to the user manual of the VRE</description>
+    <condition>mandatory</condition>
+  </element>
+  
+  <element name="gmd:managementInfo_vre" id="1033.0">
+    <label>Management Info</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:LW_ManagementInfo" id="1034.0">
+    <label>Management Info</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:author_vre" id="1035.0">
+    <label>Author</label>
+    <description>It is the author of the VRE (name and email)</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:maintainer_vre" id="1036.0">
+    <label>Maintainer</label>
+    <description>It is the person in charge of the maintenance of the VRE (name and email)</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:version_vre" id="1037.0">
+    <label>Version</label>
+    <description>It represents the current and last version of the VRE</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:lastUpdated_vre" id="1038.0">
+    <label>Last Updated</label>
+    <description>It is the date of the last update of the VRE</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:created_vre" id="1039.0">
+    <label>Created</label>
+    <description>It is the date of the creation of the VRE in the format yyyy-mm-dd Thh:mm:ss</description>
+    <condition>mandatory</condition>
+  </element>
+   <element name="vre" id="1041.0">
+    <label>Virtual Research Environment</label>
+    <description>Catalogue Virtual Research Environment provided by LifeWatch ERIC</description>
+    <condition>mandatory</condition>
+  </element>
+  <!-- End VRE LifeWatch -->
+  
+  <!-- Service LifeWatch -->
+  <element name="gmd:LW_Service" id="1042.0">
+    <label>Service</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:service" id="1043.0">
+    <label>Service</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:revisionDate_service" id="1046.0">
+    <label>Revision Date</label>
+    <description>It is the date of revision of the service in the format yyyy-mm-dd Thh:mm:ss</description>
+    <condition>optional</condition>
+  </element>
+  
+   <element name="gmd:LW_TechnicalInformation" id="1090.0">
+    <label>Technical Information</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:technicalInformation_service" id="1049.0">
+    <label>Technical Information</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:contactPoint_service" id="1050.0">
+    <label>Contact Point</label>
+    <description>It is the full name of the contact person for the service (name and email)</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:address_service" id="1091.0">
+    <label>Address</label>
+    <description>It is the affiliation of the contact person</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:keywords_service" id="1051.0">
+    <label>Keywords</label>
+    <description>Here are listed the keywords describing the service</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:typeOfService_service" id="1052.0">
+    <label>Type of Service</label>
+    <description>It represents the type of the service</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:typeOfAssociation_service" id="1053.0">
+    <label>Type of association </label>
+    <description>It indicates the coupling type (Loose, Mixed, Tight)</description>
+    <condition>mandatory</condition>
+  </element>
+  
+  <element name="gmd:LW_ContainOperations" id="1089.0">
+    <label>Contain Operations</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:containOperations_service" id="1054.0">
+    <label>Contain Operations</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:operationName_service" id="1055.0">
+    <label>Operation name</label>
+    <description>It is the name of the operation</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:webSite_service" id="1056.0">
+    <label>Web site</label>
+    <description>It is the link to the web site of the operation (linkage)</description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:protocol_service" id="1057.0">
+    <label>Protocol</label>
+    <description>It represents the adopted protocol for the operation</description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:descriptionOperation_service" id="1058.0">
+    <label>Description</label>
+    <description>It is the brief description of the operation</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:function_service" id="1059.0">
+    <label>Function</label>
+    <description>It represents the main purpose of the operation</description>
+    <condition>mandatory</condition>
+  </element>
+  
+    <element name="gmd:pid_service" id="1061.0">
+    <label>PID</label>
+    <description>It is the Persistent IDentifier of the service</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:charset_service" id="1062.0">
+    <label>Charset</label>
+    <description>It indicates the used character set</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:otherLanguage_service" id="1063.0">
+    <label>Other Language</label>
+    <description>It lists potential other languages</description>
+    <condition>mandatory</condition>
+  </element>
+    
+  <element name="gmd:LW_ServiceClassificationInformation" id="1093.0">
+    <label>Service Classification Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:serviceClassificationInformation_service" id="1064.0">
+    <label>Service Classification Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:tags_service" id="1065.0">
+    <label>Tags</label>
+    <description>The list of tags</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:relatedServices_service" id="1066.0">
+    <label>Related Services</label>
+    <description>It lists the associated services</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:requiredServices_service" id="1067.0">
+    <label>Required Services</label>
+    <description>It lists the required services</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:topicCategory_service" id="1068.0">
+    <label>Topic Category</label>
+    <description>It is the topic category of the service</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:serviceLanguage_service" id="1069.0">
+    <label>Service Language</label>
+    <description>It is the main language of the service</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:serviceTRL_service" id="1071.0">
+    <label>Service TRL</label>
+    <description>It is the Technology Readiness Level of the service from 1 (Basic principles observed) to 9 (Actual system proven in operational environment)</description>
+    <condition>mandatory</condition>
+  </element>
+  
+  <element name="gmd:LW_ServiceContractualInformation" id="1094.0">
+    <label>Service Contractual Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:serviceContractualInformation_service" id="1072.0">
+    <label>Service Contractual Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:serviceFunding_service" id="1073.0">
+    <label>Service Funding</label>
+    <description>It indicates the potential funding source of the service</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:serviceLevelAgreement_service" id="1074.0">
+    <label>Service Level Agreement</label>
+    <description>It represents the SLA associated to the service</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:servicePrice_service" id="1075.0">
+    <label>Service Price</label>
+    <description>It is the price of the service (if it is not free)</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:termsOfUse_service" id="1076.0">
+    <label>Terms of use</label>
+    <description>It indicates the terms of usage for the service</description>
+    <condition>mandatory</condition>
+  </element>
+  
+  <element name="gmd:LW_ServiceSupportInformation" id="1095.0">
+    <label>Service Support Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:serviceSupportInformation_service" id="1077.0">
+    <label>Service Support Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:serviceFeedback_service" id="1078.0">
+    <label>Service Feedback</label>
+    <description>It is the email address or the web page to send feedback about the service</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:serviceHelpdesk_service" id="1079.0">
+    <label>Service Helpdesk</label>
+    <description>It is the link to the Help Desk of the service</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:serviceOrder_service" id="1080.0">
+    <label>Service Order</label>
+    <description>It is the email address or the web page to the Order of the service</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:serviceTraining_service" id="1081.0">
+    <label>Service Training</label>
+    <description>It includes the link of the available resources related to the service for training purposes</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:serviceUserManual_service" id="1082.0">
+    <label>Service User Manual</label>
+    <description>It is the link to the user manual of the service</description>
+    <condition>mandatory</condition>
+  </element>
+  
+  <element name="gmd:LW_ManagementInfoService" id="1096.0">
+    <label>Management Info</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:managementInfo_service" id="1083.0">
+    <label>Management Info</label>
+    <description>Basic information about the resource(s) to which the metadata applies</description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:author_service" id="1085.0">
+    <label>Author</label>
+    <description>It is the author of the service (name and email)</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:maintainer_service" id="1086.0">
+    <label>Maintainer</label>
+    <description>It is the person in charge of the maintenance of the service (name and email)</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:version_service" id="1087.0">
+    <label>Version</label>
+    <description>It represents the current and last version of the service</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:lastUpdated_service" id="1088.0">
+    <label>Last Updated</label>
+    <description>It is the date of the last update of the service in the format yyyy-mm-dd Thh:mm:ss</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:created_service" id="1097.0">
+    <label>Created</label>
+    <description>It is the date of the creation of the service in the format yyyy-mm-dd Thh:mm:ss</description>
+    <condition>mandatory</condition>
+  </element>
+
+<!-- Dataset LifeWatch -->
+   <element name="gmd:LW_Dataset" id="1098.0">
+    <label>Dataset</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:dataset" id="1099.0">
+    <label>Dataset</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:alternateIdentifier_dataset" id="1103.0">
+    <label>Alternate Identifier</label>
+    <description>It is the alternate identifier of the dataset</description>
+    <condition>optional</condition>
+  </element>
+  
+  <element name="gmd:LW_Creator_dataset" id="1105.0">
+    <label>Creator</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:creator_dataset" id="1106.0">
+    <label>Creator</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:id_creator_dataset" id="1107.0">
+    <label>ID</label>
+    <description>It is the unique identifier of the creator of the dataset</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_IndividualName_creator_dataset" id="1110.0">
+    <label>Individual name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:individualName_creator_dataset" id="1111.0">
+    <label>Individual name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:givenName_individualName_creator_dataset" id="1112.0">
+    <label>First name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:surName_individualName_creator_dataset" id="1113.0">
+    <label>Surname</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:organizationName_creator_dataset" id="1114.0">
+    <label>Organization name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:electronicMailAddress_creator_dataset" id="1115.0">
+    <label>Email</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:userId_creator_dataset" id="1116.0">
+    <label>User ID</label>
+    <description>An identifier that links the creator to a directory of individuals</description>
+    <condition>optional</condition>
+  </element>
+ <element name="gmd:references_creator_dataset" id="1219.0">
+    <label>References</label>
+    <description>The creator ID used instead of duplicating information</description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:LW_MetadataProvider_dataset" id="1117.0">
+    <label>Metadata Provider (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:metadataProvider_dataset" id="1118.0">
+    <label>Metadata Provider (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:id_metadataProvider_dataset" id="1119.0">
+    <label>ID</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_IndividualName_metadataProvider_dataset" id="1122.0">
+    <label>Individual name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:individualName_metadataProvider_dataset" id="1123.0">
+    <label>Individual name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:givenName_individualName_metadataProvider_dataset" id="1124.0">
+    <label>First name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:surName_individualName_metadataProvider_dataset" id="1125.0">
+    <label>Surname</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_OrganizationName_metadataProvider_dataset" id="1126.0">
+    <label>Affiliation</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:organizationName_metadataProvider_dataset" id="1127.0">
+    <label>Affiliation</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:electronicMailAddress_metadataProvider_dataset" id="1128.0">
+    <label>Email</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:references_metadataProvider_dataset" id="1220.0">
+    <label>References</label>
+    <description>The metadata provider ID used instead of duplicating information</description>
+    <condition>optional</condition>
+  </element>
+
+  <element name="gmd:LW_Contact_dataset" id="1221.0">
+    <label>Contact</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:contact_dataset" id="1222.0">
+    <label>Contact</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:id_contact_dataset" id="1223.0">
+    <label>ID</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_IndividualName_contact_dataset" id="1226.0">
+    <label>Individual name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:individualName_contact_dataset" id="1227.0">
+    <label>Individual name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:givenName_individualName_contact_dataset" id="1228.0">
+    <label>First name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:surName_individualName_contact_dataset" id="1229.0">
+    <label>Surname</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_OrganizationName_contact_dataset" id="1230.0">
+    <label>Affiliation</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:organizationName_contact_dataset" id="1231.0">
+    <label>Affiliation</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:electronicMailAddress_contact_dataset" id="1232.0">
+    <label>Email</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:references_contact_dataset" id="1233.0">
+    <label>References</label>
+    <description>The contatc ID used instead of duplicating information</description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:LW_AssociatedParty_dataset" id="1129.0">
+    <label>Associated Party (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:associatedParty_dataset" id="1130.0">
+    <label>Associated Party (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:id_associatedParty_dataset" id="1131.0">
+    <label>ID</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:LW_IndividualName_associatedParty_dataset" id="1134.0">
+    <label>Individual name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:individualName_associatedParty_dataset" id="1135.0">
+    <label>Individual name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:givenName_individualName_associatedParty_dataset" id="1136.0">
+    <label>First name</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:surName_individualName_associatedParty_dataset" id="1137.0">
+    <label>Surname</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_OrganizationName_associatedParty_dataset" id="1138.0">
+    <label>Affiliation</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:organizationName_associatedParty_dataset" id="1139.0">
+    <label>Affiliation</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:electronicMailAddress_associatedParty_dataset" id="1140.0">
+    <label>Email</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:pubDate_dataset" id="1141.0">
+    <label>Publication Date</label>
+    <description>The year when the dataset was or will be made publicly available in the format YYYY</description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:language_dataset" id="1142.0">
+    <label>Language</label>
+    <description>The language in which the dataset is written</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_Abstract_dataset" id="1143.0">
+    <label>Abstract</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:abstract_dataset" id="1144.0">
+    <label>Abstract</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:para_abstract_dataset" id="1145.0">
+    <label>Description</label>
+    <description>A brief overview of the dataset</description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:LW_KeywordSet_dataset" id="1146.0">
+    <label>KeywordSet</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:keywordSet_dataset" id="1147.0">
+    <label>KeywordSet</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:keyword_keywordSet_dataset" id="1148.0">
+    <label>Keyword</label>
+    <description>Keyword or key phrase that concisely describes the dataset</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:keywordThesaurus_keywordSet_dataset" id="1149.0">
+    <label>Thesaurus</label>
+    <description>The name of a thesaurus from which the keyword is derived</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:intellectualRights_dataset" id="1150.0">
+    <label>Intellectual Rights</label>
+    <description>Intellectual property rights regarding usage and licensing of this dataset</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_Licensed_dataset" id="1151.0">
+    <label>Licensed</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:licensed_dataset" id="1152.0">
+    <label>Licensed</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+     <element name="gmd:licenseName_licensed_dataset" id="1153.0">
+    <label>Name</label>
+    <description>The official name of a license that applies to the dataset and metadata described in this metadata record</description>
+    <condition>mandatory</condition>
+  </element>
+     <element name="gmd:url_licensed_dataset" id="1154.0">
+    <label>URL</label>
+    <description>The persistent URL for the license</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_Distribution_dataset" id="1155.0">
+    <label>Distribution</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:distribution_dataset" id="1156.0">
+    <label>Distribution</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_Online_distribution_dataset" id="1157.0">
+    <label>Online Distribution</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:online_distribution_dataset" id="1158.0">
+    <label>Online Distribution</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:url_online_distribution_dataset" id="1159.0">
+    <label>URL</label>
+    <description>Information on how the dataset is distributed online</description>
+    <condition>mandatory</condition>
+  </element>
+   <element name="gmd:LW_Coverage_dataset" id="1160.0">
+    <label>Coverage</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:coverage_dataset" id="1161.0">
+    <label>Coverage</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element> 
+    <element name="gmd:LW_GeographicCoverage_coverage_dataset" id="1162.0">
+    <label>Geographic Coverage</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:geographicCoverage_coverage_dataset" id="1163.0">
+    <label>Geographic Coverage</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element> 
+    <element name="gmd:geographicDescription_geographicCoverage_coverage_dataset" id="1164.0">
+    <label>Description</label>
+    <description>Short text description of the geographic areal domain of the dataset</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset" id="1165.0">
+    <label>Bounding Coordinates</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:boundingCoordinates_geographicCoverage_coverage_dataset" id="1166.0">
+    <label>Bounding Coordinates</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element> 
+    <element name="gmd:westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" id="1167.0">
+    <label>West</label>
+    <description>Western-most limit of a bounding box, expressed in degrees of longitude</description>
+    <condition>mandatory</condition>
+  </element> 
+    <element name="gmd:eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" id="1168.0">
+    <label>East</label>
+    <description>Eastern-most limit of a bounding box, expressed in degrees of longitude</description>
+    <condition>mandatory</condition>
+  </element> 
+    <element name="gmd:northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" id="1169.0">
+    <label>North</label>
+    <description>Northern-most limit of a bounding box, expressed in degrees of longitude</description>
+    <condition>mandatory</condition>
+  </element> 
+    <element name="gmd:southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" id="1170.0">
+    <label>South</label>
+    <description>Southern-most limit of a bounding box, expressed in degrees of longitude</description>
+    <condition>mandatory</condition>
+  </element> 
+    <element name="gmd:LW_TemporalCoverage_coverage_dataset" id="1171.0">
+    <label>Temporal Coverage</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:temporalCoverage_coverage_dataset" id="1172.0">
+    <label>Temporal Coverage</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_RangeOfDates_temporalCoverage_coverage_dataset" id="1173.0">
+    <label>Range of dates</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:rangeOfDates_temporalCoverage_coverage_dataset" id="1174.0">
+    <label>Range of dates</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_BeginDate_rangeOfDates_temporalCoverage_coverage_dataset" id="1175.0">
+    <label>Begin Date</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:beginDate_rangeOfDates_temporalCoverage_coverage_dataset" id="1176.0">
+    <label>Begin Date</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset" id="1177.0">
+    <label>Date</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_EndDate_rangeOfDates_temporalCoverage_coverage_dataset" id="1178.0">
+    <label>End Date</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:endDate_rangeOfDates_temporalCoverage_coverage_dataset" id="1179.0">
+    <label>End Date</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset" id="1180.0">
+    <label>Date</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_TaxonomicCoverage_coverage_dataset" id="1181.0">
+    <label>Taxonomic Coverage (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:taxonomicCoverage_coverage_dataset" id="1182.0">
+    <label>Taxonomic Coverage (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset" id="1183.0">
+    <label>Classification</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset" id="1184.0">
+    <label>Classification</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset" id="1185.0">
+    <label>ID</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset" id="1186.0">
+    <label>Rank Name</label>
+    <description>The name of the taxonomic rank for which the Taxon rank value is provided</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset" id="1187.0">
+    <label>Rank Value</label>
+    <description>The taxonomic rank name being described</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset" id="1188.0">
+    <label>Common Name</label>
+    <description>Specification of applicable common names</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_Methods_dataset" id="1189.0">
+    <label>Methods</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:methods_dataset" id="1190.0">
+    <label>Methods</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_MethodStep_methods_dataset" id="1191.0">
+    <label>Method Step (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:methodStep_methods_dataset" id="1192.0">
+    <label>Method Step (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:LW_Description_methodStep_methods_dataset" id="1193.0">
+    <label>Method Description</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:description_methodStep_methods_dataset" id="1194.0">
+    <label>Method Description</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:para_description_methodStep_methods_dataset" id="1195.0">
+    <label>Description</label>
+    <description>Description of the methods employed in collecting or generating a data set or other resource or in quality control and assurance</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_Citation_methodStep_methods_dataset" id="1196.0">
+    <label>Citation</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:citation_methodStep_methods_dataset" id="1197.0">
+    <label>Citation</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:bibtex_citation_methodStep_methods_dataset" id="1198.0">
+    <label>Citation</label>
+    <description>Literature citation relating to the used methods</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:instrumentation_methodStep_methods_dataset" id="1199.0">
+    <label>Instrumentation</label>
+    <description>It allows the description of any instruments used in the data collection or quality control and quality assurance </description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:LW_Software_methodStep_methods_dataset" id="1200.0">
+    <label>Software (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:software_methodStep_methods_dataset" id="1201.0">
+    <label>Software (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:title_software_methodStep_methods_dataset" id="1202.0">
+    <label>Title</label>
+    <description>The title of the software used in the processing of dataset</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:references_software_methodStep_methods_dataset" id="1203.0">
+    <label>References</label>
+    <description>The reference of the software used in the processing of dataset</description>
+    <condition>mandatory</condition>
+  </element>
+     <element name="gmd:LW_Sampling_methods_dataset" id="1204.0">
+    <label>Sampling (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:sampling_methods_dataset" id="1205.0">
+    <label>Sampling (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:LW_SamplingDescription_sampling_methods_dataset" id="1206.0">
+    <label>Description</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:samplingDescription_sampling_methods_dataset" id="1207.0">
+    <label>Description</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:para_samplingDescription_sampling_methods_dataset" id="1208.0">
+    <label>Description</label>
+    <description>It allows for a text-based/human readable description of the sampling procedures used in the research project. The content of this element would be similar to a description of sampling procedures found in the methods section of a journal article</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_Project_dataset" id="1209.0">
+    <label>Project (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:project_dataset" id="1210.0">
+    <label>Project (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:title_project_dataset" id="1211.0">
+    <label>Title</label>
+    <description>The descriptive title for the research project</description>
+    <condition>mandatory</condition>
+  </element>
+     <element name="gmd:LW_Personnel_project_dataset" id="1212.0">
+    <label>Personnel</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:personnel_project_dataset" id="1213.0">
+    <label>Personnel</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:individualName_personnel_project_dataset" id="1214.0">
+    <label>Individual Name</label>
+    <description>Individual name (name and surname) for people involved in the research project</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:positionName_personnel_project_dataset" id="1215.0">
+    <label>Position Name</label>
+    <description>The name of the title or the position for people involved in the research project</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_Organization_personnel_project_dataset" id="1216.0">
+    <label>Organization</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:organization_personnel_project_dataset" id="1217.0">
+    <label>Organization</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:name_organization_personnel_project_dataset" id="1218.0">
+    <label>Organization Name</label>
+    <description>The name of the organization for people involved in the research project</description>
+    <condition>mandatory</condition>
+  </element>
+
+    <element name="gmd:LW_Datatable_dataset" id="1234.0">
+    <label>Data Table (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:datatable_dataset" id="1235.0">
+    <label>Data Table (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:entityName_datatable_dataset" id="1236.0">
+    <label>Entity Name</label>
+    <description>Name of the datatable</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_Physical_datatable_dataset" id="1237.0">
+    <label>Physical Format</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:physical_datatable_dataset" id="1238.0">
+    <label>Physical Format</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_DataFormat_physical_datatable_dataset" id="1239.0">
+    <label>Data Format</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:dataFormat_physical_datatable_dataset" id="1240.0">
+    <label>Data Format</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset" id="1241.0">
+    <label>Externally Defined Data Format</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:externallyDefinedFormat_dataFormat_physical_datatable_dataset" id="1242.0">
+    <label>Externally Defined Data Format</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+   <element name="gmd:formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset" id="1243.0">
+    <label>Format Name</label>
+    <description>Format name of the data object</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:LW_AttributeList_datatable_dataset" id="1244.0">
+    <label>Attribute List</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:attributeList_datatable_dataset" id="1245.0">
+    <label>Attribute List</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:attributeName_attributeList_datatable_dataset" id="1246.0">
+    <label>Name</label>
+    <description>Name of the dataset column</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:attributeLabel_attributeList_datatable_dataset" id="1247.0">
+    <label>Label</label>
+    <description>A descriptive label that can be used to display the name of an attribute</description>
+    <condition>mandatory</condition>
+  </element>
+ <element name="gmd:attributeDefinition_attributeList_datatable_dataset" id="1248.0">
+    <label>Definition</label>
+    <description>This element gives a precise definition of attribute in the data entity </description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:LW_MeasurementScale_attributeList_datatable_dataset" id="1249.0">
+    <label>Measurement Scale</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:measurementScale_attributeList_datatable_dataset" id="1250.0">
+    <label>Measurement Scale</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+ <element name="gmd:LW_Ratio_measurementScale_attributeList_datatable_dataset" id="1251.0">
+    <label>Ratio</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:ratio_measurementScale_attributeList_datatable_dataset" id="1252.0">
+    <label>Ratio</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+ <element name="gmd:LW_Unit_ratio_measurementScale_attributeList_datatable_dataset" id="1253.0">
+    <label>Unit Ratio</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:unit_ratio_measurementScale_attributeList_datatable_dataset" id="1254.0">
+    <label>Unit Ratio</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+ <element name="gmd:standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset" id="1255.0">
+    <label>Standard Unit</label>
+    <description>The unit of measurement (if available, otherwise dimensionless)</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:LW_MissingValueCode_attributeList_datatable_dataset" id="1256.0">
+    <label>Missing Value Code</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:missingValueCode_attributeList_datatable_dataset" id="1257.0">
+    <label>Missing Value Code</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+ <element name="gmd:code_missingValueCode_attributeList_datatable_dataset" id="1258.0">
+    <label>Code</label>
+    <description>This code indicates where analytical results were not reported for that depth interval due to removal during quality control</description>
+    <condition>mandatory</condition>
+  </element>
+<element name="gmd:LW_AttributeAnnotation_attributeList_datatable_dataset" id="1259.0">
+    <label>Attribute Annotation (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+    <element name="gmd:attributeAnnotation_attributeList_datatable_dataset" id="1260.0">
+    <label>Attribute Annotation (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+ <element name="gmd:propertyURI_attributeAnnotation_attributeList_datatable_dataset" id="1261.0">
+    <label>Property URI</label>
+    <description>The persistent URI used to identify a property from a vocabulary</description>
+    <condition>optional</condition>
+  </element>
+<element name="gmd:valueURI_attributeAnnotation_attributeList_datatable_dataset" id="1262.0">
+    <label>Value URI (You can select the URI at http://ecoportal.lifewatchitaly.eu)</label>
+    <description>The persistent URI used to identify a value from a vocabulary</description>
+    <condition>mandatory</condition>
+  </element>
+  
 </labels>

@@ -73,11 +73,11 @@
               translator="db:org.fao.geonet.repository.MetadataCategoryRepository:findOneByName"/>
 
     or for group
-
+ 
           <item dimension="groupOwner" plural="groupOwners" indexKey="_groupOwner"
           max="99" sortBy="value" translator="db:org.fao.geonet.repository.GroupRepository:findOne:int"/>
+ -->
 
-  -->
 
   <facets>
     <facet name="keyword" indexKey="keyword" label="keywords" localized="true"/>
@@ -172,7 +172,7 @@
       <item facet="sourceCatalog"
             translator="db:org.fao.geonet.repository.SourceRepository:findOneByUuid"/>
       <item facet="isValid" max="3" sortBy="value" translator="apploc:validStatus-"/>
-      <item facet="isValidInspire" max="3" sortBy="value" translator="apploc:validStatus-"/>
+      <item facet="groupOwner" max="45" sortBy="value"/>
       <item facet="groupOwner" max="199" sortBy="value"
             translator="db:org.fao.geonet.repository.GroupRepository:findOne:int"/>
       <item facet="recordOwner" max="45" sortBy="value"/>
@@ -252,6 +252,19 @@
       <item facet="type" translator="codelist:gmd:MD_ScopeCode"/>
       <item facet="createDateYear" sortOrder="asc"/>
     </summaryType>
+    
+    <!-- LifeWatch -->
+    <summaryType name="lw_details" format="DIMENSION">      
+      <item facet="type" translator="codelist:gmd:MD_ScopeCode"/>      
+      <item facet="status" translator="codelist:gmd:MD_ProgressCode"/>
+      <item facet="groupOwner" max="199" sortBy="value"
+            translator="db:org.fao.geonet.repository.GroupRepository:findOne:int"/>
+      <item facet="createDateYear" sortOrder="asc"/>
+      
+      
+      
+    </summaryType>
+  
   </summaryTypes>
 
 </bean:beans>

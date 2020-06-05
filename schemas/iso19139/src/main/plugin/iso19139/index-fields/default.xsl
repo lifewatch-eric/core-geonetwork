@@ -173,7 +173,7 @@
 
     <!-- the double // here seems needed to index MD_DataIdentification when
          it is nested in a SV_ServiceIdentification class -->
-
+    
     <xsl:for-each select="gmd:identificationInfo//gmd:MD_DataIdentification|
                 gmd:identificationInfo//*[contains(@gco:isoType, 'MD_DataIdentification')]|
                 gmd:identificationInfo/srv:SV_ServiceIdentification">
@@ -513,7 +513,7 @@
         select="gmd:language/gco:CharacterString|gmd:language/gmd:LanguageCode/@codeListValue">
         <Field name="datasetLang" string="{string(.)}" store="true" index="true"/>
       </xsl:for-each>
-
+      
       <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
       <xsl:for-each select="gmd:spatialResolution/gmd:MD_Resolution">
@@ -943,6 +943,671 @@
       <Field name="changeDate" string="{string(.)}" store="true" index="true"/>
     </xsl:for-each>
 
+ 	<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+	
+	<!-- VRE LifeWatch -->
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:alternateIdentifier_vre/gco:CharacterString">
+      <Field name="alternateIdentifier_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:url_vre/gco:CharacterString">
+      <Field name="url_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+
+	<!-- Coordination Team VRE -->    
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:coordinationTeam_vre/gmd:LW_CoordinationTeam[normalize-space(gmd:contactPoint_vre/gco:CharacterString) != '']">          
+       <xsl:variable name="contactPoint_vre_variable"   select="gmd:contactPoint_vre/gco:CharacterString"/>
+       <xsl:variable name="address_vre_variable"    select="gmd:address_vre/gco:CharacterString"/>
+       <xsl:variable name="e_mail_vre_variable"     select="gmd:e_mail_vre/gco:CharacterString"/>       
+          <Field name="coordinationTeam_vre"
+                 string="{concat(string($contactPoint_vre_variable), '|', string($address_vre_variable), '|', string($e_mail_vre_variable))}"
+                 store="true" index="false"/>
+    </xsl:for-each>
+      
+	<!--
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:coordinationTeam_vre/gmd:LW_CoordinationTeam/gmd:contactPoint_vre/gco:CharacterString">
+      <Field name="contactPoint_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:coordinationTeam_vre/gmd:LW_CoordinationTeam/gmd:address_vre/gco:CharacterString">
+      <Field name="address_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:coordinationTeam_vre/gmd:LW_CoordinationTeam/gmd:e_mail_vre/gco:CharacterString">
+      <Field name="e_mail_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+	-->  
+    
+    <!-- Contain Services VRE -->
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:containServices_vre/gmd:LW_ContainServices[normalize-space(gmd:serviceName_vre/gco:CharacterString) != '']">          
+       <xsl:variable name="serviceName_vre_variable"   select="gmd:serviceName_vre/gco:CharacterString"/>
+       <xsl:variable name="serviceDescription_vre_variable"   select="gmd:serviceDescription_vre/gco:CharacterString"/>
+       <xsl:variable name="serviceReference_vre_variable"     select="gmd:serviceReference_vre/gco:CharacterString"/>  
+          <Field name="containServices_vre"
+                 string="{concat(string($serviceName_vre_variable), '|', string($serviceDescription_vre_variable), '|', string($serviceReference_vre_variable))}"
+                 store="true" index="false"/>
+    </xsl:for-each>
+    
+	<!--  
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:containServices_vre/gmd:LW_ContainServices/gmd:serviceName_vre/gco:CharacterString">
+      <Field name="serviceName_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:containServices_vre/gmd:LW_ContainServices/gmd:serviceDescription_vre/gco:CharacterString">
+      <Field name="serviceDescription_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:containServices_vre/gmd:LW_ContainServices/gmd:serviceReference_vre/gco:CharacterString">
+      <Field name="serviceReference_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+	-->  
+    
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreContractualInformation_vre/gmd:LW_VREContractualInformation/gmd:license_vre/gco:CharacterString">
+      <Field name="license_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreContractualInformation_vre/gmd:LW_VREContractualInformation/gmd:usageConditions_vre/gco:CharacterString">
+      <Field name="usageConditions_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreContractualInformation_vre/gmd:LW_VREContractualInformation/gmd:howToCiteThisVRE_vre/gco:CharacterString">
+      <Field name="howToCiteThisVRE_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+     <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreContractualInformation_vre/gmd:LW_VREContractualInformation/gmd:publicationsAboutThisVRE_vre[normalize-space(gco:CharacterString) != '']">
+        <xsl:variable name="publicationsAboutThisVRE_vre_variable">
+            <xsl:for-each select="gco:CharacterString">
+                <xsl:value-of select="concat(., '--')" />
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="publicationsAboutThisVRE_vre"
+	                 string="{string($publicationsAboutThisVRE_vre_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each>
+    
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreSupportInformation_vre/gmd:LW_VRESupportInformation/gmd:vreFeedback_vre/gco:CharacterString">
+      <Field name="vreFeedback_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreSupportInformation_vre/gmd:LW_VRESupportInformation/gmd:vreHelpdesk_vre/gco:CharacterString">
+      <Field name="vreHelpdesk_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreSupportInformation_vre/gmd:LW_VRESupportInformation/gmd:vreOrder_vre/gco:CharacterString">
+      <Field name="vreOrder_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreSupportInformation_vre/gmd:LW_VRESupportInformation/gmd:vreTraining_vre/gco:CharacterString">
+      <Field name="vreTraining_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreSupportInformation_vre/gmd:LW_VRESupportInformation/gmd:vreUserManual_vre/gco:CharacterString">
+      <Field name="vreUserManual_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    <!-- Management Info VRE -->
+    <!-- <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:author_vre[normalize-space(gco:CharacterString) != '']">
+        <xsl:variable name="author_vre_variable">
+            <xsl:for-each select="gco:CharacterString">
+                <xsl:value-of select="concat(., '')" /> inserire doppio trattino tra apici
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="author_vre"
+	                 string="{string($author_vre_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each> -->
+	<xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:maintainer_vre[normalize-space(gco:CharacterString) != '']">
+        <xsl:variable name="maintainer_vre_variable">
+            <xsl:for-each select="gco:CharacterString">
+               <xsl:value-of select="concat(., '--')" />
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="maintainer_vre"
+	                 string="{string($maintainer_vre_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each>
+    <!-- 
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:author_vre/gco:CharacterString">                
+          <Field name="author_vre"
+                 string="{string(.)}"
+                 store="true" index="false"/>
+    </xsl:for-each>
+      
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:maintainer_vre/gco:CharacterString">             
+          <Field name="maintainer_vre"
+                 string="{string(.)}"
+                 store="true" index="false"/>
+    </xsl:for-each>
+  	 -->
+  	 
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:version_vre/gco:CharacterString">
+      <Field name="version_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:lastUpdated_vre/*">
+      <Field name="lastUpdated_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:created_vre/*">
+      <Field name="created_vre" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <!-- End VRE LifeWatch -->
+    
+    <!-- Service LifeWatch -->	
+     <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:revisionDate_service/*">
+      <Field name="revisionDate_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+
+	<xsl:for-each select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:contactPoint_service/gco:CharacterString">
+      <Field name="contactPoint_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:address_service/gco:CharacterString">
+      <Field name="address_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:keywords_service[normalize-space(gco:CharacterString) != '']">
+        <xsl:variable name="keywords_service_variable">
+            <xsl:for-each select="gco:CharacterString">
+                <xsl:value-of select="concat(., '--')" />
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="keywords_service"
+	                 string="{string($keywords_service_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each>
+	<!-- 
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:keywords_service/gco:CharacterString">
+      <Field name="keywords_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+     -->
+     
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:typeOfService_service/gco:CharacterString">
+      <Field name="typeOfService_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each
+          select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:typeOfAssociation_service/gmd:LW_TypeOfAssociation_service/@codeListValue[string(.) != 'otherRestrictions']">
+          <Field name="typeOfAssociation_service"
+                 string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    <!-- Contain Operations - Service -->
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:containOperations_service/gmd:LW_ContainOperations[normalize-space(gmd:operationName_service/gco:CharacterString) != '']">          
+       <xsl:variable name="operationName_service_variable"   select="gmd:operationName_service/gco:CharacterString"/>
+       <xsl:variable name="webSite_service_variable"   select="gmd:webSite_service/gco:CharacterString"/>
+       <xsl:variable name="protocol_service_variable"     select="gmd:protocol_service/gco:CharacterString"/>  
+       <xsl:variable name="descriptionOperation_service_variable"     select="gmd:descriptionOperation_service/gco:CharacterString"/>  
+       <xsl:variable name="function_service_variable"     select="gmd:function_service/gco:CharacterString"/>  
+          <Field name="containOperations_service"
+                 string="{concat(string($operationName_service_variable), '|', string($webSite_service_variable), '|', string($protocol_service_variable), '|', string($descriptionOperation_service_variable), '|', string($function_service_variable))}"
+                 store="true" index="false"/>
+    </xsl:for-each> 
+    
+    <!--  
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:containOperations_service/gmd:LW_ContainOperations/gmd:operationName_service/gco:CharacterString">
+      <Field name="operationName_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+     <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:containOperations_service/gmd:LW_ContainOperations/gmd:webSite_service/gco:CharacterString">
+      <Field name="webSite_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+     <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:containOperations_service/gmd:LW_ContainOperations/gmd:protocol_service/gco:CharacterString">
+      <Field name="protocol_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+     <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:containOperations_service/gmd:LW_ContainOperations/gmd:descriptionOperation_service/gco:CharacterString">
+      <Field name="descriptionOperation_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+     <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:containOperations_service/gmd:LW_ContainOperations/gmd:function_service/gco:CharacterString">
+      <Field name="function_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    -->
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:pid_service/gco:CharacterString">
+      <Field name="pid_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:tags_service[normalize-space(gco:CharacterString) != '']">
+        <xsl:variable name="tags_service_variable">
+            <xsl:for-each select="gco:CharacterString">
+                <xsl:value-of select="concat(., '--')" />
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="tags_service"
+	                 string="{string($tags_service_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each>  
+	<xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:relatedServices_service[normalize-space(gco:CharacterString) != '']">
+        <xsl:variable name="relatedServices_service_variable">
+            <xsl:for-each select="gco:CharacterString">
+                <xsl:value-of select="concat(., '--')" />
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="relatedServices_service"
+	                 string="{string($relatedServices_service_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each>      
+	<xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:requiredServices_service[normalize-space(gco:CharacterString) != '']">
+        <xsl:variable name="requiredServices_service_variable">
+            <xsl:for-each select="gco:CharacterString">
+                <xsl:value-of select="concat(., '--')" />
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="requiredServices_service"
+	                 string="{string($requiredServices_service_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each>
+    <xsl:for-each
+          select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:topicCategory_service/gmd:LW_TopicCategory_service/@codeListValue[string(.) != 'otherRestrictions']">
+          <Field name="topicCategory_service"
+                 string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:serviceLanguage_service/gco:CharacterString">
+      <Field name="serviceLanguage_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+     <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:charset_service/gmd:MD_CharacterSetCode/@codeListValue[string(.) != 'otherRestrictions']">
+      <Field name="charset_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>    
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:otherLanguage_service[normalize-space(gco:CharacterString) != '']">
+        <xsl:variable name="otherLanguage_service_variable">
+            <xsl:for-each select="gco:CharacterString">
+                <xsl:value-of select="concat(., '--')" />
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="otherLanguage_service"
+	                 string="{string($otherLanguage_service_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each>
+    <xsl:for-each
+          select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:serviceTRL_service/gmd:LW_ServiceTRL_service/@codeListValue[string(.) != 'otherRestrictions']">
+          <Field name="serviceTRL_service"
+                 string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceContractualInformation_service/gmd:LW_ServiceContractualInformation/gmd:serviceFunding_service/gco:CharacterString">
+      <Field name="serviceFunding_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+     <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceContractualInformation_service/gmd:LW_ServiceContractualInformation/gmd:serviceLevelAgreement_service/gco:CharacterString">
+      <Field name="serviceLevelAgreement_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+     <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceContractualInformation_service/gmd:LW_ServiceContractualInformation/gmd:servicePrice_service/gco:CharacterString">
+      <Field name="servicePrice_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+     <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceContractualInformation_service/gmd:LW_ServiceContractualInformation/gmd:termsOfUse_service/gco:CharacterString">
+      <Field name="termsOfUse_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceSupportInformation_service/gmd:LW_ServiceSupportInformation/gmd:serviceFeedback_service/gco:CharacterString">
+      <Field name="serviceFeedback_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceSupportInformation_service/gmd:LW_ServiceSupportInformation/gmd:serviceHelpdesk_service/gco:CharacterString">
+      <Field name="serviceHelpdesk_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceSupportInformation_service/gmd:LW_ServiceSupportInformation/gmd:serviceOrder_service/gco:CharacterString">
+      <Field name="serviceOrder_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceSupportInformation_service/gmd:LW_ServiceSupportInformation/gmd:serviceTraining_service/gco:CharacterString">
+      <Field name="serviceTraining_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceSupportInformation_service/gmd:LW_ServiceSupportInformation/gmd:serviceUserManual_service/gco:CharacterString">
+      <Field name="serviceUserManual_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    <!-- <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfoService/gmd:author_service[normalize-space(gco:CharacterString) != '']">        
+    	<xsl:variable name="author_service_variable">
+            <xsl:for-each select="gco:CharacterString">
+                <xsl:value-of select="concat(., '')" /> inserire doppio trattino tra apici
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="author_service"
+	                 string="{string($author_service_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each> -->
+	 <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfoService/gmd:maintainer_service[normalize-space(gco:CharacterString) != '']">        
+ 		<xsl:variable name="maintainer_service_variable">
+            <xsl:for-each select="gco:CharacterString">
+               <xsl:value-of select="concat(., '--')" />
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="maintainer_service"
+	                 string="{string($maintainer_service_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each>
+    <!-- 
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfoService/gmd:author_service/gco:CharacterString">
+      <Field name="author_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfoService/gmd:maintainer_service/gco:CharacterString">
+      <Field name="maintainer_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    -->
+    
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfoService/gmd:version_service/gco:CharacterString">
+      <Field name="version_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfoService/gmd:lastUpdated_service/*">
+      <Field name="lastUpdated_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfoService/gmd:created_service/*">
+      <Field name="created_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <!-- End Service LifeWatch -->
+    
+    <!-- Dataset LifeWatch -->
+    
+    <!-- Dataset -->    
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:alternateIdentifier_dataset/gco:CharacterString">
+      <Field name="alternateIdentifier_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+   <!-- Creator - Dataset --> 
+   <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:creator_dataset/gmd:LW_Creator_dataset[normalize-space(gmd:id_creator_dataset/gco:CharacterString) != '']">          
+       <xsl:variable name="id_creator_dataset_variable"    select="gmd:id_creator_dataset/gco:CharacterString"/>
+	   <xsl:variable name="givenName_individualName_creator_dataset_variable" select="gmd:individualName_creator_dataset/gmd:LW_IndividualName_creator_dataset/gmd:givenName_individualName_creator_dataset/gco:CharacterString"/>
+       <xsl:variable name="surName_individualName_creator_dataset_variable"    select="gmd:individualName_creator_dataset/gmd:LW_IndividualName_creator_dataset/gmd:surName_individualName_creator_dataset/gco:CharacterString"/> 
+       <xsl:variable name="organizationName_creator_dataset_variable" select="gmd:organizationName_creator_dataset/gco:CharacterString"/>
+       <xsl:variable name="electronicMailAddress_creator_dataset_variable"    select="gmd:electronicMailAddress_creator_dataset/gco:CharacterString"/> 
+       <xsl:variable name="userId_creator_dataset_variable" select="gmd:userId_creator_dataset/gco:CharacterString"/>
+       <xsl:variable name="references_creator_dataset_variable"    select="gmd:references_creator_dataset/gco:CharacterString"/> 
+       
+          <Field name="creator_dataset"
+                 string="{concat(string($id_creator_dataset_variable), '|', string($givenName_individualName_creator_dataset_variable), '|', string($surName_individualName_creator_dataset_variable), '|',
+                 string($organizationName_creator_dataset_variable), '|', string($electronicMailAddress_creator_dataset_variable), '|', string($userId_creator_dataset_variable), '|', string($references_creator_dataset_variable))}"
+                 store="true" index="false"/> 
+        
+    </xsl:for-each>
+    
+   <!-- MetadataProvider - Dataset --> 
+   <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:metadataProvider_dataset/gmd:LW_MetadataProvider_dataset[normalize-space(gmd:id_metadataProvider_dataset/gco:CharacterString) != '']">          
+       <xsl:variable name="id_metadataProvider_dataset_variable"    select="gmd:id_metadataProvider_dataset/gco:CharacterString"/>
+	   <xsl:variable name="givenName_individualName_metadataProvider_dataset_variable" select="gmd:individualName_metadataProvider_dataset/gmd:LW_IndividualName_metadataProvider_dataset/gmd:givenName_individualName_metadataProvider_dataset/gco:CharacterString"/>
+       <xsl:variable name="surName_individualName_metadataProvider_dataset_variable"    select="gmd:individualName_metadataProvider_dataset/gmd:LW_IndividualName_metadataProvider_dataset/gmd:surName_individualName_metadataProvider_dataset/gco:CharacterString"/> 
+       <xsl:variable name="organizationName_metadataProvider_dataset_variable" select="gmd:organizationName_metadataProvider_dataset/gco:CharacterString"/>
+       <xsl:variable name="electronicMailAddress_metadataProvider_dataset_variable"    select="gmd:electronicMailAddress_metadataProvider_dataset/gco:CharacterString"/> 
+       <xsl:variable name="references_metadataProvider_dataset_variable"    select="gmd:references_metadataProvider_dataset/gco:CharacterString"/> 
+       
+          <Field name="metadataProvider_dataset"
+                 string="{concat(string($id_metadataProvider_dataset_variable), '|', string($givenName_individualName_metadataProvider_dataset_variable), '|', string($surName_individualName_metadataProvider_dataset_variable), '|',
+                 string($organizationName_metadataProvider_dataset_variable), '|', string($electronicMailAddress_metadataProvider_dataset_variable), '|', string($references_metadataProvider_dataset_variable))}"
+                 store="true" index="false"/> 
+        
+    </xsl:for-each>
+      
+    <!-- Contact - Dataset -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:contact_dataset/gmd:LW_Contact_dataset[normalize-space(gmd:id_contact_dataset/gco:CharacterString) != '']">          
+       <xsl:variable name="id_contact_dataset_variable"    select="gmd:id_contact_dataset/gco:CharacterString"/>
+	    <xsl:variable name="givenName_individualName_contact_dataset_variable" select="gmd:individualName_contact_dataset/gmd:LW_IndividualName_contact_dataset/gmd:givenName_individualName_contact_dataset/gco:CharacterString"/>
+       <xsl:variable name="surName_individualName_contact_dataset_variable"    select="gmd:individualName_contact_dataset/gmd:LW_IndividualName_contact_dataset/gmd:surName_individualName_contact_dataset/gco:CharacterString"/> 
+       <xsl:variable name="organizationName_contact_dataset_variable" select="gmd:organizationName_contact_dataset/gco:CharacterString"/>
+       <xsl:variable name="electronicMailAddress_contact_dataset_variable"    select="gmd:electronicMailAddress_contact_dataset/gco:CharacterString"/> 
+       <xsl:variable name="references_contact_dataset_variable"    select="gmd:references_contact_dataset/gco:CharacterString"/> 
+       
+          <Field name="contact_dataset"
+                 string="{concat(string($id_contact_dataset_variable), '|', string($givenName_individualName_contact_dataset_variable), '|', string($surName_individualName_contact_dataset_variable), '|',
+                 string($organizationName_contact_dataset_variable), '|', string($electronicMailAddress_contact_dataset_variable), '|', string($references_contact_dataset_variable))}"
+                 store="true" index="false"/> 
+        
+    </xsl:for-each>
+      
+    <!-- AssociatedParty - Dataset -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:associatedParty_dataset/gmd:LW_AssociatedParty_dataset[normalize-space(gmd:id_associatedParty_dataset/gco:CharacterString) != '']">          
+       <xsl:variable name="id_associatedParty_dataset_variable"    select="gmd:id_associatedParty_dataset/gco:CharacterString"/> 
+	   <xsl:variable name="givenName_individualName_associatedParty_dataset_variable" select="gmd:individualName_associatedParty_dataset/gmd:LW_IndividualName_associatedParty_dataset/gmd:givenName_individualName_associatedParty_dataset/gco:CharacterString"/>
+       <xsl:variable name="surName_individualName_associatedParty_dataset_variable"    select="gmd:individualName_associatedParty_dataset/gmd:LW_IndividualName_associatedParty_dataset/gmd:surName_individualName_associatedParty_dataset/gco:CharacterString"/> 
+       <xsl:variable name="organizationName_associatedParty_dataset_variable" select="gmd:organizationName_associatedParty_dataset/gco:CharacterString"/>
+       <xsl:variable name="electronicMailAddress_associatedParty_dataset_variable"    select="gmd:electronicMailAddress_associatedParty_dataset/gco:CharacterString"/> 
+       
+          <Field name="associatedParty_dataset"
+                 string="{concat(string($id_associatedParty_dataset_variable), '|', string($givenName_individualName_associatedParty_dataset_variable), '|', string($surName_individualName_associatedParty_dataset_variable), '|',
+                 string($organizationName_associatedParty_dataset_variable), '|', string($electronicMailAddress_associatedParty_dataset_variable))}"
+                 store="true" index="false"/> 
+        
+    </xsl:for-each>
+      
+    <!-- Dataset -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:language_dataset/gco:CharacterString">
+      <Field name="language_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+
+    <!-- KeywordSet - Dataset -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:keywordSet_dataset/gmd:LW_KeywordSet_dataset/gmd:keyword_keywordSet_dataset[normalize-space(gco:CharacterString) != '']">
+        <xsl:variable name="keyword_keywordSet_dataset_variable">
+            <xsl:for-each select="gco:CharacterString">
+                <xsl:value-of select="concat(., '--')" />
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="keyword_keywordSet_dataset"
+	                 string="{string($keyword_keywordSet_dataset_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each>
+	<!--     
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:keywordSet_dataset/gmd:LW_KeywordSet_dataset/gmd:keyword_keywordSet_dataset/gco:CharacterString">
+      <Field name="keyword_keywordSet_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:keywordSet_dataset/gmd:LW_KeywordSet_dataset/gmd:keywordThesaurus_keywordSet_dataset/gco:CharacterString">
+      <Field name="keywordThesaurus_keywordSet_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+       
+    <!-- Dataset -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:intellectualRights_dataset/gco:CharacterString">
+      <Field name="intellectualRights_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    <!-- Licensed - Dataset -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:licensed_dataset/gmd:LW_Licensed_dataset/gmd:licenseName_licensed_dataset/gco:CharacterString">
+      <Field name="licenseName_licensed_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:licensed_dataset/gmd:LW_Licensed_dataset/gmd:url_licensed_dataset/gco:CharacterString">
+      <Field name="url_licensed_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    <!-- Online - Distribution - Dataset -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:distribution_dataset/gmd:LW_Distribution_dataset/gmd:online_distribution_dataset/gmd:LW_Online_distribution_dataset/gmd:url_online_distribution_dataset/gco:CharacterString">
+      <Field name="url_online_distribution_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>          
+      
+    <!-- GeographicCoverage - Coverage - Dataset -->  
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:geographicDescription_geographicCoverage_coverage_dataset/gco:CharacterString">
+      <Field name="geographicDescription_geographicCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:boundingCoordinates_geographicCoverage_coverage_dataset/gco:CharacterString">
+      <Field name="boundingCoordinates_geographicCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>   
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:boundingCoordinates_geographicCoverage_coverage_dataset/gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset/gmd:westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset/gco:CharacterString">
+      <Field name="westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>   
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:boundingCoordinates_geographicCoverage_coverage_dataset/gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset/gmd:eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset/gco:CharacterString">
+      <Field name="eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>  
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:boundingCoordinates_geographicCoverage_coverage_dataset/gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset/gmd:northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset/gco:CharacterString">
+      <Field name="northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>   
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:boundingCoordinates_geographicCoverage_coverage_dataset/gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset/gmd:southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset/gco:CharacterString">
+      <Field name="southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>  
+      
+    <!-- BeginDate - RangeOfDates - TemporalCoverage - Coverage - Dataset -->  
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:temporalCoverage_coverage_dataset/gmd:LW_TemporalCoverage_coverage_dataset/gmd:rangeOfDates_temporalCoverage_coverage_dataset/gmd:LW_RangeOfDates_temporalCoverage_coverage_dataset/gmd:beginDate_rangeOfDates_temporalCoverage_coverage_dataset/gmd:LW_BeginDate_rangeOfDates_temporalCoverage_coverage_dataset/gmd:calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset/gco:Date">
+      <Field name="calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+      
+    <!-- EndDate - RangeOfDates - TemporalCoverage - Coverage - Dataset -->  
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:temporalCoverage_coverage_dataset/gmd:LW_TemporalCoverage_coverage_dataset/gmd:rangeOfDates_temporalCoverage_coverage_dataset/gmd:LW_RangeOfDates_temporalCoverage_coverage_dataset/gmd:endDate_rangeOfDates_temporalCoverage_coverage_dataset/gmd:LW_EndDate_rangeOfDates_temporalCoverage_coverage_dataset/gmd:calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset/gco:Date">
+      <Field name="calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+      
+    <!-- TaxonomicClassification - TaxonomicCoverage - Coverage - Dataset --> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicCoverage_coverage_dataset/gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset[normalize-space(gmd:taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString) != '']">          
+       <xsl:variable name="taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable"    select="gmd:taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString"/>
+       <xsl:variable name="taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable" select="gmd:taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString"/>
+       <xsl:variable name="taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable"    select="gmd:taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString"/> 
+	   <xsl:variable name="commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable" select="gmd:commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString"/>
+       
+           <Field name="taxonomicClassification_taxonomicCoverage_coverage_dataset"
+                 string="{concat(string($taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable), '|', string($taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable), '|', string($taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable), '|', string($commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable))}"
+                 store="true" index="false"/> 
+        
+    </xsl:for-each>
+    <!--   
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicCoverage_coverage_dataset/gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString">
+      <Field name="taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicCoverage_coverage_dataset/gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString">
+      <Field name="taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicCoverage_coverage_dataset/gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString">
+      <Field name="taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicCoverage_coverage_dataset/gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString">
+      <Field name="commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+    -->
+    
+    <!-- MethodStep -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:methods_dataset/gmd:LW_Methods_dataset/gmd:methodStep_methods_dataset/gmd:LW_MethodStep_methods_dataset[normalize-space(gmd:description_methodStep_methods_dataset/gmd:LW_Description_methodStep_methods_dataset/gmd:para_description_methodStep_methods_dataset/gco:CharacterString) != '']">         
+	       
+	       <xsl:variable name="para_description_methodStep_methods_dataset_variable"   select="gmd:description_methodStep_methods_dataset/gmd:LW_Description_methodStep_methods_dataset/gmd:para_description_methodStep_methods_dataset/gco:CharacterString"/>
+	       <xsl:variable name="bibtex_citation_methodStep_methods_dataset_variable"    select="gmd:citation_methodStep_methods_dataset/gmd:LW_Citation_methodStep_methods_dataset/gmd:bibtex_citation_methodStep_methods_dataset/gco:CharacterString"/>
+	    
+	    <!-- Instrumentation - MethodStep - Methods - Dataset -->   
+	    <xsl:variable name="instrumentation_methodStep_methods_dataset_variable">
+                <xsl:for-each select="gmd:instrumentation_methodStep_methods_dataset/gco:CharacterString">
+                    <xsl:value-of select="concat(., '--')" />
+                </xsl:for-each>
+        </xsl:variable>
+ 
+	    <!-- Software - MethodStep - Methods - Dataset --> 
+	    <xsl:variable name="software_dataset_variable">
+        	<xsl:for-each select="gmd:software_methodStep_methods_dataset/gmd:LW_Software_methodStep_methods_dataset[normalize-space(gmd:title_software_methodStep_methods_dataset/gco:CharacterString) != '']">
+
+				<xsl:variable name="title_software_methodStep_methods_dataset" select="gmd:title_software_methodStep_methods_dataset/gco:CharacterString" />
+				<xsl:variable name="references_software_methodStep_methods_dataset" select="gmd:references_software_methodStep_methods_dataset/gco:CharacterString" />
+
+            	<xsl:value-of select="concat($title_software_methodStep_methods_dataset, '--', $references_software_methodStep_methods_dataset), '^'" />
+        	</xsl:for-each>
+	    </xsl:variable>
+	    
+			 <Field name="methodStep_dataset"
+	                 string="{concat(string($para_description_methodStep_methods_dataset_variable), '|', string($bibtex_citation_methodStep_methods_dataset_variable),
+	                 '|', string($instrumentation_methodStep_methods_dataset_variable), '|', string($software_dataset_variable))}" 
+	                 store="true" index="false"/>                
+	</xsl:for-each>
+	
+	<!--
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:methods_dataset/gmd:LW_Methods_dataset/gmd:methodStep_methods_dataset/gmd:LW_MethodStep_methods_dataset/gmd:software_methodStep_methods_dataset/gmd:LW_Software_methodStep_methods_dataset/gmd:title_software_methodStep_methods_dataset/gco:CharacterString">
+      <Field name="title_software_methodStep_methods_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:methods_dataset/gmd:LW_Methods_dataset/gmd:methodStep_methods_dataset/gmd:LW_MethodStep_methods_dataset/gmd:software_methodStep_methods_dataset/gmd:LW_Software_methodStep_methods_dataset/gmd:references_software_methodStep_methods_dataset/gco:CharacterString">
+      <Field name="references_software_methodStep_methods_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+	-->
+      
+    <!-- SamplingDescription - Sampling - Methods - Dataset --> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:methods_dataset/gmd:LW_Methods_dataset/gmd:sampling_methods_dataset/gmd:LW_Sampling_methods_dataset[normalize-space(gmd:samplingDescription_sampling_methods_dataset/gmd:LW_SamplingDescription_sampling_methods_dataset/gmd:para_samplingDescription_sampling_methods_dataset/gco:CharacterString) != '']">         
+	     
+		<xsl:variable name="para_samplingDescription_sampling_methods_dataset_variable">
+	           <xsl:for-each select="gmd:samplingDescription_sampling_methods_dataset/gmd:LW_SamplingDescription_sampling_methods_dataset/gmd:para_samplingDescription_sampling_methods_dataset/gco:CharacterString">
+	               <xsl:value-of select="concat(., '--')" />
+	           </xsl:for-each>
+		</xsl:variable>
+    	<Field name="sampling_methods_dataset" string="{string($para_samplingDescription_sampling_methods_dataset_variable)}" store="true" index="true"/> 
+    </xsl:for-each>
+    <!--     
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:methods_dataset/gmd:LW_Methods_dataset/gmd:sampling_methods_dataset/gmd:LW_Sampling_methods_dataset/gmd:samplingDescription_sampling_methods_dataset/gmd:LW_SamplingDescription_sampling_methods_dataset/gmd:para_samplingDescription_sampling_methods_dataset/gco:CharacterString">
+      
+    </xsl:for-each>
+     -->
+     
+    <!-- Project - Dataset -->      
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:project_dataset/gmd:LW_Project_dataset/gmd:title_project_dataset/gco:CharacterString">
+      <Field name="title_project_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    <!-- Personnel - Project - Dataset -->    
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:project_dataset/gmd:LW_Project_dataset/gmd:personnel_project_dataset/gmd:LW_Personnel_project_dataset[normalize-space(gmd:individualName_personnel_project_dataset/gco:CharacterString) != '']">          
+       <xsl:variable name="individualName_personnel_project_dataset_variable"   select="gmd:individualName_personnel_project_dataset/gco:CharacterString"/>
+       <xsl:variable name="positionName_personnel_project_dataset_variable"    select="gmd:positionName_personnel_project_dataset/gco:CharacterString"/>
+       <xsl:variable name="name_organization_personnel_project_dataset_variable"     select="gmd:organization_personnel_project_dataset/gmd:LW_Organization_personnel_project_dataset/gmd:name_organization_personnel_project_dataset/gco:CharacterString"/>       
+          <Field name="personnelProject_dataset"
+                 string="{concat(string($individualName_personnel_project_dataset_variable), '|', string($positionName_personnel_project_dataset_variable), '|', string($name_organization_personnel_project_dataset_variable))}"
+                 store="true" index="false"/>
+    </xsl:for-each>
+    
+    <!-- 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:project_dataset/gmd:LW_Project_dataset/gmd:personnel_project_dataset/gmd:LW_Personnel_project_dataset/gmd:individualName_personnel_project_dataset/gco:CharacterString">
+      <Field name="individualName_personnel_project_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:project_dataset/gmd:LW_Project_dataset/gmd:personnel_project_dataset/gmd:LW_Personnel_project_dataset/gmd:positionName_personnel_project_dataset/gco:CharacterString">
+      <Field name="positionName_personnel_project_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>        
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:project_dataset/gmd:LW_Project_dataset/gmd:personnel_project_dataset/gmd:LW_Personnel_project_dataset/gmd:organization_personnel_project_dataset/gmd:LW_Organization_personnel_project_dataset/gmd:name_organization_personnel_project_dataset/gco:CharacterString">
+      <Field name="name_organization_personnel_project_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+        
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:project_dataset/gmd:LW_Project_dataset/gmd:personnel_project_dataset/gmd:LW_Personnel_project_dataset/gmd:organization_personnel_project_dataset/gmd:LW_Organization_personnel_project_dataset/gmd:name_organization_personnel_project_dataset/gco:CharacterString">
+      <Field name="name_organization_personnel_project_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+    -->
+    
+    <!-- Datatable - Dataset -->      
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset[normalize-space(gmd:entityName_datatable_dataset/gco:CharacterString) != '']">	       
+	       <xsl:variable name="entityName_datatable_dataset_variable"   select="gmd:entityName_datatable_dataset/gco:CharacterString"/>
+	       <xsl:variable name="formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset_variable"    select="gmd:physical_datatable_dataset/gmd:LW_Physical_datatable_dataset/gmd:dataFormat_physical_datatable_dataset/gmd:LW_DataFormat_physical_datatable_dataset/gmd:externallyDefinedFormat_dataFormat_physical_datatable_dataset/gmd:LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset/gmd:formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset/gco:CharacterString"/> 
+	    <!-- AttributeList - Datatable - Dataset --> 
+	    <xsl:variable name="attributeList_datatable_dataset_variable">
+        	<xsl:for-each select="gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset[normalize-space(gmd:attributeName_attributeList_datatable_dataset/gco:CharacterString) != '']">
+                <xsl:variable name="attributeName_attributeList_datatable_dataset_variable" select="gmd:attributeName_attributeList_datatable_dataset/gco:CharacterString" />
+				<xsl:variable name="attributeLabel_attributeList_datatable_dataset_variable" select="gmd:attributeLabel_attributeList_datatable_dataset/gco:CharacterString" />
+                <xsl:variable name="attributeDefinition_attributeList_datatable_dataset_variable"    select="gmd:attributeDefinition_attributeList_datatable_dataset/gco:CharacterString"/>        
+                <xsl:variable name="standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset_variable"    select="gmd:measurementScale_attributeList_datatable_dataset/gmd:LW_MeasurementScale_attributeList_datatable_dataset/gmd:ratio_measurementScale_attributeList_datatable_dataset/gmd:LW_Ratio_measurementScale_attributeList_datatable_dataset/gmd:unit_ratio_measurementScale_attributeList_datatable_dataset/gmd:LW_Unit_ratio_measurementScale_attributeList_datatable_dataset/gmd:standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset/gco:CharacterString"/>    
+                <xsl:variable name="code_missingValueCode_attributeList_datatable_dataset_variable"    select="gmd:missingValueCode_attributeList_datatable_dataset/gmd:LW_MissingValueCode_attributeList_datatable_dataset/gmd:code_missingValueCode_attributeList_datatable_dataset/gco:CharacterString"/>       
+      
+				<!-- AttributeAnnotation - AttributeList - Datatable - Dataset --> 
+	    		<xsl:variable name="attributeAnnotation_attributeList_datatable_dataset_variable">
+        			<xsl:for-each select="gmd:attributeAnnotation_attributeList_datatable_dataset/gmd:LW_AttributeAnnotation_attributeList_datatable_dataset[normalize-space(gmd:propertyURI_attributeAnnotation_attributeList_datatable_dataset/gco:CharacterString) != '']">
+
+						<xsl:variable name="propertyURI_attributeAnnotation_attributeList_datatable_dataset" select="gmd:propertyURI_attributeAnnotation_attributeList_datatable_dataset/gco:CharacterString" />
+						<xsl:variable name="valueURI_attributeAnnotation_attributeList_datatable_dataset" select="gmd:valueURI_attributeAnnotation_attributeList_datatable_dataset/gco:CharacterString" />
+
+            			<xsl:value-of select="concat($propertyURI_attributeAnnotation_attributeList_datatable_dataset, '##', $valueURI_attributeAnnotation_attributeList_datatable_dataset), '°°'" />
+        			</xsl:for-each>
+	   			</xsl:variable>
+
+            	<xsl:value-of select="concat(string($attributeName_attributeList_datatable_dataset_variable), '--', 
+            								string($attributeLabel_attributeList_datatable_dataset_variable), '--',
+                							string($attributeDefinition_attributeList_datatable_dataset_variable), '--',
+                							string($standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset_variable), '--',
+                							string($code_missingValueCode_attributeList_datatable_dataset_variable), '--',
+                							string($attributeAnnotation_attributeList_datatable_dataset_variable), '^')" />
+        	</xsl:for-each>
+	    </xsl:variable>
+	    
+			 <Field name="datatable_dataset"
+	                 string="{concat(string($entityName_datatable_dataset_variable), '|', string($formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset_variable),
+	                 '|', string($attributeList_datatable_dataset_variable))}" 
+	                 store="true" index="false"/>	                 
+	</xsl:for-each>
+	   
+	<!--     
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:entityName_datatable_dataset/gco:CharacterString">
+      <Field name="entityName_datatable_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+       
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:physical_datatable_dataset/gmd:LW_Physical_datatable_dataset/gmd:dataFormat_physical_datatable_dataset/gmd:LW_DataFormat_physical_datatable_dataset/gmd:externallyDefinedFormat_dataFormat_physical_datatable_dataset/gmd:LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset/gmd:formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset/gco:CharacterString">
+      <Field name="formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+         
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:attributeName_attributeList_datatable_dataset/gco:CharacterString">
+      <Field name="attributeName_attributeList_datatable_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:attributeLabel_attributeList_datatable_dataset/gco:CharacterString">
+      <Field name="attributeLabel_attributeList_datatable_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:attributeDefinition_attributeList_datatable_dataset/gco:CharacterString">
+      <Field name="attributeDefinition_attributeList_datatable_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+            
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:measurementScale_attributeList_datatable_dataset/gmd:LW_MeasurementScale_attributeList_datatable_dataset/gmd:ratio_measurementScale_attributeList_datatable_dataset/gmd:LW_Ratio_measurementScale_attributeList_datatable_dataset/gmd:unit_ratio_measurementScale_attributeList_datatable_dataset/gmd:LW_Unit_ratio_measurementScale_attributeList_datatable_dataset/gmd:standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset/gco:CharacterString">
+      <Field name="standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:missingValueCode_attributeList_datatable_dataset/gmd:LW_MissingValueCode_attributeList_datatable_dataset/gmd:code_missingValueCode_attributeList_datatable_dataset/gco:CharacterString">
+      <Field name="code_missingValueCode_attributeList_datatable_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+   
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:attributeAnnotation_attributeList_datatable_dataset/gmd:LW_AttributeAnnotation_attributeList_datatable_dataset/gmd:propertyURI_attributeAnnotation_attributeList_datatable_dataset/gco:CharacterString">
+      <Field name="propertyURI_attributeAnnotation_attributeList_datatable_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:attributeAnnotation_attributeList_datatable_dataset/gmd:LW_AttributeAnnotation_attributeList_datatable_dataset/gmd:valueURI_attributeAnnotation_attributeList_datatable_dataset/gco:CharacterString">
+      <Field name="valueURI_attributeAnnotation_attributeList_datatable_dataset" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each> 
+    -->
+     
+    <!-- End Dataset LifeWatch -->
+    
+    
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <xsl:for-each select="gmd:contact">
       <Field name="metadataPOC"

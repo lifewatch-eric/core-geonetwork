@@ -163,7 +163,795 @@
         </dateStamp>
       </xsl:for-each>
 
+     <!-- VRE LifeWatch -->
+     <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:alternateIdentifier_vre/gco:CharacterString">
+        <id_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </id_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:url_vre/gco:CharacterString">
+        <url_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </url_vre>
+      </xsl:for-each>
+      
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:coordinationTeam_vre/gmd:LW_CoordinationTeam/gmd:contactPoint_vre/gco:CharacterString">
+        <contactPoint_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </contactPoint_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:coordinationTeam_vre/gmd:LW_CoordinationTeam/gmd:address_vre/gco:CharacterString">
+        <address_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </address_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:coordinationTeam_vre/gmd:LW_CoordinationTeam/gmd:e_mail_vre/gco:CharacterString">
+        <e_mail_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </e_mail_vre>
+      </xsl:for-each>
+      
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:containServices_vre/gmd:LW_ContainServices/gmd:serviceName_vre/gco:CharacterString">
+        <serviceName_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceName_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:containServices_vre/gmd:LW_ContainServices/gmd:serviceDescription_vre/gco:CharacterString">
+        <serviceDescription_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceDescription_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:containServices_vre/gmd:LW_ContainServices/gmd:serviceReference_vre/gco:CharacterString">
+        <serviceReference_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceReference_vre>
+      </xsl:for-each>
+      
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreContractualInformation_vre/gmd:LW_VREContractualInformation/gmd:license_vre/gco:CharacterString">
+        <license_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </license_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreContractualInformation_vre/gmd:LW_VREContractualInformation/gmd:usageConditions_vre/gco:CharacterString">
+        <usageConditions_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </usageConditions_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreContractualInformation_vre/gmd:LW_VREContractualInformation/gmd:howToCiteThisVRE_vre/gco:CharacterString">
+        <howToCiteThisVRE_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </howToCiteThisVRE_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreContractualInformation_vre/gmd:LW_VREContractualInformation/gmd:publicationsAboutThisVRE_vre/gco:CharacterString">
+        <publicationsAboutThisVRE_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </publicationsAboutThisVRE_vre>
+      </xsl:for-each>
 
+     <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreSupportInformation_vre/gmd:LW_VRESupportInformation/gmd:vreFeedback_vre/gco:CharacterString">
+        <vreFeedback_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </vreFeedback_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreSupportInformation_vre/gmd:LW_VRESupportInformation/gmd:vreHelpdesk_vre/gco:CharacterString">
+        <vreHelpdesk_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </vreHelpdesk_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreSupportInformation_vre/gmd:LW_VRESupportInformation/gmd:vreOrder_vre/gco:CharacterString">
+        <vreOrder_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </vreOrder_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreSupportInformation_vre/gmd:LW_VRESupportInformation/gmd:vreTraining_vre/gco:CharacterString">
+        <vreTraining_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </vreTraining_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:vreSupportInformation_vre/gmd:LW_VRESupportInformation/gmd:vreUserManual_vre/gco:CharacterString">
+        <vreUserManual_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </vreUserManual_vre>
+      </xsl:for-each>
+
+      <!-- <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:author_vre/gco:CharacterString">
+        <author_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </author_vre>
+      </xsl:for-each> -->
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:maintainer_vre/gco:CharacterString">
+        <maintainer_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </maintainer_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:version_vre/gco:CharacterString">
+        <version_vre>
+          <xsl:value-of select="normalize-space(.)"/>
+        </version_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:lastUpdated_vre/*[text() != '' and position() = 1]">
+        <lastUpdated_vre>
+           <xsl:variable name="date"
+                        select="if (name() = 'gco:Date' and string-length(.) = 4)
+                                then concat(., '-01-01T00:00:00')
+                                else if (name() = 'gco:Date' and string-length(.) = 7)
+                                then concat(., '-01T00:00:00')
+                                else if (name() = 'gco:Date' or string-length(.) = 10)
+                                then concat(., 'T00:00:00')
+                                else if (contains(., '.'))
+                                then tokenize(., '\.')[1]
+                                else ."/>
+
+          <xsl:value-of select="translate(string(
+                                   adjust-dateTime-to-timezone(
+                                      xs:dateTime($date),
+                                      xs:dayTimeDuration('PT0H'))
+                                     ), 'Z', '')"/>
+        </lastUpdated_vre>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:managementInfo_vre/gmd:LW_ManagementInfo/gmd:created_vre/*[text() != '' and position() = 1]">
+        <created_vre>
+           <xsl:variable name="date"
+                        select="if (name() = 'gco:Date' and string-length(.) = 4)
+                                then concat(., '-01-01T00:00:00')
+                                else if (name() = 'gco:Date' and string-length(.) = 7)
+                                then concat(., '-01T00:00:00')
+                                else if (name() = 'gco:Date' or string-length(.) = 10)
+                                then concat(., 'T00:00:00')
+                                else if (contains(., '.'))
+                                then tokenize(., '\.')[1]
+                                else ."/>
+
+          <xsl:value-of select="translate(string(
+                                   adjust-dateTime-to-timezone(
+                                      xs:dateTime($date),
+                                      xs:dayTimeDuration('PT0H'))
+                                     ), 'Z', '')"/>
+        </created_vre>
+      </xsl:for-each>
+      <!--  End VRE LifeWatch -->
+      
+      <!-- Service LifeWatch -->
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:revisionDate_service/*[text() != '' and position() = 1]">
+        <revisionDate_service>
+          <xsl:variable name="date"
+                        select="if (name() = 'gco:Date' and string-length(.) = 4)
+                                then concat(., '-01-01T00:00:00')
+                                else if (name() = 'gco:Date' and string-length(.) = 7)
+                                then concat(., '-01T00:00:00')
+                                else if (name() = 'gco:Date' or string-length(.) = 10)
+                                then concat(., 'T00:00:00')
+                                else if (contains(., '.'))
+                                then tokenize(., '\.')[1]
+                                else ."/>
+
+          <xsl:value-of select="translate(string(
+                                   adjust-dateTime-to-timezone(
+                                      xs:dateTime($date),
+                                      xs:dayTimeDuration('PT0H'))
+                                     ), 'Z', '')"/>
+        </revisionDate_service>
+      </xsl:for-each>
+      
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:contactPoint_service/gco:CharacterString">
+        <contactPoint_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </contactPoint_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:address_service/gco:CharacterString">
+        <address_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </address_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:keywords_service/gco:CharacterString">
+        <keywords_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </keywords_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:typeOfService_service/gco:CharacterString">
+        <typeOfService_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </typeOfService_service>
+      </xsl:for-each>
+      <xsl:for-each
+            select="*/gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:typeOfAssociation_service/gmd:LW_TypeOfAssociation_service/@codeListValue[. != '']">
+            <typeOfAssociation_service>
+              <xsl:value-of select="."/>
+            </typeOfAssociation_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:containOperations_service/gmd:LW_ContainOperations/gmd:operationName_service/gco:CharacterString">
+        <operationName_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </operationName_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:containOperations_service/gmd:LW_ContainOperations/gmd:webSite_service/gco:CharacterString">
+        <webSite_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </webSite_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:containOperations_service/gmd:LW_ContainOperations/gmd:protocol_service/gco:CharacterString">
+        <protocol_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </protocol_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:containOperations_service/gmd:LW_ContainOperations/gmd:descriptionOperation_service/gco:CharacterString">
+        <descriptionOperation_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </descriptionOperation_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:containOperations_service/gmd:LW_ContainOperations/gmd:function_service/gco:CharacterString">
+        <function_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </function_service>
+      </xsl:for-each>
+      
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:pid_service/gco:CharacterString">
+        <pid_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </pid_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:tags_service/gco:CharacterString">
+        <tags_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </tags_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:relatedServices_service/gco:CharacterString">
+        <relatedServices_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </relatedServices_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:requiredServices_service/gco:CharacterString">
+        <requiredServices_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </requiredServices_service>
+      </xsl:for-each>
+      <xsl:for-each
+            select="*/gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:topicCategory_service/gmd:LW_TopicCategory_service/@codeListValue[. != '']">
+            <topicCategory_service>
+              <xsl:value-of select="."/>
+            </topicCategory_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:serviceLanguage_service/gco:CharacterString">
+        <serviceLanguage_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceLanguage_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:charset_service/gco:CharacterString">
+        <charset_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </charset_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:otherLanguage_service/gco:CharacterString">
+        <otherLanguage_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </otherLanguage_service>
+      </xsl:for-each>
+      <xsl:for-each
+            select="*/gmd:service/gmd:LW_Service/gmd:serviceClassificationInformation_service/gmd:LW_ServiceClassificationInformation/gmd:serviceTRL_service/gmd:LW_ServiceTRL_service/@codeListValue[. != '']">
+            <serviceTRL_service>
+              <xsl:value-of select="."/>
+            </serviceTRL_service>
+      </xsl:for-each>
+      
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceContractualInformation_service/gmd:LW_ServiceContractualInformation/gmd:serviceFunding_service/gco:CharacterString">
+        <serviceFunding_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceFunding_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceContractualInformation_service/gmd:LW_ServiceContractualInformation/gmd:serviceLevelAgreement_service/gco:CharacterString">
+        <serviceLevelAgreement_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceLevelAgreement_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceContractualInformation_service/gmd:LW_ServiceContractualInformation/gmd:servicePrice_service/gco:CharacterString">
+        <servicePrice_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </servicePrice_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceContractualInformation_service/gmd:LW_ServiceContractualInformation/gmd:termsOfUse_service/gco:CharacterString">
+        <termsOfUse_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </termsOfUse_service>
+      </xsl:for-each>
+      
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceSupportInformation_service/gmd:LW_ServiceSupportInformation/gmd:serviceFeedback_service/gco:CharacterString">
+        <serviceFeedback_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceFeedback_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceSupportInformation_service/gmd:LW_ServiceSupportInformation/gmd:serviceHelpdesk_service/gco:CharacterString">
+        <serviceHelpdesk_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceHelpdesk_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceSupportInformation_service/gmd:LW_ServiceSupportInformation/gmd:serviceOrder_service/gco:CharacterString">
+        <serviceOrder_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceOrder_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceSupportInformation_service/gmd:LW_ServiceSupportInformation/gmd:serviceTraining_service/gco:CharacterString">
+        <serviceTraining_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceTraining_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:serviceSupportInformation_service/gmd:LW_ServiceSupportInformation/gmd:serviceUserManual_service/gco:CharacterString">
+        <serviceUserManual_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceUserManual_service>
+      </xsl:for-each>
+      
+      <!-- <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfoService/gmd:author_service/gco:CharacterString">
+        <author_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </author_service>
+      </xsl:for-each> -->
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfo/gmd:maintainer_service/gco:CharacterString">
+        <maintainer_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </maintainer_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfo/gmd:version_service/gco:CharacterString">
+        <version_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </version_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfo/gmd:lastUpdated_service/*[text() != '' and position() = 1]">
+        <lastUpdated_service>
+          <xsl:variable name="date"
+                        select="if (name() = 'gco:Date' and string-length(.) = 4)
+                                then concat(., '-01-01T00:00:00')
+                                else if (name() = 'gco:Date' and string-length(.) = 7)
+                                then concat(., '-01T00:00:00')
+                                else if (name() = 'gco:Date' or string-length(.) = 10)
+                                then concat(., 'T00:00:00')
+                                else if (contains(., '.'))
+                                then tokenize(., '\.')[1]
+                                else ."/>
+
+          <xsl:value-of select="translate(string(
+                                   adjust-dateTime-to-timezone(
+                                      xs:dateTime($date),
+                                      xs:dayTimeDuration('PT0H'))
+                                     ), 'Z', '')"/>
+        </lastUpdated_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:managementInfo_service/gmd:LW_ManagementInfo/gmd:created_service/*[text() != '' and position() = 1]">
+        <created_service>
+          <xsl:variable name="date"
+                        select="if (name() = 'gco:Date' and string-length(.) = 4)
+                                then concat(., '-01-01T00:00:00')
+                                else if (name() = 'gco:Date' and string-length(.) = 7)
+                                then concat(., '-01T00:00:00')
+                                else if (name() = 'gco:Date' or string-length(.) = 10)
+                                then concat(., 'T00:00:00')
+                                else if (contains(., '.'))
+                                then tokenize(., '\.')[1]
+                                else ."/>
+
+          <xsl:value-of select="translate(string(
+                                   adjust-dateTime-to-timezone(
+                                      xs:dateTime($date),
+                                      xs:dayTimeDuration('PT0H'))
+                                     ), 'Z', '')"/>
+        </created_service>
+      </xsl:for-each>
+      <!-- End Service LifeWatch -->
+      
+      <!-- Dataset LifeWatch -->
+      <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:alternateIdentifier_dataset/gco:CharacterString">
+        <alternativeIdentifier_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </alternativeIdentifier_dataset>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:creator_dataset/gmd:LW_Creator_dataset/gmd:id_creator_dataset/gco:CharacterString">
+        <id_creator_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </id_creator_dataset>
+      </xsl:for-each>
+
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:creator_dataset/gmd:LW_Creator_dataset/gmd:individualName_creator_dataset/gmd:LW_IndividualName_creator_dataset/gmd:givenName_individualName_creator_dataset/gco:CharacterString">
+        <givenName_individualName_creator_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </givenName_individualName_creator_dataset>
+    </xsl:for-each> 
+     <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:creator_dataset/gmd:LW_Creator_dataset/gmd:individualName_creator_dataset/gmd:LW_IndividualName_creator_dataset/gmd:surName_individualName_creator_dataset/gco:CharacterString">
+        <surName_individualName_creator_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </surName_individualName_creator_dataset>
+    </xsl:for-each>  
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:creator_dataset/gmd:LW_Creator_dataset/gmd:organizationName_creator_dataset/gco:CharacterString">
+        <organizationName_creator_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </organizationName_creator_dataset>
+    </xsl:for-each>  
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:creator_dataset/gmd:LW_Creator_dataset/gmd:electronicMailAddress_creator_dataset/gco:CharacterString">
+        <electronicMailAddress_creator_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </electronicMailAddress_creator_dataset>
+    </xsl:for-each>    
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:creator_dataset/gmd:LW_Creator_dataset/gmd:userId_creator_dataset/gco:CharacterString">
+        <userId_creator_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </userId_creator_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:creator_dataset/gmd:LW_Creator_dataset/gmd:references_creator_dataset/gco:CharacterString">
+        <references_creator_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </references_creator_dataset>
+    </xsl:for-each> 
+      
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:metadataProvider_dataset/gmd:LW_MetadataProvider_dataset/gmd:id_metadataProvider_dataset/gco:CharacterString">
+        <id_metadataProvider_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </id_metadataProvider_dataset>
+    </xsl:for-each>  
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:metadataProvider_dataset/gmd:LW_MetadataProvider_dataset/gmd:individualName_metadataProvider_dataset/gmd:LW_IndividualName_metadataProvider_dataset/gmd:givenName_individualName_metadataProvider_dataset/gco:CharacterString">
+        <givenName_individualName_metadataProvider_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </givenName_individualName_metadataProvider_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:metadataProvider_dataset/gmd:LW_MetadataProvider_dataset/gmd:individualName_metadataProvider_dataset/gmd:LW_IndividualName_metadataProvider_dataset/gmd:surName_individualName_metadataProvider_dataset/gco:CharacterString">
+        <surName_individualName_metadataProvider_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </surName_individualName_metadataProvider_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:metadataProvider_dataset/gmd:LW_MetadataProvider_dataset/gmd:organizationName_metadataProvider_dataset/gco:CharacterString">
+        <organizationName_metadataProvider_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </organizationName_metadataProvider_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:metadataProvider_dataset/gmd:LW_MetadataProvider_dataset/gmd:electronicMailAddress_metadataProvider_dataset/gco:CharacterString">
+        <electronicMailAddress_metadataProvider_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </electronicMailAddress_metadataProvider_dataset>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:metadataProvider_dataset/gmd:LW_MetadataProvider_dataset/gmd:references_metadataProvider_dataset/gco:CharacterString">
+        <references_metadataProvider_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </references_metadataProvider_dataset>
+    </xsl:for-each>
+        
+        
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:metadataProvider_dataset/gmd:LW_Contact_dataset/gmd:id_contact_dataset/gco:CharacterString">
+        <id_contact_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </id_contact_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:contact_dataset/gmd:LW_Contact_dataset/gmd:individualName_contact_dataset/gmd:LW_IndividualName_contact_dataset/gmd:givenName_individualName_contact_dataset/gco:CharacterString">
+        <givenName_individualName_contact_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </givenName_individualName_contact_dataset>
+    </xsl:for-each> 
+   <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:contact_dataset/gmd:LW_Contact_dataset/gmd:individualName_contact_dataset/gmd:LW_IndividualName_contact_dataset/gmd:surName_individualName_contact_dataset/gco:CharacterString">
+        <surName_individualName_contact_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </surName_individualName_contact_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:contact_dataset/gmd:LW_Contact_dataset/gmd:organizationName_contact_dataset/gco:CharacterString">      
+        <organizationName_contact_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </organizationName_contact_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:contact_dataset/gmd:LW_Contact_dataset/gmd:electronicMailAddress_contact_dataset/gco:CharacterString">
+        <electronicMailAddress_contact_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </electronicMailAddress_contact_dataset>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:contact_dataset/gmd:LW_Contact_dataset/gmd:references_contact_dataset/gco:CharacterString">
+        <references_contact_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </references_contact_dataset>
+    </xsl:for-each>    
+        
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:associatedParty_dataset/gmd:LW_AssociatedParty_dataset/gmd:id_associatedParty_dataset/gco:CharacterString">
+        <id_associatedParty_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </id_associatedParty_dataset>
+    </xsl:for-each>    
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:associatedParty_dataset/gmd:LW_AssociatedParty_dataset/gmd:individualName_associatedParty_dataset/gmd:LW_IndividualName_associatedParty_dataset/gmd:givenName_individualName_associatedParty_dataset/gco:CharacterString">
+        <givenName_individualName_associatedParty_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </givenName_individualName_associatedParty_dataset>
+    </xsl:for-each>   
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:associatedParty_dataset/gmd:LW_AssociatedParty_dataset/gmd:individualName_associatedParty_dataset/gmd:LW_IndividualName_associatedParty_dataset/gmd:surName_individualName_associatedParty_dataset/gco:CharacterString">
+        <surName_individualName_associatedParty_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </surName_individualName_associatedParty_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:associatedParty_dataset/gmd:LW_AssociatedParty_dataset/gmd:organizationName_associatedParty_dataset/gco:CharacterString">
+        <organizationName_associatedParty_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </organizationName_associatedParty_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:associatedParty_dataset/gmd:LW_AssociatedParty_dataset/gmd:electronicMailAddress_associatedParty_dataset/gco:CharacterString">
+        <electronicMailAddress_associatedParty_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </electronicMailAddress_associatedParty_dataset>
+    </xsl:for-each> 
+    
+    <!-- Description --> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:language_dataset/gco:CharacterString">
+        <language_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </language_dataset>
+    </xsl:for-each> 
+
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:keywordSet_dataset/gmd:LW_KeywordSet_dataset/gmd:keyword_keywordSet_dataset/gco:CharacterString">
+        <keyword_keywordSet_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </keyword_keywordSet_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:keywordSet_dataset/gmd:LW_KeywordSet_dataset/gmd:keywordThesaurus_keywordSet_dataset/gco:CharacterString">
+        <keywordThesaurus_keywordSet_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </keywordThesaurus_keywordSet_dataset>
+    </xsl:for-each> 
+        
+    <!-- License -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:intellectualRights_dataset/gco:CharacterString">
+        <intellectualRights_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </intellectualRights_dataset>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:licensed_dataset/gmd:LW_Licensed_dataset/gmd:licenseName_licensed_dataset/gco:CharacterString">
+        <licenseName_licensed_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </licenseName_licensed_dataset>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:licensed_dataset/gmd:LW_Licensed_dataset/gmd:url_licensed_dataset/gco:CharacterString">
+        <url_licensed_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </url_licensed_dataset>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:distribution_dataset/gmd:LW_Distribution_dataset/gmd:online_distribution_dataset/gmd:LW_Online_distribution_dataset/gmd:url_online_distribution_dataset/gco:CharacterString">
+        <url_online_distribution_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </url_online_distribution_dataset>
+    </xsl:for-each>    
+        
+    <!-- GeographicCoverage - Coverage - Dataset -->      
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:geographicDescription_geographicCoverage_coverage_dataset/gco:CharacterString">
+        <geographicDescription_geographicCoverage_coverage_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </geographicDescription_geographicCoverage_coverage_dataset>
+    </xsl:for-each>  
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:boundingCoordinates_geographicCoverage_coverage_dataset/gco:CharacterString">
+        <boundingCoordinates_geographicCoverage_coverage_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </boundingCoordinates_geographicCoverage_coverage_dataset>
+    </xsl:for-each>   
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:boundingCoordinates_geographicCoverage_coverage_dataset/gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset/gmd:westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset/gco:CharacterString">
+        <westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:boundingCoordinates_geographicCoverage_coverage_dataset/gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset/gmd:eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset/gco:CharacterString">
+        <eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+    </xsl:for-each>     
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:boundingCoordinates_geographicCoverage_coverage_dataset/gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset/gmd:northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset/gco:CharacterString">
+        <northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+    </xsl:for-each>     
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:geographicCoverage_coverage_dataset/gmd:LW_GeographicCoverage_coverage_dataset/gmd:boundingCoordinates_geographicCoverage_coverage_dataset/gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset/gmd:southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset/gco:CharacterString">
+        <southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+    </xsl:for-each>    
+        
+    <!-- BeginDate - RangeOfDates - TemporalCoverage - Coverage - Dataset -->   
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:temporalCoverage_coverage_dataset/gmd:LW_TemporalCoverage_coverage_dataset/gmd:rangeOfDates_temporalCoverage_coverage_dataset/gmd:LW_RangeOfDates_temporalCoverage_coverage_dataset/gmd:beginDate_rangeOfDates_temporalCoverage_coverage_dataset/gmd:LW_BeginDate_rangeOfDates_temporalCoverage_coverage_dataset/gmd:calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset/gco:Date">
+        <calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset>
+            <xsl:variable name="date"
+                        select="if (name() = 'gco:Date' and string-length(.) = 4)
+                                then concat(., '-01-01T00:00:00')
+                                else if (name() = 'gco:Date' and string-length(.) = 7)
+                                then concat(., '-01T00:00:00')
+                                else if (name() = 'gco:Date' or string-length(.) = 10)
+                                then concat(., 'T00:00:00')
+                                else if (contains(., '.'))
+                                then tokenize(., '\.')[1]
+                                else ."/>
+            <xsl:value-of select="translate(string(
+                                   adjust-dateTime-to-timezone(
+                                      xs:dateTime($date),
+                                      xs:dayTimeDuration('PT0H'))
+                                     ), 'Z', '')"/>   
+        </calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset>
+    </xsl:for-each>     
+        
+    <!-- EndDate - RangeOfDates - TemporalCoverage - Coverage - Dataset -->  
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:temporalCoverage_coverage_dataset/gmd:LW_TemporalCoverage_coverage_dataset/gmd:rangeOfDates_temporalCoverage_coverage_dataset/gmd:LW_RangeOfDates_temporalCoverage_coverage_dataset/gmd:endDate_rangeOfDates_temporalCoverage_coverage_dataset/gmd:LW_EndDate_rangeOfDates_temporalCoverage_coverage_dataset/gmd:calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset/gco:Date">
+        <calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset>
+            <xsl:variable name="date"
+                        select="if (name() = 'gco:Date' and string-length(.) = 4)
+                                then concat(., '-01-01T00:00:00')
+                                else if (name() = 'gco:Date' and string-length(.) = 7)
+                                then concat(., '-01T00:00:00')
+                                else if (name() = 'gco:Date' or string-length(.) = 10)
+                                then concat(., 'T00:00:00')
+                                else if (contains(., '.'))
+                                then tokenize(., '\.')[1]
+                                else ."/>
+            <xsl:value-of select="translate(string(
+                                   adjust-dateTime-to-timezone(
+                                      xs:dateTime($date),
+                                      xs:dayTimeDuration('PT0H'))
+                                     ), 'Z', '')"/>
+        </calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset>
+    </xsl:for-each>  
+        
+    <!-- TaxonomicClassification - TaxonomicCoverage - Coverage - Dataset -->       
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicCoverage_coverage_dataset/gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString">
+        <taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+    </xsl:for-each>  
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicCoverage_coverage_dataset/gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString">
+        <taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicCoverage_coverage_dataset/gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString">
+        <taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:coverage_dataset/gmd:LW_Coverage_dataset/gmd:taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicCoverage_coverage_dataset/gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset/gmd:commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset/gco:CharacterString">
+        <commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+    </xsl:for-each>
+        
+    <!-- Description - MethodStep - Methods - Dataset -->         
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:methods_dataset/gmd:LW_Methods_dataset/gmd:methodStep_methods_dataset/gmd:LW_MethodStep_methods_dataset/gmd:description_methodStep_methods_dataset/gmd:LW_Description_methodStep_methods_dataset/gmd:para_description_methodStep_methods_dataset/gco:CharacterString">
+        <para_description_methodStep_methods_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </para_description_methodStep_methods_dataset>
+    </xsl:for-each> 
+        
+    <!-- Citation - MethodStep - Methods - Dataset -->       
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:methods_dataset/gmd:LW_Methods_dataset/gmd:methodStep_methods_dataset/gmd:LW_MethodStep_methods_dataset/gmd:citation_methodStep_methods_dataset/gmd:LW_Citation_methodStep_methods_dataset/gmd:bibtex_citation_methodStep_methods_dataset/gco:CharacterString">
+        <bibtex_citation_methodStep_methods_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </bibtex_citation_methodStep_methods_dataset>
+    </xsl:for-each>
+        
+    <!-- MethodStep - Methods - Dataset -->      
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:methods_dataset/gmd:LW_Methods_dataset/gmd:methodStep_methods_dataset/gmd:LW_MethodStep_methods_dataset/gmd:instrumentation_methodStep_methods_dataset/gco:CharacterString">
+        <instrumentation_methodStep_methods_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </instrumentation_methodStep_methods_dataset>
+    </xsl:for-each>    
+        
+    <!-- Software - MethodStep - Methods - Dataset -->      
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:methods_dataset/gmd:LW_Methods_dataset/gmd:methodStep_methods_dataset/gmd:LW_MethodStep_methods_dataset/gmd:software_methodStep_methods_dataset/gmd:LW_Software_methodStep_methods_dataset/gmd:title_software_methodStep_methods_dataset/gco:CharacterString">
+        <title_software_methodStep_methods_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </title_software_methodStep_methods_dataset>
+    </xsl:for-each>        
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:methods_dataset/gmd:LW_Methods_dataset/gmd:methodStep_methods_dataset/gmd:LW_MethodStep_methods_dataset/gmd:software_methodStep_methods_dataset/gmd:LW_Software_methodStep_methods_dataset/gmd:references_software_methodStep_methods_dataset/gco:CharacterString">
+        <references_software_methodStep_methods_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </references_software_methodStep_methods_dataset>
+    </xsl:for-each>    
+    
+    <!-- SamplingDescription - Sampling - Methods - Dataset -->      
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:methods_dataset/gmd:LW_Methods_dataset/gmd:sampling_methods_dataset/gmd:LW_Sampling_methods_dataset/gmd:samplingDescription_sampling_methods_dataset/gmd:LW_SamplingDescription_sampling_methods_dataset/gmd:para_samplingDescription_sampling_methods_dataset/gco:CharacterString">
+        <para_samplingDescription_sampling_methods_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </para_samplingDescription_sampling_methods_dataset>
+    </xsl:for-each>    
+        
+    <!-- Project - Dataset -->      
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:project_dataset/gmd:LW_Project_dataset/gmd:title_project_dataset/gco:CharacterString">
+        <title_project_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </title_project_dataset>
+    </xsl:for-each>     
+        
+    <!-- Personnel - Project - Dataset -->      
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:project_dataset/gmd:LW_Project_dataset/gmd:personnel_project_dataset/gmd:LW_Personnel_project_dataset/gmd:individualName_personnel_project_dataset/gco:CharacterString">
+        <individualName_personnel_project_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </individualName_personnel_project_dataset>
+    </xsl:for-each>    
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:project_dataset/gmd:LW_Project_dataset/gmd:personnel_project_dataset/gmd:LW_Personnel_project_dataset/gmd:positionName_personnel_project_dataset/gco:CharacterString">
+        <positionName_personnel_project_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </positionName_personnel_project_dataset>
+    </xsl:for-each>       
+    
+    <!-- Organization - Personnel - Project - Dataset -->         
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:project_dataset/gmd:LW_Project_dataset/gmd:personnel_project_dataset/gmd:LW_Personnel_project_dataset/gmd:organization_personnel_project_dataset/gmd:LW_Organization_personnel_project_dataset/gmd:name_organization_personnel_project_dataset/gco:CharacterString">
+        <name_organization_personnel_project_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </name_organization_personnel_project_dataset>
+    </xsl:for-each>
+      
+    <!-- Datatable - Dataset -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:entityName_datatable_dataset/gco:CharacterString">    
+        <entityName_datatable_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </entityName_datatable_dataset>
+    </xsl:for-each>    
+    <!-- ExternallyDefinedFormat - DataFormat - Physical - Datatable - Dataset -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:physical_datatable_dataset/gmd:LW_Physical_datatable_dataset/gmd:dataFormat_physical_datatable_dataset/gmd:LW_DataFormat_physical_datatable_dataset/gmd:externallyDefinedFormat_dataFormat_physical_datatable_dataset/gmd:LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset/gmd:formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset/gco:CharacterString">    
+        <formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset>
+    </xsl:for-each>    
+    <!-- AttributeList - Datatable - Dataset --> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:attributeName_attributeList_datatable_dataset/gco:CharacterString">
+        <attributeName_attributeList_datatable_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </attributeName_attributeList_datatable_dataset>
+    </xsl:for-each>     
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:attributeLabel_attributeList_datatable_dataset/gco:CharacterString">    
+        <attributeLabel_attributeList_datatable_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </attributeLabel_attributeList_datatable_dataset>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:attributeDefinition_attributeList_datatable_dataset/gco:CharacterString">
+        <attributeDefinition_attributeList_datatable_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </attributeDefinition_attributeList_datatable_dataset>
+    </xsl:for-each>    
+    <!-- Unit - Ratio - MeasurementScale - AttributeList - Datatable - Dataset -->      
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:measurementScale_attributeList_datatable_dataset/gmd:LW_MeasurementScale_attributeList_datatable_dataset/gmd:ratio_measurementScale_attributeList_datatable_dataset/gmd:LW_Ratio_measurementScale_attributeList_datatable_dataset/gmd:unit_ratio_measurementScale_attributeList_datatable_dataset/gmd:LW_Unit_ratio_measurementScale_attributeList_datatable_dataset/gmd:standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset/gco:CharacterString">    
+        <standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset>
+    </xsl:for-each>     
+    <!-- MissingValueCode - AttributeList - Datatable - Dataset -->  
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:missingValueCode_attributeList_datatable_dataset/gmd:LW_MissingValueCode_attributeList_datatable_dataset/gmd:code_missingValueCode_attributeList_datatable_dataset/gco:CharacterString">
+        <code_missingValueCode_attributeList_datatable_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </code_missingValueCode_attributeList_datatable_dataset>
+    </xsl:for-each> 
+    <!-- AttributeAnnotation - AttributeList - Datatable - Dataset -->
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:attributeAnnotation_attributeList_datatable_dataset/gmd:LW_AttributeAnnotation_attributeList_datatable_dataset/gmd:propertyURI_attributeAnnotation_attributeList_datatable_dataset/gco:CharacterString">
+        <propertyURI_attributeAnnotation_attributeList_datatable_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </propertyURI_attributeAnnotation_attributeList_datatable_dataset>
+    </xsl:for-each> 
+    <xsl:for-each select="gmd:dataset/gmd:LW_Dataset/gmd:datatable_dataset/gmd:LW_Datatable_dataset/gmd:attributeList_datatable_dataset/gmd:LW_AttributeList_datatable_dataset/gmd:attributeAnnotation_attributeList_datatable_dataset/gmd:LW_AttributeAnnotation_attributeList_datatable_dataset/gmd:valueURI_attributeAnnotation_attributeList_datatable_dataset/gco:CharacterString">
+        <valueURI_attributeAnnotation_attributeList_datatable_dataset>
+          <xsl:value-of select="normalize-space(.)"/>
+        </valueURI_attributeAnnotation_attributeList_datatable_dataset>
+    </xsl:for-each>     
+        
+    <!-- End Dataset LifeWatch -->
+      
+      <xsl:for-each select="gmd:dataQualityInfo/*">
+
+        <xsl:for-each select="gmd:lineage/gmd:LI_Lineage/
+                                gmd:statement/gco:CharacterString[. != '']">
+          <lineage>
+            <xsl:value-of select="."/>
+          </lineage>
+        </xsl:for-each>
+        
+        <!-- Indexing measure value -->
+        <xsl:for-each select="gmd:report/*[
+                normalize-space(gmd:nameOfMeasure[0]/gco:CharacterString) != '']">
+          <xsl:variable name="measureName"
+                        select="replace(
+                                normalize-space(
+                                  gmd:nameOfMeasure[0]/gco:CharacterString), ' ', '-')"/>
+          <xsl:for-each select="gmd:result/gmd:DQ_QuantitativeResult/gmd:value">
+            <xsl:if test=". != ''">
+              <xsl:element name="measure_{replace($measureName, '[^a-zA-Z0-9]', '')}">
+                <xsl:value-of select="."/>
+              </xsl:element>
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:for-each>
+      </xsl:for-each>
+      <!-- end LifeWatch -->
+      
       <!-- # Languages -->
       <mainLanguage>
         <xsl:value-of select="$mainLanguage"/>

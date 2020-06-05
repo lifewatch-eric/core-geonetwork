@@ -28,13 +28,21 @@
            xmlns:gsr="http://www.isotc211.org/2005/gsr"
            xmlns:gmx="http://www.isotc211.org/2005/gmx"
            elementFormDefault="qualified"
->
+xmlns:Q1="http://www.isotc211.org/2005/gmd">
+
+	<!-- Extensions schema LifeWatch 
+	<xs:include schemaLocation="schema/extensions/mcpExtensions.xsd"/>
+	-->
+	
   <!-- 19139:2007 version -->
-  <xs:include schemaLocation="schema2007/gmd/metadataApplication.xsd"/>
+    <xs:import schemaLocation="schema2007/gco/basicTypes.xsd" namespace="http://www.isotc211.org/2005/gco"></xs:import>
+    <xs:include schemaLocation="schema2007/gmd/metadataApplication.xsd"/>
   <xs:import namespace="http://www.isotc211.org/2005/srv" schemaLocation="schema2007/srv/srv.xsd"/>
   <xs:import namespace="http://www.isotc211.org/2005/gmx" schemaLocation="schema2007/gmx/gmx.xsd"/>
   <!-- 19139:2005 version
   <xs:include schemaLocation="schema/gmd/metadataApplication.xsd"/>
   <xs:import namespace="http://www.isotc211.org/2005/srv" schemaLocation="schema/srv/srv.xsd"/>
   <xs:import namespace="http://www.isotc211.org/2005/gmx" schemaLocation="schema/gmx/gmx.xsd"/>-->
+
+
 </xs:schema>

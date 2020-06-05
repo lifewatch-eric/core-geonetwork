@@ -258,6 +258,39 @@
         <!-- xpath: gmd:contactInfo/gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString -->
       </foaf:Agent>
     </xsl:for-each-group>
+    
+    <!-- LifeWatch -->
+    <!-- 
+    <xsl:for-each-group select="//gmd:dataset/gmd:LW_Dataset/gmd:id_dataset" group-by=".">
+    	<xsl:if test="gco:CharacterString!=''">
+          <dct:id_dataset>
+            <xsl:value-of select="."/>
+          </dct:id_dataset>
+        </xsl:if>
+    </xsl:for-each-group>
+    <xsl:for-each-group select="//gmd:dataset/gmd:LW_Dataset/gmd:system_dataset" group-by=".">
+    	<xsl:if test="gco:CharacterString!=''">
+          <dct:system_dataset>
+            <xsl:value-of select="."/>
+          </dct:system_dataset>
+        </xsl:if>
+    </xsl:for-each-group>
+    <xsl:for-each-group select="//gmd:dataset/gmd:LW_Dataset/gmd:scope_dataset" group-by=".">
+    	<xsl:if test="gco:CharacterString!=''">
+          <dct:scope_dataset>
+            <xsl:value-of select="."/>
+          </dct:scope_dataset>
+        </xsl:if>
+    </xsl:for-each-group>
+    <xsl:for-each-group select="//gmd:dataset/gmd:LW_Dataset/gmd:alternateIdentifier_dataset" group-by=".">
+    	<xsl:if test="gco:CharacterString!=''">
+          <dct:alternateIdentifier_dataset>
+            <xsl:value-of select="."/>
+          </dct:alternateIdentifier_dataset>
+        </xsl:if>
+    </xsl:for-each-group>
+    -->
+    
   </xsl:template>
 
 

@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2001-2016 Food and Agriculture Organization of the
+  ~ United Nations (FAO-UN), United Nations World Food Programme (WFP)
+  ~ and United Nations Environment Programme (UNEP)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or (at
+  ~ your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but
+  ~ WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+  ~
+  ~ Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
+  ~ Rome - Italy. email: geonetwork@osgeo.org
+  -->
+
+<MD_Metadata xmlns:gml="http://www.opengis.net/gml/3.2"
+	xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd"
+	xmlns="http://www.isotc211.org/2005/gmd">
+	<fileIdentifier>
+		<gco:CharacterString />
+	</fileIdentifier>
+	<language>
+		<LanguageCode codeList="" codeListValue="eng" />
+	</language>
+
+	<gmd:hierarchyLevel>
+		<gmd:MD_ScopeCode codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_ScopeCode" codeListValue="dataset_lifewatch" />
+	</gmd:hierarchyLevel>
+
+	<gmd:identificationInfo>
+		<MD_DataIdentification>
+			<gmd:citation>
+				<gmd:CI_Citation>
+					<gmd:title>
+						<gco:CharacterString>Template for LifeWatch Dataset
+						</gco:CharacterString>
+					</gmd:title>
+					<gmd:date>
+                  		<gmd:CI_Date>
+                     		<gmd:date>
+                        		<gco:Date></gco:Date>
+                    		 </gmd:date>
+                     		<gmd:dateType>
+                     			<gmd:CI_DateTypeCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode"
+                                             codeListValue="publication"/>
+                    		</gmd:dateType>
+                  		</gmd:CI_Date>
+               		</gmd:date>
+				</gmd:CI_Citation>
+			</gmd:citation>
+			<gmd:abstract>
+				<gco:CharacterString>Template LifeWatch - Dataset
+				</gco:CharacterString>
+			</gmd:abstract>
+			<gmd:status>
+				<gmd:MD_ProgressCode codeListValue="completed"	codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_ProgressCode" />
+			</gmd:status>
+			<gmd:pointOfContact>
+            <gmd:CI_ResponsibleParty>
+               <gmd:individualName>
+                  <gco:CharacterString></gco:CharacterString>
+               </gmd:individualName>
+               <gmd:organisationName>
+                  <gco:CharacterString></gco:CharacterString>
+               </gmd:organisationName>
+               <gmd:contactInfo>
+                  <gmd:CI_Contact>
+                     <gmd:address>
+                        <gmd:CI_Address>
+                           <gmd:electronicMailAddress gco:nilReason="missing">
+                              <gco:CharacterString/>
+                           </gmd:electronicMailAddress>
+                        </gmd:CI_Address>
+                     </gmd:address>
+                  </gmd:CI_Contact>
+               </gmd:contactInfo>
+               <gmd:role>
+                  <gmd:CI_RoleCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_RoleCode"
+                                   codeListValue="author"/>
+               </gmd:role>
+            </gmd:CI_ResponsibleParty>
+         </gmd:pointOfContact>
+		</MD_DataIdentification>
+	</gmd:identificationInfo>
+  
+	<gmd:dataset>
+		<gmd:LW_Dataset>
+			<!-- <gmd:alternateIdentifier_dataset>
+				<gco:CharacterString></gco:CharacterString>
+			</gmd:alternateIdentifier_dataset>  -->
+			<gmd:creator_dataset>
+				<gmd:LW_Creator_dataset>
+					<gmd:id_creator_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:id_creator_dataset>
+					<gmd:individualName_creator_dataset>
+						<gmd:LW_IndividualName_creator_dataset>
+							<gmd:givenName_individualName_creator_dataset>
+								<gco:CharacterString></gco:CharacterString>
+							</gmd:givenName_individualName_creator_dataset>
+							<gmd:surName_individualName_creator_dataset>
+								<gco:CharacterString></gco:CharacterString>
+							</gmd:surName_individualName_creator_dataset>
+						</gmd:LW_IndividualName_creator_dataset>
+					</gmd:individualName_creator_dataset>
+					<gmd:organizationName_creator_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:organizationName_creator_dataset>
+					<gmd:electronicMailAddress_creator_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:electronicMailAddress_creator_dataset>
+					<!-- <gmd:userId_creator_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:userId_creator_dataset> -->
+                    <!-- <gmd:references_creator_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:references_creator_dataset> -->
+				</gmd:LW_Creator_dataset>
+			</gmd:creator_dataset>
+			
+			<!-- <gmd:metadataProvider_dataset>
+				<gmd:LW_MetadataProvider_dataset>
+					<gmd:id_metadataProvider_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:id_metadataProvider_dataset>
+					<gmd:individualName_metadataProvider_dataset>
+						<gmd:LW_IndividualName_metadataProvider_dataset>
+							<gmd:givenName_individualName_metadataProvider_dataset>
+								<gco:CharacterString></gco:CharacterString>
+							</gmd:givenName_individualName_metadataProvider_dataset>
+							<gmd:surName_individualName_metadataProvider_dataset>
+								<gco:CharacterString></gco:CharacterString>
+							</gmd:surName_individualName_metadataProvider_dataset>
+						</gmd:LW_IndividualName_metadataProvider_dataset>
+					</gmd:individualName_metadataProvider_dataset>
+					<gmd:organizationName_metadataProvider_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:organizationName_metadataProvider_dataset>
+					<gmd:electronicMailAddress_metadataProvider_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:electronicMailAddress_metadataProvider_dataset>
+                    <gmd:references_metadataProvider_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:references_metadataProvider_dataset>
+				</gmd:LW_MetadataProvider_dataset>
+			</gmd:metadataProvider_dataset>  -->
+            
+            <gmd:contact_dataset>
+				<gmd:LW_Contact_dataset>
+					<gmd:id_contact_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:id_contact_dataset>
+					<gmd:individualName_contact_dataset>
+						<gmd:LW_IndividualName_contact_dataset>
+							<gmd:givenName_individualName_contact_dataset>
+								<gco:CharacterString></gco:CharacterString>
+							</gmd:givenName_individualName_contact_dataset>
+							<gmd:surName_individualName_contact_dataset>
+								<gco:CharacterString></gco:CharacterString>
+							</gmd:surName_individualName_contact_dataset>
+						</gmd:LW_IndividualName_contact_dataset>
+					</gmd:individualName_contact_dataset>
+					<gmd:organizationName_contact_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:organizationName_contact_dataset>
+					<gmd:electronicMailAddress_contact_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:electronicMailAddress_contact_dataset>
+                    <!-- <gmd:references_contact_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:references_contact_dataset> -->
+				</gmd:LW_Contact_dataset>
+			</gmd:contact_dataset>
+            
+			<!-- <gmd:associatedParty_dataset>
+				<gmd:LW_AssociatedParty_dataset>
+					<gmd:id_associatedParty_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:id_associatedParty_dataset>
+					<gmd:individualName_associatedParty_dataset>
+						<gmd:LW_IndividualName_associatedParty_dataset>
+							<gmd:givenName_individualName_associatedParty_dataset>
+								<gco:CharacterString></gco:CharacterString>
+							</gmd:givenName_individualName_associatedParty_dataset>
+							<gmd:surName_individualName_associatedParty_dataset>
+								<gco:CharacterString></gco:CharacterString>
+							</gmd:surName_individualName_associatedParty_dataset>
+						</gmd:LW_IndividualName_associatedParty_dataset>
+					</gmd:individualName_associatedParty_dataset>
+					<gmd:organizationName_associatedParty_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:organizationName_associatedParty_dataset>
+					<gmd:electronicMailAddress_associatedParty_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:electronicMailAddress_associatedParty_dataset>
+				</gmd:LW_AssociatedParty_dataset>
+			</gmd:associatedParty_dataset> -->	
+			<gmd:language_dataset>
+				<gco:CharacterString></gco:CharacterString>
+			</gmd:language_dataset>
+		
+			<gmd:keywordSet_dataset>
+				<gmd:LW_KeywordSet_dataset>
+					<gmd:keyword_keywordSet_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:keyword_keywordSet_dataset>
+					<gmd:keywordThesaurus_keywordSet_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:keywordThesaurus_keywordSet_dataset>
+				</gmd:LW_KeywordSet_dataset>
+			</gmd:keywordSet_dataset>
+			<gmd:intellectualRights_dataset>
+					<gco:CharacterString></gco:CharacterString>
+			</gmd:intellectualRights_dataset>
+			<gmd:licensed_dataset>
+				<gmd:LW_Licensed_dataset>
+					<gmd:licenseName_licensed_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:licenseName_licensed_dataset>
+					<gmd:url_licensed_dataset>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:url_licensed_dataset>
+				</gmd:LW_Licensed_dataset>
+			</gmd:licensed_dataset>
+			
+			<gmd:distribution_dataset>
+				<gmd:LW_Distribution_dataset>
+					<gmd:online_distribution_dataset>
+						<gmd:LW_Online_distribution_dataset>
+							<gmd:url_online_distribution_dataset>
+								<gco:CharacterString></gco:CharacterString>
+							</gmd:url_online_distribution_dataset>
+						</gmd:LW_Online_distribution_dataset>
+					</gmd:online_distribution_dataset>
+				</gmd:LW_Distribution_dataset>
+			</gmd:distribution_dataset>
+ 
+			<gmd:coverage_dataset>
+                <gmd:LW_Coverage_dataset> 
+                    <gmd:geographicCoverage_coverage_dataset> 
+                        <gmd:LW_GeographicCoverage_coverage_dataset> 
+                            <gmd:geographicDescription_geographicCoverage_coverage_dataset> 
+                                <gco:CharacterString></gco:CharacterString>
+                            </gmd:geographicDescription_geographicCoverage_coverage_dataset>
+                            <gmd:boundingCoordinates_geographicCoverage_coverage_dataset>
+                                <gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset> 
+                                    <gmd:westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset> 
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+                                    <gmd:eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset> 
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+                                    <gmd:northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset> 
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+                                    <gmd:southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset> 
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset>
+                                </gmd:LW_BoundingCoordinates_geographicCoverage_coverage_dataset>
+                            </gmd:boundingCoordinates_geographicCoverage_coverage_dataset>
+                        </gmd:LW_GeographicCoverage_coverage_dataset>
+                    </gmd:geographicCoverage_coverage_dataset> 
+                    <gmd:temporalCoverage_coverage_dataset> 
+                        <gmd:LW_TemporalCoverage_coverage_dataset>
+                            <gmd:rangeOfDates_temporalCoverage_coverage_dataset>
+                                <gmd:LW_RangeOfDates_temporalCoverage_coverage_dataset>
+                                    <gmd:beginDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                        <gmd:LW_BeginDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                            <gmd:calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                                <gco:Date></gco:Date>
+                                            </gmd:calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                        </gmd:LW_BeginDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                    </gmd:beginDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                    <gmd:endDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                        <gmd:LW_EndDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                            <gmd:calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                                <gco:Date></gco:Date>
+                                            </gmd:calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                        </gmd:LW_EndDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                    </gmd:endDate_rangeOfDates_temporalCoverage_coverage_dataset>
+                                </gmd:LW_RangeOfDates_temporalCoverage_coverage_dataset>
+                            </gmd:rangeOfDates_temporalCoverage_coverage_dataset>
+                        </gmd:LW_TemporalCoverage_coverage_dataset>
+                    </gmd:temporalCoverage_coverage_dataset>
+                    <!-- <gmd:taxonomicCoverage_coverage_dataset>
+                        <gmd:LW_TaxonomicCoverage_coverage_dataset>
+                            <gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset>
+                                <gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset>
+                                    <gmd:taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+                                    <gmd:taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+                                    <gmd:taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+                                    <gmd:commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset>
+                                </gmd:LW_TaxonomicClassification_taxonomicCoverage_coverage_dataset>
+                            </gmd:taxonomicClassification_taxonomicCoverage_coverage_dataset>                                
+                        </gmd:LW_TaxonomicCoverage_coverage_dataset>
+                    </gmd:taxonomicCoverage_coverage_dataset> -->
+                </gmd:LW_Coverage_dataset>                    
+            </gmd:coverage_dataset>
+		
+            <!-- <gmd:methods_dataset>
+                <gmd:LW_Methods_dataset>
+                   <gmd:methodStep_methods_dataset> 
+                       <gmd:LW_MethodStep_methods_dataset>
+                           <gmd:description_methodStep_methods_dataset>
+                               <gmd:LW_Description_methodStep_methods_dataset>
+                                    <gmd:para_description_methodStep_methods_dataset>
+                                        <gco:CharacterString></gco:CharacterString>
+                                   </gmd:para_description_methodStep_methods_dataset>
+                               </gmd:LW_Description_methodStep_methods_dataset>
+                           </gmd:description_methodStep_methods_dataset>
+                           <gmd:citation_methodStep_methods_dataset>
+                                <gmd:LW_Citation_methodStep_methods_dataset>
+                                    <gmd:bibtex_citation_methodStep_methods_dataset>
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:bibtex_citation_methodStep_methods_dataset>
+                               </gmd:LW_Citation_methodStep_methods_dataset>
+                           </gmd:citation_methodStep_methods_dataset>
+                           <gmd:instrumentation_methodStep_methods_dataset>                               
+                               <gco:CharacterString></gco:CharacterString>
+                           </gmd:instrumentation_methodStep_methods_dataset>
+                       </gmd:LW_MethodStep_methods_dataset>
+                    </gmd:methodStep_methods_dataset>
+                    <gmd:sampling_methods_dataset> 
+                        <gmd:LW_Sampling_methods_dataset>
+                            <gmd:samplingDescription_sampling_methods_dataset> 
+                                <gmd:LW_SamplingDescription_sampling_methods_dataset>
+                                    <gmd:para_samplingDescription_sampling_methods_dataset> 
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:para_samplingDescription_sampling_methods_dataset>
+                                </gmd:LW_SamplingDescription_sampling_methods_dataset>
+                            </gmd:samplingDescription_sampling_methods_dataset>
+                        </gmd:LW_Sampling_methods_dataset>
+                    </gmd:sampling_methods_dataset>                        
+                </gmd:LW_Methods_dataset>
+            </gmd:methods_dataset> -->
+        
+            <!-- <gmd:project_dataset>
+                <gmd:LW_Project_dataset>
+                    <gmd:title_project_dataset>
+                        <gco:CharacterString></gco:CharacterString>
+                    </gmd:title_project_dataset>
+                    <gmd:personnel_project_dataset>
+                        <gmd:LW_Personnel_project_dataset>
+                            <gmd:individualName_personnel_project_dataset>
+                                <gco:CharacterString></gco:CharacterString>
+                            </gmd:individualName_personnel_project_dataset>
+                            <gmd:positionName_personnel_project_dataset>
+                                <gco:CharacterString></gco:CharacterString>
+                            </gmd:positionName_personnel_project_dataset>
+                            <gmd:organization_personnel_project_dataset>
+                                <gmd:LW_Organization_personnel_project_dataset>
+                                    <gmd:name_organization_personnel_project_dataset>
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:name_organization_personnel_project_dataset>
+                                </gmd:LW_Organization_personnel_project_dataset>
+                            </gmd:organization_personnel_project_dataset>
+                        </gmd:LW_Personnel_project_dataset>
+                    </gmd:personnel_project_dataset>
+                </gmd:LW_Project_dataset>
+            </gmd:project_dataset> -->
+            
+            
+            <!--<gmd:datatable_dataset>
+                <gmd:LW_Datatable_dataset>
+                    <gmd:entityName_datatable_dataset>
+                        <gco:CharacterString></gco:CharacterString>
+                    </gmd:entityName_datatable_dataset>
+                    <gmd:physical_datatable_dataset>
+                    	<gmd:LW_Physical_datatable_dataset>
+                    		<gmd:dataFormat_physical_datatable_dataset>
+                    			<gmd:LW_DataFormat_physical_datatable_dataset>
+                    				<gmd:externallyDefinedFormat_dataFormat_physical_datatable_dataset>
+                        				<gmd:LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset>
+                            				<gmd:formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset>
+                                				<gco:CharacterString></gco:CharacterString>
+                            				</gmd:formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset>
+                        				</gmd:LW_ExternallyDefinedFormat_dataFormat_physical_datatable_dataset>
+                    				</gmd:externallyDefinedFormat_dataFormat_physical_datatable_dataset>
+                    			</gmd:LW_DataFormat_physical_datatable_dataset>
+                    		</gmd:dataFormat_physical_datatable_dataset>
+                    	</gmd:LW_Physical_datatable_dataset>
+                    </gmd:physical_datatable_dataset>
+                    <gmd:attributeList_datatable_dataset>
+                        <gmd:LW_AttributeList_datatable_dataset>
+                            <gmd:attributeName_attributeList_datatable_dataset>
+                                <gco:CharacterString></gco:CharacterString>
+                            </gmd:attributeName_attributeList_datatable_dataset>
+                            <gmd:attributeLabel_attributeList_datatable_dataset>
+                                <gco:CharacterString></gco:CharacterString>
+                            </gmd:attributeLabel_attributeList_datatable_dataset>
+                            <gmd:attributeDefinition_attributeList_datatable_dataset>
+                                <gco:CharacterString></gco:CharacterString>
+                            </gmd:attributeDefinition_attributeList_datatable_dataset>
+                            <gmd:measurementScale_attributeList_datatable_dataset>
+                            	<gmd:LW_MeasurementScale_attributeList_datatable_dataset>
+                            		<gmd:ratio_measurementScale_attributeList_datatable_dataset>
+                            			<gmd:LW_Ratio_measurementScale_attributeList_datatable_dataset>
+                            				<gmd:unit_ratio_measurementScale_attributeList_datatable_dataset>
+                                				<gmd:LW_Unit_ratio_measurementScale_attributeList_datatable_dataset>
+                                    				<gmd:standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset>
+                                        				<gco:CharacterString></gco:CharacterString>
+                                    				</gmd:standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset>
+                                				</gmd:LW_Unit_ratio_measurementScale_attributeList_datatable_dataset>
+                           					 </gmd:unit_ratio_measurementScale_attributeList_datatable_dataset>
+                           				</gmd:LW_Ratio_measurementScale_attributeList_datatable_dataset>
+                           			</gmd:ratio_measurementScale_attributeList_datatable_dataset>
+                           		</gmd:LW_MeasurementScale_attributeList_datatable_dataset>
+                    		</gmd:measurementScale_attributeList_datatable_dataset>
+                            <gmd:missingValueCode_attributeList_datatable_dataset>
+                                <gmd:LW_MissingValueCode_attributeList_datatable_dataset>
+                                    <gmd:code_missingValueCode_attributeList_datatable_dataset>
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:code_missingValueCode_attributeList_datatable_dataset>
+                                </gmd:LW_MissingValueCode_attributeList_datatable_dataset>
+                            </gmd:missingValueCode_attributeList_datatable_dataset>
+                            <gmd:attributeAnnotation_attributeList_datatable_dataset>
+                                <gmd:LW_AttributeAnnotation_attributeList_datatable_dataset>
+                                    <gmd:propertyURI_attributeAnnotation_attributeList_datatable_dataset>
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:propertyURI_attributeAnnotation_attributeList_datatable_dataset>
+                                    <gmd:valueURI_attributeAnnotation_attributeList_datatable_dataset>
+                                        <gco:CharacterString></gco:CharacterString>
+                                    </gmd:valueURI_attributeAnnotation_attributeList_datatable_dataset>
+                                </gmd:LW_AttributeAnnotation_attributeList_datatable_dataset>
+                            </gmd:attributeAnnotation_attributeList_datatable_dataset>                            
+                        </gmd:LW_AttributeList_datatable_dataset>
+                    </gmd:attributeList_datatable_dataset>
+                </gmd:LW_Datatable_dataset>
+            </gmd:datatable_dataset> -->
+            
+		</gmd:LW_Dataset>
+	</gmd:dataset>
+		
+	<gmd:distributionInfo xmlns:geonet="http://www.fao.org/geonetwork">
+      <gmd:MD_Distribution>
+         <gmd:transferOptions>
+            <gmd:MD_DigitalTransferOptions>
+               <gmd:onLine>
+                  <gmd:CI_OnlineResource>
+                     <gmd:linkage>
+                        <gmd:URL></gmd:URL>
+                     </gmd:linkage>
+                     <gmd:protocol>
+                        <gco:CharacterString>DOI</gco:CharacterString>
+                     </gmd:protocol>
+                     <gmd:applicationProfile gco:nilReason="missing">
+                        <gco:CharacterString/>
+                     </gmd:applicationProfile>
+                     <gmd:name gco:nilReason="missing">
+                        <gco:CharacterString/>
+                     </gmd:name>
+                     <gmd:description gco:nilReason="missing">
+                        <gco:CharacterString/>
+                     </gmd:description>
+                     <gmd:function>
+                        <gmd:CI_OnLineFunctionCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_OnLineFunctionCode"
+                                                   codeListValue=""/>
+                     </gmd:function>
+                  </gmd:CI_OnlineResource>
+               </gmd:onLine>
+            </gmd:MD_DigitalTransferOptions>
+         </gmd:transferOptions>
+      </gmd:MD_Distribution>
+  </gmd:distributionInfo>
+  		
+</MD_Metadata>

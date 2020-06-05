@@ -312,6 +312,9 @@ public class LocaleRedirects {
             userLang = defaultLanguage.getLanguage();
         }
 
+        //LifeWatch Edit Language
+        userLang = "unknown";
+        
         return userLang;
     }
 }

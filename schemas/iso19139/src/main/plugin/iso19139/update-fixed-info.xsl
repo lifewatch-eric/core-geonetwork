@@ -162,6 +162,7 @@
         gmd:hierarchyLevelName|
         gmd:contact|
         gmd:dateStamp|
+        gmd:revisionDate|
         gmd:metadataStandardName|
         gmd:metadataStandardVersion|
         gmd:dataSetURI"/>
@@ -184,7 +185,7 @@
           </gmd:PT_Locale>
         </gmd:locale>
       </xsl:if>
-
+	  <!-- LifeWatch edit -->
       <xsl:apply-templates select="
         gmd:spatialRepresentationInfo|
         gmd:referenceSystemInfo|
@@ -201,7 +202,10 @@
         gmd:describes|
         gmd:propertyType|
         gmd:featureType|
-        gmd:featureAttribute"/>
+        gmd:featureAttribute|
+        gmd:vre|
+        gmd:service|
+        gmd:dataset"/>
 
       <!-- Handle ISO profiles extensions. -->
       <xsl:apply-templates select="
@@ -229,6 +233,21 @@
     </xsl:choose>
   </xsl:template>
 
+<!--  LifeWatch -->
+<xsl:template match="gmd:revisionDate">
+    <xsl:choose>
+      <xsl:when test="/root/env/changeDate">
+        <xsl:copy>
+          <gco:DateTime>
+            <xsl:value-of select="/root/env/changeDate"/>
+          </gco:DateTime>
+        </xsl:copy>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="."/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
   <!-- ================================================================= -->
 
   <!-- Only set metadataStandardName and metadataStandardVersion
@@ -248,6 +267,24 @@
     </xsl:copy>
   </xsl:template>
 
+  <!-- VRE LifeWatch old -->
+  <xsl:template
+    match="gmd:vre/*/gmd:title_vre[@gco:nilReason='missing' or gco:CharacterString='']"
+    priority="10">
+    <xsl:copy>
+      <gco:CharacterString></gco:CharacterString>
+    </xsl:copy>
+  </xsl:template>
+  
+   <!-- Service LifeWatch old -->
+  <xsl:template
+    match="gmd:service/*/gmd:title_service[@gco:nilReason='missing' or gco:CharacterString='']"
+    priority="10">
+    <xsl:copy>
+      <gco:CharacterString></gco:CharacterString>
+    </xsl:copy>
+  </xsl:template>
+  
   <!-- ================================================================= -->
 
   <xsl:template
