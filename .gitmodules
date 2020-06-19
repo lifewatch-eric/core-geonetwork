@@ -13,3 +13,7 @@
 [submodule "schemas/iso19115-3.2018"]
 	path = schemas/iso19115-3.2018
 	url = https://github.com/metadata101/iso19115-3.2018
+[submodule "schemas/eml-gbif"]
+	path = schemas/eml-gbif
+	url = http://eos.geocat.net/gitlab/lifewatch/eml-gbif.git
+	branch = master
