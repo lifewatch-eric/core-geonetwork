@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2001-2016 Food and Agriculture Organization of the
+  ~ United Nations (FAO-UN), United Nations World Food Programme (WFP)
+  ~ and United Nations Environment Programme (UNEP)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or (at
+  ~ your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but
+  ~ WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+  ~
+  ~ Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
+  ~ Rome - Italy. email: geonetwork@osgeo.org
+  -->
+
+<MD_Metadata xmlns:gml="http://www.opengis.net/gml/3.2"
+	xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd"
+	xmlns="http://www.isotc211.org/2005/gmd">
+	<fileIdentifier>
+		<gco:CharacterString />
+	</fileIdentifier>
+	<language>
+		<LanguageCode codeList="" codeListValue="eng" />
+	</language>
+
+	<gmd:hierarchyLevel>
+		<gmd:MD_ScopeCode
+			codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_ScopeCode"
+			codeListValue="workflow_lifewatch" />
+	</gmd:hierarchyLevel>
+
+	<gmd:identificationInfo>
+		<MD_DataIdentification>
+			<gmd:citation>
+				<gmd:CI_Citation>
+					<gmd:title>
+						<gco:CharacterString>Template for LifeWatch Workflow
+						</gco:CharacterString>
+					</gmd:title>
+					<gmd:date>
+                  		<gmd:CI_Date>
+                     		<gmd:date>
+                        		<gco:Date></gco:Date>
+                    		 </gmd:date>
+                     		<gmd:dateType>
+                        		<gmd:CI_DateTypeCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode"
+                                             codeListValue="publication"/>
+                    		</gmd:dateType>
+                  		</gmd:CI_Date>
+               		</gmd:date>
+				</gmd:CI_Citation>
+			</gmd:citation>	
+			<gmd:abstract>
+				<gco:CharacterString>Template LifeWatch - Workflow
+				</gco:CharacterString>
+			</gmd:abstract>
+			<gmd:status>
+				<gmd:MD_ProgressCode codeListValue="completed"
+					codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#MD_ProgressCode" />
+			</gmd:status>
+			<gmd:pointOfContact>
+            <gmd:CI_ResponsibleParty>
+               <gmd:individualName>
+                  <gco:CharacterString></gco:CharacterString>
+               </gmd:individualName>
+               <gmd:organisationName>
+                  <gco:CharacterString></gco:CharacterString>
+               </gmd:organisationName>
+               <gmd:contactInfo>
+                  <gmd:CI_Contact>
+                     <gmd:address>
+                        <gmd:CI_Address>
+                           <gmd:electronicMailAddress gco:nilReason="missing">
+                              <gco:CharacterString/>
+                           </gmd:electronicMailAddress>
+                        </gmd:CI_Address>
+                     </gmd:address>
+                  </gmd:CI_Contact>
+               </gmd:contactInfo>
+               <gmd:role>
+                  <gmd:CI_RoleCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_RoleCode"
+                                   codeListValue="author"/>
+               </gmd:role>
+            </gmd:CI_ResponsibleParty>
+         </gmd:pointOfContact>
+		</MD_DataIdentification>
+	</gmd:identificationInfo>
+  
+	<gmd:workflow>
+		<gmd:LW_Workflow>
+			<!-- <gmd:id_workflow>
+				<gco:CharacterString></gco:CharacterString>
+			</gmd:id_workflow> -->
+			<gmd:url_workflow>
+				<gco:CharacterString></gco:CharacterString>
+			</gmd:url_workflow>
+			<gmd:coordinationTeam_workflow>
+				<gmd:LW_WorkflowCoordinationTeam>
+					<gmd:contactPoint_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:contactPoint_workflow>
+					<gmd:address_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:address_workflow>
+					<gmd:e_mail_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:e_mail_workflow>
+				</gmd:LW_WorkflowCoordinationTeam>
+			</gmd:coordinationTeam_workflow>
+			<gmd:containServices_workflow>
+				<gmd:LW_WorkflowContainServices>
+					<gmd:serviceName_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:serviceName_workflow>
+					<gmd:serviceDescription_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:serviceDescription_workflow>
+					<!-- <gmd:serviceReference_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:serviceReference_workflow> -->
+				</gmd:LW_WorkflowContainServices>
+			</gmd:containServices_workflow>
+			<gmd:managementInfo_workflow>
+				<gmd:LW_WorkflowManagementInfo>
+					<gmd:maintainer_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:maintainer_workflow>
+					<gmd:version_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:version_workflow>
+					<gmd:lastUpdated_workflow>
+						<gco:DateTime></gco:DateTime>
+					</gmd:lastUpdated_workflow>
+					<gmd:created_workflow>
+						<gco:DateTime></gco:DateTime>
+					</gmd:created_workflow>
+				</gmd:LW_WorkflowManagementInfo>
+			</gmd:managementInfo_workflow>
+			<!-- <gmd:workflowContractualInformation_workflow>
+				<gmd:LW_WorkflowContractualInformation>
+					<gmd:license_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:license_workflow>
+					<gmd:usageConditions_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:usageConditions_workflow>
+					<gmd:howToCiteThisWorkflow_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:howToCiteThisWorkflow_workflow>
+					<gmd:publicationsAboutThisWorkflow_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:publicationsAboutThisWorkflow_workflow>
+				</gmd:LW_WorkflowContractualInformation>
+			</gmd:workflowContractualInformation_workflow> 
+			<gmd:workflowSupportInformation_workflow>
+				<gmd:LW_WorkflowSupportInformation>
+					<gmd:workflowFeedback_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:workflowFeedback_workflow>
+					<gmd:workflowHelpdesk_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:workflowHelpdesk_workflow>
+					<gmd:workflowOrder_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:workflowOrder_workflow>
+					<gmd:workflowTraining_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:workflowTraining_workflow>
+					<gmd:workflowUserManual_workflow>
+						<gco:CharacterString></gco:CharacterString>
+					</gmd:workflowUserManual_workflow>
+				</gmd:LW_WorkflowSupportInformation>
+			</gmd:workflowSupportInformation_workflow> -->
+		</gmd:LW_Workflow>
+	</gmd:workflow>
+	
+	<gmd:distributionInfo xmlns:geonet="http://www.fao.org/geonetwork">
+      <gmd:MD_Distribution>
+         <gmd:transferOptions>
+            <gmd:MD_DigitalTransferOptions>
+               <gmd:onLine>
+                  <gmd:CI_OnlineResource>
+                     <gmd:linkage>
+                        <gmd:URL></gmd:URL>
+                     </gmd:linkage>
+                     <gmd:protocol>
+                        <gco:CharacterString>DOI</gco:CharacterString>
+                     </gmd:protocol>
+                     <gmd:applicationProfile gco:nilReason="missing">
+                        <gco:CharacterString/>
+                     </gmd:applicationProfile>
+                     <gmd:name gco:nilReason="missing">
+                        <gco:CharacterString/>
+                     </gmd:name>
+                     <gmd:description gco:nilReason="missing">
+                        <gco:CharacterString/>
+                     </gmd:description>
+                     <gmd:function>
+                        <gmd:CI_OnLineFunctionCode codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_OnLineFunctionCode"
+                                                   codeListValue=""/>
+                     </gmd:function>
+                  </gmd:CI_OnlineResource>
+               </gmd:onLine>
+            </gmd:MD_DigitalTransferOptions>
+         </gmd:transferOptions>
+      </gmd:MD_Distribution>
+  </gmd:distributionInfo>
+	
+</MD_Metadata>

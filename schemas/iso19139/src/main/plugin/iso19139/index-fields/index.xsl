@@ -311,6 +311,151 @@
       </xsl:for-each>
       <!--  End VRE LifeWatch -->
       
+      
+      <!-- Workflow LifeWatch -->
+     <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:alternateIdentifier_workflow/gco:CharacterString">
+        <id_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </id_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:url_workflow/gco:CharacterString">
+        <url_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </url_workflow>
+      </xsl:for-each>
+      
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:coordinationTeam_workflow/gmd:LW_WorkflowCoordinationTeam/gmd:contactPoint_workflow/gco:CharacterString">
+        <contactPoint_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </contactPoint_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:coordinationTeam_workflow/gmd:LW_WorkflowCoordinationTeam/gmd:address_workflow/gco:CharacterString">
+        <address_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </address_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:coordinationTeam_workflow/gmd:LW_WorkflowCoordinationTeam/gmd:e_mail_workflow/gco:CharacterString">
+        <e_mail_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </e_mail_workflow>
+      </xsl:for-each>
+      
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:containServices_workflow/gmd:LW_WorkflowContainServices/gmd:serviceName_workflow/gco:CharacterString">
+        <serviceName_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceName_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:containServices_workflow/gmd:LW_WorkflowContainServices/gmd:serviceDescription_workflow/gco:CharacterString">
+        <serviceDescription_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceDescription_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:containServices_workflow/gmd:LW_WorkflowContainServices/gmd:serviceReference_workflow/gco:CharacterString">
+        <serviceReference_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </serviceReference_workflow>
+      </xsl:for-each>
+      
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowContractualInformation_workflow/gmd:LW_WorkflowContractualInformation/gmd:license_workflow/gco:CharacterString">
+        <license_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </license_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowContractualInformation_workflow/gmd:LW_WorkflowContractualInformation/gmd:usageConditions_workflow/gco:CharacterString">
+        <usageConditions_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </usageConditions_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowContractualInformation_workflow/gmd:LW_WorkflowContractualInformation/gmd:howToCiteThisWorkflow_workflow/gco:CharacterString">
+        <howToCiteThisVRE_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </howToCiteThisVRE_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowContractualInformation_workflow/gmd:LW_WorkflowContractualInformation/gmd:publicationsAboutThisWorkflow_workflow/gco:CharacterString">
+        <publicationsAboutThisVRE_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </publicationsAboutThisVRE_workflow>
+      </xsl:for-each>
+
+     <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowSupportInformation_workflow/gmd:LW_WorkflowSupportInformation/gmd:workflowFeedback_workflow/gco:CharacterString">
+        <vreFeedback_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </vreFeedback_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowSupportInformation_workflow/gmd:LW_WorkflowSupportInformation/gmd:workflowHelpdesk_workflow/gco:CharacterString">
+        <vreHelpdesk_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </vreHelpdesk_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowSupportInformation_workflow/gmd:LW_WorkflowSupportInformation/gmd:workflowOrder_workflow/gco:CharacterString">
+        <vreOrder_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </vreOrder_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowSupportInformation_workflow/gmd:LW_WorkflowSupportInformation/gmd:workflowTraining_workflow/gco:CharacterString">
+        <vreTraining_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </vreTraining_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowSupportInformation_workflow/gmd:LW_WorkflowSupportInformation/gmd:workflowUserManual_workflow/gco:CharacterString">
+        <vreUserManual_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </vreUserManual_workflow>
+      </xsl:for-each>
+
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:managementInfo_workflow/gmd:LW_WorkflowManagementInfo/gmd:maintainer_workflow/gco:CharacterString">
+        <maintainer_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </maintainer_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:managementInfo_workflow/gmd:LW_WorkflowManagementInfo/gmd:version_workflow/gco:CharacterString">
+        <version_workflow>
+          <xsl:value-of select="normalize-space(.)"/>
+        </version_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:managementInfo_workflow/gmd:LW_WorkflowManagementInfo/gmd:lastUpdated_workflow/*[text() != '' and position() = 1]">
+        <lastUpdated_workflow>
+           <xsl:variable name="date"
+                        select="if (name() = 'gco:Date' and string-length(.) = 4)
+                                then concat(., '-01-01T00:00:00')
+                                else if (name() = 'gco:Date' and string-length(.) = 7)
+                                then concat(., '-01T00:00:00')
+                                else if (name() = 'gco:Date' or string-length(.) = 10)
+                                then concat(., 'T00:00:00')
+                                else if (contains(., '.'))
+                                then tokenize(., '\.')[1]
+                                else ."/>
+
+          <xsl:value-of select="translate(string(
+                                   adjust-dateTime-to-timezone(
+                                      xs:dateTime($date),
+                                      xs:dayTimeDuration('PT0H'))
+                                     ), 'Z', '')"/>
+        </lastUpdated_workflow>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:managementInfo_workflow/gmd:LW_WorkflowManagementInfo/gmd:created_workflow/*[text() != '' and position() = 1]">
+        <created_workflow>
+           <xsl:variable name="date"
+                        select="if (name() = 'gco:Date' and string-length(.) = 4)
+                                then concat(., '-01-01T00:00:00')
+                                else if (name() = 'gco:Date' and string-length(.) = 7)
+                                then concat(., '-01T00:00:00')
+                                else if (name() = 'gco:Date' or string-length(.) = 10)
+                                then concat(., 'T00:00:00')
+                                else if (contains(., '.'))
+                                then tokenize(., '\.')[1]
+                                else ."/>
+
+          <xsl:value-of select="translate(string(
+                                   adjust-dateTime-to-timezone(
+                                      xs:dateTime($date),
+                                      xs:dayTimeDuration('PT0H'))
+                                     ), 'Z', '')"/>
+        </created_workflow>
+      </xsl:for-each>
+      <!--  End Workflow LifeWatch -->
+      
+      
       <!-- Service LifeWatch -->
       <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:revisionDate_service/*[text() != '' and position() = 1]">
         <revisionDate_service>
@@ -331,6 +476,11 @@
                                       xs:dayTimeDuration('PT0H'))
                                      ), 'Z', '')"/>
         </revisionDate_service>
+      </xsl:for-each>
+      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:url_service/gco:CharacterString">
+        <url_service>
+          <xsl:value-of select="normalize-space(.)"/>
+        </url_service>
       </xsl:for-each>
       
       <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:contactPoint_service/gco:CharacterString">

@@ -49,6 +49,7 @@
   
   <!--  LifeWatch -->
   <xsl:param name="gmd-vre"/>
+  <xsl:param name="gmd-workflow"/>
   <xsl:param name="gmd-service"/>
   <xsl:param name="gmd-dataset"/>
 
@@ -75,12 +76,6 @@
       </xsl:call-template>
 
       <xsl:copy-of select="gmd:dateStamp"/>
-      
-      <!-- LifeWatch old -->
-      <xsl:copy-of select="gmd:revisionDate"/>
-      <xsl:copy-of select="gmd:vre/gmd:LW_VRE/gmd:title_vre"/>
-      <xsl:copy-of select="gmd:service/gmd:LW_Service/gmd:title_service"/>
-       <!-- End LifeWatch -->
        
       <xsl:copy-of select="gmd:metadataStandardName"/>
       <xsl:copy-of select="gmd:metadataStandardVersion"/>
@@ -255,6 +250,13 @@
 	  <xsl:call-template name="process">
         <xsl:with-param name="update" select="$gmd-vre"/>
         <xsl:with-param name="name" select="gmd:vre"/>
+        <xsl:with-param name="mode" select="$updateMode"/>
+      </xsl:call-template>
+      
+      <!-- Workflow LifeWatch -->
+	  <xsl:call-template name="process">
+        <xsl:with-param name="update" select="$gmd-workflow"/>
+        <xsl:with-param name="name" select="gmd:workflow"/>
         <xsl:with-param name="mode" select="$updateMode"/>
       </xsl:call-template>
       

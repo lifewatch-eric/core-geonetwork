@@ -222,9 +222,7 @@
       <field name="vreTraining_vre" tagName="vreTraining_vre"/>
       <field name="vreUserManual_vre" tagName="vreUserManual_vre"/>
       
-      <!-- <field name="author_vre_variable" tagName="author_vre_variable"/> -->
       <field name="maintainer_vre_variable" tagName="maintainer_vre_variable"/>
-      <!-- <field name="author_vre" tagName="author_vre"/> -->
       <field name="maintainer_vre" tagName="maintainer_vre"/>
       
       <field name="version_vre" tagName="version_vre"/>
@@ -232,8 +230,49 @@
       <field name="created_vre" tagName="created_vre"/>
       <!--  End VRE LifeWatch -->
        
+      <!--  Workflow LifeWatch -->
+      <field name="alternateIdentifier_workflow" tagName="alternateIdentifier_workflow"/>
+      <field name="url_workflow" tagName="url_workflow"/>
+      
+      <field name="contactPoint_workflow" tagName="contactPoint_workflow"/>
+      <field name="contactPoint_workflow_variable" tagName="contactPoint_workflow_variable"/>
+      <field name="address_workflow_variable" tagName="address_workflow_variable"/>
+      <field name="e_mail_workflow_variable" tagName="e_mail_workflow_variable"/>
+      <field name="coordinationTeam_workflow" tagName="coordinationTeam_workflow"/>
+      
+      <field name="address_workflow" tagName="address_workflow"/>
+      <field name="e_mail_workflow" tagName="e_mail_workflow"/>
+      
+      <field name="serviceName_workflow" tagName="serviceName_workflow"/>
+      <field name="serviceName_workflow_variable" tagName="serviceName_workflow_variable"/>
+      <field name="serviceDescription_workflow_variable" tagName="serviceDescription_workflow_variable"/>
+      <field name="serviceReference_workflow_variable" tagName="serviceReference_workflow_variable"/>
+      <field name="containServices_workflow" tagName="containServices_workflow"/>
+      
+      <field name="serviceDescription_workflow" tagName="serviceDescription_workflow"/>
+      <field name="serviceReference_workflow" tagName="serviceReference_workflow"/>
+      
+      <field name="license_workflow" tagName="license_workflow"/>
+      <field name="usageConditions_workflow" tagName="usageConditions_workflow"/>
+      <field name="howToCiteThisWorkflow_workflow" tagName="howToCiteThisWorkflow_workflow"/>
+      <field name="publicationsAboutThisWorkflow_workflow" tagName="publicationsAboutThisWorkflow_workflow"/>
+      <field name="workflowFeedback_workflow" tagName="workflowFeedback_workflow"/>
+      <field name="workflowHelpdesk_workflow" tagName="workflowHelpdesk_workflow"/>
+      <field name="workflowOrder_workflow" tagName="workflowOrder_workflow"/>
+      <field name="workflowTraining_workflow" tagName="workflowTraining_workflow"/>
+      <field name="workflowUserManual_workflow" tagName="workflowUserManual_workflow"/>
+      
+      <field name="maintainer_workflow_variable" tagName="maintainer_workflow_variable"/>
+      <field name="maintainer_workflow" tagName="maintainer_workflow"/>
+      
+      <field name="version_workflow" tagName="version_workflow"/>
+      <field name="lastUpdated_workflow" tagName="lastUpdated_workflow"/>
+      <field name="created_workflow" tagName="created_workflow"/>
+      <!--  End Workflow LifeWatch -->
+       
       <!--  Service LifeWatch -->
       <field name="revisionDate_service" tagName="revisionDate_service"/>
+      <field name="url_service" tagName="url_service"/>
       <field name="contactPoint_service" tagName="contactPoint_service"/>
       <field name="address_service" tagName="address_service"/>
       <field name="keywords_service" tagName="keywords_service"/>

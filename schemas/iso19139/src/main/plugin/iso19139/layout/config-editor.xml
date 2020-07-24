@@ -69,6 +69,23 @@
     <for name="gmd:created_vre" use="data-gn-date-picker"/>
     <!-- End VRE LifeWatch -->
     
+    <!-- Workflow LifeWatch -->
+    <for name="gmd:description_workflow" use="textarea"/>
+    <for name="gmd:dateCreation_workflow" use="data-gn-date-picker"/>
+    <for name="gmd:serviceDescription_workflow" use="textarea"/>
+    <for name="gmd:usageConditions_workflow" use="textarea"/>
+    <for name="gmd:howToCiteThisWorkflow_workflow" use="textarea"/>
+    <for name="gmd:publicationsAboutThisWorkflow_workflow" use="textarea"/>
+    <for name="gmd:workflowFeedback_workflow" use="textarea"/>
+    <for name="gmd:workflowHelpdesk_workflow" use="textarea"/>
+    <for name="gmd:workflowOrder_workflow" use="textarea"/>
+    <for name="gmd:workflowTraining_workflow" use="textarea"/>
+    <for name="gmd:workflowUserManual_workflow" use="textarea"/>
+    <for name="gmd:e_mail_workflow" use="email"/>
+    <for name="gmd:lastUpdated_workflow" use="data-gn-date-picker"/>
+    <for name="gmd:created_workflow" use="data-gn-date-picker"/>
+    <!-- End Workflow LifeWatch -->
+    
      <!-- Service LifeWatch -->
 	<for name="gmd:description_service" use="textarea"/>
 	<for name="gmd:descriptionOperation_service" use="textarea"/>
@@ -304,14 +321,23 @@
     <name>gmd:MD_Metadata</name>
     <name>gmd:identificationInfo</name>
     
-    <!-- LifeWatch -->
+    <!-- VRE LifeWatch -->
     <name>gmd:vre</name>
     <name>gmd:coordinationTeam_vre</name>
     <name>gmd:containServices_vre</name>
     <name>gmd:vreContractualInformation_vre</name>
     <name>gmd:vreSupportInformation_vre</name>
     <name>gmd:managementInfo_vre</name>  
-    <!-- End LifeWatch -->
+    <!-- End VRE LifeWatch -->
+    
+    <!-- Workflow LifeWatch -->
+    <name>gmd:workflow</name>
+    <name>gmd:coordinationTeam_workflow</name>
+    <name>gmd:containServices_workflow</name>
+    <name>gmd:workflowContractualInformation_workflow</name>
+    <name>gmd:workflowSupportInformation_workflow</name>
+    <name>gmd:managementInfo_workflow</name>  
+    <!-- End Workflow LifeWatch -->
     
     <!-- Service LifeWatch -->
     <name>gmd:service</name>
@@ -654,6 +680,21 @@
                   <gmd:MD_ScopeCode
                     codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_ScopeCode"
                     codeListValue="service"/>
+                </gmd:hierarchyLevel>
+              </snippet>
+            </template>
+          </action>
+          
+          <action type="add" btnLabel="hierarchyLevel"
+                  name="hierarchyLevel" or="hierarchyLevel"
+                  if="count(gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification) > 0"
+                  in="/gmd:MD_Metadata">
+            <template>
+              <snippet>
+                <gmd:hierarchyLevel>
+                  <gmd:MD_ScopeCode
+                    codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#MD_ScopeCode"
+                    codeListValue="workflow"/>
                 </gmd:hierarchyLevel>
               </snippet>
             </template>
@@ -3305,6 +3346,10 @@
         <section xpath="/gmd:MD_Metadata/gmd:vre"/>       
         <!-- End VRE LifeWatch -->
         
+        <!-- Workflow LifeWatch -->
+        <section xpath="/gmd:MD_Metadata/gmd:workflow"/>       
+        <!-- End Workflow LifeWatch -->
+        
         <!-- Service LifeWatch -->
         <section xpath="/gmd:MD_Metadata/gmd:service"/> 
         <!-- End Service LifeWatch -->
@@ -3337,13 +3382,22 @@
         <for name="gmd:alternateIdentifier_vre"/>
         <for name="gmd:coordinationTeam_vre"/>
         <for name="gmd:containServices_vre"/>
-        <!-- <for name="gmd:author_vre"/> -->
         <for name="gmd:maintainer_vre"/>
         <for name="gmd:vreContractualInformation_vre"/>
         <for name="gmd:vreSupportInformation_vre"/>
         <for name="gmd:publicationsAboutThisVRE_vre"/>
         <for name="gmd:serviceReference_vre"/>
 		
+		<!-- Workflow LifeWatch -->
+        <for name="gmd:alternateIdentifier_workflow"/>
+        <for name="gmd:coordinationTeam_workflow"/>
+        <for name="gmd:containServices_workflow"/>
+        <for name="gmd:maintainer_workflow"/>
+        <for name="gmd:workflowContractualInformation_workflow"/>
+        <for name="gmd:workflowSupportInformation_workflow"/>
+        <for name="gmd:publicationsAboutThisWorkflow_workflow"/>
+        <for name="gmd:serviceReference_workflow"/>
+        
         <!-- Service LifeWatch -->
         <for name="gmd:keywords_service"/>
         <!-- <for name="gmd:author_service"/> -->
@@ -3441,6 +3495,13 @@
                  in="/gmd:MD_Metadata"/>
       </tab>
       <!-- End VRE LifeWatch -->
+      
+      <!-- Workflow LifeWatch -->
+      <tab id="workflow" default="true">
+        	<section xpath="/gmd:MD_Metadata/gmd:workflow" or="workflow"
+                 in="/gmd:MD_Metadata"/>
+      </tab>
+      <!-- End Workflow LifeWatch -->
       
       <!-- Service LifeWatch -->
       <tab id="service" default="true">

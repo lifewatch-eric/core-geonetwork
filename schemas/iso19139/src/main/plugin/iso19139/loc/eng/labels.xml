@@ -3764,6 +3764,11 @@
     <description>It is the date of revision of the service in the format yyyy-mm-dd Thh:mm:ss</description>
     <condition>optional</condition>
   </element>
+  <element name="gmd:url_service" id="1047.0">
+    <label>Url</label>
+    <description>It is the link to the resource</description>
+    <condition>mandatory</condition>
+  </element>
   
    <element name="gmd:LW_TechnicalInformation" id="1090.0">
     <label>Technical Information</label>
@@ -4767,4 +4772,191 @@
     <condition>mandatory</condition>
   </element>
 
+  <!-- Workflow LifeWatch -->
+   <element name="gmd:LW_Workflow" id="1263.0">
+    <label>Workflow</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:workflow" id="1264.0">
+    <label>Workflow</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+   <element name="gmd:alternateIdentifier_workflow" id="1265.0">
+    <label>Alternate Identifier</label>
+    <description>It is the alternate identifier of the Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+   <element name="gmd:url_workflow" id="1266.0">
+    <label>Url</label>
+    <description>It is the link to the resource</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:LW_WorkflowCoordinationTeam" id="1267.0">
+    <label>Coordination Team</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:coordinationTeam_workflow" id="1268.0">
+    <label>Coordination Team</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:contactPoint_workflow" id="1269.0">
+    <label>Individual Name</label>
+    <description>It is the full name of the contact person</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:address_workflow" id="1270.0">
+    <label>Address</label>
+    <description>It is the affiliation of the contact person</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:e_mail_workflow" id="1271.0">
+    <label>E-Mail</label>
+    <description>It is the email address of the contact person</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:LW_WorkflowContainServices" id="1272.0">
+    <label>Contain Services</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:containServices_workflow" id="1273.0">
+    <label>Contain Services</label>
+    <description></description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:serviceName_workflow" id="1274.0">
+    <label>Service Name</label>
+    <description>It is the name of the service included in the Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:serviceDescription_workflow" id="1275.0">
+    <label>Service Description</label>
+    <description>It is the description of the service included in the Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:serviceReference_workflow" id="1276.0">
+    <label>Service Reference (id)</label>
+    <description>It is the unique identifier used to refer to the service included on the Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+  
+  <element name="gmd:LW_WorkflowContractualInformation" id="1277.0">
+    <label>
+    Workflow Contractual Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)
+    </label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:workflowContractualInformation_workflow" id="1278.0">
+     <label>
+    Workflow Contractual Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)
+    </label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:license_workflow" id="1279.0">
+    <label>License</label>
+    <description>"It specifies what can and cannot be done with the Workflow. It grants permissions and states restrictions. It can be:
+- open license: it grants permission to access, re-use and redistribute a work with few or no restrictions (e.g., Creative Commons Licenses)
+- all rights reserved copyright: it does not allow to take and repurpose a work and requires the owner's permission to use it"</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:usageConditions_workflow" id="1280.0">
+    <label>Usage Conditions</label>
+    <description>It indicates the potential usage conditions and other restrictions for the VRE usage</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:howToCiteThisWorkflow_workflow" id="1281.0">
+    <label>How to cite this Workflow</label>
+    <description>It represent the reference of the Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:publicationsAboutThisWorkflow_workflow" id="1282.0">
+    <label>Publications about this Workflow</label>
+    <description>It represents the list of the scientific publications related to this Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+  
+   <element name="gmd:workflowSupportInformation_workflow" id="1283.0">
+    <label>Workflow Support Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:LW_WorkflowSupportInformation" id="1284.0">
+    <label>Workflow Support Information (Optional, but if you want to specify it, all metadata marked with * have to be inserted)</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:workflowFeedback_workflow" id="1285.0">
+    <label>Workflow Feedback</label>
+    <description>It is the email address or the web page to send feedback about the Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:workflowHelpdesk_workflow" id="1286.0">
+    <label>Workflow Helpdesk</label>
+    <description>It is the link to the Help Desk of the Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:workflowOrder_workflow" id="1287.0">
+    <label>Workflow Order</label>
+    <description>It is the email address or the web page to the Order of the Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:workflowTraining_workflow" id="1288.0">
+    <label>Workflow Training</label>
+    <description>It includes the link of the available resources related to the Workflow for training purposes</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:workflowUserManual_workflow" id="1289.0">
+    <label>Workflow User Manual</label>
+    <description>It is the link to the user manual of the Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+  
+  <element name="gmd:managementInfo_workflow" id="1290.0">
+    <label>Management Info</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:LW_WorkflowManagementInfo" id="1291.0">
+    <label>Management Info</label>
+    <description></description>
+    <condition>optional</condition>
+  </element>
+  <element name="gmd:author_workflow" id="1292.0">
+    <label>Author</label>
+    <description>It is the author of the Workflow (name and email)</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:maintainer_workflow" id="1293.0">
+    <label>Maintainer</label>
+    <description>It is the person in charge of the maintenance of the Workflow (name and email)</description>
+    <condition>mandatory</condition>
+  </element>
+    <element name="gmd:version_workflow" id="1294.0">
+    <label>Version</label>
+    <description>It represents the current and last version of the Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:lastUpdated_workflow" id="1295.0">
+    <label>Last Updated</label>
+    <description>It is the date of the last update of the Workflow</description>
+    <condition>mandatory</condition>
+  </element>
+  <element name="gmd:created_workflow" id="1296.0">
+    <label>Created</label>
+    <description>It is the date of the creation of the Workflow in the format yyyy-mm-dd Thh:mm:ss</description>
+    <condition>mandatory</condition>
+  </element>
+   <element name="workflow" id="1297.0">
+    <label>Workflow</label>
+    <description>Catalogue Workflow provided by LifeWatch ERIC</description>
+    <condition>mandatory</condition>
+  </element>
+  <!-- End Workflow LifeWatch -->
+    
 </labels>

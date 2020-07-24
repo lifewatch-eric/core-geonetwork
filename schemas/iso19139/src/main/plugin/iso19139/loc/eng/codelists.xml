@@ -1594,6 +1594,12 @@
       </description>
     </entry>
     <entry>
+      <code>workflow_lifewatch</code>
+      <label>Workflow - LifeWatch</label>
+      <description>Catalogue Workflow provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
       <code>service_lifewatch</code>
       <label>Service - LifeWatch</label>
       <description>Catalogue Service provided by LifeWatch ERIC
@@ -1675,6 +1681,12 @@
       <code>vre_lifewatch</code>
       <label>Virtual Research Environment - LifeWatch</label>
       <description>Catalogue Virtual Research Environment provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
+      <code>workflow_lifewatch</code>
+      <label>Workflow - LifeWatch</label>
+      <description>Catalogue Workflow provided by LifeWatch ERIC
       </description>
     </entry>
     <entry>
@@ -2077,6 +2089,12 @@
       </description>
     </entry>
     <entry>
+      <code>workflow_lifewatch</code>
+      <label>Workflow - LifeWatch</label>
+      <description>Catalogue Workflow provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
       <code>service_lifewatch</code>
       <label>Service - LifeWatch</label>
       <description>Catalogue Service provided by LifeWatch ERIC
@@ -2258,6 +2276,12 @@
       <code>vre_lifewatch</code>
       <label>Virtual Research Environment - LifeWatch</label>
       <description>Catalogue Virtual Research Environment provided by LifeWatch ERIC
+      </description>
+    </entry>
+    <entry>
+      <code>workflow_lifewatch</code>
+      <label>Workflow - LifeWatch</label>
+      <description>Catalogue Workflow provided by LifeWatch ERIC
       </description>
     </entry>
     <entry>

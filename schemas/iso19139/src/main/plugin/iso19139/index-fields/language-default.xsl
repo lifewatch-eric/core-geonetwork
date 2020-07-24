@@ -172,7 +172,7 @@
     <xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:url_vre/gco:CharacterString">
       <Field name="url_vre" string="{string(.)}" store="true" index="true"/>
     </xsl:for-each>
-	
+    
 	<xsl:for-each select="gmd:vre/gmd:LW_VRE/gmd:coordinationTeam_vre/gmd:LW_CoordinationTeam/gmd:contactPoint_vre/gco:CharacterString">
       <Field name="contactPoint_vre" string="{string(.)}" store="true" index="true"/>
     </xsl:for-each>
@@ -239,9 +239,110 @@
     </xsl:for-each>
     <!-- End VRE LifeWatch -->
     
+    
+        <!-- Workflow LifeWatch -->
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:alternateIdentifier_workflow/gco:CharacterString">
+      <Field name="alternateIdentifier_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:url_workflow/gco:CharacterString">
+      <Field name="url_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+
+	<!-- Coordination Team Workflow -->    
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:coordinationTeam_workflow/gmd:LW_WorkflowCoordinationTeam[normalize-space(gmd:contactPoint_workflow/gco:CharacterString) != '']">          
+       <xsl:variable name="contactPoint_workflow_variable"   select="gmd:contactPoint_workflow/gco:CharacterString"/>
+       <xsl:variable name="address_workflow_variable"    select="gmd:address_workflow/gco:CharacterString"/>
+       <xsl:variable name="e_mail_workflow_variable"     select="gmd:e_mail_workflow/gco:CharacterString"/>       
+          <Field name="coordinationTeam_workflow"
+                 string="{concat(string($contactPoint_workflow_variable), '|', string($address_workflow_variable), '|', string($e_mail_workflow_variable))}"
+                 store="true" index="false"/>
+    </xsl:for-each>
+    
+    
+    <!-- Contain Services Workflow -->
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:containServices_workflow/gmd:LW_WorkflowContainServices[normalize-space(gmd:serviceName_workflow/gco:CharacterString) != '']">          
+       <xsl:variable name="serviceName_workflow_variable"   select="gmd:serviceName_workflow/gco:CharacterString"/>
+       <xsl:variable name="serviceDescription_workflow_variable"   select="gmd:serviceDescription_workflow/gco:CharacterString"/>
+       <xsl:variable name="serviceReference_workflow_variable"     select="gmd:serviceReference_workflow/gco:CharacterString"/>  
+          <Field name="containServices_workflow"
+                 string="{concat(string($serviceName_workflow_variable), '|', string($serviceDescription_workflow_variable), '|', string($serviceReference_workflow_variable))}"
+                 store="true" index="false"/>
+    </xsl:for-each>
+    
+    
+    <!-- Contractual Information Workflow -->
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowContractualInformation_workflow/gmd:LW_WorkflowContractualInformation/gmd:license_workflow/gco:CharacterString">
+      <Field name="license_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowContractualInformation_workflow/gmd:LW_WorkflowContractualInformation/gmd:usageConditions_workflow/gco:CharacterString">
+      <Field name="usageConditions_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowContractualInformation_workflow/gmd:LW_WorkflowContractualInformation/gmd:howToCiteThisWorkflow_workflow/gco:CharacterString">
+      <Field name="howToCiteThisWorkflow_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+     <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowContractualInformation_workflow/gmd:LW_WorkflowContractualInformation/gmd:publicationsAboutThisWorkflow_workflow[normalize-space(gco:CharacterString) != '']">
+        <xsl:variable name="publicationsAboutThisWorkflow_workflow_variable">
+            <xsl:for-each select="gco:CharacterString">
+                <xsl:value-of select="concat(., '--')" />
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="publicationsAboutThisWorkflow_workflow"
+	                 string="{string($publicationsAboutThisWorkflow_workflow_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each>
+    
+    
+    <!-- Support Information Workflow -->
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowSupportInformation_workflow/gmd:LW_WorkflowSupportInformation/gmd:workflowFeedback_workflow/gco:CharacterString">
+      <Field name="workflowFeedback_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowSupportInformation_workflow/gmd:LW_WorkflowSupportInformation/gmd:workflowHelpdesk_workflow/gco:CharacterString">
+      <Field name="workflowHelpdesk_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowSupportInformation_workflow/gmd:LW_WorkflowSupportInformation/gmd:workflowOrder_workflow/gco:CharacterString">
+      <Field name="workflowOrder_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowSupportInformation_workflow/gmd:LW_WorkflowSupportInformation/gmd:workflowTraining_workflow/gco:CharacterString">
+      <Field name="workflowTraining_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:workflowSupportInformation_workflow/gmd:LW_WorkflowSupportInformation/gmd:workflowUserManual_workflow/gco:CharacterString">
+      <Field name="workflowUserManual_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    
+    <!-- Management Info Workflow -->
+	<xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:managementInfo_workflow/gmd:LW_WorkflowManagementInfo/gmd:maintainer_workflow[normalize-space(gco:CharacterString) != '']">
+        <xsl:variable name="maintainer_workflow_variable">
+            <xsl:for-each select="gco:CharacterString">
+               <xsl:value-of select="concat(., '--')" />
+            </xsl:for-each>
+        </xsl:variable>	   
+        <Field name="maintainer_workflow"
+	                 string="{string($maintainer_workflow_variable)}" 
+	                 store="true" index="false"/>
+	</xsl:for-each>
+
+
+	<!-- Management Info Workflow -->
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:managementInfo_workflow/gmd:LW_WorkflowManagementInfo/gmd:version_workflow/gco:CharacterString">
+      <Field name="version_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:managementInfo_workflow/gmd:LW_WorkflowManagementInfo/gmd:lastUpdated_workflow/*">
+      <Field name="lastUpdated_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:workflow/gmd:LW_Workflow/gmd:managementInfo_workflow/gmd:LW_WorkflowManagementInfo/gmd:created_workflow/*">
+      <Field name="created_workflow" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    
+    <!-- End Workflow LifeWatch -->
+    
+    
     <!-- Service LifeWatch -->
      <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:revisionDate_service/*">
       <Field name="revisionDate_service" string="{string(.)}" store="true" index="true"/>
+    </xsl:for-each>
+    <xsl:for-each select="gmd:service/gmd:LW_Service/gmd:url_service/gco:CharacterString">
+      <Field name="url_service" string="{string(.)}" store="true" index="true"/>
     </xsl:for-each>
 
 	<xsl:for-each select="gmd:service/gmd:LW_Service/gmd:technicalInformation_service/gmd:LW_TechnicalInformation/gmd:contactPoint_service/gco:CharacterString">

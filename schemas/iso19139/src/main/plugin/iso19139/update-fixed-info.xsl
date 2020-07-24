@@ -204,6 +204,7 @@
         gmd:featureType|
         gmd:featureAttribute|
         gmd:vre|
+        gmd:workflow|
         gmd:service|
         gmd:dataset"/>
 
@@ -267,23 +268,6 @@
     </xsl:copy>
   </xsl:template>
 
-  <!-- VRE LifeWatch old -->
-  <xsl:template
-    match="gmd:vre/*/gmd:title_vre[@gco:nilReason='missing' or gco:CharacterString='']"
-    priority="10">
-    <xsl:copy>
-      <gco:CharacterString></gco:CharacterString>
-    </xsl:copy>
-  </xsl:template>
-  
-   <!-- Service LifeWatch old -->
-  <xsl:template
-    match="gmd:service/*/gmd:title_service[@gco:nilReason='missing' or gco:CharacterString='']"
-    priority="10">
-    <xsl:copy>
-      <gco:CharacterString></gco:CharacterString>
-    </xsl:copy>
-  </xsl:template>
   
   <!-- ================================================================= -->
 
