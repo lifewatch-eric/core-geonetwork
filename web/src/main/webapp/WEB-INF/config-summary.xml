@@ -114,7 +114,8 @@
     <facet name="recordOwner" indexKey="recordOwner" label="recordOwner"/>
     <facet name="groupOwner" indexKey="_groupOwner" label="groupOwners"/>
     <facet name="publishedForGroup" indexKey="_groupPublished" label="publishedForGroup"/>
-	  <facet name="isPublishedToAll" indexKey="_isPublishedToAll" label="isPublishedToAll" />
+    <facet name="isPublishedToAll" indexKey="_isPublishedToAll" label="isPublishedToAll" />
+    <facet name="title_project_dataset" indexKey="title_project_dataset" label="title_project_dataset" />
     <!--
     Example configuration for hierarchical facet based on
     the GeoNetwork region thesaurus or GEMET.
@@ -140,6 +141,7 @@
       <item facet="type" translator="codelist:gmd:MD_ScopeCode"/>
       <item facet="mdActions"/>
       <item facet="topicCat" translator="codelist:gmd:MD_TopicCategoryCode" max="20"/>
+      <item facet="title_project_dataset" max="40"/>
       <item facet="inspireThemeURI" sortBy="value" sortOrder="asc" max="35"
             translator="term:http://inspire.ec.europa.eu/theme"/>
       <!--<item facet="inspireTheme" sortBy="value" sortOrder="asc" max="35"/>-->

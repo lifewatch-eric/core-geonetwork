@@ -417,14 +417,14 @@
       <field name="bibtex_citation_methodStep_methods_dataset" tagName="bibtex_citation_methodStep_methods_dataset"/>      
       <field name="instrumentation_methodStep_methods_dataset" tagName="instrumentation_methodStep_methods_dataset"/>      
       <field name="methodStep_dataset" tagName="methodStep_dataset"/>
-	  <field name="software_dataset" tagName="software_dataset"/>
+	    <field name="software_dataset" tagName="software_dataset"/>
       <field name="title_software_methodStep_methods_dataset_variable" tagName="title_software_methodStep_methods_dataset_variable"/>
       <field name="references_software_methodStep_methods_dataset_variable" tagName="references_software_methodStep_methods_dataset_variable"/>
               
       <field name="para_samplingDescription_sampling_methods_dataset" tagName="para_samplingDescription_sampling_methods_dataset"/>
       <field name="sampling_methods_dataset" tagName="sampling_methods_dataset"/>
       <field name="title_project_dataset" tagName="title_project_dataset"/>
-     
+      <field name="abstract_project_dataset" tagName="title_project_dataset"/>
       <field name="personnelProject_dataset" tagName="personnelProject_dataset"/>
       <field name="individualName_personnel_project_dataset_variable" tagName="individualName_personnel_project_dataset_variable"/>
       <field name="positionName_personnel_project_dataset_variable" tagName="positionName_personnel_project_dataset_variable"/>
