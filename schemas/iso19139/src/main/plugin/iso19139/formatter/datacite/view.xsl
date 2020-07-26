@@ -333,19 +333,19 @@
     <xsl:variable name="key" select="."/>
 
     <xsl:variable name="key2">
-          <xsl:if test="contains($key, 'dataset_lifewatch')">
+          <xsl:if test="contains($key, 'dataset')">
             <xsl:value-of select="string('Dataset')"/>
           </xsl:if>
-          <xsl:if test="contains($key, 'service_lifewatch')">
+          <xsl:if test="contains($key, 'service')">
             <xsl:value-of select="string('Service')"/>
           </xsl:if>
-          <xsl:if test="contains($key, 'vre_lifewatch')">
+          <xsl:if test="contains($key, 'vre')">
             <xsl:value-of select="string('Other')"/>
           </xsl:if>
-          <xsl:if test="contains($key, 'workflow_lifewatch')">
+          <xsl:if test="contains($key, 'workflow')">
             <xsl:value-of select="string('Workflow')"/>
           </xsl:if>
-          <xsl:if test="((not(contains($key, 'vre_lifewatch'))) and (not(contains($key, 'service_lifewatch'))) and (not(contains($key, 'workflow_lifewatch'))) and (not(contains($key, 'dataset_lifewatch'))))">
+          <xsl:if test="((not(contains($key, 'vre'))) and (not(contains($key, 'service'))) and (not(contains($key, 'workflow'))) and (not(contains($key, 'dataset'))))">
             <xsl:value-of select="$key"/>
           </xsl:if>
     </xsl:variable>
