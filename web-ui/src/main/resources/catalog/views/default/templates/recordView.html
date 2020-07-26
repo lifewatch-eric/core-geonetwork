@@ -135,7 +135,7 @@
 	
 	<!-- VRE LifeWatch -->
  	<div class="row gn-md-view"
-        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'vre_lifewatch'"> 
+        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'vre'"> 
       <div data-ng-show="!gnMdViewObj.usingFormatter" class="gn-metadata-display">
 
       <div class="col-md-12 gn-record">
@@ -151,7 +151,7 @@
       </div>
 	</div>
 	<div class="row gn-md-view"
-        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'vre_lifewatch'"> 
+        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'vre'"> 
       <div data-ng-show="!gnMdViewObj.usingFormatter" class="gn-metadata-display">
       
          <div class="col-md-6 gn-record">  
@@ -182,7 +182,7 @@
    
    <!-- Workflow LifeWatch -->
  	<div class="row gn-md-view"
-        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'workflow_lifewatch'"> 
+        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'workflow'"> 
       <div data-ng-show="!gnMdViewObj.usingFormatter" class="gn-metadata-display">
 
       <div class="col-md-12 gn-record">
@@ -198,7 +198,7 @@
       </div>
 	</div>
 	<div class="row gn-md-view"
-        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'workflow_lifewatch'"> 
+        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'workflow'"> 
       <div data-ng-show="!gnMdViewObj.usingFormatter" class="gn-metadata-display">
       
          <div class="col-md-6 gn-record">  
@@ -229,7 +229,7 @@
    
    	<!-- Service LifeWatch -->
  	<div class="row gn-md-view"
-        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'service_lifewatch'"> 
+        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'service'"> 
       <div data-ng-show="!gnMdViewObj.usingFormatter" class="gn-metadata-display">
 
       <div class="col-md-12 gn-record">
@@ -245,7 +245,7 @@
       </div>
 	</div>
 	<div class="row gn-md-view"
-        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'service_lifewatch'"> 
+        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'service'"> 
       <div data-ng-show="!gnMdViewObj.usingFormatter" class="gn-metadata-display">
       
          <div class="col-md-6 gn-record">  
@@ -276,7 +276,7 @@
    
    <!-- Dataset LifeWatch -->
    <div class="row gn-md-view"
-        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'dataset_lifewatch'"> 
+        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'dataset'"> 
       <div data-ng-show="!gnMdViewObj.usingFormatter" class="gn-metadata-display">
 
       <div class="col-md-12 gn-record">
@@ -292,14 +292,14 @@
       </div>
 	</div>
 	<div class="row gn-md-view"
-        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'dataset_lifewatch'"> 
+        data-ng-show="mdView.current.record" data-ng-if="mdView.current.record.type == 'dataset'"> 
       <div data-ng-show="!gnMdViewObj.usingFormatter" class="gn-metadata-display">
       
-         <div class="col-md-6 gn-record">  
+         <div class="col-md-12 gn-record">  
        		 <div class="lead1 gn-margin-bottom"
             data-ng-bind-html="mdView.current.record.abstract | linky | newlines" data-ng-if="mdView.current.record.abstract.length > 0"></div>
          </div>
-         <div class="col-md-6 gn-record">
+         <div class="col-md-12 gn-record">
            <section class="gn-md-side-overview" data-ng-if="mdView.current.record.overviews.length > 0">
    
             <div data-ng-repeat="img in mdView.current.record.overviews">
@@ -326,19 +326,11 @@
       <div data-ng-show="!gnMdViewObj.usingFormatter" class="gn-metadata-display">
         
         <!-- Standard Template -->
-        <div class="col-md-8 gn-record" data-ng-if="mdView.current.record.type != 'vre_lifewatch' && mdView.current.record.type != 'workflow_lifewatch' && mdView.current.record.type != 'service_lifewatch' && mdView.current.record.type != 'dataset_lifewatch'">
-         <h1 h1 style="color: #2A4F8A; margin: 0px; margin-top: 0px">
-          <i class="fa gn-icon-{{mdView.current.record.type[0]}}"/>
-          {{mdView.current.record.title || mdView.current.record.defaultTitle}}
-          <span class="text-muted badge"
-                data-ng-class="{'text-success': md.mdStatus == 2, 'text-warning': md.mdStatus == 4}"
-                data-ng-if="user.isEditorOrMore() && md.mdStatus<50 && isMdWorkflowEnable">{{('mdStatus-' + md.mdStatus) | translate}}</span>
-         </h1>
+        <div class="col-md-8 gn-record">
 
-         <div class="lead1 gn-margin-bottom"
-            data-ng-bind-html="(mdView.current.record.abstract || mdView.current.record.defaultAbstract) | linky | newlines"/>
+        <div>
 
-		  <!-- Download and Resources -->
+		    <!-- Download and Resources -->
           <div data-gn-related-observer>
             <div data-gn-related="mdView.current.record"
                 data-user="user"
@@ -354,38 +346,30 @@
             </div>
           </div>
 	
-		 <!-- Point of Contact -->
-		  <section data-ng-repeat="c in mdView.current.record.getAllContacts().resource track by $index">
-            <h4>
-              <i class="fa fa-fw fa-envelope"></i>
-              <span>{{c.role | translate}}</span>
-            </h4>
-            <div class="gn-contact">
-              <div class="row">
-                <div class="col-md-6">
+     <!-- Point of Contact -->
+     <h2 data-translate="">Contact</h2>
+      <table class="table table-striped">
+        <tbody>
+		  <tr data-ng-repeat="c in mdView.current.record.getAllContacts().resource track by $index">
+       <th>{{c.role | translate}}</th>
+            <td class="gn-contact">
                   <address>
-                    <strong title="{{c.address}}">
-                      {{c.org}}<br/>
-                    </strong>
-                    <div data-ng-if="c.email != ''">
-                      <a href="mailto:{{c.email}}">
-                        <span data-ng-hide="c.name">{{c.email}}</span>
-                        <span data-ng-show="c.name">{{c.name}}</span>
-                        <span data-ng-show="c.position">({{c.position}})</span>
-                      </a>
+                    <span data-ng-show="c.name">{{c.name}}</span>
+                    <span data-ng-show="c.position">({{c.position}})</span><br/>
+                    <b>{{c.org}}</b><br/>
+                    {{c.address}}
+                     <div data-ng-if="c.email != ''"> 
+                       <a href="mailto:{{c.email}}">{{c.email}}</a>
                     </div>
-                    <div data-ng-if="c.email === ''">{{c.name}}
-                      <span data-ng-show="c.position">({{c.position}})</span>
-                    </div>
-                    <a href="tel:{{c.phone}}"
-                      data-ng-if="c.phone != ''">
+                    <a href="tel:{{c.phone}}" data-ng-if="c.phone != ''">
                       <span data-translate="">call</span> {{c.phone}}
                     </a>
+                    <a href="{{c.url}}" data-ng-if="c.url != ''">{{c.url}}</a>
                   </address>
-                </div>
-              </div>
-            </div>
-          </section>
+            </td>
+      </tr>
+    </tbody>
+      </table>
           
           <div data-gn-related-observer>
             <div data-gn-related="mdView.current.record"
@@ -441,8 +425,7 @@
             <tr data-ng-repeat="(thesaurus, keywords) in mdView.current.record.keywordGroup">
               <th>{{thesaurus | translate}}</th>
               <td>
-                <ul>
-                  <li data-ng-repeat="k in keywords track by $index"
+                <kbd data-ng-repeat="k in keywords track by $index"
                       data-ng-if="k"
                       class="tt-cursor">
                       <span data-ng-show="k.link == ''">{{k.value}}</span>
@@ -456,28 +439,23 @@
                         data-ng-click="search({'keyword': k.value})">
                         <i class="fa fa-search"/>
                       </a>
-                  </li>
-                </ul>
+                    </kbd>
               </td>
             </tr>
             <tr data-ng-if="mdView.current.record.datasetLang">
               <th data-translate="">language</th>
               <td>
-                <ul>
-                  <li data-ng-repeat="l in mdView.current.record.datasetLang">
+                <span data-ng-repeat="l in mdView.current.record.datasetLang">
                     {{l | translate}}
-                  </li>
-                </ul>
+                </span>
               </td>
             </tr>
             <tr data-ng-if="mdView.current.record.identifier">
               <th data-translate="">identifier</th>
               <td>
-                <ul>
-                  <li data-ng-repeat="i in mdView.current.record.identifier">
+                <span data-ng-repeat="i in mdView.current.record.identifier">
                     {{i}}
-                  </li>
-                </ul>
+                </span>
               </td>
             </tr>
             <tr data-ng-if="mdView.current.record.classification_text">
@@ -512,12 +490,6 @@
               </td>
             </tr>
 
-            <tr data-ng-if="mdView.current.record.getAllContacts().resource">
-              <th data-translate="">resourceContact</th>
-              <td>
-                <div data-gn-metadata-contacts="mdView.current.record.getAllContacts().resource" data-gn-mode="org-role" />
-              </td>
-            </tr>
             <tr data-ng-if="mdView.current.record.credit">
               <th data-translate="">credit</th>
               <td>{{mdView.current.record.credit}}</td>
@@ -525,9 +497,7 @@
             <tr data-ng-if="mdView.current.record.status_text.length > 0">
               <th data-translate="">resourceStatus</th>
               <td>
-                <ul>
-                  <li data-ng-repeat="s in mdView.current.record.status_text">{{s}}</li>
-                </ul>
+                <span data-ng-repeat="s in mdView.current.record.status_text">{{s}}</span>
               </td>
             </tr>
             <tr data-ng-if="mdView.current.record.versionIdentifier">
@@ -597,29 +567,23 @@
             <tr data-ng-if="mdView.current.record.denominator">
               <th data-translate="">scale</th>
               <td>
-                <ul>
-                  <li data-ng-repeat="d in mdView.current.record.denominator"
+                <span data-ng-repeat="d in mdView.current.record.denominator"
                       class="gn-scale">{{d}}
-                  </li>
-                </ul>
+              </span>
               </td>
             </tr>
             <tr data-ng-if="mdView.current.record.resolution">
               <th data-translate="">resolution</th>
               <td>
-                <ul>
-                  <li data-ng-repeat="r in mdView.current.record.resolution">{{r}}</li>
-                </ul>
+                <span data-ng-repeat="r in mdView.current.record.resolution">{{r}}</span>
               </td>
             </tr>
             <tr data-ng-if="mdView.current.record.crsDetails">
               <th data-translate="">crs</th>
               <td>
-                <ul>
-                  <li data-ng-repeat="r in mdView.current.record.crsDetails">
+                <span data-ng-repeat="r in mdView.current.record.crsDetails">
                     {{ mdService.formatCrs(r) }}
-                  </li>
-                </ul>
+                </span>
               </td>
             </tr>
             <tr data-ng-if="mdView.current.record.format">
@@ -672,11 +636,9 @@
             <tr data-ng-if="mdView.current.record.mdLanguage">
               <th data-translate="">metadataLanguage</th>
               <td>
-                <ul>
-                  <li data-ng-repeat="l in mdView.current.record.mdLanguage">
+                <div data-ng-repeat="l in mdView.current.record.mdLanguage">
                     {{l | translate}}
-                  </li>
-                </ul>
+                </div>
               </td>
             </tr>
             <tr>
@@ -690,7 +652,7 @@
         
         
         <!-- VRE LifeWatch -->
-        <div class="col-md-8 gn-record" data-ng-if="mdView.current.record.type == 'vre_lifewatch'">
+        <div data-ng-if="mdView.current.record.type == 'vre'">
  
           <table class="table table-striped">
             <tbody>
@@ -985,7 +947,7 @@
 		<!-- End VRE LifeWatch -->
 		
 		<!-- Workflow LifeWatch -->
-        <div class="col-md-8 gn-record" data-ng-if="mdView.current.record.type == 'workflow_lifewatch'">
+        <div data-ng-if="mdView.current.record.type == 'workflow'">
  
           <table class="table table-striped">
             <tbody>
@@ -1280,7 +1242,7 @@
 		<!-- End Workflow LifeWatch -->
 		
 		<!-- Service LifeWatch -->
-        <div class="col-md-8 gn-record" data-ng-if="mdView.current.record.type == 'service_lifewatch'">
+        <div data-ng-if="mdView.current.record.type == 'service'">
  
           <table class="table table-striped">
             <tbody>
@@ -1688,7 +1650,7 @@
 		
 		
 		<!-- Dataset LifeWatch -->
-        <div class="col-md-8 gn-record" data-ng-if="mdView.current.record.type == 'dataset_lifewatch'">
+        <div>
  
  		  <!-- Dataset -->
           <table class="table table-striped">
@@ -2313,7 +2275,7 @@
                 </tbody>
             </table>
             </section>
-                    
+                   
         <!-- Project -->            
         <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.title_project_dataset.length > 0 || mdView.current.record.individualName_personnel_project_dataset.length > 0 || mdView.current.record.positionName_personnel_project_dataset.length > 0 || mdView.current.record.name_organization_personnel_project_dataset.length > 0">
          Project
@@ -2327,11 +2289,18 @@
                          class="text-muted">{{f}}</span>
                   </td>
                 </tr> 
+                <tr data-ng-if="mdView.current.record.abstract_project_dataset" data-ng-if="mdView.current.record.abstract_project_dataset.length > 0">
+                  <th data-translate="">Abstract</th>
+                  <td>
+                     <span data-ng-repeat="f in mdView.current.record.abstract_project_dataset track by $index"
+                         class="text-muted">{{f}}</span>
+                  </td>
+                </tr> 
             </tbody>
         </table>
         <section data-ng-repeat="c in mdView.current.record.getAllProjectPersonnel_dataset().metadata track by $index">    
             <h3 data-translate="" style="color: #2A4F8A">
-          	&#8226; Personnel {{$index + 1}}
+          	Personnel {{$index + 1}}
           	</h3>
             <table class="table table-striped">
                 <tbody>
@@ -2506,13 +2475,14 @@
             </section>
           </div>
           
+        </div>  
         </div>
 		<!-- End Dataset LifeWatch -->
 		
 		<!-- Overview default -->
         <div class="col-md-4 gn-md-side">
           
-          <section class="gn-md-side-overview" data-ng-if="mdView.current.record.overviews.length > 0 && mdView.current.record.type != 'vre_lifewatch' && mdView.current.record.type != 'workflow_lifewatch' && mdView.current.record.type != 'service_lifewatch' && mdView.current.record.type != 'dataset_lifewatch'">
+          <section class="gn-md-side-overview" data-ng-if="mdView.current.record.overviews.length > 0">
             <h2>
               <i class="fa fa-fw fa-image"></i>
               <span data-translate="">overview</span>
