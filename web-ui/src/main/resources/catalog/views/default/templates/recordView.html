@@ -328,7 +328,7 @@
         <!-- Standard Template -->
         <div class="col-md-8 gn-record">
 
-        <div>
+        <div class="identification">
 
 		    <!-- Download and Resources -->
           <div data-gn-related-observer>
@@ -345,7 +345,22 @@
                 data-title="{{'associatedResources' | translate}}">
             </div>
           </div>
-	
+  
+      <!-- Links -->
+     <h2 data-translate="">links</h2>
+     <table class="table table-striped">
+       <tbody>
+     <tr 
+      data-ng-repeat="c in mdView.current.record.link track by $index" 
+      data-ng-if="c.split('|')[2]">
+      <td><a href="{{c.split('|')[2]}}" target="_blank">
+        {{c.split('|')[0] || c.split('|')[2] }}<br/>
+      </a> ({{c.split('|')[3]}})</td>
+          <td class="gn-contact"> {{c.split('|')[1]}}   </td>
+        </tr>
+      </tbody>
+    </table>
+          
      <!-- Point of Contact -->
      <h2 data-translate="">Contact</h2>
       <table class="table table-striped">
@@ -422,10 +437,17 @@
                 </button>
               </td>
             </tr>
+            <tr data-ng-show="mdView.current.record.keyword">
+              <th>{{'Keywords' | translate}}</th>
+              <td>
+                <span class="badge" data-ng-repeat="k in mdView.current.record.keyword track by $index">
+                      {{k | translate}}</span>
+              </td>
+            </tr>
             <tr data-ng-repeat="(thesaurus, keywords) in mdView.current.record.keywordGroup">
               <th>{{thesaurus | translate}}</th>
               <td>
-                <kbd data-ng-repeat="k in keywords track by $index"
+                <span class="badge" data-ng-repeat="k in keywords track by $index"
                       data-ng-if="k"
                       class="tt-cursor">
                       <span data-ng-show="k.link == ''">{{k.value}}</span>
@@ -439,7 +461,7 @@
                         data-ng-click="search({'keyword': k.value})">
                         <i class="fa fa-search"/>
                       </a>
-                    </kbd>
+                    </span>
               </td>
             </tr>
             <tr data-ng-if="mdView.current.record.datasetLang">
@@ -618,12 +640,6 @@
           </div>
 
           <h2 data-translate="">metadataInformation</h2>
-
-          <a class="btn btn-default gn-margin-bottom"
-            data-ng-href="../api/records/{{mdView.current.record.getUuid()}}/formatters/xml">
-            <i class="fa fa-fw fa-file-code-o"/>
-            <span data-translate="">metadataInXML</span>
-          </a>
 
           <table class="table table-striped">
             <tbody>
@@ -1660,7 +1676,7 @@
               <th data-translate="">Alternative Identifier</th>
               <td>
                  <span data-ng-repeat="f in mdView.current.record.alternateIdentifier_dataset track by $index"
-                      class="text-muted">{{f}}</span>
+                      class="text-muted">{{f | linky}}</span>
               </td>
             </tr>
             </tbody>
@@ -2522,7 +2538,7 @@
           
           <div data-gn-md-feedback="mdView.current.record"></div>
           -->
-		 <!-- 
+
           <section class="gn-md-side-extent" data-ng-if="mdView.current.record.geoBox.length > 0">
             <h2>
               <i class="fa fa-fw fa-map-marker"></i>
@@ -2533,17 +2549,16 @@
               <li data-ng-repeat="d in mdView.current.record.geoDesc">{{d}}</li>
             </ul>
             </p>
-            <!-- TODO: use map config -->
-            <!-- 
+        
             <p data-ng-repeat="bbox in mdView.current.record.geoBox">
               <img class="gn-img-thumbnail img-thumbnail gn-img-extent"
                   alt="{{'extent' | translate}}"
                   aria-label="{{'extent' | translate}}"
-                  data-ng-src="{{gnUrl}}{{lang}}/region.getmap.png?mapsrs=EPSG:3857&width=250&background=settings&geomsrs=EPSG:4326&geom={{mdView.current.record.getBoxAsPolygon($index)}}"/>
+                  data-ng-src="{{gnUrl}}api/records/{{md.getUuid()}}/extents.png"/>
             </p>
 
           </section>
-		 -->
+
           <section class="gn-md-side-dates"
                   data-ng-if="mdView.current.record.creationDate ||
                               mdView.current.record.publicationDate ||
@@ -2579,9 +2594,9 @@
                                 mdView.current.record.tempExtentEnd">
               <dt data-translate>tempExtentBegin</dt>
               <dd>
-                <span data-gn-humanize-time="{{mdView.current.record.tempExtentBegin}}"/>
+                <span data-gn-humanize-time="{{mdView.current.record.tempExtentBegin}}" data-format="YYYY-MM-DD"/>
                 &nbsp;<i class="fa fa-fw fa-forward"></i>
-                <span data-gn-humanize-time="{{mdView.current.record.tempExtentEnd}}"/>
+                <span data-gn-humanize-time="{{mdView.current.record.tempExtentEnd}}" data-format="YYYY-MM-DD"/>
               </dd>
             </dl>
             </p>

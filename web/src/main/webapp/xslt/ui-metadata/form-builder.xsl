@@ -1240,7 +1240,7 @@
                   <xsl:attribute name="type" select="if ($isDirective) then 'text' else $type"/>
                 </xsl:if>
                 <xsl:attribute name="value"
-                               select="normalize-space($valueToEdit)"/>
+                               select="normalize-space(string-join($valueToEdit,''))"/>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:element>
