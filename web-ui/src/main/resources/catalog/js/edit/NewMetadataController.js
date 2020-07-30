@@ -63,6 +63,8 @@
       var icons = {
         featureCatalog: 'fa-table',
         service: 'fa-cog',
+        workflow: 'fa-sitemap',
+        vre: 'fa-flask',
         map: 'fa-map',
         staticMap: 'fa-map',
         dataset: 'fa-file'

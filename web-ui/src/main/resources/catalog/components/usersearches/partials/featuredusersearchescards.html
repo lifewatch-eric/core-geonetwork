@@ -3,7 +3,7 @@
     data-ng-repeat="row in featuredSearches"
     data-ng-click="search(row.url)"
     id="gn-info-list-mw-{row.id}}">
-    <section class="resultcard clearfix"
+    <section class="resultcard clearfix {{row.type[0]}}"
              data-ng-class="row.url ? 'hasThumbnail' : 'noThumbnail'">
 
       <div class="title">
