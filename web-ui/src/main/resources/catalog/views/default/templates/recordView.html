@@ -139,6 +139,7 @@
 
       <div class="col-md-12 gn-record">
         <h1 style="color: #2A4F8A; margin: 0px; margin-top: 0px">
+          <i class="fa gn-icon-{{mdView.current.record.type[0]}}"/>
            {{mdView.current.record.title || mdView.current.record.defaultTitle}} 
           <span class="text-muted badge"
                 data-ng-class="{'text-success': md.mdStatus == 2, 'text-warning': md.mdStatus == 4}"
@@ -475,7 +476,7 @@
         <!-- End Standard Template -->
 
         <!-- VRE LifeWatch -->
-        <div data-ng-if="mdView.current.record.type == 'vre'" data-ng-include="'../../catalog/views/default/templates/vre.html'"> </div>
+        <div data-ng-if="mdView.current.record.type == 'vre'"       data-ng-include="'../../catalog/views/default/templates/vre.html'"> </div>
         <!-- END VRE LifeWatch -->
         
         <!-- Workflow LifeWatch -->
@@ -483,12 +484,12 @@
         <!-- End Workflow LifeWatch -->
 
         <!-- Service LifeWatch -->
-        <div data-ng-if="mdView.current.record.type == 'service'"  data-ng-include="'../../catalog/views/default/templates/service.html'"></div>
+        <div data-ng-if="mdView.current.record.type == 'service'"   data-ng-include="'../../catalog/views/default/templates/service.html'"></div>
         <!-- End Service LifeWatch -->
 
 
         <!-- Dataset LifeWatch -->
-        <div data-ng-if="mdView.current.record.type == 'dataset'" data-ng-include="'../../catalog/views/default/templates/dataset.html'"></div> 
+        <div data-ng-if="mdView.current.record.type == 'dataset'"   data-ng-include="'../../catalog/views/default/templates/dataset.html'"></div> 
         <!-- End Dataset LifeWatch -->
     
       </div>
@@ -608,15 +609,7 @@
               title="{{'permalink' | translate}}"
               class="btn btn-default"><i class="fa fa-fw fa-link"></i></a>
           </section>
-		  <!-- 
-          <section data-ng-show="isRatingEnabled" class="gn-md-side-rating">
-            <h2>
-              <i class="fa fa-fw"></i>
-              <span data-translate="">rate</span>
-            </h2>
-            <div data-gn-metadata-rate="mdView.current.record"/>
-          </section>
-		   -->
+
 			<!-- Display the first metadata status (apply to ISO19139 record) -->
           <div data-ng-if="mdView.current.record.status_text.length > 0"
               title="{{mdView.current.record.status_text[0]}}"
@@ -629,9 +622,6 @@
         </div>
 
       </div>
-
-
-
     </div>
   </div>
 </div>

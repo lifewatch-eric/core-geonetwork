@@ -819,13 +819,31 @@
     <xsl:param name="btnClass" required="no" as="xs:string?" select="''"/>
 
 
+    <!--<xsl:message>
+      $isDisabled: <xsl:value-of select="$isDisabled" />
+      $parentEditInfo: <xsl:copy-of select="$parentEditInfo" />
+      $childEditInfo: <xsl:copy-of select="$childEditInfo" />
+      label: <xsl:value-of select="$label" />
+    </xsl:message>-->
+
     <xsl:if test="not($isDisabled) and $parentEditInfo/@ref != ''">
+
+
+
       <xsl:variable name="id" select="generate-id()"/>
       <xsl:variable name="qualifiedName"
-                    select="concat($childEditInfo/@prefix, ':', $childEditInfo/@name)"/>
+                    select="if (string($childEditInfo/@prefix))
+                            then concat($childEditInfo/@prefix, ':', $childEditInfo/@name)
+                            else $childEditInfo/@name"/>
       <xsl:variable name="parentName"
                     select="name(ancestor::*[not(contains(name(), 'CHOICE_ELEMENT'))][1])"/>
       <xsl:variable name="isRequired" select="$childEditInfo/@min = 1"/>
+
+      <!--<xsl:message>
+        qualifiedName: <xsl:value-of select="$qualifiedName" />
+        parentName: <xsl:value-of select="$parentName" />
+        isRequired: <xsl:value-of select="$isRequired" />
+      </xsl:message>-->
 
       <!-- This element is replaced by the content received when clicking add -->
       <div
@@ -940,9 +958,17 @@
                   like for projection.
                   The directive is in charge of displaying the default add button if needed.
                 -->
+                <xsl:variable name="name" select="if (string(@prefix))
+                            then concat(@prefix, ':', @name)
+                            else @name"/>
+
                 <a class="btn btn-default"
                    title="{$i18n/addA} {$label}"
-                   data-gn-click-and-spin="add({$parentEditInfo/@ref}, '{if ($name != '') then $name else concat(@prefix, ':', @name)}', '{$id}', 'before');">
+                   data-gn-click-and-spin="add({$parentEditInfo/@ref}, '{if ($name != '')
+                            then $name
+                            else if (string(@prefix))
+                              then concat(@prefix, ':', @name)
+                              else @name}', '{$id}', 'before');">
                   <i class="{if ($btnClass != '') then $btnClass else 'fa fa-plus'} gn-add"/>
                   <xsl:if test="$btnLabel != ''">&#160;
                     <span>
@@ -1029,6 +1055,7 @@
     <!-- Get variable from attribute (eg. codelist) or node (eg. gco:CharacterString).-->
     <xsl:variable name="valueToEdit"
                   select="if ($value/*) then $value/text() else $value"/>
+
     <!-- If a form field has suggestion list in helper
     then the element is hidden and the helper directive is added.
     ListOfValues could be a codelist (with entry children) or
@@ -1239,8 +1266,9 @@
                 <xsl:if test="$type != ''">
                   <xsl:attribute name="type" select="if ($isDirective) then 'text' else $type"/>
                 </xsl:if>
+                <xsl:message>VALUE TO EDIT: <xsl:value-of select="$name" /></xsl:message>
                 <xsl:attribute name="value"
-                               select="normalize-space(string-join($valueToEdit,''))"/>
+                               select="normalize-space(string-join($valueToEdit, ' '))"/>
               </xsl:otherwise>
             </xsl:choose>
           </xsl:element>

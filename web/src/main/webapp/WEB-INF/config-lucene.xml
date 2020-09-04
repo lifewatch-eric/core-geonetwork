@@ -319,93 +319,10 @@
       <!--  Dataset LifeWatch -->
       <field name="alternateIdentifier_dataset" tagName="alternateIdentifier_dataset"/>
       
-      <field name="creator_dataset" tagName="creator_dataset"/>
-      <field name="id_creator_dataset_variable" tagName="id_creator_dataset_variable"/>
-      <field name="givenName_individualName_creator_dataset_variable" tagName="givenName_individualName_creator_dataset_variable"/>
-      <field name="surName_individualName_creator_dataset_variable" tagName="surName_individualName_creator_dataset_variable"/>
-      <field name="organizationName_creator_dataset_variable" tagName="organizationName_creator_dataset_variable"/>
-      <field name="electronicMailAddress_creator_dataset_variable" tagName="electronicMailAddress_creator_dataset_variable"/>
-      <field name="userId_creator_dataset_variable" tagName="userId_creator_dataset_variable"/>
-      <field name="references_creator_dataset_variable" tagName="references_creator_dataset_variable"/>
-      
-      <field name="metadataProvider_dataset" tagName="metadataProvider_dataset"/>
-      <field name="id_metadataProvider_dataset_variable" tagName="id_metadataProvider_dataset_variable"/>
-      <field name="givenName_individualName_metadataProvider_dataset_variable" tagName="givenName_individualName_metadataProvider_dataset_variable"/>
-      <field name="surName_individualName_metadataProvider_dataset_variable" tagName="surName_individualName_metadataProvider_dataset_variable"/>
-      <field name="organizationName_metadataProvider_dataset_variable" tagName="organizationName_metadataProvider_dataset_variable"/>
-      <field name="electronicMailAddress_metadataProvider_dataset_variable" tagName="electronicMailAddress_metadataProvider_dataset_variable"/>
-      <field name="references_metadataProvider_dataset_variable" tagName="references_metadataProvider_dataset_variable"/>
-      
-      <field name="contact_dataset" tagName="contact_dataset"/>
-      <field name="id_contact_dataset_variable" tagName="id_contact_dataset_variable"/>
-      <field name="givenName_individualName_contact_dataset_variable" tagName="givenName_individualName_contact_dataset_variable"/>
-      <field name="surName_individualName_contact_dataset_variable" tagName="surName_individualName_contact_dataset_variable"/>
-      <field name="organizationName_contact_dataset_variable" tagName="organizationName_contact_dataset_variable"/>
-      <field name="electronicMailAddress_contact_dataset_variable" tagName="electronicMailAddress_contact_dataset_variable"/>
-      <field name="references_contact_dataset_variable" tagName="references_contact_dataset_variable"/>
-      
-      <field name="associatedParty_dataset" tagName="associatedParty_dataset"/>
-      <field name="id_associatedParty_dataset_variable" tagName="id_associatedParty_dataset_variable"/>
-      <field name="givenName_individualName_associatedParty_dataset_variable" tagName="givenName_individualName_associatedParty_dataset_variable"/>
-      <field name="surName_individualName_associatedParty_dataset_variable" tagName="surName_individualName_associatedParty_dataset_variable"/>
-      <field name="organizationName_associatedParty_dataset_variable" tagName="organizationName_associatedParty_dataset_variable"/>
-      <field name="electronicMailAddress_associatedParty_dataset_variable" tagName="electronicMailAddress_associatedParty_dataset_variable"/>
-      
-      <field name="id_creator_dataset" tagName="id_creator_dataset"/>
-      <field name="givenName_individualName_creator_dataset" tagName="givenName_individualName_creator_dataset"/> 
-      <field name="surName_individualName_creator_dataset" tagName="surName_individualName_creator_dataset"/>
-      <field name="organizationName_creator_dataset" tagName="organizationName_creator_dataset"/>
-      <field name="electronicMailAddress_creator_dataset" tagName="electronicMailAddress_creator_dataset"/>
-      <field name="userId_creator_dataset" tagName="userId_creator_dataset"/>
-      <field name="references_creator_dataset" tagName="references_creator_dataset"/>
-      
-      <field name="id_metadataProvider_dataset" tagName="id_metadataProvider_dataset"/>
-      <field name="system_metadataProvider_dataset" tagName="system_metadataProvider_dataset"/>
-      <field name="scope_metadataProvider_dataset" tagName="scope_metadataProvider_dataset"/>
-      <field name="givenName_individualName_metadataProvider_dataset" tagName="givenName_individualName_metadataProvider_dataset"/>
-      <field name="surName_individualName_metadataProvider_dataset" tagName="surName_individualName_metadataProvider_dataset"/>
-      <field name="organizationName_metadataProvider_dataset" tagName="organizationName_metadataProvider_dataset"/>
-      <field name="electronicMailAddress_metadataProvider_dataset" tagName="electronicMailAddress_metadataProvider_dataset"/>
-      <field name="references_metadataProvider_dataset" tagName="references_metadataProvider_dataset"/>
-      
-      <field name="id_contact_dataset" tagName="id_contact_dataset"/>
-      <field name="system_contact_dataset" tagName="system_contact_dataset"/>
-      <field name="scope_contact_dataset" tagName="scope_contact_dataset"/>
-      <field name="givenName_individualName_contact_dataset" tagName="givenName_individualName_contact_dataset"/>
-      <field name="surName_individualName_contact_dataset" tagName="surName_individualName_contact_dataset"/>
-      <field name="organizationName_contact_dataset" tagName="organizationName_contact_dataset"/>
-      <field name="electronicMailAddress_contact_dataset" tagName="electronicMailAddress_contact_dataset"/>
-      <field name="references_contact_dataset" tagName="references_contact_dataset"/>
-      
-      <field name="id_associatedParty_dataset" tagName="id_associatedParty_dataset"/>
-      <field name="system_associatedParty_dataset" tagName="system_associatedParty_dataset"/>
-      <field name="scope_associatedParty_dataset" tagName="scope_associatedParty_dataset"/>
-      <field name="givenName_individualName_associatedParty_dataset" tagName="givenName_individualName_associatedParty_dataset"/>
-      <field name="surName_individualName_associatedParty_dataset" tagName="surName_individualName_associatedParty_dataset"/>
-      <field name="organizationName_associatedParty_dataset" tagName="organizationName_associatedParty_dataset"/>
-      <field name="electronicMailAddress_associatedParty_dataset" tagName="electronicMailAddress_associatedParty_dataset"/>
-      
-      <field name="language_dataset" tagName="language_dataset"/>
-      
-      <field name="keyword_keywordSet_dataset" tagName="keyword_keywordSet_dataset"/>
-      <field name="keywordThesaurus_keywordSet_dataset" tagName="keywordThesaurus_keywordSet_dataset"/>
-      
       <field name="intellectualRights_dataset" tagName="intellectualRights_dataset"/>
       
       <field name="licenseName_licensed_dataset" tagName="licenseName_licensed_dataset"/>
       <field name="url_licensed_dataset" tagName="url_licensed_dataset"/>
-      
-      <field name="url_online_distribution_dataset" tagName="url_online_distribution_dataset"/>
-      
-      <field name="geographicDescription_geographicCoverage_coverage_dataset" tagName="geographicDescription_geographicCoverage_coverage_dataset"/>
-      <field name="boundingCoordinates_geographicCoverage_coverage_dataset" tagName="boundingCoordinates_geographicCoverage_coverage_dataset"/>
-      <field name="westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" tagName="westBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"/>
-      <field name="eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" tagName="eastBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"/>
-      <field name="northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" tagName="northBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"/>
-      <field name="southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset" tagName="southBoundingCoordinates_boundingCoordinates_geographicCoverage_coverage_dataset"/>
-      
-      <field name="calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset" tagName="calendarDate_beginDate_rangeOfDates_temporalCoverage_coverage_dataset"/>
-      <field name="calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset" tagName="calendarDate_endDate_rangeOfDates_temporalCoverage_coverage_dataset"/>
       
       <field name="taxonomicClassification_taxonomicCoverage_coverage_dataset" tagName="taxonomicClassification_taxonomicCoverage_coverage_dataset"/>
       <field name="taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable" tagName="taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset_variable"/>

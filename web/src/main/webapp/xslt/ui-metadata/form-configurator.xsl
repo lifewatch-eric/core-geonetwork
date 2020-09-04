@@ -638,6 +638,9 @@
 
   <xsl:template mode="form-builder" match="action[@type='add']">
     <xsl:param name="base" as="node()"/>
+
+    <xsl:message>ACTION ADD: <xsl:value-of select="concat('/../', @in, '[gn:child/@name=''', @or, ''']')" /></xsl:message>
+
     <!-- Match any gn:child nodes from the metadocument which
       correspond to non existing node but available in the schema. -->
     <xsl:variable name="nonExistingChildParent">
@@ -648,6 +651,8 @@
         </saxon:call-template>
       </xsl:if>
     </xsl:variable>
+
+    <xsl:message>$nonExistingChildParent: <xsl:value-of select="$nonExistingChildParent" /></xsl:message>
 
     <xsl:variable name="elementOfSameKind">
       <xsl:if test="@or and @in">
@@ -677,17 +682,20 @@
       </xsl:choose>
     </xsl:variable>
 
-    <!--<xsl:message>## Add action</xsl:message>
+    <xsl:message>## Add action</xsl:message>
     <xsl:message><xsl:copy-of select="."/></xsl:message>
     <xsl:message>Is displayed: <xsl:copy-of select="$isDisplayed"/> because no if provided or if attribute XPath '<xsl:value-of select="@if"/>' expression found a match.</xsl:message>
-    <xsl:message> = Display action <xsl:value-of select="$nonExistingChildParent/* and $isDisplayed = 'true'"/></xsl:message>-->
+    <xsl:message> = Display action <xsl:value-of select="$nonExistingChildParent/* and $isDisplayed = 'true'"/></xsl:message>
 
     <xsl:if test="$nonExistingChildParent/* and $isDisplayed = 'true'">
       <xsl:variable name="childName" select="@or"/>
 
       <!-- Get label from action or from gn:child -->
       <xsl:variable name="elementName"
-                    select="$nonExistingChildParent/*/gn:child[@name = $childName]/concat(@prefix, ':', @name)"/>
+                    select="if (string($nonExistingChildParent/*/gn:child[@name = $childName]/@prefix))
+                    then $nonExistingChildParent/*/gn:child[@name = $childName]/concat(@prefix, ':', @name)
+                    else $nonExistingChildParent/*/gn:child[@name = $childName]/@name
+                    "/>
       <xsl:variable name="btnOverrideName"
                     select="@name"/>
       <xsl:variable name="btnName"
@@ -712,11 +720,17 @@
           <!-- TODO: render-element-to-add should contains all
           logic for add field (based on geonet:child/geonet:choose
           and also when having directives or templates. -->
+
           <xsl:call-template name="render-element-template-field">
             <xsl:with-param name="name" select="$name"/>
-            <xsl:with-param name="id" select="concat('_X',
-     $nonExistingChildParent/*[position() = last()]/gn:element/@ref, '_',
-     $nonExistingChildParent/*[position() = last()]/gn:child[@name = $childName]/@prefix, 'COLON', @or)"/>
+            <xsl:with-param name="id" select="if (string($nonExistingChildParent/*[position() = last()]/gn:child[@name = $childName]/@prefix)) then
+              concat('_X',
+                   $nonExistingChildParent/*[position() = last()]/gn:element/@ref, '_',
+                   $nonExistingChildParent/*[position() = last()]/gn:child[@name = $childName]/@prefix, 'COLON', @or)
+              else
+                  concat('_X',
+                   $nonExistingChildParent/*[position() = last()]/gn:element/@ref, '_', @or)
+            "/>
             <xsl:with-param name="isExisting" select="false()"/>
             <xsl:with-param name="template" select="template"/>
             <xsl:with-param name="hasAddAction" select="true()"/>

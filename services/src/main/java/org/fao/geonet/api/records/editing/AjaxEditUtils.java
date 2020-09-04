@@ -401,7 +401,14 @@ public class AjaxEditUtils extends EditUtils {
                         prefix = editLib.getPrefix(el.getName());
                         ns = editLib.getNamespace(el.getName(), md, mds);
                     }
-                    Element orChild = new Element(uChildName, prefix, ns);
+
+                    Element orChild;
+                    if (prefix.equalsIgnoreCase("")) {
+                        orChild = new Element(uChildName);
+                    } else {
+                        orChild = new Element(uChildName, prefix, ns);
+                    }
+
                     child.addContent(orChild);
 
                     //--- add mandatory sub-tags
