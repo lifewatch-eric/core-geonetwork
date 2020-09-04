@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2001-2016 Food and Agriculture Organization of the
+  ~ United Nations (FAO-UN), United Nations World Food Programme (WFP)
+  ~ and United Nations Environment Programme (UNEP)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or (at
+  ~ your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but
+  ~ WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+  ~
+  ~ Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
+  ~ Rome - Italy. email: geonetwork@osgeo.org
+  -->
+
+<editor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0"
+        xsi:noNamespaceSchemaLocation="../../../../../../config-editor.xsd">
+
+  <!-- Form field type configuration. Default is text. -->
+  <fields>
+    <for name="abstract" use="textarea"/>
+    <for name="purpose" use="textarea"/>
+    <for name="descriptorValue" use="textarea"/>
+    <for name="intellectualRights" use="textarea"/>
+    <for name="description" use="textarea"/>
+    <for name="samplingDescription" use="textarea"/>
+    <for name="pubDate" use="date"/>
+    <for name="beginDate" use="date"/>
+    <for name="endDate" use="date"/>
+    <for name="language" use="data-gn-language-picker"/>
+  </fields>
+
+  <fieldsWithFieldset>
+    <name>dataset</name>
+    <name>creator</name>
+    <name>contact</name>
+    <name>coverage</name>
+    <name>geographicCoverage</name>
+    <name>temporalCoverage</name>
+    <name>rangeOfDates</name>
+    <name>keywordSet</name>
+    <name>methods</name>
+    <name>methodStep</name>
+    <name>sampling</name>
+    <name>studyExtent</name>
+    <name>project</name>
+    <name>personnel</name>
+    <name>designDescription</name>
+    <name>studyAreaDescription</name>
+    <name>dataTable</name>
+    <name>physical</name>
+    <name>attribute</name>
+    <name>taxonomicCoverage</name>
+    <name>taxonomicClassification</name>
+    <name>individualName</name>
+    <name>address</name>
+    <name>distribution</name>
+    <name>qualityControl</name>
+    <name>dataFormat</name>
+    <name>externallyDefinedFormat</name>
+    <name>attributeList</name>
+    <name>attribute</name>
+    <name>measurementScale</name>
+    <name>ratio</name>
+    <name>unit</name>
+    <name>numericDomain</name>
+    <name>missingValueCode</name>
+    <name>annotation</name>
+    <name>dateTime</name>
+    <name>studyAreaDescription</name>
+    <name>designDescription</name>
+  </fieldsWithFieldset>
+
+  <!-- View configuration -->
+  <views>
+    <view name="default" upAndDownControlHidden="true">
+      <sidePanel>
+        <directive data-gn-onlinesrc-list="" types="onlinesrc"/>
+        <directive data-gn-overview-manager=""/>
+        <directive data-gn-validation-report=""/>
+        <directive data-gn-need-help="user-guide/describing-information/creating-metadata.html"/>
+      </sidePanel>
+      <tab id="default" default="true" mode="flat">
+      <section>
+        <section name="Identification">
+          <field xpath="/eml:eml/dataset/alternateIdentifier" />
+          <field xpath="/eml:eml/dataset/pubDate" />
+
+          <field xpath="/eml:eml/dataset/title"
+                in="/eml:eml/dataset" or="title" />
+
+          <field xpath="/eml:eml/dataset/abstract"
+                in="/eml:eml/dataset" or="abstract" />
+
+          <field xpath="/eml:eml/dataset/purpose"
+                 in="/eml:eml/dataset" or="purpose"/>
+        </section>
+          <field xpath="/eml:eml/dataset/creator"
+                  in="/eml:eml/dataset" or="creator" />
+
+          <action type="add"
+                  btnLabel="creator"
+                  or="creator"
+                  in="/eml:eml/dataset"
+          >
+            <template>
+              <snippet>
+                <creator>
+                  <organizationName></organizationName>
+                  <individualName>
+                    <givenName></givenName>
+                    <surName></surName>
+                  </individualName>
+                  <positionName></positionName>
+                  <address>
+                    <city></city>
+                    <administrativeArea></administrativeArea>
+                    <postalCode></postalCode>
+                    <country></country>
+                  </address>
+                  <phone phonetype="voice"></phone>
+                  <electronicMailAddress></electronicMailAddress>
+                  <onlineUrl></onlineUrl>
+              </creator>
+            </snippet>
+          </template>
+        </action>
+
+          <field xpath="/eml:eml/dataset/contact"
+                 in="/eml:eml/dataset" or="contact" />
+
+          <field xpath="/eml:eml/dataset/associatedParty" />
+
+          <field xpath="/eml:eml/dataset/keywordSet" />
+
+          <action type="add"
+                    btnLabel="keywordSet"
+                    or="keywordSet"
+                    in="/eml:eml/dataset"
+                    >
+              <template>
+              <snippet>
+               <keywordSet>
+                 <keyword></keyword>
+                 <keywordThesaurus></keywordThesaurus>
+              </keywordSet>
+              </snippet>
+              </template>
+            </action>
+
+          <field xpath="/eml:eml/dataset/intellectualRights"
+                  in="/eml:eml/dataset" or="intellectualRights" />
+
+          <field xpath="/eml:eml/dataset/coverage/geographicCoverage" />
+
+          <field xpath="/eml:eml/dataset/coverage/temporalCoverage" />
+
+          <field xpath="/eml:eml/dataset/coverage/taxonomicCoverage"/>
+
+          <action type="add"
+                    btnLabel="taxonomicClassification"
+                    or="taxonomicClassification"
+                    in="/eml:eml/dataset/coverage/taxonomicCoverage[1]"
+                    >
+              <template>
+              <snippet>
+               <taxonomicClassification>
+               <taxonRankName></taxonRankName>
+               <taxonRankValue></taxonRankValue>
+              </taxonomicClassification>
+              </snippet>
+              </template>
+            </action>
+
+          <section name="Distribution">
+          <field xpath="/eml:eml/dataset/distribution"  />
+          <action type="add"
+                    btnLabel="distribution"
+                    or="distribution"
+                    if="count(eml:eml/dataset/distribution)=0"
+                    in="/eml:eml/dataset"
+                    >
+              <template>
+              <snippet>
+               <distribution scope="information"><online><url function="download"/></online></distribution>
+              </snippet>
+              </template>
+            </action>
+          </section>
+        </section>
+      </tab>
+
+      <tab id="projects" mode="flat">
+        <section name="project">
+          <action type="add"
+                    btnLabel="project"
+                    or="project"
+                    in="/eml:eml/dataset"
+                    if="count(eml:eml/dataset/project)=0">
+              <template>
+                <snippet>
+                   <project>
+                    <title/>
+                    <personnel>
+                      <organizationName/>
+                      <individualName>
+                        <givenName/>
+                        <surName/>
+                      </individualName>
+                      <positionName/>
+                      <electronicMailAddress/>
+                    </personnel>
+                    <funding><para/></funding>
+                    <studyAreaDescription>
+                      <descriptor><descriptorValue/></descriptor>
+                    </studyAreaDescription>
+                    <designDescription>
+                      <description><para/></description>
+                    </designDescription>
+                  </project>
+                </snippet>
+              </template>
+            </action>
+
+          <field xpath="/eml:eml/dataset/project" />
+        </section>
+      </tab>
+
+
+      <tab id="methods" mode="flat">
+        <section name="methods">
+          <field xpath="/eml:eml/dataset/methods" />
+
+          <action type="add"
+                  btnLabel="methods"
+                  or="methods"
+                  if="count(eml:eml/dataset/methods)=0"
+                  in="/eml:eml/dataset">
+            <template>
+              <snippet>
+                <methods>
+                  <methodStep>
+                    <description><para/></description>
+                  </methodStep>
+                  <sampling>
+                    <studyExtent>
+                      <description><para/></description>
+                    </studyExtent>
+                    <samplingDescription><para/></samplingDescription>
+                  </sampling>
+                </methods>
+              </snippet>
+            </template>
+          </action>
+        </section>
+      </tab>
+
+      <!-- TODO: Review -->
+      <tab id="dataTables" mode="flat">
+        <section xpath="/eml:eml/dataset/dataTable">
+
+        <field />
+
+        <action type="add"
+          btnLabel="dataTable"
+          or="dataTable"
+          in="/eml:eml/dataset">
+              <template>
+                <snippet>
+                 <dataTable>
+                <entityName></entityName>
+                <entityDescription></entityDescription>
+                <physical scope="document">
+                    <objectName></objectName>
+                    <size unit="bytes"></size>
+                    <authentication method="MD5"></authentication>
+                    <dataFormat>
+                      <externallyDefinedFormat>
+                          <formatName></formatName>
+                      </externallyDefinedFormat>
+                    </dataFormat>
+                    <distribution scope="document">
+                      <online>
+                          <url function="download"></url>
+                      </online>
+                    </distribution>
+                </physical>
+                <attributeList/>
+                </dataTable>
+                </snippet>
+              </template>
+            </action>
+
+          
+        </section>
+      </tab>
+
+      <flatModeExceptions>
+        <for name="purpose" />
+        <for name="keywordSet" />
+        <for name="keyword" />
+        <for name="methods"/>
+        <for name="methodStep"/>
+        <for name="distribution"/>
+        <for name="dataTable"/>
+        <for name="personnel" />
+        <for name="taxonomicClassification"/>
+        <for name="address" />
+        <for name="attributeList"/>
+        <for name="studyAreaDescription"/>
+        <for name="designDescription"/>
+      </flatModeExceptions>
+    </view>
+    <!--
+    <view name="advanced">
+      <sidePanel>
+        <directive data-gn-validation-report=""/>
+        <directive data-gn-onlinesrc-list=""
+                   data-types="onlines"/>
+        <directive data-gn-need-help="user-guide/describing-information/creating-metadata.html"/>
+      </sidePanel>
+      <tab id="advanced" default="true">
+        <section xpath="/eml:eml"/>
+      </tab>
+    </view>-->
+    <view name="xml">
+      <sidePanel>
+        <directive data-gn-validation-report=""/>
+        <directive data-gn-onlinesrc-list=""
+                   data-types="onlines"/>
+        <directive data-gn-need-help="user-guide/describing-information/creating-metadata.html"/>
+      </sidePanel>
+      <tab id="xml" default="true"/>
+    </view>
+  </views>
+  <batchEditing>
+    <section name="identification">
+      <field name="title" xpath="eml:title"></field>
+    </section>
+  </batchEditing>
+</editor>

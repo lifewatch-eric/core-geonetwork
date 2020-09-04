@@ -1,0 +1,288 @@
+<table class="table table-striped">
+    <tbody>
+    
+    <tr data-ng-if="mdView.current.record.alternateIdentifier_workflow" data-ng-if="mdView.current.record.alternateIdentifier_workflow.length > 0">
+      <th data-translate="">Alternate Identifier</th>
+      <td>
+        <span class="text-muted">
+        <a href={{mdView.current.record.alternateIdentifier_workflow}}>{{mdView.current.record.alternateIdentifier_workflow}}</a>
+        </span>
+      </td>
+    </tr>
+
+    <tr data-ng-if="mdView.current.record.dateCreation_workflow" data-ng-if="mdView.current.record.dataCreation_workflow.length > 0">
+      <th data-translate="">Date Creation</th>
+      <td>
+        <span data-ng-repeat="f in mdView.current.record.dateCreation_workflow track by $index"
+              class="text-muted">{{f}}</span>
+      </td>
+    </tr>
+    <tr data-ng-if="mdView.current.record.url_workflow" data-ng-if="mdView.current.record.url_workflow.length > 0">
+      <th data-translate="">URL</th>
+      <td>
+         <a href="{{mdView.current.record.url_workflow}}" target="_blank">{{mdView.current.record.url_workflow}}</a>
+      </td>
+    </tr>
+    </tbody>
+    </table>
+
+  <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllCoordinationTeams_workflow().metadata.length > 0" >
+  Coordination Team
+  </h2>
+ <section data-ng-repeat="c in mdView.current.record.getAllCoordinationTeams_workflow().metadata track by $index">    
+    <h3 data-translate="" style="color: #2A4F8A">
+      &#8226; Contact Point {{$index + 1}}
+      </h3>
+    <table class="table table-striped">
+        <tbody>
+            <tr data-ng-if="c.contactPoint_workflow" data-ng-if="c.contactPoint_workflow > 0">
+              <th data-translate="">Name</th>
+              <td>
+                <span class="text-muted">{{c.contactPoint_workflow}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="c.address_workflow" data-ng-if="c.address_workflow > 0">
+              <th data-translate="">Address</th>
+              <td>
+                <span class="text-muted">{{c.address_workflow}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="c.e_mail_workflow" data-ng-if="c.e_mail_workflow > 0">
+              <th data-translate="">E-Mail</th>
+              <td>
+                <a href="mailto:{{c.e_mail_workflow}}">{{c.e_mail_workflow}}</a>
+              </td>
+            </tr>
+        </tbody>
+      </table>
+ </section>
+    
+   <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllContainServices_workflow().metadata.length > 0" >
+    Contain Services
+</h2>
+<section data-ng-repeat="c in mdView.current.record.getAllContainServices_workflow().metadata track by $index">    
+    <h3 data-translate="" style="color: #2A4F8A">
+      &#8226; Service {{$index + 1}}
+      </h3>
+    <table class="table table-striped">
+        <tbody>
+            <tr data-ng-if="c.serviceName_workflow" data-ng-if="c.serviceName_workflow > 0">
+              <th data-translate="">Name</th>
+              <td>
+                <span class="text-muted">{{c.serviceName_workflow}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="c.serviceDescription_workflow" data-ng-if="c.serviceDescription_workflow > 0">
+              <th data-translate="">Description</th>
+              <td>
+                <span class="text-muted">{{c.serviceDescription_workflow}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="c.serviceReference_workflow" data-ng-if="c.serviceReference_workflow > 0">
+              <th data-translate="">Reference</th>
+              <td>
+                <span class="text-muted">{{c.serviceReference_workflow}}</span>
+              </td>
+            </tr>
+        </tbody>
+      </table>
+</section>
+ 
+<!-- Management Info -->             
+<h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllMaintainers_workflow().metadata.length > 0 || mdView.current.record.version_workflow.length > 0 || mdView.current.record.lastUpdated_workflow.length > 0 || mdView.current.record.created_workflow.length > 0" >
+Management Info
+</h2>
+    
+<h3 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllMaintainers_workflow().metadata.length > 0" >
+Maintainers
+</h3>
+<section data-ng-repeat="c in mdView.current.record.getAllMaintainers_workflow().metadata track by $index">    
+<h3 data-translate="" style="color: #2A4F8A">
+&#8226; Maintainer {{$index + 1}}
+</h3>             
+    <table class="table table-striped">
+        <tbody>
+            <tr data-ng-if="c.maintainer_workflow" data-ng-if="c.maintainer_workflow > 0">
+              <th data-translate="">Name and Email</th>
+              <td>
+                <span class="text-muted">{{c.maintainer_workflow}}</span>
+              </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+  
+<table class="table table-striped">
+    <tbody>
+        <tr data-ng-if="mdView.current.record.version_workflow" data-ng-if="mdView.current.record.version_workflow.length > 0">
+            <th data-translate="">Version</th>
+                <td>
+                    <span data-ng-repeat="f in mdView.current.record.version_workflow track by $index"
+              class="text-muted">{{f}}</span>
+                </td>
+        </tr>
+        <tr data-ng-if="mdView.current.record.lastUpdated_workflow" data-ng-if="mdView.current.record.lastUpdated_workflow.length > 0">
+            <th data-translate="">Last Updated</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.lastUpdated_workflow track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+        </tr>
+        <tr data-ng-if="mdView.current.record.created_workflow" data-ng-if="mdView.current.record.created_workflow.length > 0">
+            <th data-translate="">Created</th>
+            <td>
+                <span data-ng-repeat="f in mdView.current.record.created_workflow track by $index"
+              class="text-muted">{{f}}</span>
+            </td>
+        </tr>
+    </tbody>
+</table>     
+   
+   <!-- ContractualInformation - Workflow -->         
+  <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.license_workflow.length > 0 || mdView.current.record.usageConditions_workflow.length > 0 || mdView.current.record.howToCiteThisWorkflow_workflow.length > 0 || mdView.current.record.publicationsAboutThisWorkflow_workflow.length > 0">
+  Workflow Contractual Information
+  </h2>
+  <table class="table table-striped">
+    <tbody>
+    <tr data-ng-if="mdView.current.record.license_workflow" data-ng-if="mdView.current.record.license_workflow.length > 0">
+      <th data-translate="">License</th>
+      <td>
+        <span data-ng-repeat="f in mdView.current.record.license_workflow track by $index"
+              class="text-muted">{{f}}</span>
+      </td>
+    </tr>
+    <tr data-ng-if="mdView.current.record.usageConditions_workflow" data-ng-if="mdView.current.record.usageConditions_workflow.length > 0">
+      <th data-translate="">Usage Conditions</th>
+      <td>
+        <span data-ng-repeat="f in mdView.current.record.usageConditions_workflow track by $index"
+              class="text-muted">{{f}}</span>
+      </td>
+    </tr>
+    <tr data-ng-if="mdView.current.record.howToCiteThisWorkflow_workflow" data-ng-if="mdView.current.record.howToCiteThisWorkflow_workflow.length > 0">
+      <th data-translate="">How to cite this Workflow</th>
+      <td>
+        <span data-ng-repeat="f in mdView.current.record.howToCiteThisWorkflow_workflow track by $index"
+              class="text-muted">{{f}}</span>
+      </td>
+      </tr>
+      <tr data-ng-if="mdView.current.record.getAllPublications_workflow().metadata.length > 0">
+        <th data-translate="">Publications</th>
+        <td>                    
+            <section data-ng-repeat="c in mdView.current.record.getAllPublications_workflow().metadata track by $index">                
+                <table class="table table-striped">
+                    <tbody>
+                        <tr data-ng-if="c.publicationsAboutThisWorkflow_workflow" data-ng-if="c.publicationsAboutThisWorkflow_workflow > 0">                          
+                          <th data-translate="">&#8226; Publication {{$index + 1}}</th>
+                          <td>
+                            <span class="text-muted">{{c.publicationsAboutThisWorkflow_workflow}}</span>
+                          </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </td>           
+    </tr>
+    </tbody>
+  </table>
+  
+  <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.workflowFeedback_workflow.length > 0 || mdView.current.record.workflowHelpdesk_workflow.length > 0 || mdView.current.record.workflowOrder_workflow.length > 0 || mdView.current.record.workflowTraining_workflow.length > 0 || mdView.current.record.workflowUserManual_workflow.length > 0">
+  Workflow Support Information
+  </h2>
+  <table class="table table-striped">
+    <tbody>
+    <tr data-ng-if="mdView.current.record.workflowFeedback_workflow" data-ng-if="mdView.current.record.workflowFeedback_workflow.length > 0">
+      <th data-translate="">Workflow Feedback</th>
+      <td>
+        <span class="text-muted">
+              <a href={{mdView.current.record.workflowFeedback_workflow}}>{{mdView.current.record.workflowFeedback_workflow}}</a>
+        </span>
+      </td>
+    </tr>
+    <tr data-ng-if="mdView.current.record.workflowHelpdesk_workflow" data-ng-if="mdView.current.record.workflowHelpdesk_workflow.length > 0">
+      <th data-translate="">Workflow Helpdesk</th>
+      <td>
+        <span class="text-muted">
+        <a href={{mdView.current.record.workflowHelpdesk_workflow}}>{{mdView.current.record.workflowHelpdesk_workflow}}</a>
+        </span>
+      </td>
+    </tr>
+    <tr data-ng-if="mdView.current.record.workflowOrder_workflow" data-ng-if="mdView.current.record.workflowOrder_workflow.length > 0">
+      <th data-translate="">Workflow Order</th>
+      <td>
+        <span class="text-muted">
+        <a href={{mdView.current.record.workflowOrder_workflow}}>{{mdView.current.record.workflowOrder_workflow}}</a>
+        </span>
+      </td>
+      </tr>
+          <tr data-ng-if="mdView.current.record.workflowTraining_workflow" data-ng-if="mdView.current.record.workflowTraining_workflow.length > 0">
+      <th data-translate="">Workflow Training</th>
+      <td>
+        <span class="text-muted">
+        <a href={{mdView.current.record.workflowTraining_workflow}}>{{mdView.current.record.workflowTraining_workflow}}</a>
+        </span>
+      </td>
+    </tr>
+    <tr data-ng-if="mdView.current.record.workflowUserManual_workflow" data-ng-if="mdView.current.record.workflowUserManual_workflow.length > 0">
+      <th data-translate="">Workflow User Manual</th>
+      <td>
+        <span class="text-muted">
+        <a href={{mdView.current.record.workflowUserManual_workflow}}>{{mdView.current.record.workflowUserManual_workflow}}</a>
+        </span>
+      </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <!-- Point of Contact -->
+    <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllContacts().resource[0].name != ''" >
+   Point of Contact
+  </h2>
+    <section data-ng-if="mdView.current.record.getAllContacts().resource[0].name != ''" data-ng-repeat="c in mdView.current.record.getAllContacts().resource track by $index">
+    <h4>
+      <i class="fa fa-fw fa-envelope"></i>
+      <span>{{c.role | translate}}</span>
+    </h4>
+    <div class="gn-contact">
+      <div class="row">
+        <div class="col-md-6">
+          <address>
+            <strong title="{{c.address}}">
+              {{c.org}}<br/>
+            </strong>
+            <div data-ng-if="c.email != ''">
+              <a href="mailto:{{c.email}}">
+                <span data-ng-hide="c.name">{{c.email}}</span>
+                <span data-ng-show="c.name">{{c.name}}</span>
+                <span data-ng-show="c.position">({{c.position}})</span>
+              </a>
+            </div>
+            <div data-ng-if="c.email === ''">{{c.name}}
+              <span data-ng-show="c.position">({{c.position}})</span>
+            </div>
+            <a href="tel:{{c.phone}}"
+              data-ng-if="c.phone != ''">
+              <span data-translate="">call</span> {{c.phone}}
+            </a>
+          </address>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+ <!--  Download and Resources -->
+  <div data-gn-related-observer>
+  <section>
+    <div data-gn-related="mdView.current.record"
+        data-user="user"
+        data-types="onlines"
+        data-has-results="hasRelations.onlines"
+        data-title="">
+    </div>
+
+    <div data-gn-related="mdView.current.record"
+        data-user="user"
+        data-types="parent|children|services|datasets"
+        data-title="">
+    </div>
+    </section>
+  </div>

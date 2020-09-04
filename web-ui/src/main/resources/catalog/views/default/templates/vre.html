@@ -1,0 +1,273 @@
+  <!-- VRE LifeWatch -->
+    <table class="table table-striped">
+    <tbody>
+      <tr data-ng-if="mdView.current.record.alternateIdentifier_vre" data-ng-if="mdView.current.record.alternateIdentifier_vre.length > 0">
+        <th data-translate="">Alternate Identifier</th>
+        <td>
+          <span class="text-muted">
+          <a href={{mdView.current.record.alternateIdentifier_vre}}>{{mdView.current.record.alternateIdentifier_vre}}</a>
+          </span>
+        </td>
+      </tr>
+
+      <tr data-ng-if="mdView.current.record.dateCreation_vre" data-ng-if="mdView.current.record.dataCreation_vre.length > 0">
+        <th data-translate="">Date Creation</th>
+        <td>
+          <span data-ng-repeat="f in mdView.current.record.dateCreation_vre track by $index"
+                class="text-muted">{{f}}</span>
+        </td>
+      </tr>
+      <tr data-ng-if="mdView.current.record.url_vre" data-ng-if="mdView.current.record.url_vre.length > 0">
+        <th data-translate="">URL</th>
+        <td>
+           <a href="{{mdView.current.record.url_vre}}" target="_blank">{{mdView.current.record.url_vre}}</a>
+        </td>
+      </tr>
+      </tbody>
+      </table>
+  
+    <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllCoordinationTeams_vre().metadata.length > 0" >
+    Coordination Team
+    </h2>
+   <section data-ng-repeat="c in mdView.current.record.getAllCoordinationTeams_vre().metadata track by $index">    
+      <h3 data-translate="" style="color: #2A4F8A">
+        &#8226; Contact Point {{$index + 1}}
+        </h3>
+      <table class="table table-striped">
+          <tbody>
+              <tr data-ng-if="c.contactPoint_vre" data-ng-if="c.contactPoint_vre > 0">
+                <th data-translate="">Name</th>
+                <td>
+                  <span class="text-muted">{{c.contactPoint_vre}}</span>
+                </td>
+              </tr>
+              <tr data-ng-if="c.address_vre" data-ng-if="c.address_vre > 0">
+                <th data-translate="">Address</th>
+                <td>
+                  <span class="text-muted">{{c.address_vre}}</span>
+                </td>
+              </tr>
+              <tr data-ng-if="c.e_mail_vre" data-ng-if="c.e_mail_vre > 0">
+                <th data-translate="">E-Mail</th>
+                <td>
+                  <a href="mailto:{{c.e_mail_vre}}">{{c.e_mail_vre}}</a>
+                </td>
+              </tr>
+          </tbody>
+        </table>
+   </section>
+      
+     <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllContainServices_vre().metadata.length > 0" >
+      Contain Services
+  </h2>
+  <section data-ng-repeat="c in mdView.current.record.getAllContainServices_vre().metadata track by $index">    
+      <h3 data-translate="" style="color: #2A4F8A">
+        &#8226; Service {{$index + 1}}
+        </h3>
+      <table class="table table-striped">
+          <tbody>
+              <tr data-ng-if="c.serviceName_vre" data-ng-if="c.serviceName_vre > 0">
+                <th data-translate="">Name</th>
+                <td>
+                  <span class="text-muted">{{c.serviceName_vre}}</span>
+                </td>
+              </tr>
+              <tr data-ng-if="c.serviceDescription_vre" data-ng-if="c.serviceDescription_vre > 0">
+                <th data-translate="">Description</th>
+                <td>
+                  <span class="text-muted">{{c.serviceDescription_vre}}</span>
+                </td>
+              </tr>
+              <tr data-ng-if="c.serviceReference_vre" data-ng-if="c.serviceReference_vre > 0">
+                <th data-translate="">Reference</th>
+                <td>
+                  <span class="text-muted">{{c.serviceReference_vre}}</span>
+                </td>
+              </tr>
+          </tbody>
+        </table>
+  </section>
+   
+  <!-- Management Info -->             
+  <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllMaintainers_vre().metadata.length > 0 || mdView.current.record.version_vre.length > 0 || mdView.current.record.lastUpdated_vre.length > 0 || mdView.current.record.created_vre.length > 0" >
+  Management Info
+  </h2>
+      
+  <h3 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllMaintainers_vre().metadata.length > 0" >
+  Maintainers
+  </h3>
+  <section data-ng-repeat="c in mdView.current.record.getAllMaintainers_vre().metadata track by $index">    
+  <h3 data-translate="" style="color: #2A4F8A">
+  &#8226; Maintainer {{$index + 1}}
+  </h3>             
+      <table class="table table-striped">
+          <tbody>
+              <tr data-ng-if="c.maintainer_vre" data-ng-if="c.maintainer_vre > 0">
+                <th data-translate="">Name and Email</th>
+                <td>
+                  <span class="text-muted">{{c.maintainer_vre}}</span>
+                </td>
+              </tr>
+          </tbody>
+      </table>
+  </section>
+    
+  <table class="table table-striped">
+      <tbody>
+          <tr data-ng-if="mdView.current.record.version_vre" data-ng-if="mdView.current.record.version_vre.length > 0">
+              <th data-translate="">Version</th>
+                  <td>
+                      <span data-ng-repeat="f in mdView.current.record.version_vre track by $index"
+                class="text-muted">{{f}}</span>
+                  </td>
+          </tr>
+          <tr data-ng-if="mdView.current.record.lastUpdated_vre" data-ng-if="mdView.current.record.lastUpdated_vre.length > 0">
+              <th data-translate="">Last Updated</th>
+                <td>
+                  <span data-ng-repeat="f in mdView.current.record.lastUpdated_vre track by $index"
+                        class="text-muted">{{f}}</span>
+                </td>
+          </tr>
+          <tr data-ng-if="mdView.current.record.created_vre" data-ng-if="mdView.current.record.created_vre.length > 0">
+              <th data-translate="">Created</th>
+              <td>
+                  <span data-ng-repeat="f in mdView.current.record.created_vre track by $index"
+                class="text-muted">{{f}}</span>
+              </td>
+          </tr>
+      </tbody>
+  </table>     
+     
+     <!-- ContractualInformation - VRE -->         
+    <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.license_vre.length > 0 || mdView.current.record.usageConditions_vre.length > 0 || mdView.current.record.howToCiteThisVRE_vre.length > 0 || mdView.current.record.publicationsAboutThisVRE_vre.length > 0">
+    VRE Contractual Information
+    </h2>
+    <table class="table table-striped">
+      <tbody>
+      <tr data-ng-if="mdView.current.record.license_vre" data-ng-if="mdView.current.record.license_vre.length > 0">
+        <th data-translate="">License</th>
+        <td>
+          <span data-ng-repeat="f in mdView.current.record.license_vre track by $index"
+                class="text-muted">{{f}}</span>
+        </td>
+      </tr>
+      <tr data-ng-if="mdView.current.record.usageConditions_vre" data-ng-if="mdView.current.record.usageConditions_vre.length > 0">
+        <th data-translate="">Usage Conditions</th>
+        <td>
+          <span data-ng-repeat="f in mdView.current.record.usageConditions_vre track by $index"
+                class="text-muted">{{f}}</span>
+        </td>
+      </tr>
+      <tr data-ng-if="mdView.current.record.howToCiteThisVRE_vre" data-ng-if="mdView.current.record.howToCiteThisVRE_vre.length > 0">
+        <th data-translate="">How to cite this VRE</th>
+        <td>
+          <span data-ng-repeat="f in mdView.current.record.howToCiteThisVRE_vre track by $index"
+                class="text-muted">{{f}}</span>
+        </td>
+        </tr>
+        <tr data-ng-if="mdView.current.record.getAllPublications_vre().metadata.length > 0">
+          <th data-translate="">Publications</th>
+          <td>                    
+              <section data-ng-repeat="c in mdView.current.record.getAllPublications_vre().metadata track by $index">                
+                  <table class="table table-striped">
+                      <tbody>
+                          <tr data-ng-if="c.publicationsAboutThisVRE_vre" data-ng-if="c.publicationsAboutThisVRE_vre > 0">                          
+                            <th data-translate="">&#8226; Publication {{$index + 1}}</th>
+                            <td>
+                              <span class="text-muted">{{c.publicationsAboutThisVRE_vre}}</span>
+                            </td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </section>
+          </td>           
+      </tr>
+      </tbody>
+    </table>
+    
+    <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.vreFeedback_vre.length > 0 || mdView.current.record.vreHelpdesk_vre.length > 0 || mdView.current.record.vreOrder_vre.length > 0 || mdView.current.record.vreTraining_vre.length > 0 || mdView.current.record.vreUserManual_vre.length > 0">
+    VRE Support Information
+    </h2>
+    <table class="table table-striped">
+      <tbody>
+      <tr data-ng-if="mdView.current.record.vreFeedback_vre" data-ng-if="mdView.current.record.vreFeedback_vre.length > 0">
+        <th data-translate="">VRE Feedback</th>
+        <td>
+          <span class="text-muted">
+                <a href={{mdView.current.record.vreFeedback_vre}}>{{mdView.current.record.vreFeedback_vre}}</a>
+          </span>
+        </td>
+      </tr>
+      <tr data-ng-if="mdView.current.record.vreHelpdesk_vre" data-ng-if="mdView.current.record.vreHelpdesk_vre.length > 0">
+        <th data-translate="">VRE Helpdesk</th>
+        <td>
+          <span class="text-muted">
+          <a href={{mdView.current.record.vreHelpdesk_vre}}>{{mdView.current.record.vreHelpdesk_vre}}</a>
+          </span>
+        </td>
+      </tr>
+      <tr data-ng-if="mdView.current.record.vreOrder_vre" data-ng-if="mdView.current.record.vreOrder_vre.length > 0">
+        <th data-translate="">VRE Order</th>
+        <td>
+          <span class="text-muted">
+          <a href={{mdView.current.record.vreOrder_vre}}>{{mdView.current.record.vreOrder_vre}}</a>
+          </span>
+        </td>
+        </tr>
+            <tr data-ng-if="mdView.current.record.vreTraining_vre" data-ng-if="mdView.current.record.vreTraining_vre.length > 0">
+        <th data-translate="">VRE Training</th>
+        <td>
+          <span class="text-muted">
+          <a href={{mdView.current.record.vreTraining_vre}}>{{mdView.current.record.vreTraining_vre}}</a>
+          </span>
+        </td>
+      </tr>
+      <tr data-ng-if="mdView.current.record.vreUserManual_vre" data-ng-if="mdView.current.record.vreUserManual_vre.length > 0">
+        <th data-translate="">VRE User Manual</th>
+        <td>
+          <span class="text-muted">
+          <a href={{mdView.current.record.vreUserManual_vre}}>{{mdView.current.record.vreUserManual_vre}}</a>
+          </span>
+        </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Point of Contact -->
+      <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllContacts().resource[0].name != ''" >
+     Point of Contact
+    </h2>
+      <section data-ng-if="mdView.current.record.getAllContacts().resource[0].name != ''" data-ng-repeat="c in mdView.current.record.getAllContacts().resource track by $index">
+      <h4>
+        <i class="fa fa-fw fa-envelope"></i>
+        <span>{{c.role | translate}}</span>
+      </h4>
+      <div class="gn-contact">
+        <div class="row">
+          <div class="col-md-6">
+            <address>
+              <strong title="{{c.address}}">
+                {{c.org}}<br/>
+              </strong>
+              <div data-ng-if="c.email != ''">
+                <a href="mailto:{{c.email}}">
+                  <span data-ng-hide="c.name">{{c.email}}</span>
+                  <span data-ng-show="c.name">{{c.name}}</span>
+                  <span data-ng-show="c.position">({{c.position}})</span>
+                </a>
+              </div>
+              <div data-ng-if="c.email === ''">{{c.name}}
+                <span data-ng-show="c.position">({{c.position}})</span>
+              </div>
+              <a href="tel:{{c.phone}}"
+                data-ng-if="c.phone != ''">
+                <span data-translate="">call</span> {{c.phone}}
+              </a>
+            </address>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+ 
+  <!-- End VRE LifeWatch -->

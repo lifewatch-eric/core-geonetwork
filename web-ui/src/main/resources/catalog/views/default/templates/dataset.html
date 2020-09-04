@@ -1,0 +1,483 @@
+  <!-- Dataset -->
+  <table class="table table-striped">
+    <tbody>
+
+    <tr data-ng-if="mdView.current.record.alternateIdentifier_dataset" data-ng-if="mdView.current.record.alternateIdentifier_dataset.length > 0">
+      <th data-translate="">Alternative Identifier</th>
+      <td>
+         <span data-ng-repeat="f in mdView.current.record.alternateIdentifier_dataset track by $index"
+              class="text-muted">{{f | linky}}</span>
+      </td>
+    </tr>
+    </tbody>
+    </table>
+
+  <!-- Creator - Dataset -->
+  <h2 data-translate="" data-ng-if="mdView.current.record.getAllCreators_dataset().metadata.length > 0"  style="color: #2A4F8A">
+      Creator
+  </h2>
+  <section data-ng-repeat="c in mdView.current.record.getAllCreators_dataset().metadata track by $index">
+    
+    <h3 data-translate="" style="color: #2A4F8A">
+      &#8226; Creator {{$index + 1}}
+      </h3>
+      
+    <table class="table table-striped">
+    <tbody>
+  
+     <tr data-ng-if="c.id_creator_dataset" data-ng-if="c.id_creator_dataset > 0">
+      <th data-translate="">Id</th>
+      <td>
+         <span class="text-muted">
+         <a href={{c.id_creator_dataset}}>{{c.id_creator_dataset}}</a>
+         </span>
+      </td>
+    </tr>
+    
+    <tr data-ng-if="c.givenName_individualName_creator_dataset || c.surName_individualName_creator_dataset" data-ng-if="c.givenName_individualName_creator_dataset.length > 0 || c.surName_individualName_creator_dataset.length > 0 ">
+      <th data-translate="">Individual Name</th>
+          <td>
+             
+              <table class="table table-striped">
+                <tbody>
+                     <tr data-ng-if="c.givenName_individualName_creator_dataset" data-ng-if="c.givenName_individualName_creator_dataset.length > 0">
+                      <th data-translate="">First Name</th>
+                      <td>
+                         <span class="text-muted">{{c.givenName_individualName_creator_dataset}}</span>
+                      </td>
+                    </tr>
+                    <tr data-ng-if="c.surName_individualName_creator_dataset" data-ng-if="c.surName_individualName_creator_dataset.length > 0">
+                      <th data-translate="">Surname</th>
+                      <td>
+                         <span class="text-muted">{{c.surName_individualName_creator_dataset}}</span>
+                      </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    
+    <tr data-ng-if="c.organizationName_creator_dataset" data-ng-if="c.organizationName_creator_dataset.length > 0">
+      <th data-translate="">Organization Name</th>
+      <td>
+         <span class="text-muted">{{c.organizationName_creator_dataset}}</span>
+      </td>
+    </tr>
+    <tr data-ng-if="c.electronicMailAddress_creator_dataset" data-ng-if="c.electronicMailAddress_creator_dataset.length > 0">
+      <th data-translate="">Electronic Mail Address</th>
+      <td>
+          <a href="mailto:{{c.electronicMailAddress_creator_dataset}}">{{c.electronicMailAddress_creator_dataset}}</a>
+      </td>
+    </tr>
+    <tr data-ng-if="c.userId_creator_dataset" data-ng-if="c.userId_creator_dataset.length > 0">
+      <th data-translate="">User ID</th>
+      <td>
+         <span class="text-muted">{{c.userId_creator_dataset}}</span>
+      </td>
+    </tr>
+    <tr data-ng-if="c.references_creator_dataset" data-ng-if="c.references_creator_dataset.length > 0">
+      <th data-translate="">References</th>
+      <td>
+         <span class="text-muted">{{c.references_creator_dataset}}</span>
+      </td>
+    </tr>
+    </tbody>
+    </table>
+
+  </section>
+    
+   <!-- MetadataProvider - Dataset -->	
+  <h2 data-translate="" data-ng-if="mdView.current.record.getAllMetadataProviders_dataset().metadata.length > 0"  style="color: #2A4F8A">
+      Metadata Provider
+  </h2>
+  <section data-ng-repeat="c in mdView.current.record.getAllMetadataProviders_dataset().metadata track by $index">
+    
+    <h3 data-translate="" style="color: #2A4F8A">
+      &#8226; Metadata Provider {{$index + 1}}
+      </h3>
+      
+    <table class="table table-striped">
+    <tbody>
+  
+     <tr data-ng-if="c.id_metadataProvider_dataset" data-ng-if="c.id_metadataProvider_dataset > 0">
+      <th data-translate="">Id</th>
+      <td>
+         <span class="text-muted">
+         <a href={{c.id_metadataProvider_dataset}}>{{c.id_metadataProvider_dataset}}</a>
+         </span>
+      </td>
+    </tr>
+    
+    <tr data-ng-if="c.givenName_individualName_metadataProvider_dataset || c.surName_individualName_metadataProvider_dataset" data-ng-if="c.givenName_individualName_metadataProvider_dataset.length > 0 || c.surName_individualName_metadataProvider_dataset.length > 0 ">
+      <th data-translate="">Individual Name</th>
+          <td> 
+              <table class="table table-striped">
+                <tbody>
+                     <tr data-ng-if="c.givenName_individualName_metadataProvider_dataset" data-ng-if="c.givenName_individualName_metadataProvider_dataset.length > 0">
+                      <th data-translate="">First Name</th>
+                      <td>
+                         <span class="text-muted">{{c.givenName_individualName_metadataProvider_dataset}}</span>
+                      </td>
+                    </tr>
+                    <tr data-ng-if="c.surName_individualName_metadataProvider_dataset" data-ng-if="c.surName_individualName_metadataProvider_dataset.length > 0">
+                      <th data-translate="">Surname</th>
+                      <td>
+                         <span class="text-muted">{{c.surName_individualName_metadataProvider_dataset}}</span>
+                      </td>
+                    </tr>  
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    
+    <tr data-ng-if="c.organizationName_metadataProvider_dataset" data-ng-if="c.organizationName_metadataProvider_dataset.length > 0">
+      <th data-translate="">Affiliation</th>
+      <td>
+         <span class="text-muted">{{c.organizationName_metadataProvider_dataset}}</span>
+      </td>
+    </tr>
+    <tr data-ng-if="c.electronicMailAddress_metadataProvider_dataset" data-ng-if="c.electronicMailAddress_metadataProvider_dataset.length > 0">
+      <th data-translate="">Electronic Mail Address</th>
+      <td>
+          <a href="mailto:{{c.electronicMailAddress_metadataProvider_dataset}}">{{c.electronicMailAddress_metadataProvider_dataset}}</a>
+      </td>
+    </tr>
+    <tr data-ng-if="c.references_metadataProvider_dataset" data-ng-if="c.references_metadataProvider_dataset.length > 0">
+      <th data-translate="">References</th>
+      <td>
+         <span class="text-muted">{{c.references_metadataProvider_dataset}}</span>
+      </td>
+    </tr>
+    </tbody>
+    </table>
+
+  </section>
+      
+  <!-- License - Dataset -->
+  <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.intellectualRights_dataset.length > 0 || mdView.current.record.licenseName_licensed_dataset.length > 0 || mdView.current.record.url_licensed_dataset.length > 0">
+  License
+  </h2>
+  <table class="table table-striped">
+    <tbody>
+    <tr data-ng-if="mdView.current.record.intellectualRights_dataset" data-ng-if="mdView.current.record.intellectualRights_dataset.length > 0">
+      <th data-translate="">Intellectual Rights</th>
+      <td>
+        <span data-ng-repeat="f in mdView.current.record.intellectualRights_dataset track by $index"
+              class="text-muted">{{f}}</span>
+      </td>
+    </tr>
+    
+    <tr data-ng-if="mdView.current.record.licenseName_licensed_dataset || mdView.current.record.url_licensed_dataset" data-ng-if="mdView.current.record.licenseName_licensed_dataset.length > 0 || mdView.current.record.url_licensed_dataset.length > 0">
+      <th data-translate="">Licensed</th>
+          <td>  
+              <table class="table table-striped">
+                <tbody>
+                     <tr data-ng-if="mdView.current.record.licenseName_licensed_dataset" data-ng-if="mdView.current.record.licenseName_licensed_dataset.length > 0">
+                      <th data-translate="">License Name</th>
+                      <td>
+                         <span data-ng-repeat="f in mdView.current.record.licenseName_licensed_dataset track by $index"
+                              class="text-muted">{{f}}</span>
+                      </td>
+                    </tr> 
+                    <tr data-ng-if="mdView.current.record.url_licensed_dataset" data-ng-if="mdView.current.record.url_licensed_dataset.length > 0">
+                      <th data-translate="">URL</th>
+                      <td>
+                           <a href="{{mdView.current.record.url_licensed_dataset}}" target="_blank">{{mdView.current.record.url_licensed_dataset}}</a>
+                      </td>
+                    </tr> 
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+    </table>
+    
+ 
+    
+    <!-- Coverage -->
+    
+
+   <!-- Taxonomic Coverage -->
+   <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllTaxonomicCoverages_dataset().metadata.length > 0">
+    Taxonomic Coverage
+   </h2>
+    <!-- Taxonomic Classification -->
+  <section data-ng-repeat="c in mdView.current.record.getAllTaxonomicCoverages_dataset().metadata track by $index">
+    
+    <h3 data-translate="" style="color: #2A4F8A">
+      &#8226; Taxonomic Classification {{$index + 1}}
+      </h3>
+      
+    <table class="table table-striped">
+    <tbody>
+  
+     <tr data-ng-if="c.taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset" data-ng-if="c.taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset > 0">
+      <th data-translate="">Taxon ID</th>
+      <td>
+         <span class="text-muted">{{c.taxonID_taxonomicClassification_taxonomicCoverage_coverage_dataset}}</span>
+      </td>
+    </tr>
+
+    <tr data-ng-if="c.taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset" data-ng-if="c.taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset > 0">
+      <th data-translate="">Taxon Range Name</th>
+      <td>
+         <span class="text-muted">{{c.taxonRankName_taxonomicClassification_taxonomicCoverage_coverage_dataset}}</span>
+      </td>
+    </tr>
+    
+    <tr data-ng-if="c.taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset" data-ng-if="c.taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset > 0">
+      <th data-translate="">Taxon Range Value</th>
+      <td>
+         <span class="text-muted">{{c.taxonRankValue_taxonomicClassification_taxonomicCoverage_coverage_dataset}}</span>
+      </td>
+    </tr>
+    
+    <tr data-ng-if="c.commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset" data-ng-if="c.commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset > 0">
+      <th data-translate="">Common Name</th>
+      <td>
+         <span class="text-muted">{{c.commonName_taxonomicClassification_taxonomicCoverage_coverage_dataset}}</span>
+      </td>
+    </tr>
+
+    </tbody>
+    </table>
+
+  </section>	
+         
+    
+    <!-- Analysis Method -->            
+    <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllMethodSteps_dataset().metadata.length > 0" >
+    Analysis Method
+    </h2>
+    <section data-ng-repeat="c in mdView.current.record.getAllMethodSteps_dataset().metadata track by $index">    
+    <h3 data-translate="" style="color: #2A4F8A">
+    &#8226; Method Step {{$index + 1}}
+    </h3>             
+    <table class="table table-striped">
+        <tbody>
+            <tr data-ng-if="c.para_description_methodStep_methods_dataset" data-ng-if="c.para_description_methodStep_methods_dataset > 0">
+              <th data-translate="">Description</th>
+              <td>
+                <span class="text-muted">{{c.para_description_methodStep_methods_dataset}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="c.bibtex_citation_methodStep_methods_dataset" data-ng-if="c.bibtex_citation_methodStep_methods_dataset > 0">
+              <th data-translate="">Citation</th>
+              <td>
+                <span class="text-muted">{{c.bibtex_citation_methodStep_methods_dataset}}</span>
+              </td>
+            </tr> 
+            
+            <tr data-ng-if="c.instrumentation_methodStep_methods_dataset.length >0 ">                         
+                <th data-translate="" style="color: #2A4F8A">
+                &#8226; Instrumentation
+                </th>
+                <td>
+                <table class="table table-striped">
+                    <tbody>
+                        <tr data-ng-if="c.instrumentation_methodStep_methods_dataset" data-ng-repeat="a in c.instrumentation_methodStep_methods_dataset track by $index">
+                          <th data-translate="">Instrumentation {{$index + 1}}</th>
+                          <td>
+                            <span class="text-muted">{{a.instrumentation_methodStep_methods_dataset}}</span>
+                          </td>
+                        </tr>                               
+                    </tbody>                         
+                </table>   
+                </td>                                       
+            </tr>
+            
+
+            <tr data-ng-if="c.software_methodStep_methods_dataset.length >0 " data-ng-repeat="a in c.software_methodStep_methods_dataset track by $index">                         
+                <th data-translate="" style="color: #2A4F8A">
+                &#8226; Software {{$index + 1}}
+                </th>
+                <td>
+                <table class="table table-striped">
+                    <tbody>
+                        <tr data-ng-if="a.title_software_methodStep_methods_dataset" data-ng-if="a.title_software_methodStep_methods_dataset > 0">
+                          <th data-translate="">Title</th>
+                          <td>
+                            <span class="text-muted">{{a.title_software_methodStep_methods_dataset}}</span>
+                          </td>
+                        </tr>
+                        <tr data-ng-if="a.references_software_methodStep_methods_dataset" data-ng-if="a.references_software_methodStep_methods_dataset > 0">
+                          <th data-translate="">References</th>
+                          <td>
+                            <span class="text-muted">{{a.references_software_methodStep_methods_dataset}}</span>
+                          </td>
+                        </tr>                                
+                    </tbody>                         
+                </table>   
+                </td>                                       
+            </tr>                    
+        </tbody>
+     </table>
+    </section>
+            
+    <!-- Sampling --> 
+    <h3 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllSamplings_dataset().metadata.length > 0" >
+    Samplings
+    </h3>
+    <section data-ng-repeat="c in mdView.current.record.getAllSamplings_dataset().metadata track by $index">    
+    <h3 data-translate="" style="color: #2A4F8A">
+    &#8226; Sampling {{$index + 1}}
+    </h3>             
+    <table class="table table-striped">
+        <tbody>
+            <tr data-ng-if="c.para_samplingDescription_sampling_methods_dataset" data-ng-if="c.para_samplingDescription_sampling_methods_dataset > 0">
+              <th data-translate="">Description</th>
+              <td>
+                <span class="text-muted">{{c.para_samplingDescription_sampling_methods_dataset}}</span>
+              </td>
+            </tr>
+        </tbody>
+    </table>
+    </section>
+           
+<!-- Project -->            
+<h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.title_project_dataset.length > 0 || mdView.current.record.individualName_personnel_project_dataset.length > 0 || mdView.current.record.positionName_personnel_project_dataset.length > 0 || mdView.current.record.name_organization_personnel_project_dataset.length > 0">
+ Project
+</h2>
+<table class="table table-striped">
+    <tbody>
+        <tr data-ng-if="mdView.current.record.title_project_dataset" data-ng-if="mdView.current.record.title_project_dataset.length > 0">
+          <th data-translate="">Title</th>
+          <td>
+             <span data-ng-repeat="f in mdView.current.record.title_project_dataset track by $index"
+                 class="text-muted">{{f}}</span>
+          </td>
+        </tr> 
+        <tr data-ng-if="mdView.current.record.abstract_project_dataset" data-ng-if="mdView.current.record.abstract_project_dataset.length > 0">
+          <th data-translate="">Abstract</th>
+          <td>
+             <span data-ng-repeat="f in mdView.current.record.abstract_project_dataset track by $index"
+                 class="text-muted">{{f}}</span>
+          </td>
+        </tr> 
+    </tbody>
+</table>
+<section data-ng-repeat="c in mdView.current.record.getAllProjectPersonnel_dataset().metadata track by $index">    
+    <h3 data-translate="" style="color: #2A4F8A">
+      Personnel {{$index + 1}}
+      </h3>
+    <table class="table table-striped">
+        <tbody>
+            <tr data-ng-if="c.individualName_personnel_project_dataset" data-ng-if="c.individualName_personnel_project_dataset > 0">
+              <th data-translate="">Name</th>
+              <td>
+                <span class="text-muted">{{c.individualName_personnel_project_dataset}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="c.positionName_personnel_project_dataset" data-ng-if="c.positionName_personnel_project_dataset > 0">
+              <th data-translate="">Position</th>
+              <td>
+                <span class="text-muted">{{c.positionName_personnel_project_dataset}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="c.name_organization_personnel_project_dataset" data-ng-if="c.name_organization_personnel_project_dataset > 0">
+              <th data-translate="">Organization Name</th>
+              <td>
+                  <span class="text-muted">{{c.name_organization_personnel_project_dataset}}</span>
+              </td>
+            </tr>
+        </tbody>
+      </table>
+</section>
+  
+  
+<!-- Datatable -->            
+<h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllDatatables_dataset().metadata.length > 0" >
+    Datatables
+</h2>
+<section data-ng-repeat="c in mdView.current.record.getAllDatatables_dataset().metadata track by $index">    
+    <h3 data-translate="" style="color: #2A4F8A">
+    &#8226; Datatable {{$index + 1}}
+    </h3>
+    <table class="table table-striped">
+        <tbody>
+            <tr data-ng-if="c.entityName_datatable_dataset" data-ng-if="c.entityName_datatable_dataset > 0">
+              <th data-translate="">Entity Name</th>
+              <td>
+                <span class="text-muted">{{c.entityName_datatable_dataset}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="c.formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset" data-ng-if="c.formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset > 0">
+              <th data-translate="">Format Name</th>
+              <td>
+                <span class="text-muted">{{c.formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset}}</span>
+              </td>
+            </tr>                                        
+            <tr data-ng-if="c.attributeList_datatable_dataset.length > 0 " data-ng-repeat="a in c.attributeList_datatable_dataset track by $index">                         
+                <th data-translate="" style="color: #2A4F8A">
+                &#8226; Attribute {{$index + 1}}
+                </th>
+                <td>
+                <table class="table table-striped">
+                    <tbody>
+                        <tr data-ng-if="a.attributeName_attributeList_datatable_dataset" data-ng-if="a.attributeName_attributeList_datatable_dataset.length > 0">
+                          <th data-translate="">Name</th>
+                          <td>
+                            <span class="text-muted">{{a.attributeName_attributeList_datatable_dataset}}</span>
+                          </td>
+                        </tr>
+                        <tr data-ng-if="a.attributeLabel_attributeList_datatable_dataset" data-ng-if="a.attributeLabel_attributeList_datatable_dataset.length > 0">
+                          <th data-translate="">Label</th>
+                          <td>
+                            <span class="text-muted">{{a.attributeLabel_attributeList_datatable_dataset}}</span>
+                          </td>
+                        </tr>
+                        <tr data-ng-if="a.attributeDefinition_attributeList_datatable_dataset" data-ng-if="a.attributeDefinition_attributeList_datatable_dataset.length > 0">
+                          <th data-translate="">Definition</th>
+                          <td>
+                            <span class="text-muted">{{a.attributeDefinition_attributeList_datatable_dataset}}</span>
+                          </td>
+                        </tr> 
+                        <tr data-ng-if="a.standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset" data-ng-if="a.standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset.length > 0">
+                          <th data-translate="">Standard Unit</th>
+                          <td>
+                            <span class="text-muted">{{a.standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset}}</span>
+                          </td>
+                        </tr> 
+                        <tr data-ng-if="a.code_missingValueCode_attributeList_datatable_dataset" data-ng-if="a.code_missingValueCode_attributeList_datatable_dataset.length > 0">
+                          <th data-translate="">Missing Value Code</th>
+                          <td>
+                            <span class="text-muted">{{a.code_missingValueCode_attributeList_datatable_dataset}}</span>
+                          </td>
+                        </tr> 
+                        <tr data-ng-if="a.attributeAnnotation_attributeList_datatable_dataset.length > 0 " data-ng-repeat="c in a.attributeAnnotation_attributeList_datatable_dataset track by $index">                         
+                          <th data-translate="" style="color: #2A4F8A">
+                            &#8226; Attribute Annotation {{$index + 1}}
+                           </th>
+                            <td>
+                            <table class="table table-striped">
+                            <tbody>
+                                <tr data-ng-if="c.propertyURI_attributeAnnotation_attributeList_datatable_dataset" data-ng-if="c.propertyURI_attributeAnnotation_attributeList_datatable_dataset.length > 0">
+                                  <th data-translate="">Property URI</th>
+                                  <td>
+                                    <span class="text-muted">
+                                    <a href={{c.propertyURI_attributeAnnotation_attributeList_datatable_dataset}} target="_blank">{{c.propertyURI_attributeAnnotation_attributeList_datatable_dataset}}</a>
+                                       </span>
+                                  </td>
+                                </tr>
+                                  <tr data-ng-if="c.valueURI_attributeAnnotation_attributeList_datatable_dataset" data-ng-if="c.valueURI_attributeAnnotation_attributeList_datatable_dataset.length > 0">
+                                  <th data-translate="">Value URI</th>
+                                  <td>
+                                    <span class="text-muted">
+                                    <a href={{c.valueURI_attributeAnnotation_attributeList_datatable_dataset}} target="_blank">{{c.valueURI_attributeAnnotation_attributeList_datatable_dataset}}</a>
+                                       </span>
+                                  </td>
+                                </tr>
+                            </tbody>
+                            </table> 
+                            </td> 
+                        </tr>	
+                    </tbody>
+                    </table>	
+                </td>                                        
+            </tr>                    
+        </tbody>
+     </table>
+</section>   
+  
+</div> 

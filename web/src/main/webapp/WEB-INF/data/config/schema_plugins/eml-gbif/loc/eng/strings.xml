@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2001-2016 Food and Agriculture Organization of the
+  ~ United Nations (FAO-UN), United Nations World Food Programme (WFP)
+  ~ and United Nations Environment Programme (UNEP)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or (at
+  ~ your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but
+  ~ WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+  ~
+  ~ Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
+  ~ Rome - Italy. email: geonetwork@osgeo.org
+  -->
+
+<strings>
+  <!-- View and tabs -->
+  <advanced>Full</advanced>
+  <default>Default</default>
+  <simple>Simple</simple>
+  <xml>XML</xml>
+
+  <information>Information</information>
+  <dataset>Dataset</dataset>
+  <methods>Methods</methods>
+  <projects>Projects</projects>
+  <project>Project</project>
+  <dataTables>Data tables</dataTables>
+  <dataTable>Data table</dataTable>
+
+  <aggregationlink>Search for other records in this Aggregation Set</aggregationlink>
+  <childidentifierlink>Show Child records</childidentifierlink>
+  <credit>Credit</credit>
+  <creditlink>Search for other records with this Credit</creditlink>
+  <lineage>Lineage</lineage>
+  <metadataInfo>Metadata Info</metadataInfo>
+  <parentidentifierlink>Show Parent record</parentidentifierlink>
+  <referenceSystemInfo>Reference System Info</referenceSystemInfo>
+  <siblingidentifierlink>Show Sibling records</siblingidentifierlink>
+  <spatialExtentTab>Spatial Extent</spatialExtentTab>
+  <temporalExtentTab>Temporal Ext.</temporalExtentTab>
+  <otherInfo>Other Information</otherInfo>
+  <xml_eml-gbif>Save this metadata as an EML-GBIF XML file</xml_eml-gbif>
+  <xml_eml-gbifTorifcs>Save this metadata as an ANDS rifcs XML file</xml_eml-gbifTorifcs>
+</strings>

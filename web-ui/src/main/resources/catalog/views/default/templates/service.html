@@ -1,0 +1,402 @@
+
+          <table class="table table-striped">
+            <tbody>
+            <tr data-ng-if="mdView.current.record.revisionDate_service" data-ng-if="mdView.current.record.revisionDate_service.length > 0">
+              <th data-translate="">Revision Date</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.revisionDate_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="mdView.current.record.url_service" data-ng-if="mdView.current.record.url_service.length > 0">
+              <th data-translate="">URL</th>
+              <td>
+                 <a href="{{mdView.current.record.url_service}}" target="_blank">{{mdView.current.record.url_service}}</a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        
+          <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.contactPoint_service.length > 0 || mdView.current.record.address_service.length > 0 || mdView.current.record.getAllKeywords_service().metadata.length > 0 || mdView.current.record.typeOfService_service.length > 0 || mdView.current.record.typeOfAssociation_service.length > 0">
+          Technical Information
+          </h2>
+          <table class="table table-striped">
+            <tbody>
+            <tr data-ng-if="mdView.current.record.contactPoint_service" data-ng-if="mdView.current.record.contactPoint_service.length > 0">
+              <th data-translate="">Contact Point</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.contactPoint_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="mdView.current.record.address_service" data-ng-if="mdView.current.record.address_service.length > 0">
+              <th data-translate="">Address</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.address_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="mdView.current.record.getAllKeywords_service().metadata" data-ng-if="mdView.current.record.getAllKeywords_service().metadata.length > 0">
+ 				<th data-translate="">Keywords</th>
+ 				<td>
+ 					<table class="table table-striped">
+            			<tbody>
+            				<tr data-ng-repeat="c in mdView.current.record.getAllKeywords_service().metadata track by $index">
+             					 <th data-translate="">&#8226; Keyword {{$index + 1}}</th>
+              					<td>
+                 					<span class="text-muted">{{c.keyword_service}}</span>
+              					</td>
+            				</tr>
+            			</tbody>
+            		</table>
+            	</td>
+            </tr>
+            <tr data-ng-if="mdView.current.record.typeOfService_service" data-ng-if="mdView.current.record.typeOfService_service.length > 0">
+              <th data-translate="">Type of service</th>
+              <td>
+                 <span data-ng-repeat="f in mdView.current.record.typeOfService_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="mdView.current.record.typeOfAssociation_service" data-ng-if="mdView.current.record.typeOfAssociation_service.length > 0">
+              <th data-translate="">Type of association</th>
+              <td>
+                 <span data-ng-repeat="f in mdView.current.record.typeOfAssociation_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+            </tr>
+ 			</tbody>
+ 		  </table>
+ 			
+ 		  <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllContainOperations_service().metadata.length > 0" >
+            Contain Operations
+        </h2>
+        <section data-ng-repeat="c in mdView.current.record.getAllContainOperations_service().metadata track by $index">    
+            <h3 data-translate="" style="color: #2A4F8A">
+          	&#8226; Operation {{$index + 1}}
+          	</h3>
+            <table class="table table-striped">
+                <tbody>
+                    <tr data-ng-if="c.operationName_service" data-ng-if="c.operationName_service > 0">
+                      <th data-translate="">Name</th>
+                      <td>
+                        <span class="text-muted">{{c.operationName_service}}</span>
+                      </td>
+                    </tr>
+                    <tr data-ng-if="c.webSite_service" data-ng-if="c.webSite_service > 0">
+                      <th data-translate="">Website</th>
+                      <td>
+                        <span class="text-muted">
+                        <a href={{c.webSite_service}} target="_blank">{{c.webSite_service}}</a>
+                        </span>
+                      </td>
+                    </tr>
+                    <tr data-ng-if="c.protocol_service" data-ng-if="c.protocol_service > 0">
+                      <th data-translate="">Protocol</th>
+                      <td>
+                        <span class="text-muted">{{c.protocol_service}}</span>
+                      </td>
+                    </tr>
+                    <tr data-ng-if="c.descriptionOperation_service" data-ng-if="c.descriptionOperation_service > 0">
+                      <th data-translate="">Description</th>
+                      <td>
+                        <span class="text-muted">{{c.descriptionOperation_service}}</span>
+                      </td>
+                    </tr>
+                    <tr data-ng-if="c.function_service" data-ng-if="c.profunction_servicetocol_service > 0">
+                      <th data-translate="">Function</th>
+                      <td>
+                        <span class="text-muted">{{c.function_service}}</span>
+                      </td>
+                    </tr>
+                </tbody>
+ 		     </table>
+        </section>    
+         
+        	<!-- Management Info -->             
+        	<h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllMaintainers_service().metadata.length > 0 || mdView.current.record.version_service.length > 0 || mdView.current.record.lastUpdated_service.length > 0 || mdView.current.record.created_service.length > 0" >
+        	Management Info
+        	</h2>
+            
+            <h3 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllMaintainers_service().metadata.length > 0" >
+            Maintainers
+            </h3>
+            <section data-ng-repeat="c in mdView.current.record.getAllMaintainers_service().metadata track by $index">    
+            <h3 data-translate="" style="color: #2A4F8A">
+            &#8226; Maintainer {{$index + 1}}
+            </h3>             
+                <table class="table table-striped">
+                    <tbody>
+                        <tr data-ng-if="c.maintainer_service" data-ng-if="c.maintainer_service > 0">
+                          <th data-translate="">Name and Email</th>
+                          <td>
+                            <span class="text-muted">{{c.maintainer_service}}</span>
+                          </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>       
+       	   <table class="table table-striped">
+            <tbody>
+            <tr data-ng-if="mdView.current.record.version_service" data-ng-if="mdView.current.record.version_service.length > 0">
+              <th data-translate="">Version</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.version_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+              </tr>
+                  <tr data-ng-if="mdView.current.record.lastUpdated_service" data-ng-if="mdView.current.record.lastUpdated_service.length > 0">
+              <th data-translate="">Last Updated</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.lastUpdated_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="mdView.current.record.created_service" data-ng-if="mdView.current.record.created_service.length > 0">
+              <th data-translate="">Created</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.created_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+              </tr>
+            </tbody>
+          </table>    
+ 
+          <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllTags_service().metadata.length > 0 || mdView.current.record.getAllRelatedServices_service().metadata.length > 0 || mdView.current.record.getAllRequiredServices_service().metadata.length > 0 || mdView.current.record.topicCategory_service.length > 0 || mdView.current.record.serviceLanguage_service.length > 0 || mdView.current.record.serviceTRL.length > 0">
+          Service Classification Information
+          </h2>
+          <table class="table table-striped">
+            <tbody>
+            <tr data-ng-if="mdView.current.record.pid_service" data-ng-if="mdView.current.record.pid_service.length > 0">
+              <th data-translate="">PID</th>
+              <td>
+                <span class="text-muted">
+                      <a href={{mdView.current.record.pid_service}}>{{mdView.current.record.pid_service}}</a>
+                </span>
+              </td>
+            </tr>
+            <tr data-ng-if="mdView.current.record.getAllTags_service().metadata.length > 0">
+                <th data-translate="">Tags</th>
+                <td>                    
+                    <table class="table table-striped">
+            			<tbody>
+            				<tr data-ng-repeat="c in mdView.current.record.getAllTags_service().metadata track by $index">
+             					 <th data-translate="">&#8226; Tag {{$index + 1}}</th>
+              					<td>
+                 					<span class="text-muted">{{c.tags_service}}</span>
+              					</td>
+            				</tr>
+            			</tbody>
+            		</table>
+                </td>           
+            </tr>
+            <tr data-ng-if="mdView.current.record.getAllRelatedServices_service().metadata.length > 0">
+                <th data-translate="">Related Services</th>
+                <td>                    
+                    <section data-ng-repeat="c in mdView.current.record.getAllRelatedServices_service().metadata track by $index">               
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr data-ng-if="c.relatedServices_service" data-ng-if="c.relatedServices_service > 0">  
+                                <th>&#8226; Related service {{$index + 1}}</th>                            
+                                  <td>
+                                    <span class="text-muted">{{c.relatedServices_service}}</span>
+                                  </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </td>           
+            </tr>
+            <tr data-ng-if="mdView.current.record.getAllRequiredServices_service().metadata.length > 0">
+                <th data-translate="">Required Services</th>
+                <td>                    
+                    <section data-ng-repeat="c in mdView.current.record.getAllRequiredServices_service().metadata track by $index">               
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr data-ng-if="c.requiredServices_service" data-ng-if="c.requiredServices_service > 0"> 
+                                <th>&#8226; Required service {{$index + 1}}</th>                         
+                                  <td>
+                                    <span class="text-muted">{{c.requiredServices_service}}</span>
+                                  </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </td>           
+            </tr>
+            <tr data-ng-if="mdView.current.record.topicCategory_service" data-ng-if="mdView.current.record.topicCategory_service.length > 0">
+              <th data-translate="">Topic Category</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.topicCategory_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+            </tr>
+             <tr data-ng-if="mdView.current.record.serviceLanguage_service" data-ng-if="mdView.current.record.serviceLanguage_service.length > 0">
+              <th data-translate="">Service Language</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.serviceLanguage_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+              </tr>
+              <tr data-ng-if="mdView.current.record.getAllOtherLanguages_service().metadata.length > 0">
+                <th data-translate="">Other Languages</th>
+                <td>                    
+                    <section data-ng-repeat="c in mdView.current.record.getAllOtherLanguages_service().metadata track by $index">                
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr data-ng-if="c.otherLanguage_service" data-ng-if="c.otherLanguage_service > 0">                          
+                                  <th>&#8226; Language {{$index + 1}}</th>
+                                  <td>
+                                    <span class="text-muted">{{c.otherLanguage_service}}</span>
+                                  </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </td>           
+             </tr>
+             <tr data-ng-if="mdView.current.record.charset_service" data-ng-if="mdView.current.record.charset_service.length > 0">
+              <th data-translate="">Charset</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.charset_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+              </tr>
+              <tr data-ng-if="mdView.current.record.serviceTRL_service" data-ng-if="mdView.current.record.serviceTRL_service.length > 0">
+              <th data-translate="">Service TRL</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.serviceTRL_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.serviceFunding_service.length > 0 || mdView.current.record.serviceLevelAgreement_service.length > 0 || mdView.current.record.servicePrice_service.length > 0 || mdView.current.record.termsOfUse_service.length > 0">
+          Service Contractual Information
+          </h2>
+          <table class="table table-striped">
+            <tbody>
+            <tr data-ng-if="mdView.current.record.serviceFunding_service" data-ng-if="mdView.current.record.serviceFunding_service.length > 0">
+              <th data-translate="">Service Funding</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.serviceFunding_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="mdView.current.record.serviceLevelAgreement_service" data-ng-if="mdView.current.record.serviceLevelAgreement_service.length > 0">
+              <th data-translate="">Service Level Agreement</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.serviceLevelAgreement_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+            </tr>
+            <tr data-ng-if="mdView.current.record.servicePrice_service" data-ng-if="mdView.current.record.servicePrice_service.length > 0">
+              <th data-translate="">Service Price</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.servicePrice_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+             </tr>
+             <tr data-ng-if="mdView.current.record.termsOfUse_service" data-ng-if="mdView.current.record.termsOfUse_service.length > 0">
+              <th data-translate="">Terms of use</th>
+              <td>
+                <span data-ng-repeat="f in mdView.current.record.termsOfUse_service track by $index"
+                      class="text-muted">{{f}}</span>
+              </td>
+             </tr>
+            </tbody>
+          </table>
+          
+          <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.serviceFeedback_service.length > 0 || mdView.current.record.serviceHelpdesk_service.length > 0 || mdView.current.record.serviceOrder_service.length > 0 || mdView.current.record.serviceTraining_service.length > 0 || mdView.current.record.serviceUserManual_service.length > 0">
+          Service Support Information
+          </h2>
+          <table class="table table-striped">
+            <tbody>
+            <tr data-ng-if="mdView.current.record.serviceFeedback_service" data-ng-if="mdView.current.record.serviceFeedback_service.length > 0">
+              <th data-translate="">Service Feedback</th>
+              <td>
+                 <a href="{{mdView.current.record.serviceFeedback_service}}">{{mdView.current.record.serviceFeedback_service}}</a>
+              </td>
+            </tr>
+            <tr data-ng-if="mdView.current.record.serviceHelpdesk_service" data-ng-if="mdView.current.record.serviceHelpdesk_service.length > 0">
+              <th data-translate="">Service Helpdesk</th>
+              <td>
+                 <a href="{{mdView.current.record.serviceHelpdesk_service}}">{{mdView.current.record.serviceHelpdesk_service}}</a>
+              </td>
+            </tr>
+            <tr data-ng-if="mdView.current.record.serviceOrder_service" data-ng-if="mdView.current.record.serviceOrder_service.length > 0">
+              <th data-translate="">Service Order</th>
+              <td>
+                 <a href="{{mdView.current.record.serviceOrder_service}}">{{mdView.current.record.serviceOrder_service}}</a>
+              </td>
+             </tr>
+             <tr data-ng-if="mdView.current.record.serviceTraining_service" data-ng-if="mdView.current.record.serviceTraining_service.length > 0">
+              <th data-translate="">Service Training</th>
+              <td>
+                 <a href="{{mdView.current.record.serviceTraining_service}}">{{mdView.current.record.serviceTraining_service}}</a>
+              </td>
+             </tr>
+             <tr data-ng-if="mdView.current.record.serviceUserManual_service" data-ng-if="mdView.current.record.serviceUserManual_service.length > 0">
+              <th data-translate="">Service User Manual</th>
+              <td>
+                 <a href="{{mdView.current.record.serviceUserManual_service}}">{{mdView.current.record.serviceUserManual_service}}</a>
+              </td>
+             </tr>
+            </tbody>
+          </table>
+
+          <!-- Point of Contact -->
+  		  <h2 data-translate="" style="color: #2A4F8A" data-ng-if="mdView.current.record.getAllContacts().resource[0].name != ''" >
+           Point of Contact
+          </h2>
+  		  <section data-ng-if="mdView.current.record.getAllContacts().resource[0].name != ''" data-ng-repeat="c in mdView.current.record.getAllContacts().resource track by $index">
+            <h4>
+              <i class="fa fa-fw fa-envelope"></i>
+              <span>{{c.role | translate}}</span>
+            </h4>
+            <div class="gn-contact">
+              <div class="row">
+                <div class="col-md-6">
+                  <address>
+                    <strong title="{{c.address}}">
+                      {{c.org}}<br/>
+                    </strong>
+                    <div data-ng-if="c.email != ''">
+                      <a href="mailto:{{c.email}}">
+                        <span data-ng-hide="c.name">{{c.email}}</span>
+                        <span data-ng-show="c.name">{{c.name}}</span>
+                        <span data-ng-show="c.position">({{c.position}})</span>
+                      </a>
+                    </div>
+                    <div data-ng-if="c.email === ''">{{c.name}}
+                      <span data-ng-show="c.position">({{c.position}})</span>
+                    </div>
+                    <a href="tel:{{c.phone}}"
+                      data-ng-if="c.phone != ''">
+                      <span data-translate="">call</span> {{c.phone}}
+                    </a>
+                  </address>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <!--  Download and Resources -->
+		  <div data-gn-related-observer>
+		  <section>
+            <div data-gn-related="mdView.current.record"
+                data-user="user"
+                data-types="onlines"
+                data-has-results="hasRelations.onlines"
+                data-title="">
+            </div>
+
+            <div data-gn-related="mdView.current.record"
+                data-user="user"
+                data-types="parent|children|services|datasets"
+                data-title="">
+            </div>
+            </section>
+          </div>
+          
