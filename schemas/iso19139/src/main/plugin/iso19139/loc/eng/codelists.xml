@@ -1400,7 +1400,7 @@
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - -->
     <entry>
       <code>historicalArchive</code>
-      <label>Historical archive</label>
+      <label>Historical archive / closed</label>
       <description>Data has been stored in an offline storage facility</description>
     </entry>
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -1412,7 +1412,7 @@
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - -->
     <entry>
       <code>onGoing</code>
-      <label>On going</label>
+      <label>On going / operational</label>
       <description>Data is continually being updated</description>
     </entry>
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -1432,7 +1432,7 @@
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - -->
     <entry>
       <code>underDevelopment</code>
-      <label>Under development</label>
+      <label>Under development / Pre operational</label>
       <description>Data is currently in the process of being created</description>
     </entry>
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -1441,6 +1441,32 @@
       <label>Not obsolete</label>
       <description></description>
     </entry>
+
+    <entry>
+      <code>inapplicable</code>
+      <label>Inapplicable - Site only</label>
+      <description>None of the codes in the table are applicable in the context ...</description>
+    </entry>	
+    <entry>
+      <code>nonReporting</code>
+      <label>Non reporting - Site only</label>
+      <description>The station is considered non-operational/non-reporting tempo...</description>
+    </entry>		
+    <entry>
+      <code>partlyOperational</code>
+      <label>Partly operational - Site only</label>
+      <description>The station partially complies with the reporting obligations...</description>
+    </entry>		
+    <entry>
+      <code>standBy</code>
+      <label>StandBy - Site only</label>
+      <description></description>
+    </entry>	
+    <entry>
+      <code>unknown</code>
+      <label>Unknown - Site only</label>
+      <description>The declared operating status of this particular station is unknown</description>
+    </entry>	
   </codelist>
   <!-- ==================================================== -->
   <codelist name="gmd:MD_RestrictionCode">
@@ -1592,6 +1618,12 @@
       </description>
     </entry>
     <!-- LifeWatch -->
+    <entry>
+      <code>site</code>
+      <label>SITE</label>
+      <description>Site description provided by LifeWatch ERIC
+      </description>
+    </entry>
     <entry>
       <code>vre</code>
       <label>Virtual Research Environment</label>
