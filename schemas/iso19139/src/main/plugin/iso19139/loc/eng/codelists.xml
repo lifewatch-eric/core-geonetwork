@@ -253,7 +253,7 @@
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - -->
     <entry>
       <code>originator</code>
-      <label>Originator</label>
+      <label>Creator</label>
       <description>Party who created the resource</description>
     </entry>
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - -->
@@ -290,6 +290,11 @@
     <entry>
       <code>author</code>
       <label>Author</label>
+      <description>Party who authored the resource</description>
+    </entry>
+    <entry>
+      <code>associatedParty</code>
+      <label>Associated party</label>
       <description>Party who authored the resource</description>
     </entry>
     <!-- ISO PROFIL CHE ONLY
