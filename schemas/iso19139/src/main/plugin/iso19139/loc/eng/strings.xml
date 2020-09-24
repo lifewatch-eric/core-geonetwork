@@ -46,6 +46,7 @@
   <resource>Resource</resource>
   <xml>XML</xml>
   <metadata>Metadata</metadata>
+  <metadataProvider>Metadata provider</metadataProvider>
   <identificationInfo>Identification</identificationInfo>
   <distributionInfo>Distribution</distributionInfo>
   <dataQualityInfo>Quality</dataQualityInfo>

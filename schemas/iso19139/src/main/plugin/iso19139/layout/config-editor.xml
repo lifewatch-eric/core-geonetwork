@@ -879,7 +879,7 @@
         <section xpath="/gmd:MD_Metadata/gmd:dataset"/> 
         <!-- End Dataset LifeWatch -->
 
-        <section name="Metadata">
+        <section name="metadata">
           <field xpath="/gmd:MD_Metadata/gmd:fileIdentifier"/>
           <field xpath="/gmd:MD_Metadata/gmd:language" or="language" in="/gmd:MD_Metadata"/>
           <field xpath="/gmd:MD_Metadata/gmd:characterSet"/>
@@ -890,7 +890,7 @@
           <field xpath="/gmd:MD_Metadata/gmd:dateStamp"/>
           <field xpath="/gmd:MD_Metadata/gmd:metadataStandardName"/>
           <field xpath="/gmd:MD_Metadata/gmd:metadataStandardVersion"/>
-          <field xpath="/gmd:MD_Metadata/gmd:contact" or="contact" in="/gmd:MD_Metadata"/>
+          <field name="metadataProvider" xpath="/gmd:MD_Metadata/gmd:contact" or="contact" in="/gmd:MD_Metadata"/>
           <field xpath="/gmd:MD_Metadata/gmd:dataSetURI" or="dataSetURI" in="/gmd:MD_Metadata"/>
           <field xpath="/gmd:MD_Metadata/gmd:locale" or="locale" in="/gmd:MD_Metadata"/>
         </section>
