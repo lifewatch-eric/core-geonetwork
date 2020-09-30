@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:eml="https://eml.ecoinformatics.org/eml-2.2.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="https://eml.ecoinformatics.org/eml-2.2.0">
+
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="schema/xml.xsd" />
+  <xs:include schemaLocation="schema/eml.xsd"/>
+</xs:schema>

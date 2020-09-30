@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (C) 2001-2016 Food and Agriculture Organization of the
+  ~ United Nations (FAO-UN), United Nations World Food Programme (WFP)
+  ~ and United Nations Environment Programme (UNEP)
+  ~
+  ~ This program is free software; you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation; either version 2 of the License, or (at
+  ~ your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but
+  ~ WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  ~ General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+  ~
+  ~ Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
+  ~ Rome - Italy. email: geonetwork@osgeo.org
+  -->
+
+<fields>
+  <field name="eml:eml">
+    <suggest name="dataset"/>
+  </field>
+
+  <field name="dataset">
+    <suggest name="alternateIdentifier"/>
+    <suggest name="title"/>
+    <suggest name="creator"/>
+    <suggest name="metadataProvider"/>
+    <suggest name="associatedParty"/>
+    <suggest name="pubDate"/>
+    <suggest name="abstract"/>
+    <suggest name="keywordSet"/>
+    <suggest name="additionalInfo"/>
+    <suggest name="intellectualRights"/>
+    <suggest name="distribution"/>
+    <suggest name="coverage"/>
+    <suggest name="contact"/>
+  </field>
+
+  <field name="coverage">
+    <suggest name="geographicCoverage"/>
+    <suggest name="temporalCoverage"/>
+    <suggest name="taxonomicCoverage"/>
+  </field>
+  
+  <field name="creator">
+    <suggest name="organizationName"/>
+    <suggest name="individualName"/>
+    <suggest name="positionName"/>
+    <suggest name="address"/>
+    <suggest name="phone"/>
+    <suggest name="electronicMailAddress"/>
+    <suggest name="onlineUrl"/>
+  </field>
+
+  <field name="metadataProvider">
+    <suggest name="organizationName"/>
+    <suggest name="individualName"/>
+    <suggest name="positionName"/>
+    <suggest name="address"/>
+    <suggest name="phone"/>
+    <suggest name="electronicMailAddress"/>
+    <suggest name="onlineUrl"/>
+  </field>
+
+  <field name="associatedParty">
+    <suggest name="organizationName"/>
+    <suggest name="individualName"/>
+    <suggest name="positionName"/>
+    <suggest name="address"/>
+    <suggest name="phone"/>
+    <suggest name="electronicMailAddress"/>
+    <suggest name="onlineUrl"/>
+    <suggest name="role"/>
+  </field>
+
+  <field name="personnel">
+    <suggest name="electronicMailAddress"/>
+  </field>
+
+  <field name="address">
+    <suggest name="deliveryPoint"/>
+    <suggest name="city"/>
+    <suggest name="administrativeArea"/>
+    <suggest name="postalCode"/>
+    <suggest name="country"/>
+  </field>
+
+  <field name="distribution">
+    <suggest name="online"/>
+  </field>
+
+  <field name="online">
+    <suggest name="url"/>
+  </field>
+
+  <field name="contact">
+    <suggest name="individualName"/>
+    <suggest name="organizationName"/>
+    <suggest name="positionName"/>
+    <suggest name="address"/>
+    <suggest name="phone"/>
+    <suggest name="electronicMailAddress"/>
+    <suggest name="onlineUrl"/>
+  </field>
+
+  <field name="individualName">
+    <suggest name="givenName"/>
+    <suggest name="surName"/>
+  </field>
+
+  <field name="description">
+    <suggest name="para" />
+  </field>
+
+  <field name="intellectualRights">
+    <suggest name="para" />
+  </field>
+
+  <field name="descriptor">
+    <suggest name="descriptorValue" />
+  </field>
+
+  <field name="studyAreaDescription">
+    <suggest name="descriptor" />
+  </field>
+
+  <field name="designDescription">
+    <suggest name="description" />
+  </field>
+
+  <field name="project">
+    <suggest name="title"/>
+    <suggest name="personnel"/>
+  </field>
+
+  <field name="methods">
+    <suggest name="methodStep"/>
+    <suggest name="sampling"/>
+  </field>
+
+  <field name="methodStep">
+      <suggest name="description"/>
+      <suggest name="citation"/>
+      <suggest name="instrumentation"/>
+      <suggest name="software"/>
+  </field>
+
+  <field name="sampling">
+    <suggest name="studyExtent"/>
+    <suggest name="samplingDescription"/>
+  </field>
+
+  <field name="studyExtent">
+      <suggest name="description"/>
+  </field>
+
+  <field name="samplingDescription">
+      <suggest name="para"/>
+  </field>
+
+  <field name="attribute">
+    <suggest name="attributeLabel" />
+    <suggest name="missingValueCode" />
+    <suggest name="accuracy" />
+    <suggest name="annotation" />
+  </field>
+
+<field name="annotation">
+    <suggest name="propertyURI" />
+    <suggest name="valueURI" />
+  </field>
+
+  <field name="bounds">
+    <suggest name="minimum" />
+    <suggest name="maximum" />
+  </field>
+
+  <field name="dateTimeDomain">
+    <suggest name="bounds" />
+  </field>
+</fields>
