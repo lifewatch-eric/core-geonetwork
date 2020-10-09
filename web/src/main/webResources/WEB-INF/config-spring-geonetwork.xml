@@ -77,30 +77,15 @@
   </bean>
 
   <bean id="language" class="org.fao.geonet.web.DefaultLanguage">
-    <property name="language" value="\${language.default}"/>
-    <property name="forceDefault" value="\${language.forceDefault}"/>
+    <property name="language" value="eng"/>
+    <property name="forceDefault" value="true"/>
   </bean>
 
   <!-- Define the languages in the UI. Seems like these should come from database
     at some point but at the moment they are needed here. -->
   <util:set id="languages" value-type="java.lang.String">
-    <value>ara</value>
-    <value>cat</value>
-    <value>chi</value>
-    <value>dut</value>
     <value>eng</value>
-    <value>fin</value>
-    <value>fre</value>
-    <value>ger</value>
-    <value>por</value>
     <value>ita</value>
-    <value>nor</value>
-    <value>pol</value>
-    <value>por</value>
-    <value>rus</value>
-    <value>slo</value>
-    <value>spa</value>
-    <value>tur</value>
   </util:set>
 
   <util:map id="jpaPropertyMap">
