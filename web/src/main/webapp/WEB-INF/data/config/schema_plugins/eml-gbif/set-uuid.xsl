@@ -46,7 +46,7 @@
 
   <!-- ================================================================= -->
 
-  <xsl:template match="alternateIdentifier"/>
+  <xsl:template match="dataset/alternateIdentifier"/>
 
   <!-- ================================================================= -->
 

@@ -51,4 +51,13 @@
   <otherInfo>Other Information</otherInfo>
   <xml_eml-gbif>Save this metadata as an EML-GBIF XML file</xml_eml-gbif>
   <xml_eml-gbifTorifcs>Save this metadata as an ANDS rifcs XML file</xml_eml-gbifTorifcs>
+
+  <associatedParty>Associated Party</associatedParty>
+  <contact>Dataset Contact</contact>
+  <creator>Dataset Creator</creator>
+  <metadataProvider>Metadata Provider</metadataProvider>
+  <licensed>Resource License</licensed>
+  <resourceLicenses>License Information</resourceLicenses>
+  <distribution>Distribution</distribution>
+  <intellectualRights>Intellectual Rights</intellectualRights>
 </strings>

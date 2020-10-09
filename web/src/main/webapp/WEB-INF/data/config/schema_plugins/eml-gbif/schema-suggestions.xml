@@ -41,10 +41,15 @@
     <suggest name="intellectualRights"/>
     <suggest name="distribution"/>
     <suggest name="coverage"/>
-    <suggest name="purpose"/>
     <suggest name="contact"/>
   </field>
 
+  <field name="coverage">
+    <suggest name="geographicCoverage"/>
+    <suggest name="temporalCoverage"/>
+    <suggest name="taxonomicCoverage"/>
+  </field>
+  
   <field name="creator">
     <suggest name="organizationName"/>
     <suggest name="individualName"/>
@@ -74,6 +79,10 @@
     <suggest name="electronicMailAddress"/>
     <suggest name="onlineUrl"/>
     <suggest name="role"/>
+  </field>
+
+  <field name="personnel">
+    <suggest name="electronicMailAddress"/>
   </field>
 
   <field name="address">
@@ -111,6 +120,10 @@
     <suggest name="para" />
   </field>
 
+  <field name="intellectualRights">
+    <suggest name="para" />
+  </field>
+
   <field name="descriptor">
     <suggest name="descriptorValue" />
   </field>
@@ -126,9 +139,6 @@
   <field name="project">
     <suggest name="title"/>
     <suggest name="personnel"/>
-    <suggest name="funding"/>
-    <suggest name="studyAreaDescription"/>
-    <suggest name="designDescription"/>
   </field>
 
   <field name="methods">
@@ -138,6 +148,9 @@
 
   <field name="methodStep">
       <suggest name="description"/>
+      <suggest name="citation"/>
+      <suggest name="instrumentation"/>
+      <suggest name="software"/>
   </field>
 
   <field name="sampling">
@@ -153,4 +166,24 @@
       <suggest name="para"/>
   </field>
 
+  <field name="attribute">
+    <suggest name="attributeLabel" />
+    <suggest name="missingValueCode" />
+    <suggest name="accuracy" />
+    <suggest name="annotation" />
+  </field>
+
+<field name="annotation">
+    <suggest name="propertyURI" />
+    <suggest name="valueURI" />
+  </field>
+
+  <field name="bounds">
+    <suggest name="minimum" />
+    <suggest name="maximum" />
+  </field>
+
+  <field name="dateTimeDomain">
+    <suggest name="bounds" />
+  </field>
 </fields>

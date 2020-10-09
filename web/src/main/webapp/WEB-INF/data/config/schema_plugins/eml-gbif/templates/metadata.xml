@@ -85,5 +85,156 @@
       </abstract>
       <funding/>
     </project>
+    <dataTable system="uuid">
+      <entityName>icecore_meltpercent-ldt2018.csv</entityName>
+      <entityDescription>Ice core melt records. This file provides derived melt % vs. year for the four ice cores used in the study published in Trusel et al., 2018, Nature https://doi.org/10.1038/s41586-018-0752-4</entityDescription>
+      <physical scope="document">
+        <objectName>icecore_meltpercent-ldt2018.csv</objectName>
+        <size unit="bytes">12425</size>
+        <authentication method="MD5">15c5f97f79d6ac989f56e0b65eaaa6de</authentication>
+        <dataFormat>
+          <externallyDefinedFormat>
+            <formatName>text/csv</formatName>
+          </externallyDefinedFormat>
+        </dataFormat>
+        <distribution scope="document">
+          <online>
+            <url function="download">https://cn.dataone.org/cn/v2/resolve/urn:uuid:db565d79-c0ad-4945-95a8-99c53fa53e07</url>
+          </online>
+        </distribution>
+      </physical>
+      <attributeList>
+        <attribute id="hVDStDS3Bu2Oqp3se3pToed69TwTEq">
+          <attributeName>Year</attributeName>
+          <attributeLabel>Year (CE)</attributeLabel>
+          <attributeDefinition>Year</attributeDefinition>
+          <measurementScale>
+            <dateTime>
+              <formatString>YYYY</formatString>
+            </dateTime>
+          </measurementScale>
+          <missingValueCode>
+            <code>NaN</code>
+            <codeExplanation>indicates where analytical results were not reported for that 
+depth interval due to removal during quality control ( due to factors 
+                                                                                              such as contamination, i.e. at a core break, or some other flag during 
+                                                                                              quality control of the instrumental results.
+            </codeExplanation>
+          </missingValueCode>
+          <annotation id="usHXeIElSS">
+            <propertyURI label="contains measurements of type">http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType</propertyURI>
+            <valueURI label="year of measurement">http://purl.dataone.org/odo/ECSO_00002050</valueURI>
+          </annotation>
+        </attribute>
+        <attribute id="FFxXf7xF4VrPTNUde42R7RVpCvxB1L">
+          <attributeName>GC</attributeName>
+          <attributeLabel>GC2015 Site, Melt Layer %</attributeLabel>
+          <attributeDefinition>Refrozen melt layers, reported as a fraction (%) of annual snow accumulation</attributeDefinition>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NaN</code>
+            <codeExplanation>indicates where analytical results were not reported for that 
+depth interval due to removal during quality control ( due to factors 
+                                                                                              such as contamination, i.e. at a core break, or some other flag during 
+                                                                                              quality control of the instrumental results.
+            </codeExplanation>
+          </missingValueCode>
+          <annotation id="6InFMUuTPu">
+            <propertyURI label="contains measurements of type">http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType</propertyURI>
+            <valueURI label="refrozen meltlayer percentage">http://purl.dataone.org/odo/ECSO_00001628</valueURI>
+          </annotation>
+        </attribute>
+        <attribute id="7mTDvzFouniibcMlloDgcTl9xKCdPK">
+          <attributeName>NU</attributeName>
+          <attributeLabel>NU2015 Site, Melt Layer %</attributeLabel>
+          <attributeDefinition>Refrozen melt layers reported as a fraction (%) of annual snow accumulation</attributeDefinition>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NaN</code>
+            <codeExplanation>indicates where analytical results were not reported for that 
+depth interval due to removal during quality control ( due to factors 
+                                                                                              such as contamination, i.e. at a core break, or some other flag during 
+                                                                                              quality control of the instrumental results.
+            </codeExplanation>
+          </missingValueCode>
+          <annotation id="00rjg3UDFZ">
+            <propertyURI label="contains measurements of type">http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType</propertyURI>
+            <valueURI label="refrozen meltlayer percentage">http://purl.dataone.org/odo/ECSO_00001628</valueURI>
+          </annotation>
+        </attribute>
+        <attribute id="A0ngS0aOPlRNbedmNxFsBQITfLfx6C">
+          <attributeName>D5</attributeName>
+          <attributeLabel>D52003 Site, Melt Layer %</attributeLabel>
+          <attributeDefinition>Refrozen melt layers reported as a fraction (%) of annual snow accumulation</attributeDefinition>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NaN</code>
+            <codeExplanation>indicates where analytical results were not reported for that 
+depth interval due to removal during quality control ( due to factors 
+                                                                                              such as contamination, i.e. at a core break, or some other flag during 
+                                                                                              quality control of the instrumental results.
+            </codeExplanation>
+          </missingValueCode>
+          <annotation id="qR6WjHcNgw">
+            <propertyURI label="contains measurements of type">http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType</propertyURI>
+            <valueURI label="refrozen meltlayer percentage">http://purl.dataone.org/odo/ECSO_00001628</valueURI>
+          </annotation>
+        </attribute>
+        <attribute id="i3dmTSQkHP3T04WQzlZRBIL0FDKAfI">
+          <attributeName>GW</attributeName>
+          <attributeLabel>GW2014 Site, Melt Layer %</attributeLabel>
+          <attributeDefinition>Refrozen melt layers reported as a fraction (%) of annual snow accumulation</attributeDefinition>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+          <missingValueCode>
+            <code>NaN</code>
+            <codeExplanation>indicates where analytical results were not reported for that 
+depth interval due to removal during quality control ( due to factors 
+                                                                                              such as contamination, i.e. at a core break, or some other flag during 
+                                                                                              quality control of the instrumental results.
+            </codeExplanation>
+          </missingValueCode>
+          <annotation id="bxE7cf6CWW">
+            <propertyURI label="contains measurements of type">http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl#containsMeasurementsOfType</propertyURI>
+            <valueURI label="refrozen meltlayer percentage">http://purl.dataone.org/odo/ECSO_00001628</valueURI>
+          </annotation>
+        </attribute>
+      </attributeList>
+    </dataTable>
   </dataset>
 </eml:eml>

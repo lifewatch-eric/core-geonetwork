@@ -9,7 +9,7 @@
     <xsl:apply-templates select="*[1]"/>
   </xsl:template>
 
-  <xsl:template match="abstract[count(*) = 0]">
+  <xsl:template match="abstract[count(*) = 0]|funding[count(*) = 0]">
     <xsl:copy>
       <xsl:copy-of select="@*" />
 

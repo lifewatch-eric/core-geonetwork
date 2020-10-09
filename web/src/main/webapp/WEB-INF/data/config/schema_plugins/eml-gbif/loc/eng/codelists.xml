@@ -24,5 +24,14 @@
   -->
 
 <codelists>
-  
+  <codelist name="exclusive">
+    <entry>
+      <code>true</code>
+      <label>True</label>
+    </entry>
+    <entry>
+      <code>false</code>
+      <label>False</label>
+    </entry>
+  </codelist>
 </codelists>

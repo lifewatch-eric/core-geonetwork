@@ -30,38 +30,46 @@
   </element>
   <element name="dataset" context="eml:eml">
     <label>Dataset</label>
+    <btnLabel>Add dataset</btnLabel>
     <description>The dataset metadata</description>
   </element>
   <element name="alternateIdentifier" context="dataset">
     <label>Alternate Identifier</label>
+    <btnLabel>Add identifier</btnLabel>
     <description>This is an alternate identifier for the metadata document</description>
   </element>
   <element name="metadataProvider" context="dataset">
     <label>Metadata Provider</label>
+    <btnLabel>Add provider</btnLabel>
     <description>The party responsible for the creation of the metadata document.</description>
   </element>
   <element name="creator" context="dataset">
     <label>Dataset Creator</label>
+    <btnLabel>Add creator</btnLabel>
     <description>The creator is the person who created the resource (not necessarily the author of this metadata about the resource).</description>
     <help>This is the person or institution to contact with questions about the use, interpretation of a dataset.</help>
   </element>
   <element name="contact" context="dataset">
     <label>Dataset Contact</label>
+    <btnLabel>Add contact</btnLabel>
     <description>Current primary contact for the dataset. The creator of the resource might be dead, left the organisation or doesnt want to be bothered.</description>
     <help>This is the person or institution to contact with questions about the use, interpretation of a dataset if the creator is unavailable/undefined.</help>
   </element>
   <element name="organizationName">
     <label>Organization Name</label>
+    <btnLabel>Add organisation</btnLabel>
     <description>The full name of the organization that is associated with the resource.</description>
     <help>This field is intended to describe which institution or overall organization is associated with the resource being described.</help>
   </element>
   <element name="individualName">
     <label>Individual Name</label>
+    <btnLabel>Add individual</btnLabel>
     <description>The name of an individual.</description>
     <help>This field is intended to be used instead of a particular person or full organization name. If the associated person who holds the role changes frequently, then Position Name would be used for consistency. E.g., GBIF Data Manager.</help>
   </element>
   <element name="associatedParty">
     <label>Associated Party</label>
+    <btnLabel>Add party</btnLabel>
     <description>A party associated with the resource.</description>
     <help>Parties have particular roles.</help>
   </element>
@@ -71,7 +79,7 @@
     <help>Formatted as 2007-09-12T15:00:00 (YYYY-MM-DDTHH:mm:ss)</help>
   </element>
   <element name="language">
-    <label>Resource Language</label>
+    <label>Dataset Language</label>
     <description>The language in which the resource (not the metadata document) is written</description>
     <help>Taken from Default Languages loaded into GeoNetwork.</help>
   </element>
@@ -81,15 +89,18 @@
   </element>
   <element name="keywordSet">
     <label>Keywords</label>
+    <btnLabel>Add set</btnLabel>
     <description>A wrapper element for the keyword and keywordThesaurus elements</description>
   </element>
   <element name="keyword" context="keywordSet">
     <label>Keyword</label>
+    <btnLabel>Add keyword</btnLabel>
     <description>This field names a keyword or key phrase that concisely describes the resource or is related to the resource.</description>
     <help>Each keyword field should contain one and only one keyword</help>
   </element>
   <element name="keywordThesaurus" context="keywordSet">
     <label>Thesaurus</label>
+    <btnLabel>Add thesaurus</btnLabel>
     <description>The name of the official keyword thesaurus from which keyword was derived</description>
   </element>
   <element name="additionalInfo">
@@ -98,20 +109,28 @@
   </element>
   <element name="intellectualRights">
     <label>Intellectual Rights</label>
+        <btnLabel>Add rights</btnLabel>
     <description>Contain a rights management statement for the resource, or reference a service providing such information</description>
      <helper>
       <option value="This work is licensed under a
         [Public Domain Mark (PDM) 4.0 License](https://creativecommons.org/share-your-work/public-domain/pdm).">CC-0</option>
       <option value="This work is licensed under a
         [Creative Commons Attribution (CC-BY) 4.0 License](https://creativecommons.org/licenses/by/4.0/legalcode).">CC-BY</option>
+    <option value="This work is licensed under a
+        [Creative Commons Attribution Share Alike (CC-BY-SA) 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/legalcode).">CC-BY-SA</option>
+    <option value="This work is licensed under a
+        [Creative Commons Attribution Non Commercial (CC-BY-NC) 4.0 License](https://creativecommons.org/licenses/by-nc/4.0/legalcode).">CC-BY-NC</option>
+    <option value="This work is licensed under a
+        [Creative Commons Attribution Non Derivs (CC-BY-ND) 4.0 License](https://creativecommons.org/licenses/by-nd/4.0/legalcode).">CC-BY-ND</option>
     </helper>
   </element>
   <element name="coverage">
-    <label>Extent</label>
-    <description>Describes the extent of the coverage of the resource in terms of its spatial extent, temporal extent, and taxonomic extent</description>
+    <label>Coverage</label>
+    <btnLabel>Add coverage</btnLabel>
+    <description>Describes the extent of the coverage of the resource in terms of its spatial coverage, temporal coverage, and taxonomic coverage</description>
   </element>
   <element name="geographicCoverage">
-    <label>Geographic Extent</label>
+    <label>Geographic Coverage</label>
     <description>A container for spatial information about a resource; allows a bounding box for the overall coverage (in lat long), and also allows description of arbitrary polygons with exclusions.</description>
   </element>
   <element name="geographicDescription">
@@ -139,7 +158,8 @@
     <description>The southBoundingCoordinate field defines the latitude of the southern-most point of the bounding box that is being described.</description>
   </element>
   <element name="temporalCoverage">
-    <label>Temporal Extent</label>
+    <label>Temporal Coverage</label>
+        <btnLabel>Add temporal</btnLabel>
     <description>This field specifies temporal coverage, and allows coverages to be a single point in time, multiple points in time, or a range of dates. </description>
   </element>
   <element name="rangeOfDates">
@@ -159,7 +179,8 @@
     <description>The SingleDateTime field is intended to describe a single date and time for an event</description>
   </element>
   <element name="taxonomicCoverage">
-    <label>Taxonomic Extent</label>
+    <label>Taxonomic Coverage</label>
+        <btnLabel>Add taxonomic</btnLabel>
     <description>Taxonomic Coverage is a container for taxonomic information about a resource. It includes a list of species names (or higher level ranks) from one or more classification systems.</description>
   </element>
   <element name="generalTaxonomicCoverage">
@@ -182,24 +203,29 @@
     <label>Common Name</label>
     <description>Applicable common names; these common names may be general descriptions of a group of organisms if appropriate, e.g., invertebrates, waterfowl</description>
   </element>
-  <element name="purpose">
-    <label>Purpose</label>
-    <description>A description of the purpose of the resource/dataset</description>
-  </element>
   <element name="methods">
     <label>Methods</label>
+    <btnLabel>Add methods</btnLabel>
     <description>The methods field documents scientific methods used in the collection of this dataset. It includes information on items such as tools, instrument calibration and software.</description>
   </element>
   <element name="methodStep">
     <label>Method Step</label>
+        <btnLabel>Add methodstep</btnLabel>
     <description>The methodStep field allows for repeated sets of elements that document a series of procedures followed to produce a data object. These include text descriptions of the procedures, relevant literature, software, instrumentation, source data and any quality control measures taken.</description>
   </element>
-  <element name="qualityControl">
-    <label>Quality Control</label>
-    <description>The qualityControl field provides a location for the description of actions taken to either control or assess the quality of data resulting from the associated method step. </description>
+  <element name="software">
+    <label>Software</label>
+    <btnLabel>Add software</btnLabel>
+    <description></description>
+  </element>
+  <element name="version" context="software">
+    <label>Software reference</label>
+    <btnLabel>Add reference</btnLabel>
+    <description>a reference to the version of the software</description>
   </element>
   <element name="sampling">
     <label>Sampling</label>
+    <btnLabel>Add sampling</btnLabel>
     <description>Description of sampling procedures including the geographic, temporal and taxonomic coverage of the study.</description>
   </element>
   <element name="studyExtent">
@@ -212,6 +238,7 @@
   </element>
   <element name="project">
     <label>Project</label>
+    <btnLabel>Add project</btnLabel>
     <description>The project field contains information on the project in which this dataset was collected. It includes information such as project personnel, funding, study area, project design and related projects.</description>
   </element>
   <element name="positionName">
@@ -220,6 +247,7 @@
   </element>
   <element name="personnel">
     <label>Personnel</label>
+    <btnLabel>Add personnel</btnLabel>
     <description>The Personnel field extends ResponsibleParty with role information and is used to document people involved in a research project by providing contact information and their role in the project. </description>
   </element>
   <element name="funding">
@@ -290,8 +318,8 @@
       and distribution of a data object (e.g., dataObject, dataFormat, distribution) .</description>
   </element>
   <element name="resourceLogoUrl">
-    <label>Resource Logo URL</label>
-    <description>URL of the logo associated with a resource</description>
+    <label>Logo URL</label>
+    <description>URL of the logo associated with a dataset</description>
   </element>
   <element name="collection">
     <label>Collection</label>
@@ -491,6 +519,350 @@
   <element name="standardUnit">
     <label>Standard Unit</label>
     <description></description>
+    <helper>
+      <option value="">-- Length UnitType
+        --
+      </option>
+      <option value="meter">meter</option>
+      <option value="nanometer">nanometer</option>
+      <option value="micrometer">micrometer</option>
+      <option value="micron">micron</option>
+      <option value="millimeter">millimeter</option>
+      <option value="centimeter">centimeter</option>
+      <option value="decimeter">decimeter</option>
+      <option value="dekameter">dekameter</option>
+      <option value="hectometer">hectometer</option>
+      <option value="kilometer">kilometer</option>
+      <option value="megameter">megameter</option>
+      <option value="angstrom">angstrom</option>
+      <option value="inch">inch</option>
+      <option value="Foot_US">Foot_US</option>
+      <option value="foot">foot</option>
+      <option value="Foot_Gold_Coast">Foot_Gold_Coast</option>
+      <option value="fathom">fathom</option>
+      <option value="nauticalMile">nauticalMile</option>
+      <option value="yard">yard</option>
+      <option value="Yard_Indian">Yard_Indian</option>
+      <option value="Link_Clarke">Link_Clarke</option>
+      <option value="Yard_Sears">Yard_Sears</option>
+      <option value="mile">mile</option>
+      <option value="">-- Mass UnitType
+        --
+      </option>
+      <option value="kilogram">kilogram</option>
+      <option value="nanogram">nanogram</option>
+      <option value="microgram">microgram</option>
+      <option value="milligram">milligram</option>
+      <option value="centigram">centigram</option>
+      <option value="decigram">decigram</option>
+      <option value="gram">gram</option>
+      <option value="dekagram">dekagram</option>
+      <option value="hectogram">hectogram</option>
+      <option value="megagram">megagram</option>
+      <option value="tonne">tonne</option>
+      <option value="pound">pound</option>
+      <option value="ton">ton</option>
+      <option value="">-- Other UnitType
+        --
+      </option>
+
+
+      <option value="acre">acre</option>
+      <option value="ampere">ampere</option>
+      <option value="amperePerMeter">amperePerMeter</option>
+      <option value="amperePerMeterSquared">amperePerMeterSquared</option>
+      <option value="amperePerSquareMeter">amperePerSquareMeter</option>
+      <option value="are">are</option>
+      <option value="atmosphere">atmosphere</option>
+      <option value="bar">bar</option>
+      <option value="becquerel">becquerel</option>
+      <option value="britishThermalUnit">britishThermalUnit</option>
+      <option value="bushel">bushel</option>
+      <option value="bushelPerAcre">bushelPerAcre</option>
+      <option value="bushelsPerAcre">bushelsPerAcre</option>
+      <option value="calorie">calorie</option>
+      <option value="candela">candela</option>
+      <option value="candelaPerMeterSquared">candelaPerMeterSquared</option>
+      <option value="candelaPerSquareMeter">candelaPerSquareMeter</option>
+      <option value="celsius">celsius</option>
+      <option value="centimeterCubed">centimeterCubed</option>
+      <option value="centimeterPerSecond">centimeterPerSecond</option>
+      <option value="centimeterPerYear">centimeterPerYear</option>
+      <option value="centimeterSquared">centimeterSquared</option>
+      <option value="centimetersPerSecond">centimetersPerSecond</option>
+      <option value="centisecond">centisecond</option>
+      <option value="coulomb">coulomb</option>
+      <option value="cubicCentimetersPerCubicCentimeters">cubicCentimetersPerCubicCentimeters</option>
+      <option value="cubicFeetPerSecond">cubicFeetPerSecond</option>
+      <option value="cubicInch">cubicInch</option>
+      <option value="cubicMeter">cubicMeter</option>
+      <option value="cubicMeterPerKilogram">cubicMeterPerKilogram</option>
+      <option value="cubicMetersPerSecond">cubicMetersPerSecond</option>
+      <option value="cubicMicrometersPerGram">cubicMicrometersPerGram</option>
+      <option value="decibar">decibar</option>
+      <option value="decisecond">decisecond</option>
+      <option value="dekasecond">dekasecond</option>
+      <option value="dimensionless">dimensionless</option>
+      <option value="equivalentPerLiter">equivalentPerLiter</option>
+      <option value="fahrenheit">fahrenheit</option>
+      <option value="farad">farad</option>
+      <option value="feetPerDay">feetPerDay</option>
+      <option value="feetPerHour">feetPerHour</option>
+      <option value="feetPerSecond">feetPerSecond</option>
+      <option value="feetSquaredPerDay">feetSquaredPerDay</option>
+      <option value="footCubedPerSecond">footCubedPerSecond</option>
+      <option value="footPerDay">footPerDay</option>
+      <option value="footPerHour">footPerHour</option>
+      <option value="footPerSecond">footPerSecond</option>
+      <option value="footPound">footPound</option>
+      <option value="footSquared">footSquared</option>
+      <option value="footSquaredPerDay">footSquaredPerDay</option>
+      <option value="gallon">gallon</option>
+      <option value="gramPerCentimeterCubed">gramPerCentimeterCubed</option>
+      <option value="gramPerCentimeterSquaredPerSecond">gramPerCentimeterSquaredPerSecond</option>
+      <option value="gramPerDayPerHectare">gramPerDayPerHectare</option>
+      <option value="gramPerDayPerLiter">gramPerDayPerLiter</option>
+      <option value="gramPerGram">gramPerGram</option>
+      <option value="gramPerLiter">gramPerLiter</option>
+      <option value="gramPerMeterSquared">gramPerMeterSquared</option>
+      <option value="gramPerMeterSquaredPerDay">gramPerMeterSquaredPerDay</option>
+      <option value="gramPerMeterSquaredPerYear">gramPerMeterSquaredPerYear</option>
+      <option value="gramPerMilliliter">gramPerMilliliter</option>
+      <option value="gramPerYear">gramPerYear</option>
+      <option value="gramPercentimeterSquared">gramPercentimeterSquared</option>
+      <option value="gramsPerCentimeterSquaredPerSecond">gramsPerCentimeterSquaredPerSecond</option>
+      <option value="gramsPerCubicCentimeter">gramsPerCubicCentimeter</option>
+      <option value="gramsPerGram">gramsPerGram</option>
+      <option value="gramsPerHectarePerDay">gramsPerHectarePerDay</option>
+      <option value="gramsPerLiter">gramsPerLiter</option>
+      <option value="gramsPerLiterPerDay">gramsPerLiterPerDay</option>
+      <option value="gramsPerMeterSquaredPerYear">gramsPerMeterSquaredPerYear</option>
+      <option value="gramsPerMilliliter">gramsPerMilliliter</option>
+      <option value="gramsPerSquareMeter">gramsPerSquareMeter</option>
+      <option value="gramsPerYear">gramsPerYear</option>
+      <option value="gray">gray</option>
+      <option value="hectare">hectare</option>
+      <option value="hectopascal">hectopascal</option>
+      <option value="hectosecond">hectosecond</option>
+      <option value="henry">henry</option>
+      <option value="hertz">hertz</option>
+      <option value="hour">hour</option>
+      <option value="inchCubed">inchCubed</option>
+      <option value="inchPerHour">inchPerHour</option>
+      <option value="inverseCentimeter">inverseCentimeter</option>
+      <option value="inverseMeter">inverseMeter</option>
+      <option value="joule">joule</option>
+      <option value="katal">katal</option>
+      <option value="kelvin">kelvin</option>
+      <option value="kilogramPerCubicMeter">kilogramPerCubicMeter</option>
+      <option value="kilogramPerHectare">kilogramPerHectare</option>
+      <option value="kilogramPerHectarePerYear">kilogramPerHectarePerYear</option>
+      <option value="kilogramPerMeterCubed">kilogramPerMeterCubed</option>
+      <option value="kilogramPerMeterSquared">kilogramPerMeterSquared</option>
+      <option value="kilogramPerMeterSquaredPerDay">kilogramPerMeterSquaredPerDay</option>
+      <option value="kilogramPerMeterSquaredPerSecond">kilogramPerMeterSquaredPerSecond</option>
+      <option value="kilogramPerMeterSquaredPerYear">kilogramPerMeterSquaredPerYear</option>
+      <option value="kilogramPerSecond">kilogramPerSecond</option>
+      <option value="kilogramsPerHectare">kilogramsPerHectare</option>
+      <option value="kilogramsPerHectarePerYear">kilogramsPerHectarePerYear</option>
+      <option value="kilogramsPerMeterSquaredPerSecond">kilogramsPerMeterSquaredPerSecond</option>
+      <option value="kilogramsPerMeterSquaredPerYear">kilogramsPerMeterSquaredPerYear</option>
+      <option value="kilogramsPerSecond">kilogramsPerSecond</option>
+      <option value="kilogramsPerSquareMeter">kilogramsPerSquareMeter</option>
+      <option value="kilohertz">kilohertz</option>
+      <option value="kiloliter">kiloliter</option>
+      <option value="kilometerPerHour">kilometerPerHour</option>
+      <option value="kilometerSquared">kilometerSquared</option>
+      <option value="kilometersPerHour">kilometersPerHour</option>
+      <option value="kilopascal">kilopascal</option>
+      <option value="kilosecond">kilosecond</option>
+      <option value="kilovolt">kilovolt</option>
+      <option value="kilowatt">kilowatt</option>
+      <option value="kilowattPerMeterSquared">kilowattPerMeterSquared</option>
+      <option value="knot">knot</option>
+      <option value="knots">knots</option>
+      <option value="langley">langley</option>
+      <option value="langleyPerDay">langleyPerDay</option>
+      <option value="liter">liter</option>
+      <option value="literPerHectare">literPerHectare</option>
+      <option value="literPerLiter">literPerLiter</option>
+      <option value="literPerMeterSquared">literPerMeterSquared</option>
+      <option value="literPerSecond">literPerSecond</option>
+      <option value="litersPerHectare">litersPerHectare</option>
+      <option value="litersPerSecond">litersPerSecond</option>
+      <option value="litersPerSquareMeter">litersPerSquareMeter</option>
+      <option value="lumen">lumen</option>
+      <option value="lux">lux</option>
+      <option value="megagramPerMeterCubed">megagramPerMeterCubed</option>
+      <option value="megahertz">megahertz</option>
+      <option value="megajoulePerMeterSquaredPerDay">megajoulePerMeterSquaredPerDay</option>
+      <option value="megapascal">megapascal</option>
+      <option value="megasecond">megasecond</option>
+      <option value="megavolt">megavolt</option>
+      <option value="megawatt">megawatt</option>
+      <option value="meterCubed">meterCubed</option>
+      <option value="meterCubedPerHectare">meterCubedPerHectare</option>
+      <option value="meterCubedPerKilogram">meterCubedPerKilogram</option>
+      <option value="meterCubedPerMeterCubed">meterCubedPerMeterCubed</option>
+      <option value="meterCubedPerMeterSquared">meterCubedPerMeterSquared</option>
+      <option value="meterCubedPerSecond">meterCubedPerSecond</option>
+      <option value="meterPerDay">meterPerDay</option>
+      <option value="meterPerGram">meterPerGram</option>
+      <option value="meterPerSecond">meterPerSecond</option>
+      <option value="meterPerSecondSquared">meterPerSecondSquared</option>
+      <option value="meterSquared">meterSquared</option>
+      <option value="meterSquaredPerDay">meterSquaredPerDay</option>
+      <option value="meterSquaredPerHectare">meterSquaredPerHectare</option>
+      <option value="meterSquaredPerKilogram">meterSquaredPerKilogram</option>
+      <option value="meterSquaredPerSecond">meterSquaredPerSecond</option>
+      <option value="metersPerDay">metersPerDay</option>
+      <option value="metersPerGram">metersPerGram</option>
+      <option value="metersPerSecond">metersPerSecond</option>
+      <option value="metersPerSecondSquared">metersPerSecondSquared</option>
+      <option value="metersSquaredPerDay">metersSquaredPerDay</option>
+      <option value="metersSquaredPerSecond">metersSquaredPerSecond</option>
+      <option value="microequivalentPerLiter">microequivalentPerLiter</option>
+      <option value="microgramPerGram">microgramPerGram</option>
+      <option value="microgramPerGramPerDay">microgramPerGramPerDay</option>
+      <option value="microgramPerGramPerHour">microgramPerGramPerHour</option>
+      <option value="microgramPerGramPerWeek">microgramPerGramPerWeek</option>
+      <option value="microgramPerLiter">microgramPerLiter</option>
+      <option value="microgramsPerGram">microgramsPerGram</option>
+      <option value="microgramsPerLiter">microgramsPerLiter</option>
+      <option value="microliter">microliter</option>
+      <option value="microliterPerLiter">microliterPerLiter</option>
+      <option value="micrometerCubedPerGram">micrometerCubedPerGram</option>
+      <option value="micromolePerCentimeterSquaredPerSecond">micromolePerCentimeterSquaredPerSecond</option>
+      <option value="micromolePerGram">micromolePerGram</option>
+      <option value="micromolePerGramPerDay">micromolePerGramPerDay</option>
+      <option value="micromolePerGramPerHour">micromolePerGramPerHour</option>
+      <option value="micromolePerGramPerSecond">micromolePerGramPerSecond</option>
+      <option value="micromolePerKilogram">micromolePerKilogram</option>
+      <option value="micromolePerLiter">micromolePerLiter</option>
+      <option value="micromolePerMeterSquaredPerSecond">micromolePerMeterSquaredPerSecond</option>
+      <option value="micromolePerMole">micromolePerMole</option>
+      <option value="microsecond">microsecond</option>
+      <option value="microwattPerCentimeterSquaredPerNanometer">microwattPerCentimeterSquaredPerNanometer</option>
+      <option value="microwattPerCentimeterSquaredPerNanometerPerSteradian">microwattPerCentimeterSquaredPerNanometerPerSteradian</option>
+      <option value="microwattPerCentimeterSquaredPerSteradian">microwattPerCentimeterSquaredPerSteradian</option>
+      <option value="milePerHour">milePerHour</option>
+      <option value="milePerMinute">milePerMinute</option>
+      <option value="milePerSecond">milePerSecond</option>
+      <option value="mileSquared">mileSquared</option>
+      <option value="milesPerHour">milesPerHour</option>
+      <option value="milesPerMinute">milesPerMinute</option>
+      <option value="milesPerSecond">milesPerSecond</option>
+      <option value="milliGramsPerMilliLiter">milliGramsPerMilliLiter</option>
+      <option value="millibar">millibar</option>
+      <option value="milliequivalentPerLiter">milliequivalentPerLiter</option>
+      <option value="milligramPerKilogram">milligramPerKilogram</option>
+      <option value="milligramPerLiter">milligramPerLiter</option>
+      <option value="milligramPerMeterCubed">milligramPerMeterCubed</option>
+      <option value="milligramPerMeterCubedPerDay">milligramPerMeterCubedPerDay</option>
+      <option value="milligramPerMeterSquared">milligramPerMeterSquared</option>
+      <option value="milligramPerMeterSquaredPerDay">milligramPerMeterSquaredPerDay</option>
+      <option value="milligramPerMilliliter">milligramPerMilliliter</option>
+      <option value="milligramsPerCubicMeter">milligramsPerCubicMeter</option>
+      <option value="milligramsPerLiter">milligramsPerLiter</option>
+      <option value="milligramsPerSquareMeter">milligramsPerSquareMeter</option>
+      <option value="millihertz">millihertz</option>
+      <option value="milliliter">milliliter</option>
+      <option value="milliliterPerLiter">milliliterPerLiter</option>
+      <option value="millimeterPerDay">millimeterPerDay</option>
+      <option value="millimeterPerSecond">millimeterPerSecond</option>
+      <option value="millimeterSquared">millimeterSquared</option>
+      <option value="millimetersPerSecond">millimetersPerSecond</option>
+      <option value="millimolePerGram">millimolePerGram</option>
+      <option value="millimolePerKilogram">millimolePerKilogram</option>
+      <option value="millimolePerLiter">millimolePerLiter</option>
+      <option value="millimolePerMeterCubed">millimolePerMeterCubed</option>
+      <option value="millimolePerMole">millimolePerMole</option>
+      <option value="millimolesPerGram">millimolesPerGram</option>
+      <option value="millisecond">millisecond</option>
+      <option value="millivolt">millivolt</option>
+      <option value="milliwatt">milliwatt</option>
+      <option value="minute">minute</option>
+      <option value="molality">molality</option>
+      <option value="molarity">molarity</option>
+      <option value="mole">mole</option>
+      <option value="molePerCubicMeter">molePerCubicMeter</option>
+      <option value="molePerGram">molePerGram</option>
+      <option value="molePerKilogram">molePerKilogram</option>
+      <option value="molePerKilogram">molePerKilogram</option>
+      <option value="molePerKilogramPerSecond">molePerKilogramPerSecond</option>
+      <option value="molePerLiter">molePerLiter</option>
+      <option value="molePerMeterCubed">molePerMeterCubed</option>
+      <option value="molePerMeterSquaredPerSecond">molePerMeterSquaredPerSecond</option>
+      <option value="molePerMole">molePerMole</option>
+      <option value="molesPerGram">molesPerGram</option>
+      <option value="molesPerKilogram">molesPerKilogram</option>
+      <option value="molesPerKilogramPerSecond">molesPerKilogramPerSecond</option>
+      <option value="nanogramPerGram">nanogramPerGram</option>
+      <option value="nanogramPerGramPerHour">nanogramPerGramPerHour</option>
+      <option value="nanoliterPerLiter">nanoliterPerLiter</option>
+      <option value="nanomolePerGramPerDay">nanomolePerGramPerDay</option>
+      <option value="nanomolePerGramPerHour">nanomolePerGramPerHour</option>
+      <option value="nanomolePerGramPerSecond">nanomolePerGramPerSecond</option>
+      <option value="nanomolePerKilogram">nanomolePerKilogram</option>
+      <option value="nanomolePerLiter">nanomolePerLiter</option>
+      <option value="nanomolePerMole">nanomolePerMole</option>
+      <option value="nanomolesPerGramPerSecond">nanomolesPerGramPerSecond</option>
+      <option value="nanosecond">nanosecond</option>
+      <option value="newton">newton</option>
+      <option value="nominalDay">nominalDay</option>
+      <option value="nominalHour">nominalHour</option>
+      <option value="nominalLeapYear">nominalLeapYear</option>
+      <option value="nominalMinute">nominalMinute</option>
+      <option value="nominalWeek">nominalWeek</option>
+      <option value="nominalYear">nominalYear</option>
+      <option value="number">number</option>
+      <option value="numberPerGram">numberPerGram</option>
+      <option value="numberPerHectare">numberPerHectare</option>
+      <option value="numberPerKilometerSquared">numberPerKilometerSquared</option>
+      <option value="numberPerLiter">numberPerLiter</option>
+      <option value="numberPerMeterCubed">numberPerMeterCubed</option>
+      <option value="numberPerMeterSquared">numberPerMeterSquared</option>
+      <option value="numberPerMilliliter">numberPerMilliliter</option>
+      <option value="ohm">ohm</option>
+      <option value="ohmMeter">ohmMeter</option>
+      <option value="pascal">pascal</option>
+      <option value="percent">percent</option>
+      <option value="permil">permil</option>
+      <option value="pint">pint</option>
+      <option value="poundPerAcre">poundPerAcre</option>
+      <option value="poundPerInchSquared">poundPerInchSquared</option>
+      <option value="poundsPerSquareInch">poundsPerSquareInch</option>
+      <option value="quart">quart</option>
+      <option value="second">second</option>
+      <option value="siemen">siemen</option>
+      <option value="siemens">siemens</option>
+      <option value="siemensPerCentimeter">siemensPerCentimeter</option>
+      <option value="siemensPerMeter">siemensPerMeter</option>
+      <option value="sievert">sievert</option>
+      <option value="squareCentimeters">squareCentimeters</option>
+      <option value="squareFoot">squareFoot</option>
+      <option value="squareKilometers">squareKilometers</option>
+      <option value="squareMeter">squareMeter</option>
+      <option value="squareMeterPerKilogram">squareMeterPerKilogram</option>
+      <option value="squareMile">squareMile</option>
+      <option value="squareMillimeters">squareMillimeters</option>
+      <option value="squareYard">squareYard</option>
+      <option value="tesla">tesla</option>
+      <option value="tonnePerHectare">tonnePerHectare</option>
+      <option value="tonnePerYear">tonnePerYear</option>
+      <option value="tonnesPerYear">tonnesPerYear</option>
+      <option value="volt">volt</option>
+      <option value="watt">watt</option>
+      <option value="wattPerMeterSquared">wattPerMeterSquared</option>
+      <option value="wattPerMeterSquaredPerNanometer">wattPerMeterSquaredPerNanometer</option>
+      <option value="wattPerMeterSquaredPerNanometerPerSteradian">wattPerMeterSquaredPerNanometerPerSteradian</option>
+      <option value="wattPerMeterSquaredPerSteradian">wattPerMeterSquaredPerSteradian</option>
+      <option value="waveNumber">waveNumber</option>
+      <option value="weber">weber</option>
+      <option value="yardPerSecond">yardPerSecond</option>
+      <option value="yardSquared">yardSquared</option>
+      <option value="yardsPerSecond">yardsPerSecond</option>
+    </helper>
   </element>
   <element name="missingValueCode">
     <label>Missing Value Code</label>
@@ -500,8 +872,13 @@
     <label>Annotation</label>
     <description></description>
   </element>
+  <element name="attributeList">
+    <label>Attribute List</label>
+    <description></description>
+  </element>
   <element name="attribute">
     <label>Attribute</label>
+    <btnLabel>Attribute</btnLabel>
     <description></description>
   </element>
   <element name="attributeName">
@@ -537,6 +914,13 @@
   <element name="numberType">
     <label>Number type</label>
     <description></description>
+    <helper>
+      <option value="natural">natural</option>
+      <option value="whole">whole</option>
+      <option value="integer">integer</option>
+      <option value="real">real</option>
+      <option value="natural">natural</option>
+    </helper>
   </element>
 
   <element name="code">
@@ -569,4 +953,69 @@
     <description></description>
   </element>
 
+
+  <element name="accuracy">
+    <label>Accuracy</label>
+    <description></description>
+  </element>
+
+  <element name="bounds">
+    <label>Bounds</label>
+    <description></description>
+  </element>
+
+  <element name="minimum">
+    <label>Minimum</label>
+    <description></description>
+  </element>
+
+  <element name="maximum">
+    <label>Maximum</label>
+    <description></description>
+  </element>
+
+  <element name="precision">
+    <label>Precision</label>
+    <description></description>
+  </element>
+
+  <element name="dateTimePrecision">
+    <label>Precision</label>
+    <description></description>
+  </element>
+
+  <element name="dateTimeDomain">
+    <label>DateTime Domain</label>
+    <description></description>
+  </element>
+
+  <element name="customUnit">
+    <label>Custom Unit</label>
+    <description></description>
+  </element>
+
+  <element name="interval">
+    <label>Interval</label>
+    <description></description>
+  </element>
+
+  <element name="alternateIdentifier">
+    <label>Alternate Identifier</label>
+    <description></description>
+  </element>
+
+  <element name="licensed">
+    <label>Resource License</label>
+    <description></description>
+  </element>
+
+  <element name="licenseName">
+    <label>License Name</label>
+    <description></description>
+  </element>
+
+  <element name="url" context="licensed">
+    <label>License url</label>
+    <description></description>
+  </element>
 </labels>

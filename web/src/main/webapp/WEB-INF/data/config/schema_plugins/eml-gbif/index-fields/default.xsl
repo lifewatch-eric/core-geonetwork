@@ -124,6 +124,34 @@
         </xsl:for-each>
       </xsl:for-each>
 
+<!-- MethodStep -->
+    <xsl:for-each select="methods/methodStep">         
+	       
+      <xsl:variable name="para_description_methodStep_methods_dataset_variable"   select="description/para"/>
+      <xsl:variable name="bibtex_citation_methodStep_methods_dataset_variable"    select="citation/para"/>
+	    
+	    <!-- Instrumentation - MethodStep - Methods - Dataset -->   
+	    <xsl:variable name="instrumentation_methodStep_methods_dataset_variable">
+        <xsl:for-each select="instrumentation/para">
+            <xsl:value-of select="concat(., '--')" />
+        </xsl:for-each>
+      </xsl:variable>
+ 
+	    <!-- Software - MethodStep - Methods - Dataset --> 
+      <xsl:variable name="software_dataset_variable">
+          <xsl:for-each select="software">
+            <xsl:variable name="title_software_methodStep_methods_dataset" select="title" />
+            <xsl:variable name="references_software_methodStep_methods_dataset" select="version" />
+            <xsl:value-of select="concat($title_software_methodStep_methods_dataset, '--', $references_software_methodStep_methods_dataset), '^'" />
+          </xsl:for-each>
+      </xsl:variable>
+	    
+			 <Field name="methodStep_dataset"
+	                 string="{concat(string($para_description_methodStep_methods_dataset_variable), '|', string($bibtex_citation_methodStep_methods_dataset_variable),
+	                 '|', string($instrumentation_methodStep_methods_dataset_variable), '|', string($software_dataset_variable))}" 
+	                 store="true" index="false"/>                
+	</xsl:for-each>
+
       <xsl:for-each select="distribution">
         <xsl:variable name="tPosition" select="position()"></xsl:variable>
         <xsl:if test="connectionDefinition">
@@ -272,6 +300,51 @@
         </xsl:for-each>
         <Field name="funding_project_dataset" string="{string(funding/para)}" store="true" index="true"/>            
       </xsl:for-each>
+
+<!-- Datatable - Dataset -->      
+    <xsl:for-each select="dataTable">	       
+	       <xsl:variable name="entityName_datatable_dataset_variable"   select="entityName"/>
+
+	       <xsl:variable name="formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset_variable">
+         <xsl:for-each select="physical/dataFormat/externallyDefinedFormat/formatName">
+             <xsl:value-of select="concat(.,' ')" /> 
+         </xsl:for-each>
+         </xsl:variable>
+
+      <!-- AttributeList - Datatable - Dataset --> 
+	    <xsl:variable name="attributeList_datatable_dataset_variable">
+        	<xsl:for-each select="attributeList/attribute">
+            <xsl:variable name="attributeName_attributeList_datatable_dataset_variable" select="attributeName" />
+				    <xsl:variable name="attributeLabel_attributeList_datatable_dataset_variable" select="attributeLabel" />
+            <xsl:variable name="attributeDefinition_attributeList_datatable_dataset_variable"    select="attributeDefinition"/>        
+            <xsl:variable name="standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset_variable"    select="measurementScale/./name()"/>    
+            <xsl:variable name="code_missingValueCode_attributeList_datatable_dataset_variable"    select="missingValueCode/code"/>       
+      
+				<!-- AttributeAnnotation - AttributeList - Datatable - Dataset --> 
+	    		<xsl:variable name="attributeAnnotation_attributeList_datatable_dataset_variable">
+        			<xsl:for-each select="annotation">
+                <xsl:variable name="propertyURI_attributeAnnotation_attributeList_datatable_dataset" select="propertyURI" />
+                <xsl:variable name="valueURI_attributeAnnotation_attributeList_datatable_dataset" select="valueURI" />
+            		<xsl:value-of select="concat($propertyURI_attributeAnnotation_attributeList_datatable_dataset, '##', $valueURI_attributeAnnotation_attributeList_datatable_dataset), '°°'" />
+        			</xsl:for-each>
+	   			</xsl:variable>
+
+            	<xsl:value-of select="concat(string($attributeName_attributeList_datatable_dataset_variable), '--', 
+            								  string($attributeLabel_attributeList_datatable_dataset_variable), '--',
+                							string($attributeDefinition_attributeList_datatable_dataset_variable), '--',
+                							string($standardUnit_unit_ratio_measurementScale_attributeList_datatable_dataset_variable), '--',
+                							string($code_missingValueCode_attributeList_datatable_dataset_variable), '--',
+                							string($attributeAnnotation_attributeList_datatable_dataset_variable), '^')" />
+        	</xsl:for-each>
+	    </xsl:variable>
+	    
+			 <Field name="datatable_dataset"
+	                 string="{concat(string($entityName_datatable_dataset_variable), '|', string($formatName_externallyDefinedFormat_dataFormat_physical_datatable_dataset_variable),
+	                 '|', string($attributeList_datatable_dataset_variable))}" 
+	                 store="true" index="false"/>	                 
+	</xsl:for-each>
+
+
 
     </xsl:for-each>
 

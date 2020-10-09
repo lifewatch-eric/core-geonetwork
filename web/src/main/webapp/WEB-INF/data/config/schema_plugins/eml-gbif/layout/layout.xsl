@@ -128,7 +128,7 @@
 
 
   <!-- Forget all elements ... -->
-  <xsl:template mode="mode-eml-gbif" priority="201" match="gn:*|@*"/>
+  <xsl:template mode="mode-eml-gbif" priority="1000" match="gn:*|@gn:*|@*" />
 
   <!--
     ... but not the one proposing the list of elements to add in DC schema
@@ -184,8 +184,6 @@
         then concat(@prefix, ':', @name)
         else @name" />
 
-    <xsl:message>gn:child <xsl:value-of select="$name" /></xsl:message>
-
     <xsl:variable name="flatModeException"
                   select="gn-fn-metadata:isFieldFlatModeException($viewConfig, $name,  name(..))"/>
 
@@ -235,6 +233,36 @@
 
     <xsl:variable name="xpath" select="gn-fn-metadata:getXPath(.)"/>
 
+    <xsl:variable name="theElement" select="." />
+
+    <xsl:variable name="attributes">
+
+      <!-- Create form for all existing attribute (not in gn namespace)
+      and all non existing attributes not already present for the
+      current element and its children (eg. @uom in gco:Distance).
+      A list of exception is defined in form-builder.xsl#render-for-field-for-attribute. -->
+      <xsl:apply-templates mode="render-for-field-for-attribute"
+                           select="@*">
+        <xsl:with-param name="ref" select="gn:element/@ref"/>
+        <xsl:with-param name="insertRef" select="$theElement/gn:element/@ref"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates mode="render-for-field-for-attribute"
+                           select="*[namespace-uri(.) != 'http://www.fao.org/geonetwork']/@*">
+        <xsl:with-param name="ref" select="$theElement/gn:element/@ref"/>
+        <xsl:with-param name="insertRef" select="$theElement/gn:element/@ref"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates mode="render-for-field-for-attribute"
+                           select="gn:attribute[not(@name = parent::node()/@*/name())]">
+        <xsl:with-param name="ref" select="gn:element/@ref"/>
+        <xsl:with-param name="insertRef" select="$theElement/gn:element/@ref"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates mode="render-for-field-for-attribute"
+                           select="*[namespace-uri(.) != 'http://www.fao.org/geonetwork']/gn:attribute[not(@name = parent::node()/@*/name())]">
+        <xsl:with-param name="ref" select="$theElement/gn:element/@ref"/>
+        <xsl:with-param name="insertRef" select="$theElement/gn:element/@ref"/>
+      </xsl:apply-templates>
+    </xsl:variable>
+
     <!-- Add view and edit template-->
     <xsl:call-template name="render-element">
       <xsl:with-param name="label" select="$labelConfig"/>
@@ -244,6 +272,7 @@
             <xsl:with-param name="widgetParams"/>-->
       <xsl:with-param name="xpath" select="$xpath"/>
       <!--<xsl:with-param name="attributesSnippet" as="node()"/>-->
+      <xsl:with-param name="attributesSnippet" select="$attributes"/>
       <xsl:with-param name="type" select="gn-fn-metadata:getFieldType($editorConfig, name(), '', $xpath)"/>
       <xsl:with-param name="name" select="if ($isEditing) then gn:element/@ref else ''"/>
       <xsl:with-param name="editInfo"
@@ -313,6 +342,35 @@
     <xsl:variable name="added" select="parent::node()/parent::node()/@gn:addedObj"/>
     <xsl:variable name="container" select="parent::node()/parent::node()"/>
 
+    <xsl:variable name="theElement" select="." />
+
+    <xsl:variable name="attributes">
+
+      <!-- Create form for all existing attribute (not in gn namespace)
+      and all non existing attributes not already present for the
+      current element and its children (eg. @uom in gco:Distance).
+      A list of exception is defined in form-builder.xsl#render-for-field-for-attribute. -->
+      <xsl:apply-templates mode="render-for-field-for-attribute"
+                           select="@*">
+        <xsl:with-param name="ref" select="gn:element/@ref"/>
+        <xsl:with-param name="insertRef" select="$theElement/gn:element/@ref"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates mode="render-for-field-for-attribute"
+                           select="*/@*">
+        <xsl:with-param name="ref" select="$theElement/gn:element/@ref"/>
+        <xsl:with-param name="insertRef" select="$theElement/gn:element/@ref"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates mode="render-for-field-for-attribute"
+                           select="gn:attribute[not(@name = parent::node()/@*/name())]">
+        <xsl:with-param name="ref" select="gn:element/@ref"/>
+        <xsl:with-param name="insertRef" select="$theElement/gn:element/@ref"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates mode="render-for-field-for-attribute"
+                           select="*/gn:attribute[not(@name = parent::node()/@*/name())]">
+        <xsl:with-param name="ref" select="$theElement/gn:element/@ref"/>
+        <xsl:with-param name="insertRef" select="$theElement/gn:element/@ref"/>
+      </xsl:apply-templates>
+    </xsl:variable>
 
     <!-- Add view and edit template-->
     <xsl:call-template name="render-element">
@@ -323,6 +381,7 @@
             <xsl:with-param name="widgetParams"/>-->
       <xsl:with-param name="xpath" select="$xpath"/>
       <!--<xsl:with-param name="attributesSnippet" as="node()"/>-->
+      <xsl:with-param name="attributesSnippet" select="$attributes"/>
       <xsl:with-param name="type" select="gn-fn-metadata:getFieldType($editorConfig, name(), '', $xpath)"/>
       <xsl:with-param name="name" select="if ($isEditing) then (para|url|descriptorValue)/gn:element/@ref else ''"/>
       <xsl:with-param name="editInfo"
@@ -458,7 +517,7 @@
   </xsl:template>
 
   <!-- Readonly elements -->
-  <xsl:template mode="mode-eml-gbif" priority="150" match="alternateIdentifier|dateStamp">
+  <xsl:template mode="mode-eml-gbif" priority="150" match="dataset/alternateIdentifier|dateStamp">
     <xsl:variable name="xpath" select="gn-fn-metadata:getXPath(.)"/>
 
     <xsl:call-template name="render-element">

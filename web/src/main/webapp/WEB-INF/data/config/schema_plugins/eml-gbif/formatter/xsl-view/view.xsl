@@ -49,7 +49,7 @@
 
   <!-- Ignore some fields displayed in header or in right column -->
   <xsl:template mode="render-field"
-                match="abstract|title"
+                match="dataset/abstract|dataset/title"
                 priority="2000"/>
 
   <!-- Specific schema rendering -->
@@ -62,7 +62,6 @@
   </xsl:template>
 
   <xsl:template mode="getMetadataAbstract" match="eml:eml">
-    <xsl:message>getMetadataAbstract</xsl:message>
     <xsl:value-of select="dataset/abstract/para"/>
   </xsl:template>
 
@@ -105,8 +104,6 @@
   <xsl:template mode="render-field" match="*">
     <xsl:param name="fieldName" select="''" as="xs:string"/>
 
-    <xsl:message>render-field: <xsl:value-of select="name()" /> - <xsl:value-of select="$fieldName" /></xsl:message>
-
     <dl>
       <dt>
         <xsl:value-of select="if ($fieldName)
@@ -121,8 +118,6 @@
 
   <xsl:template mode="render-field" match="*[para]">
     <xsl:param name="fieldName" select="''" as="xs:string"/>
-
-    <xsl:message>render-field: <xsl:value-of select="name()" /> - <xsl:value-of select="$fieldName" /></xsl:message>
 
     <dl>
       <dt>
