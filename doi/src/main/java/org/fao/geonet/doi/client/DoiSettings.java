@@ -1,5 +1,5 @@
 //=============================================================================
-//===	Copyright (C) 2001-2010 Food and Agriculture Organization of the
+//===	Copyright (C) 2001-2023 Food and Agriculture Organization of the
 //===	United Nations (FAO-UN), United Nations World Food Programme (WFP)
 //===	and United Nations Environment Programme (UNEP)
 //===
@@ -28,14 +28,18 @@ package org.fao.geonet.doi.client;
 public class DoiSettings {
     public static final String SETTING_PUBLICATION_DOI_DOIURL =
         "system/publication/doi/doiurl";
+    public static final String SETTING_PUBLICATION_DOI_DOIPUBLICURL =
+        "system/publication/doi/doipublicurl";
     public static final String SETTING_PUBLICATION_DOI_DOIUSERNAME =
         "system/publication/doi/doiusername";
     public static final String SETTING_PUBLICATION_DOI_DOIPASSWORD =
         "system/publication/doi/doipassword";
     public static final String SETTING_PUBLICATION_DOI_DOIKEY =
         "system/publication/doi/doikey";
+    public static final String SETTING_PUBLICATION_DOI_DOIPATTERN =
+        "system/publication/doi/doipattern";
     public static final String SETTING_PUBLICATION_DOI_LANDING_PAGE_TEMPLATE =
         "system/publication/doi/doilandingpagetemplate";
 
-    protected static final String LOGGER_NAME = "DOI";
+    protected static final String LOGGER_NAME = "geonetwork.doi";
 }

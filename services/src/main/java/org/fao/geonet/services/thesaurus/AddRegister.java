@@ -18,7 +18,7 @@
 //===	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 //===
 //===	Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
-//===	Rome - Italy. email: GeoNetwork@fao.org
+//===	Rome - Italy. email: geonetwork@osgeo.org
 //==============================================================================
 
 package org.fao.geonet.services.thesaurus;
@@ -26,16 +26,12 @@ package org.fao.geonet.services.thesaurus;
 import jeeves.constants.Jeeves;
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
-
-import org.fao.geonet.Util;
 import org.fao.geonet.GeonetContext;
+import org.fao.geonet.Util;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.constants.Params;
-import org.fao.geonet.domain.Constants;
-import org.fao.geonet.domain.ThesaurusActivation;
 import org.fao.geonet.kernel.Thesaurus;
 import org.fao.geonet.kernel.ThesaurusManager;
-import org.fao.geonet.repository.ThesaurusActivationRepository;
 import org.fao.geonet.services.NotInReadOnlyModeService;
 import org.jdom.Element;
 
@@ -70,14 +66,6 @@ public class AddRegister extends NotInReadOnlyModeService {
 
         Thesaurus gst = tm.getThesaurusByName(theKey);
         String fname = gst.getFname();
-
-        final ThesaurusActivationRepository activationRepository = context.getBean(ThesaurusActivationRepository.class);
-
-        final ThesaurusActivation activation = new ThesaurusActivation();
-        activation.setId(fname);
-        activation.setActivated(Constants.toBoolean_fromYNChar(activated.charAt(0)));
-
-        activationRepository.save(activation);
 
         Element elResp = new Element(Jeeves.Elem.RESPONSE);
         Element elRef = new Element("ref");

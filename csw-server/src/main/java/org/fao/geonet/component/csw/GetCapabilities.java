@@ -1,5 +1,5 @@
 //=============================================================================
-//===	Copyright (C) 2001-2007 Food and Agriculture Organization of the
+//===	Copyright (C) 2001-2021 Food and Agriculture Organization of the
 //===	United Nations (FAO-UN), United Nations World Food Programme (WFP)
 //===	and United Nations Environment Programme (UNEP)
 //===
@@ -25,6 +25,7 @@ package org.fao.geonet.component.csw;
 
 import jeeves.server.context.ServiceContext;
 import org.apache.commons.lang.StringUtils;
+import org.fao.geonet.ApplicationContextHolder;
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.NodeInfo;
 import org.fao.geonet.Util;
@@ -42,7 +43,6 @@ import org.fao.geonet.kernel.csw.CatalogService;
 import org.fao.geonet.kernel.csw.services.AbstractOperation;
 import org.fao.geonet.kernel.csw.services.getrecords.FieldMapper;
 import org.fao.geonet.kernel.datamanager.IMetadataUtils;
-import org.fao.geonet.kernel.search.LuceneConfig;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.kernel.setting.Settings;
 import org.fao.geonet.lib.Lib;
@@ -68,14 +68,13 @@ import java.util.Set;
 
 import static org.fao.geonet.kernel.setting.SettingManager.isPortRequired;
 
+
 /**
  * TODO javadoc.
  */
 @Component(CatalogService.BEAN_PREFIX + GetCapabilities.NAME)
 public class GetCapabilities extends AbstractOperation implements CatalogService {
     static final String NAME = "GetCapabilities";
-    @Autowired
-    private LuceneConfig _luceneConfig;
     @Autowired
     private CatalogConfiguration _catalogConfig;
     @Autowired
@@ -108,15 +107,17 @@ public class GetCapabilities extends AbstractOperation implements CatalogService
 
         String recordUuidToUseForCapability = gc.getBean(SettingManager.class).getValue(Settings.SYSTEM_CSW_CAPABILITY_RECORD_UUID);
         if (!NodeInfo.DEFAULT_NODE.equals(context.getNodeId())) {
-            final Source source = sourceRepository.findOne(nodeinfo.getId());
+            final Source source = sourceRepository.findById(nodeinfo.getId()).get();
             if(source.getServiceRecord() != null) {
                 recordUuidToUseForCapability = source.getServiceRecord().toString();
+            } else {
+                recordUuidToUseForCapability = "-1";
             }
         }
-
         Element capabilities = null;
         String message = null;
-        if (StringUtils.isNotEmpty(recordUuidToUseForCapability) && !"-1".equals(recordUuidToUseForCapability)) {
+        if (StringUtils.isNotEmpty(recordUuidToUseForCapability)
+            && !"-1".equals(recordUuidToUseForCapability)) {
             Metadata record = metadataRepository.findOneByUuid(recordUuidToUseForCapability);
             if (record != null) {
                 try {
@@ -170,7 +171,7 @@ public class GetCapabilities extends AbstractOperation implements CatalogService
             String cswServiceSpecificContraint = request.getChildText(Geonet.Elem.FILTER);
 
             if (!isFromRecord) {
-                setKeywords(capabilities, context, cswServiceSpecificContraint);
+                // TODOES: setKeywords(capabilities, context);
             }
             setOperationsParameters(capabilities);
 
@@ -327,17 +328,28 @@ public class GetCapabilities extends AbstractOperation implements CatalogService
         GeonetContext gc = (GeonetContext) context.getHandlerContext(Geonet.CONTEXT_NAME);
         SettingManager sm = gc.getBean(SettingManager.class);
 
-        HashMap<String, String> vars = new HashMap<String, String>();
+        Map<String, String> vars = new HashMap<String, String>();
 
         String protocol = sm.getValue(Settings.SYSTEM_SERVER_PROTOCOL);
         vars.put("$PROTOCOL", protocol);
         vars.put("$HOST", sm.getValue(Settings.SYSTEM_SERVER_HOST));
 
-        String insecureport = sm.getValue(Settings.SYSTEM_SERVER_PORT);
-        String secureport = sm.getValue(Settings.SYSTEM_SERVER_SECURE_PORT);
+        Integer port;
+        try {
+            port = sm.getValueAsInt(Settings.SYSTEM_SERVER_PORT);
+        } catch (NumberFormatException e) {
+            port = null;
+        }
 
-        String port = "https".equals(protocol) ? secureport : insecureport;
-        vars.put("$PORT", isPortRequired(protocol, port) ? ":" + port : "");
+        if (port == null) {
+            if (protocol.equalsIgnoreCase(Geonet.HttpProtocol.HTTPS)) {
+                port = Geonet.DefaultHttpPort.HTTPS;
+            } else {
+                port = Geonet.DefaultHttpPort.HTTP;
+            }
+        }
+
+        vars.put("$PORT", isPortRequired(protocol, String.valueOf(port)) ? ":" + port : "");
         vars.put("$END-POINT", context.getService());
         vars.put("$NODE_ID", context.getNodeId());
 
@@ -348,7 +360,7 @@ public class GetCapabilities extends AbstractOperation implements CatalogService
 
         boolean isTitleDefined = false;
         String sourceUuid = NodeInfo.DEFAULT_NODE.equals(nodeinfo.getId()) ? sm.getSiteId() : nodeinfo.getId();
-        final Source source = sourceRepository.findOne(sourceUuid);
+        final Source source = sourceRepository.findById(sourceUuid).get();
         if (source != null) {
             vars.put("$TITLE", source.getLabelTranslations().get(langId));
             isTitleDefined = true;
@@ -416,7 +428,7 @@ public class GetCapabilities extends AbstractOperation implements CatalogService
             }
 
             // Current language
-            HashMap<String, String> vars = new HashMap<String, String>();
+            Map<String, String> vars = new HashMap<String, String>();
             if (languages.contains(currLang)) {
                 vars.put("$INSPIRE_LOCALE", currLang);
 
@@ -437,7 +449,7 @@ public class GetCapabilities extends AbstractOperation implements CatalogService
      * Defines keyword section of the GetCapabilities document according to catalogue content.
      * Reading  Lucene index, most popular keywords are added to the document.
      */
-    private void setKeywords(Element capabilities, ServiceContext context, String cswServiceSpecificContraint) {
+    private void setKeywords(Element capabilities, ServiceContext context) {
         Element serviceIdentificationEl = capabilities.getChild("ServiceIdentification", Csw.NAMESPACE_OWS);
         @SuppressWarnings("unchecked")
         List<Element> keywords = serviceIdentificationEl.getChildren("Keywords", Csw.NAMESPACE_OWS);
@@ -445,8 +457,7 @@ public class GetCapabilities extends AbstractOperation implements CatalogService
         List<Element> values;
         String[] properties = {"keyword"};
         try {
-            values = GetDomain.handlePropertyName(_catalogConfig, properties, context, true, _catalogConfig.getMaxNumberOfRecordsForKeywords(),
-                cswServiceSpecificContraint, _luceneConfig);
+            values = GetDomain.handlePropertyName(_catalogConfig, properties, context, true, _catalogConfig.getMaxNumberOfRecordsForKeywords());
         } catch (Exception e) {
             Log.error(Geonet.CSW, "Error getting domain value for specified PropertyName : " + e);
             // If GetDomain operation failed, just add nothing to the capabilities document template.

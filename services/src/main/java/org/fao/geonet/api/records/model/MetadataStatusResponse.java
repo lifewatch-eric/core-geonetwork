@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * Copyright (C) 2001-2024 Food and Agriculture Organization of the
  * United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * and United Nations Environment Programme (UNEP)
  *
@@ -23,103 +23,101 @@
 
 package org.fao.geonet.api.records.model;
 
-import org.fao.geonet.domain.ISODate;
 import org.fao.geonet.domain.MetadataStatus;
-import org.fao.geonet.domain.MetadataStatusId;
-import org.fao.geonet.domain.StatusValue;
 
-public class MetadataStatusResponse extends MetadataStatus {
+public class MetadataStatusResponse extends MetadataStatusDto {
 
-    MetadataStatus metadataStatusObject;
+    private String authorName;
+    private String authorEmail;
+    private String authorProfile;
 
-    String authorName;
-    String authorEmail;
-    String authorProfile;
+    private String ownerName;
+    private String ownerEmail;
+    private String ownerProfile;
 
-    String ownerName;
-    String ownerEmail;
-    String ownerProfile;
+    private String dateDue;
+    private String dateClose;
+    private String dateChange;
 
-    String title;
-    String currentStatus;
-    String previousStatus;
+    private String title;
+    private String currentStatus;
+    private String previousStatus;
 
-    boolean loadFull;
+    private boolean loadFull = false;
 
-    public MetadataStatusResponse(MetadataStatus s) {
-        this.metadataStatusObject = s;
+    public MetadataStatusResponse(MetadataStatus metadataStatus) {
+        super(metadataStatus);
     }
 
-    public MetadataStatusResponse(MetadataStatus s, boolean loadFull) {
-        this.metadataStatusObject = s;
-        if(loadFull) {
-            this.loadFull = true;
-            this.metadataStatusObject.getCurrentState();
-            this.metadataStatusObject.getPreviousState();
-        }
+    public MetadataStatusResponse(MetadataStatus metadataStatus, boolean loadFull) {
+        this(metadataStatus);
+        this.loadFull = loadFull;
     }
 
     public String getAuthorEmail() {
         return authorEmail;
     }
 
-    public MetadataStatusResponse setAuthorEmail(String authorEmail) {
+    public void setAuthorEmail(String authorEmail) {
         this.authorEmail = authorEmail;
-        return this;
     }
 
     public String getOwnerEmail() {
         return ownerEmail;
     }
 
-    public MetadataStatusResponse setOwnerEmail(String ownerEmail) {
+    public void setOwnerEmail(String ownerEmail) {
         this.ownerEmail = ownerEmail;
-        return this;
     }
 
     public String getOwnerName() {
         return ownerName;
     }
 
-    public MetadataStatusResponse setOwnerName(String ownerName) {
+    public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
-        return this;
     }
 
     public String getOwnerProfile() {
         return ownerProfile;
     }
 
-    public MetadataStatusResponse setOwnerProfile(String ownerProfile) {
+    public void setOwnerProfile(String ownerProfile) {
         this.ownerProfile = ownerProfile;
-        return this;
     }
 
     public String getAuthorName() {
         return authorName;
     }
 
-    public MetadataStatusResponse setAuthorName(String authorName) {
+    public void setAuthorName(String authorName) {
         this.authorName = authorName;
-        return this;
     }
 
     public String getAuthorProfile() {
         return authorProfile;
     }
 
-    public MetadataStatusResponse setAuthorProfile(String authorProfile) {
+    public void setAuthorProfile(String authorProfile) {
         this.authorProfile = authorProfile;
-        return this;
     }
 
     public String getCurrentStatus() {
         return currentStatus;
     }
 
-    public String getCurrentStatusDetails() {
+    public boolean isCurrentStateEmpty() {
+        return super.getCurrentState() == null || super.getCurrentState().isEmpty();
+    }
+
+    public boolean isPreviousStateEmpty() {
+        return super.getPreviousState() == null || super.getPreviousState().isEmpty();
+    }
+
+    @Override
+    public String getCurrentState() {
         if(loadFull) {
-            return metadataStatusObject.getCurrentState();
+            return super.getCurrentState();
         } else {
             return "";
         }
@@ -129,54 +127,55 @@ public class MetadataStatusResponse extends MetadataStatus {
         return previousStatus;
     }
 
-    public String getPreviousStatusDetails() {
+    @Override
+    public String getPreviousState() {
         if(loadFull) {
-            return metadataStatusObject.getPreviousState();
+            return super.getPreviousState();
         } else {
             return "";
         }
     }
 
-    public MetadataStatusResponse setCurrentStatus(String currentStatus) {
+    public void setCurrentStatus(String currentStatus) {
         this.currentStatus = currentStatus;
-        return this;
     }
 
-    public MetadataStatusResponse setPreviousStatus(String previousStatus) {
+    public void setPreviousStatus(String previousStatus) {
         this.previousStatus = previousStatus;
-        return this;
     }
     public String getTitle() {
         return title;
     }
 
-    public MetadataStatusResponse setTitle(String title) {
+    public void setTitle(String title) {
         this.title = title;
-        return this;
     }
 
-    public MetadataStatusId getId() {
-        return metadataStatusObject.getId();
+    public int getStatusId() {
+        return getStatusValue().getId();
     }
 
-    public String getChangeMessage() {
-        return metadataStatusObject.getChangeMessage();
+    public void setDateDue(String dateDue) {
+        this.dateDue = dateDue;
     }
 
-    public Integer getOwner() {
-        return metadataStatusObject.getOwner();
+    public String getDateDue() {
+        return dateDue;
     }
 
-    public ISODate getDueDate() {
-        return metadataStatusObject.getDueDate();
+    public String getDateClose() {
+        return dateClose;
     }
 
-    public ISODate getCloseDate() {
-        return metadataStatusObject.getCloseDate();
+    public void setDateClose(String dateClose) {
+        this.dateClose = dateClose;
     }
 
-    public StatusValue getStatusValue() {
-        return metadataStatusObject.getStatusValue();
+    public String getDateChange() {
+        return dateChange;
     }
 
+    public void setDateChange(String dateChange) {
+        this.dateChange = dateChange;
+    }
 }

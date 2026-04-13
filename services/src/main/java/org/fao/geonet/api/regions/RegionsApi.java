@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * Copyright (C) 2001-2021 Food and Agriculture Organization of the
  * United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * and United Nations Environment Programme (UNEP)
  *
@@ -23,23 +23,28 @@
 
 package org.fao.geonet.api.regions;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jeeves.server.context.ServiceContext;
+import org.apache.commons.lang3.StringUtils;
 import org.fao.geonet.ApplicationContextHolder;
-import org.fao.geonet.api.API;
 import org.fao.geonet.api.ApiUtils;
 import org.fao.geonet.api.records.extent.MapRenderer;
 import org.fao.geonet.api.regions.model.Category;
 import org.fao.geonet.api.tools.i18n.LanguageUtils;
-import org.fao.geonet.domain.AbstractMetadata;
 import org.fao.geonet.exceptions.BadParameterEx;
+import org.fao.geonet.exceptions.LabelNotFoundException;
 import org.fao.geonet.kernel.KeywordBean;
 import org.fao.geonet.kernel.region.Region;
 import org.fao.geonet.kernel.region.RegionsDAO;
 import org.fao.geonet.kernel.region.Request;
+import org.fao.geonet.kernel.setting.SettingManager;
+import org.fao.geonet.kernel.setting.Settings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -49,7 +54,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.NativeWebRequest;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
@@ -61,30 +65,42 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.fao.geonet.api.ApiParams.API_PARAM_RECORD_UUID;
 import static org.fao.geonet.api.records.extent.MetadataExtentApi.*;
 
-/**
- *
- */
-
 @RequestMapping(value = {
-    "/{portal}/api/regions",
-    "/{portal}/api/" + API.VERSION_0_1 +
-        "/regions"
+    "/{portal}/api/regions"
 })
-@Api(value = "regions",
-    tags = "regions",
+@Tag(name = "regions",
     description = "Regions operations")
 @Controller("regions")
 public class RegionsApi {
 
     @Autowired
-    LanguageUtils languageUtils;
+    private LanguageUtils languageUtils;
+    @Autowired
+    private SettingManager settingManager;
 
-    @ApiOperation(
-        value = "Get list of regions",
-        nickname = "getRegions"
+    @Value("${metadata.extentApi.disableFullUrlBackgroundMapServices:true}")
+    private boolean disableFullUrlBackgroundMapServices;
+
+    public static Request createRequest(String label, String categoryId,
+                                        int maxRecords, ServiceContext context,
+                                        RegionsDAO dao) throws Exception {
+        Request request = dao.createSearchRequest(context);
+        if (label != null) {
+            request.label(label);
+        }
+        if (categoryId != null) {
+            request.categoryId(categoryId);
+        }
+        if (maxRecords > 0) {
+            request.maxRecords(maxRecords);
+        }
+        return request;
+    }
+
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Get list of regions"
     )
     @RequestMapping(
         method = RequestMethod.GET,
@@ -94,7 +110,7 @@ public class RegionsApi {
         })
     @ResponseStatus(HttpStatus.OK)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "List of regions.")
+        @ApiResponse(responseCode = "200", description = "List of regions.")
     })
     @ResponseBody
     public ListRegionsResponse getRegions(
@@ -104,9 +120,8 @@ public class RegionsApi {
             String categoryId,
         @RequestParam(defaultValue = "-1")
             int maxRecords,
-        @ApiIgnore
-            @ApiParam(hidden = true)
-        NativeWebRequest webRequest) throws Exception {
+        @Parameter(hidden = true)
+            NativeWebRequest webRequest) throws Exception {
         final HttpServletRequest nativeRequest =
             webRequest.getNativeRequest(HttpServletRequest.class);
 
@@ -129,9 +144,8 @@ public class RegionsApi {
         return new ListRegionsResponse(regions);
     }
 
-    @ApiOperation(
-        value = "Get list of region types",
-        nickname = "getRegionTypes"
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Get list of region types"
     )
     @RequestMapping(
         path = "/types",
@@ -141,7 +155,7 @@ public class RegionsApi {
         })
     @ResponseStatus(HttpStatus.OK)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "List of region types.")
+        @ApiResponse(responseCode = "200", description = "List of region types.")
     })
     @ResponseBody
     public List<Category> getRegionTypes(
@@ -157,9 +171,16 @@ public class RegionsApi {
                     ((ThesaurusBasedRegionsDAO) dao).getRegionTopConcepts(context);
                 if (keywords != null) {
                     for (KeywordBean k : keywords) {
+                        String label = "";
+                        try {
+                            label = k.getPreferredLabel(language);
+                        } catch (LabelNotFoundException ex) {
+                            label = k.getDefaultValue();
+                        }
+
                         Category c = new Category(
                             k.getUriCode(),
-                            k.getPreferredLabel(language)
+                            label
                         );
                         response.add(c);
                     }
@@ -180,27 +201,9 @@ public class RegionsApi {
         return response;
     }
 
-    public static Request createRequest(String label, String categoryId,
-                                  int maxRecords, ServiceContext context,
-                                  RegionsDAO dao) throws Exception {
-        Request request = dao.createSearchRequest(context);
-        if (label != null) {
-            request.label(label);
-        }
-        if (categoryId != null) {
-            request.categoryId(categoryId);
-        }
-        if (maxRecords > 0) {
-            request.maxRecords(maxRecords);
-        }
-        return request;
-    }
-
-
-    @ApiOperation(
-        value = "Get geometry as image",
-        notes = "A rendering of the geometry as a png.",
-        nickname = "getGeomAsImage")
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Get geometry as image",
+        description = "A rendering of the geometry as a png.")
     @RequestMapping(
         value = "/geom.png",
         produces = {
@@ -208,24 +211,34 @@ public class RegionsApi {
         },
         method = RequestMethod.GET)
     public HttpEntity<byte[]> getGeomAsImage(
-        @RequestParam(value = MAP_SRS_PARAM, defaultValue = "EPSG:4326") String srs,
-        @ApiParam(value = "(optional) width of the image that is created. Only one of width and height are permitted")
+        @Parameter(description = "(optional) the background map projection. If not passed uses the region/getmap/mapproj"
+            + " setting. If the setting is not set defaults to EPSG:4326")
+        @RequestParam(value = MAP_SRS_PARAM, required = false) String mapSrs,
+        @Parameter(description = "(optional) width of the image that is created. Only one of width and height are permitted")
         @RequestParam(value = WIDTH_PARAM, required = false, defaultValue = "300") Integer width,
-        @ApiParam(value = "(optional) height of the image that is created. Only one of width and height are permitted")
+        @Parameter(description = "(optional) height of the image that is created. Only one of width and height are permitted")
         @RequestParam(value = HEIGHT_PARAM, required = false) Integer height,
-        @ApiParam(value = "(optional) URL for loading a background image for regions or a key that references the namedBackgrounds (configured in config-spring-geonetwork.xml). A WMS Getmap request is the typical example. The URL must be parameterized with the following parameters: minx, maxx, miny, maxy, width, height")
+        @Parameter(description = "(optional) URL for loading a background image for regions or a key that references the namedBackgrounds (configured in config-spring-geonetwork.xml). A WMS Getmap request is the typical example. The URL must be parameterized with the following parameters: minx, maxx, miny, maxy, width, height")
         @RequestParam(value = BACKGROUND_PARAM, required = false, defaultValue = "settings") String background,
-        @ApiParam(value = "(optional) a wkt or gml encoded geometry.")
+        @Parameter(description = "(optional) a wkt or gml encoded geometry.")
         @RequestParam(value = GEOM_PARAM, required = false) String geomParam,
-        @ApiParam(value = "(optional) defines if geom is wkt or gml. Allowed values are wkt and gml. if not specified the it is assumed the geometry is wkt")
+        @Parameter(description = "(optional) defines if geom is wkt or gml. Allowed values are wkt and gml. if not specified the it is assumed the geometry is wkt")
         @RequestParam(value = GEOM_TYPE_PARAM, defaultValue = "WKT") String geomType,
-        @ApiParam(value = "")
+        @Parameter(description = "")
         @RequestParam(value = GEOM_SRS_PARAM, defaultValue = "EPSG:4326") String geomSrs,
-        @ApiIgnore
+        @Parameter(hidden = true)
             NativeWebRequest nativeWebRequest,
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpServletRequest request) throws Exception {
         final ServiceContext context = ApiUtils.createServiceContext(request);
+        String srs = mapSrs;
+        if (StringUtils.isBlank(srs)) {
+            // If no map srs parameter is provided use the `region/getmap/mapproj` setting and if this is not set defaults
+            // to EPSG:4326
+             srs = StringUtils.defaultString(settingManager.getValue(Settings.REGION_GETMAP_MAPPROJ, true),
+                "EPSG:4326");
+        }
+
         if (width != null && height != null) {
             throw new BadParameterEx(
                 WIDTH_PARAM,
@@ -242,6 +255,11 @@ public class RegionsApi {
 
         }
 
+        if ((background != null) && (background.startsWith("http")) && (disableFullUrlBackgroundMapServices)) {
+            throw new BadParameterEx(BACKGROUND_PARAM, "Background layers from provided are not supported, " +
+                "use a preconfigured background layers map service.");
+        }
+
         String outputFileName = "geom.png";
         String regionId = null;
 
@@ -250,16 +268,16 @@ public class RegionsApi {
         }
 
         MapRenderer renderer = new MapRenderer(context);
-        BufferedImage image = renderer.render(regionId, srs, width, height, background, geomParam, geomType, geomSrs);
+        BufferedImage image = renderer.render(regionId, srs, width, height, background, geomParam, geomType, geomSrs, null, null);
 
         if (image == null) return null;
 
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream();) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             ImageIO.write(image, "png", out);
             MultiValueMap<String, String> headers = new HttpHeaders();
-            headers.add("Content-Disposition", "inline; filename=\"" + outputFileName + "\"");
-            headers.add("Cache-Control", "public, max-age: " + TimeUnit.DAYS.toSeconds(5));
-            headers.add("Content-Type", "image/png");
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + outputFileName + "\"");
+            headers.add(HttpHeaders.CACHE_CONTROL, "public, max-age: " + TimeUnit.DAYS.toSeconds(5));
+            headers.add(HttpHeaders.CONTENT_TYPE, "image/png");
             return new HttpEntity<>(out.toByteArray(), headers);
         }
     }

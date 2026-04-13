@@ -1,6 +1,6 @@
 /*
  * =============================================================================
- * ===	Copyright (C) 2019 Food and Agriculture Organization of the
+ * ===	Copyright (C) 2024 Food and Agriculture Organization of the
  * ===	United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * ===	and United Nations Environment Programme (UNEP)
  * ===
@@ -27,6 +27,7 @@ package org.fao.geonet.api.records.attachments;
 import jeeves.server.context.ServiceContext;
 import org.apache.commons.io.FilenameUtils;
 import org.fao.geonet.ApplicationContextHolder;
+import org.fao.geonet.api.exception.NotAllowedException;
 import org.fao.geonet.api.exception.ResourceNotFoundException;
 import org.fao.geonet.domain.AbstractMetadata;
 import org.fao.geonet.domain.MetadataResource;
@@ -43,9 +44,16 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public abstract class AbstractStore implements Store {
+    protected static final String RESOURCE_MANAGEMENT_EXTERNAL_PROPERTIES_SEPARATOR = ":";
+    protected static final String RESOURCE_MANAGEMENT_EXTERNAL_PROPERTIES_ESCAPED_SEPARATOR = "\\:";
+
     @Override
     public final List<MetadataResource> getResources(final ServiceContext context, final String metadataUuid, final Sort sort,
             final String filter) throws Exception {
@@ -93,7 +101,7 @@ public abstract class AbstractStore implements Store {
     }
 
     protected static AccessManager getAccessManager(final ServiceContext context) {
-        return context.getBean(AccessManager.class);
+        return ApplicationContextHolder.get().getBean(AccessManager.class);
     }
 
     public static int getAndCheckMetadataId(String metadataUuid, Boolean approved) throws Exception {
@@ -105,7 +113,9 @@ public abstract class AbstractStore implements Store {
             metadata = _appContext.getBean(IMetadataUtils.class).findOneByUuid(metadataUuid);
         }
         if (metadata == null) {
-            throw new ResourceNotFoundException(String.format("Metadata with UUID '%s' not found.", metadataUuid));
+            throw new ResourceNotFoundException(String.format("Metadata with UUID '%s' not found.", metadataUuid))
+                .withMessageKey("exception.resourceNotFound.metadata")
+                .withDescriptionKey("exception.resourceNotFound.metadata.description", new String[]{ metadataUuid });
         }
         return metadata.getId();
     }
@@ -159,6 +169,10 @@ public abstract class AbstractStore implements Store {
     @Override
     public final MetadataResource putResource(final ServiceContext context, final String metadataUuid, final MultipartFile file,
             final MetadataResourceVisibility visibility, Boolean approved) throws Exception {
+        if (org.apache.commons.lang3.StringUtils.contains(file.getOriginalFilename(),';')) {
+            throw new NotAllowedException(String.format(
+                "Uploaded resource '%s' contains forbidden character ; for metadata '%s'.", file.getOriginalFilename(), metadataUuid));
+        }
         return putResource(context, metadataUuid, file.getOriginalFilename(), file.getInputStream(), null, visibility, approved);
     }
 
@@ -193,6 +207,12 @@ public abstract class AbstractStore implements Store {
     }
 
     @Override
+    public String delResources(final ServiceContext context, final String metadataUuid, Boolean approved) throws Exception {
+        int metadataId = canEdit(context, metadataUuid, approved);
+        return delResources(context, metadataId);
+    }
+
+    @Override
     public String delResource(final ServiceContext context, final String metadataUuid, final String resourceId) throws Exception {
         return delResource(context, metadataUuid, resourceId, true);
     }
@@ -203,9 +223,19 @@ public abstract class AbstractStore implements Store {
         return patchResourceStatus(context, metadataUuid, resourceId, metadataResourceVisibility, true);
     }
 
+    @Override
+    public void copyResources(ServiceContext context, String sourceUuid, String targetUuid, MetadataResourceVisibility metadataResourceVisibility, boolean sourceApproved, boolean targetApproved) throws Exception {
+        final List<MetadataResource> resources = getResources(context, sourceUuid, metadataResourceVisibility, null, sourceApproved);
+        for (MetadataResource resource: resources) {
+            try (Store.ResourceHolder holder = getResource(context, sourceUuid, metadataResourceVisibility, resource.getFilename(), sourceApproved)) {
+                putResource(context, targetUuid, holder.getPath(), metadataResourceVisibility, targetApproved);
+            }
+        }
+    }
+
     protected String getFilename(final String metadataUuid, final String resourceId) {
         // It's not always clear when we get a resourceId or a filename
-        String prefix = metadataUuid + "/attachements/";
+        String prefix = metadataUuid + "/attachments/";
         if (resourceId.startsWith(prefix)) {
             // It was a resourceId
             return resourceId.substring(prefix.length());
@@ -219,5 +249,62 @@ public abstract class AbstractStore implements Store {
         if (resourceId.contains("..") || resourceId.startsWith("/") || resourceId.startsWith("file:/")) {
             throw new SecurityException(String.format("Invalid resource identifier '%s'.", resourceId));
         }
+    }
+
+    public ResourceManagementExternalProperties getResourceManagementExternalProperties() {
+        return new ResourceManagementExternalProperties() {
+            @Override
+            public boolean isEnabled() {
+                return false;
+            }
+
+            @Override
+            public String getWindowParameters() {
+                return null;
+            }
+
+            @Override
+            public boolean isModal() {
+                return false;
+            }
+
+            @Override
+            public boolean isFolderEnabled() {
+                return false;
+            }
+
+            @Override
+            public String toString() {
+                try {
+                    return new ObjectMapper().writeValueAsString(this);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException("Error converting ResourceManagementExternalProperties to json", e);
+                }
+            }
+        };
+    }
+
+    private String escapeResourceManagementExternalProperties(String value) {
+        return value.replace(RESOURCE_MANAGEMENT_EXTERNAL_PROPERTIES_SEPARATOR, RESOURCE_MANAGEMENT_EXTERNAL_PROPERTIES_ESCAPED_SEPARATOR);
+}
+
+    /**
+     * Create an encoded base 64 object id contains the following fields to uniquely identify the resource
+     * The fields are separated by a colon ":"
+     * @param type to identify type of storage - document/folder
+     * @param visibility of the resource public/private
+     * @param metadataId internal metadata id
+     * @param version identifier which can be used to directly get this version.
+     * @param resourceId or filename of the resource
+     * @return based 64 object id
+     */
+    protected String getResourceManagementExternalPropertiesObjectId(final String type, final MetadataResourceVisibility visibility, final Integer metadataId, final String version,
+                                                                     final String resourceId) {
+        return Base64.getEncoder().encodeToString(
+            ((type + RESOURCE_MANAGEMENT_EXTERNAL_PROPERTIES_SEPARATOR +
+                escapeResourceManagementExternalProperties(visibility == null ? "" : visibility.toString().toLowerCase()) + RESOURCE_MANAGEMENT_EXTERNAL_PROPERTIES_SEPARATOR +
+                metadataId + RESOURCE_MANAGEMENT_EXTERNAL_PROPERTIES_SEPARATOR +
+                escapeResourceManagementExternalProperties(version == null ? "" : version) + RESOURCE_MANAGEMENT_EXTERNAL_PROPERTIES_SEPARATOR +
+                escapeResourceManagementExternalProperties(resourceId)).getBytes()));
     }
 }

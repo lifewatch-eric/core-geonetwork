@@ -31,16 +31,16 @@
   <parent>
     <groupId>org.geonetwork-opensource</groupId>
     <artifactId>geonetwork</artifactId>
-    <version>3.11.0-SNAPSHOT</version>
+    <version>4.2.11-0</version>
   </parent>
 
 
   <!-- =========================================================== -->
   <!-- Module Description -->
   <!-- =========================================================== -->
-  <artifactId>common</artifactId>
+  <artifactId>gn-common</artifactId>
   <packaging>jar</packaging>
-  <name>common utils</name>
+  <name>GeoNetwork common utils</name>
   <description>
     Utility classes used by many or all geonetwork modules.
   </description>
@@ -58,15 +58,29 @@
     <dependency>
       <groupId>org.jdom</groupId>
       <artifactId>jdom</artifactId>
+      <exclusions>
+         <exclusion>
+           <groupId>maven-plugins</groupId>
+           <artifactId>maven-cobertura-plugin</artifactId>
+         </exclusion>
+         <exclusion>
+           <groupId>maven-plugins</groupId>
+           <artifactId>maven-findbugs-plugin</artifactId>
+         </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>jdbm</groupId>
       <artifactId>jdbm</artifactId>
     </dependency>
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
     </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-1.2-api</artifactId>
+      </dependency>
     <dependency>
       <groupId>org.apache.jcs</groupId>
       <artifactId>jcs</artifactId>
@@ -129,6 +143,10 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <scope>compile</scope>
     </dependency>
@@ -153,8 +171,10 @@
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20140107</version>
-      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.bitbucket.cowwoc</groupId>
+      <artifactId>diff-match-patch</artifactId>
     </dependency>
   </dependencies>
 

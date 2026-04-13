@@ -1,11 +1,6 @@
-INSERT INTO Languages (id, name, isinspire, isdefault) VALUES ('spa','español', 'y', 'n');
+INSERT INTO Languages (id, name, isinspire) VALUES ('spa','español', 'y');
 
 -- Take care to table ID (related to other loc files)
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (5, 'spa', 'title', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (6, 'spa', 'abstract', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (7, 'spa', 'fees', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (8, 'spa', 'accessConstraints', '');
-
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (2,'spa','Conjuntos de datos');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (3,'spa','Recursos interactivos');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (5,'spa','Casos de Uso, buenas prácticas');
@@ -517,11 +512,11 @@ INSERT INTO OperationsDes  (iddes, langid, label) VALUES (5,'spa','Mapa interact
 INSERT INTO OperationsDes  (iddes, langid, label) VALUES (6,'spa','Featured');
 
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (0,'spa','Unknown');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (1,'spa','Draft');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (2,'spa','Approved');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (3,'spa','Retired');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (4,'spa','Submitted');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (5,'spa','Rejected');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (1,'spa','Borrador');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (2,'spa','Aprobado');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (3,'spa','Retirado');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (4,'spa','Enviado');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (5,'spa','Rechazado');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (50,'spa','Record created.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (51,'spa','Record updated.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (52,'spa','Attachment {{h.item1}} added.');
@@ -535,6 +530,7 @@ INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (59,'spa','Status cha
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (60,'spa','Record updated by process {{h.item1}}.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (61,'spa','Record deleted.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (62,'spa','Record imported.');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (63,'spa','Record restored.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (100,'spa','DOI creation requested.');
 
 INSERT INTO SelectionsDes (iddes, langid, label) VALUES (0,'spa','Preferred records');

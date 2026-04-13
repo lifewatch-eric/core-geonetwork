@@ -30,11 +30,6 @@
   <xsl:include href="../base-layout-cssjs-loader.xsl"/>
   <xsl:include href="../skin/default/skin.xsl"/>
 
-  <xsl:output omit-xml-declaration="yes"
-              method="html"
-              doctype-system="html"
-              indent="yes"
-              encoding="UTF-8"/>
 
   <xsl:template name="render-html">
     <xsl:param name="content"/>
@@ -46,12 +41,19 @@
                select="concat(/root/gui/url,'/images/logos/favicon.png')"/>
     <xsl:param name="type"
                select="'dataset'"/>
+    <xsl:param name="meta" required="no" as="node()*"/>
 
 
     <html ng-app="{$angularModule}" lang="{$lang2chars}" id="ng-app">
       <head>
-        <title><xsl:value-of select="$title"/></title>
+        <title><xsl:value-of select="if($title != '')
+                  then $title
+                  else /root/gui/systemConfig/settings/system/site/name"/></title>
+        <base href="{$nodeUrl}eng/catalog.search"/>
         <meta charset="utf-8"/>
+
+        <xsl:copy-of select="$meta"/>
+
         <meta name="viewport" content="initial-scale=1.0"/>
         <meta name="apple-mobile-web-app-capable" content="yes"/>
 
@@ -100,5 +102,3 @@
     </html>
   </xsl:template>
 </xsl:stylesheet>
-
-

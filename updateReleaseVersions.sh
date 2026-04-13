@@ -5,7 +5,7 @@
 
 function showUsage
 {
-  echo -e "\nThis script is used to update branch from a SNAPSHOT version to a release version. Should be used in branch before creating a new release (tag)." 
+  echo -e "\nThis script is used to update branch from a SNAPSHOT version to a release version. Should be used in branch before creating a new release (tag)."
   echo
   echo -e "Usage: `basename $0 $1` version"
   echo
@@ -14,7 +14,7 @@ function showUsage
   echo
 }
 
-if [ "$1" = "-h" ] 
+if [ "$1" = "-h" ]
 then
 	showUsage
 	exit
@@ -26,8 +26,9 @@ then
   exit
 fi
 
-if [[ $1 != [0-9].[0-9].[0-9] ]]; then 
-	echo
+if [[ $1 =~ ^[0-9]+.[0-9]+.[0-9]+$ ]]; then
+    echo
+else
 	echo 'Update failed due to incorrect versionnumber format: ' $1
 	echo 'The format should be three numbers separated by dots. e.g.: 2.7.0'
 	echo
@@ -44,18 +45,14 @@ else
 fi
 
 echo
-echo 'Your Operating System is' $OSTYPE 
+echo 'Your Operating System is' $OSTYPE
 echo 'sed will use the following option: ' $sedopt
 echo
 
 version="$1"
 
-# Update version in sphinx doc files
-sed $sedopt "s/${version}-SNAPSHOT/${version}/g" docs/eng/users/source/conf.py 
-sed $sedopt "s/${version}-SNAPSHOT/${version}/g" docs/eng/developer/source/conf.py
-
-# Update installer
-sed $sedopt "s/\<property name=\"subVersion\" value=\"SNAPSHOT\" \/\>/\<property name=\"subVersion\" value=\"0\" \/\>/g" installer/build.xml
+# Update release subversion
+sed $sedopt "s/subVersion=SNAPSHOT/subVersion=0/g" release/build.properties
 
 # Update version pom files
 find . -name pom.xml -exec sed $sedopt "s/${version}-SNAPSHOT/${version}/g" {} \;

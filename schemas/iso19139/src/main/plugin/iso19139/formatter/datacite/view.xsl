@@ -87,11 +87,10 @@
               indent="yes"/>
 
   <!-- Before attribution of a DOI the ISO19139 record does not contain yet
-  the DOI value. It is built from the DOI prefix provided as parameter
-  and the UUID of the record.
+  the DOI value. It is built from the DOI id provided as parameter.
   If the DOI already exist in the record, this parameter is not set and the DOI
   is returned as datacite:identifier -->
-  <xsl:param name="doiPrefix"
+  <xsl:param name="doiId"
              select="''"/>
   <xsl:param name="defaultDoiPrefix"
              select="'https://doi.org/'"/>
@@ -100,6 +99,8 @@
 
   <xsl:variable name="metadata"
                 select="//gmd:MD_Metadata"/>
+  <xsl:variable name="metadataUuid"
+                select="$metadata/gmd:fileIdentifier/*/text()"/>
 
   <!-- TODO: Convert language code eng > en_US ? -->
   <xsl:variable name="metadataLanguage"
@@ -132,7 +133,7 @@
     <datacite:identifier identifierType="DOI">
       <!-- Return existing one -->
       <xsl:choose>
-        <xsl:when test="$doiPrefix = ''">
+        <xsl:when test="$doiId = ''">
           <!-- DOI can be located in different places depending on user practice.
           At least we know two:
           * citation identifier
@@ -151,8 +152,7 @@
           </xsl:if>
         </xsl:when>
         <xsl:otherwise>
-          <!-- Build a new one -->
-          <xsl:value-of select="concat($doiPrefix, '/', .)"/>
+          <xsl:value-of select="$doiId"/>
         </xsl:otherwise>
       </xsl:choose>
     </datacite:identifier>
@@ -188,7 +188,7 @@
         </xsl:with-param>
       </xsl:call-template>
 
-      <xsl:for-each select="../gmd:alternateTitle">
+      <xsl:for-each select="../gmd:alternateTitle[*/text() != '']">
         <xsl:call-template name="toDataciteLocalized">
           <xsl:with-param name="template">
             <datacite:title titleType="AlternativeTitle"/>
@@ -219,7 +219,7 @@
 
 
   <xsl:template mode="toDatacite"
-                match="gmd:EX_GeographicBoundingBox[1]">
+                match="gmd:MD_Metadata/gmd:identificationInfo/*/gmd:extent[1]">
     <datacite:geoLocations>
       <xsl:for-each select="$metadata//gmd:EX_GeographicBoundingBox">
         <datacite:geoLocation>
@@ -262,7 +262,7 @@
                                select="normalize-space($thesaurusTitle/(gco:CharacterString|gmx:Anchor)/text()[. != ''])"/>
               </xsl:if>
               <xsl:if test="gmx:Anchor/@xlink:href">
-                <xsl:attribute name="valueUri"
+                <xsl:attribute name="valueURI"
                                select="gmx:Anchor/@xlink:href"/>
               </xsl:if>
             </datacite:subject>
@@ -312,6 +312,7 @@
     <entry key="series">Dataset</entry>
     <entry key="service">Service</entry>
     <entry key="software">Software</entry>
+    <entry key="application">Software</entry>
   </xsl:variable>
 
   <xsl:template mode="toDatacite"
@@ -320,7 +321,7 @@
                   select="."/>
     <xsl:variable name="type"
                   select="concat(upper-case(substring(.,1,1)), substring(., 2))"/>
-    <datacite:resourceType resourceTypeGeneral="{$scopeMapping//*[@key = $key]/text()}">
+    <datacite:resourceType resourceTypeGeneral="{($scopeMapping//*[@key = $key]/text(), 'Other')[1]}">
       <xsl:value-of select="concat($key, '/', $type)"/>
     </datacite:resourceType>
   </xsl:template>
@@ -334,25 +335,25 @@
     multiple creators, repeat this
     property.
    -->
-  <xsl:variable name="creatorRoles"
-                select="'pointOfContact', 'custodian'"/>
   <xsl:template mode="toDatacite"
                 match="gmd:MD_Metadata/gmd:identificationInfo/*/
                           gmd:pointOfContact[1]">
     <datacite:creators>
-      <!-- [gmd:role/*/@codeListValue = $roles] TODO: Restrict on roles ?-->
-      <xsl:for-each select="../gmd:pointOfContact/*">
+      <xsl:for-each select="../gmd:pointOfContact/*[gmd:role/gmd:CI_RoleCode/@codeListValue = ('pointOfContact', 'custodian')]">
         <datacite:creator>
           <!-- The full name of the creator. -->
-          <datacite:creatorName nameType="Personal">
-            <xsl:value-of select="gmd:individualName/*/text()"/>
-          </datacite:creatorName>
-          <!--<xsl:apply-templates mode="toDataciteLocalized" select="gmd:individualName">
-            <xsl:with-param name="template">
-              <datacite:creatorName nameType="Personal"/>
-            </xsl:with-param>
-          </xsl:apply-templates>-->
-
+          <xsl:choose>
+            <xsl:when test="gmd:individualName/*/text() != ''">
+              <datacite:creatorName nameType="Personal">
+                <xsl:value-of select="gmd:individualName/*/text()"/>
+              </datacite:creatorName>
+            </xsl:when>
+            <xsl:otherwise>
+              <datacite:creatorName nameType="Organizational">
+                <xsl:value-of select="gmd:organisationName/*/text()"/>
+              </datacite:creatorName>
+            </xsl:otherwise>
+          </xsl:choose>
           <!--
           <datacite:givenName>Elizabeth</datacite:givenName>
           <datacite:familyName>Miller</datacite:familyName>
@@ -447,12 +448,17 @@ eg.
       <datacite:publisher>DataCite</datacite:publisher>
       <datacite:publicationYear>2014</datacite:publicationYear>
 
-      TODO: Define who is the publisher ? Only one allowed.
+  publisher is the first distributor contact
+  or the first point of contact having the role "distributor"
   -->
   <xsl:template mode="toDatacite"
-                match="gmd:distributorContact[1]/*">
+                match="gmd:distributionInfo[1]">
     <datacite:publisher>
-      <xsl:value-of select="gmd:organisationName/gco:CharacterString"/>
+      <xsl:variable name="publisher"
+                    select="if ($metadata//gmd:distributorContact)
+                            then $metadata//gmd:distributorContact
+                            else $metadata/gmd:identificationInfo/*/gmd:pointOfContact[*/gmd:role/*/@codeListValue = 'distributor']"/>
+      <xsl:value-of select="$publisher[1]/*/gmd:organisationName/*/text()"/>
     </datacite:publisher>
 
     <!--
@@ -478,23 +484,21 @@ eg.
         </datacite:publicationYear>
       </xsl:if>
     </xsl:for-each>
-  </xsl:template>
 
 
-  <!--
-  Technical format of the resource.
-      <datacite:formats>
-        <datacite:format>application/xml</datacite:format>
-      </datacite:formats>
-      -->
-  <xsl:template mode="toDatacite"
-                match="gmd:distributorFormat[1]">
+    <!--
+    Technical format of the resource.
+        <datacite:formats>
+          <datacite:format>application/xml</datacite:format>
+        </datacite:formats>
+        -->
     <datacite:formats>
-      <xsl:for-each select="../gmd:distributorFormat/*/gmd:name">
+      <xsl:for-each select="$metadata//gmd:distributionFormat/*/gmd:name[*/text() != '']">
         <datacite:format><xsl:value-of select="gco:CharacterString"/></datacite:format>
       </xsl:for-each>
     </datacite:formats>
   </xsl:template>
+
 
 
   <!--
@@ -502,7 +506,7 @@ eg.
       <datacite:version>4.1</datacite:version>
       -->
   <xsl:template mode="toDatacite"
-                match="gmd:edition">
+                match="gmd:edition[*/text() != '']">
     <datacite:version><xsl:value-of select="gco:CharacterString"/></datacite:version>
   </xsl:template>
 
@@ -519,9 +523,9 @@ eg.
       </datacite:rightsList>
       -->
   <xsl:template mode="toDatacite"
-                match="gmd:useLimitation[1]">
+                match="gmd:resourceConstraints[1]">
     <datacite:rightsList>
-      <xsl:for-each select="$metadata//gmd:useLimitation">
+      <xsl:for-each select="$metadata//gmd:useLimitation[*/text() != '']">
         <xsl:apply-templates mode="toDataciteLocalized" select=".">
           <xsl:with-param name="template">
             <datacite:rights>

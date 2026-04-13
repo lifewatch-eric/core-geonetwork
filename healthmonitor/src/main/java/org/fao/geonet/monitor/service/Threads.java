@@ -27,6 +27,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.fao.geonet.api.API;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,8 +50,7 @@ import java.util.List;
  * @author Jesse on 2/4/2015.
  */
 @RequestMapping(value = {
-    "/{portal}/api/site/threads",
-    "/{portal}/api/" + API.VERSION_0_1 + "/site/threads"
+    "/{portal}/api/site/threads"
 })
 @Controller("/thread")
 public class Threads {
@@ -60,6 +60,7 @@ public class Threads {
             MediaType.APPLICATION_XML_VALUE,
             MediaType.APPLICATION_JSON_VALUE
         })
+    @PreAuthorize("hasAnyAuthority('Administrator', 'Monitor')")
     @ResponseBody
     public ThreadResponse status() {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
@@ -96,6 +97,7 @@ public class Threads {
             MediaType.APPLICATION_XML_VALUE,
             MediaType.APPLICATION_JSON_VALUE
         })
+    @PreAuthorize("hasAnyAuthority('Administrator', 'Monitor')")
     @ResponseBody
     public StackTrace trace(@PathVariable String threadid) {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
@@ -110,6 +112,7 @@ public class Threads {
             MediaType.APPLICATION_XML_VALUE,
             MediaType.APPLICATION_JSON_VALUE
         })
+    @PreAuthorize("hasAnyAuthority('Administrator', 'Monitor')")
     @ResponseBody
     public ThreadResponse debugging(
         @PathVariable(value = "contention") boolean threadContentionMonitoring,

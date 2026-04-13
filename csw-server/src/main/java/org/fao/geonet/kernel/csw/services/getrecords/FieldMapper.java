@@ -23,80 +23,84 @@
 
 package org.fao.geonet.kernel.csw.services.getrecords;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.fao.geonet.kernel.csw.CatalogConfiguration;
+import org.fao.geonet.kernel.csw.CatalogConfigurationGetRecordsField;
 import org.jdom.Element;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Set;
+public class FieldMapper implements IFieldMapper {
 
-//==============================================================================
-public class FieldMapper {
-    //---------------------------------------------------------------------------
-    //---
-    //--- API methods
-    //---
-    //---------------------------------------------------------------------------
     @Autowired
     private CatalogConfiguration _catalogConfig;
 
     public String map(String field) {
-        return _catalogConfig.getFieldMapping().get(getAbsolute(field));
-    }
+        CatalogConfigurationGetRecordsField fieldInfo = _catalogConfig.getFieldMapping()
+            .get(getAbsolute(field));
 
-    //---------------------------------------------------------------------------
+        return (fieldInfo != null) ? fieldInfo.getLuceneField() : field;
+    }
 
     public String mapXPath(String field, String schema) {
-        HashMap<String, String> xpaths = _catalogConfig.getFieldMappingXPath().get(getAbsolute(field));
+        String xpath = null;
 
-        return (xpaths != null) ? xpaths.get(schema) : null;
+        CatalogConfigurationGetRecordsField fieldInfo = _catalogConfig.getFieldMapping()
+            .get(getAbsolute(field));
+
+        if (fieldInfo != null) {
+            Map<String, String> xpaths = fieldInfo.getXpaths();
+
+            if (xpaths != null) {
+                xpath = xpaths.get(schema);
+            }
+        }
+
+        return xpath;
     }
 
-    //---------------------------------------------------------------------------
+    public String mapSort(String field) {
+        CatalogConfigurationGetRecordsField fieldInfo = _catalogConfig.getFieldMapping()
+            .get(getAbsolute(field));
 
-    public Iterable<String> getMappedFields() {
+        return (fieldInfo != null) ? fieldInfo.getLuceneSortField() : "";
+    }
+
+    public Iterable<CatalogConfigurationGetRecordsField> getMappedFields() {
         return _catalogConfig.getFieldMapping().values();
     }
-
-    //---------------------------------------------------------------------------
 
     public boolean match(Element elem, Set<String> elemNames) {
         String name = elem.getQualifiedName();
 
         for (String field : elemNames)
-            // Here we supposed that namespaces prefix are equals when removing elements
-            // when an ElementName parameter is set.
-            if (field.equals(name))
+        // Here we supposed that namespaces prefix are equals when removing elements
+        // when an ElementName parameter is set.
+        {
+            if (field.equals(name)) {
                 return true;
+            }
+        }
 
         return false;
     }
-
-    //---------------------------------------------------------------------------
 
     public Set<String> getPropertiesByType(String type) {
         return _catalogConfig.getTypeMapping(type);
     }
 
-    //---------------------------------------------------------------------------
-    //---
-    //--- Private methods
-    //---
-    //---------------------------------------------------------------------------
-
     private String getAbsolute(String field) {
-        if (field.startsWith("./"))
+        if (field.startsWith("./")) {
             field = field.substring(2);
+        }
 
         // Remove any namespaces ... to be validated
-        if (field.contains(":"))
+        if (field.contains(":")) {
             field = field.substring(field.indexOf(':') + 1);
+        }
 
         return field.toLowerCase();
     }
 
 }
-
-//==============================================================================
-

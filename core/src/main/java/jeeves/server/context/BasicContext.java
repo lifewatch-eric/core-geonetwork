@@ -18,15 +18,15 @@
 //===	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //===
 //===	Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
-//===	Rome - Italy. email: GeoNetwork@fao.org
+//===	Rome - Italy. email: geonetwork@osgeo.org
 //==============================================================================
 
 package jeeves.server.context;
 
 import jeeves.monitor.MonitorManager;
 
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Level;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.Level;
 import org.fao.geonet.Logger;
 import org.fao.geonet.NodeInfo;
 import org.fao.geonet.kernel.GeonetworkDataDirectory;
@@ -144,8 +144,28 @@ public class BasicContext implements Logger {
     }
 
     @Override
+    public void debug(String message, Throwable throwable) {
+        logger.debug(message, throwable);
+    }
+
+    @Override
+    public void debug(String message, Object... object) {
+        logger.debug(message, object);
+    }
+
+    @Override
     public void info(final String message) {
         logger.info(message);
+    }
+
+    @Override
+    public void info(String message, Throwable throwable) {
+        logger.info(message, throwable);
+    }
+
+    @Override
+    public void info(String message, Object... object) {
+        logger.info(message, object);
     }
 
     @Override
@@ -154,8 +174,28 @@ public class BasicContext implements Logger {
     }
 
     @Override
+    public void warning(String message, Throwable throwable) {
+        logger.warning(message, throwable);
+    }
+
+    @Override
+    public void warning(String message, Object... object) {
+        logger.warning(message, object);
+    }
+
+    @Override
     public void error(final String message) {
         logger.error(message);
+    }
+
+    @Override
+    public void error(String message, Throwable throwable) {
+        logger.error(message, throwable);
+    }
+
+    @Override
+    public void error(String message, Object... object) {
+        logger.error(message, object);
     }
 
     @Override
@@ -200,6 +240,3 @@ public class BasicContext implements Logger {
         return NodeInfo.DEFAULT_NODE;
     }
 }
-
-//=============================================================================
-

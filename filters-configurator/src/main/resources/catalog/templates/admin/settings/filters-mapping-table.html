@@ -1,0 +1,51 @@
+<div>
+    <table class="table table-striped mappings-table">
+        <thead>
+            <td><b>Resource<b></td>
+            <td><b>Template</b></td>
+            <td><b>Field</b></td>
+            <td><b>Valid</b></td>
+            <td></td>
+        </thead>
+        <tbody ng-repeat="(resourceType, mapping) in mappings">
+            <tr ng-repeat="(uuid, path) in mapping">
+                <td> {{ resourceType | translate }} </td>
+                <td>{{ templates[uuid] }}</td>
+                <td style="word-break: break-all;"> {{ path.path }} </td>
+
+                <!-- Validation badge -->
+                <td>
+                    <span data-ng-show="path.validationResult == VALIDATION_OUTCOMES.VALID"
+                        class="badge ng-binding badge-success" style="background-color:#5c7f41">
+                        OK
+                    </span>
+                    <span data-ng-show="path.validationResult != VALIDATION_OUTCOMES.VALID && path.validationResult != null"
+                        class="badge ng-binding badge-danger">
+                        KO  
+                        <span class="tooltiptext" data-ng-show="path.validationResult == VALIDATION_OUTCOMES.MAPPING_VALIDATION_ERROR">
+                            This field can not be used as a filter, <br>
+                            the search engine does not handle this field <br>
+                            or the template could have been edited, <br>
+                            try to delete and reapply this field.
+                        </span>
+                        <span class="tooltiptext" data-ng-show="path.validationResult == VALIDATION_OUTCOMES.ES_VALIDATION_ERROR">
+                            This field can not be used as a filter, <br>
+                            the search engine does not handle this field.
+                        </span>
+                    </span>
+                    <span data-ng-show="path.validationResult == null"
+                        class="badge ng-binding badge-info">
+                        ...
+                    </span>
+                </td>
+                
+                <td>
+                    <button type="button" class="btn btn-primary"
+                        data-ng-click="onMappingDelete(resourceType, uuid)">
+                        <span class="fa fa-trash"></span>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

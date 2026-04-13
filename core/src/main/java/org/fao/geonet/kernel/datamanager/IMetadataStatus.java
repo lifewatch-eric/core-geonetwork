@@ -47,6 +47,8 @@ public interface IMetadataStatus {
      */
     boolean isUserMetadataStatus(int userId) throws Exception;
 
+    void transferMetadataStatusOwnership(int oldUserId, int newUserId) throws Exception;
+
     /**
      * If groupOwner match regular expression defined in setting metadata/workflow/draftWhenInGroup, then set status to draft to enable
      * workflow.
@@ -67,11 +69,14 @@ public interface IMetadataStatus {
     MetadataStatus setStatusExt(ServiceContext context, int id, int status, ISODate changeDate, String changeMessage) throws Exception;
 
     /**
-     * Set status of metadata id and do not reindex metadata id afterwards.
+     * Set status of metadata id and reindex metadata id afterwards based on updateIndex flag
+     *
+     * @param status metadata status to set
+     * @param updateIndex index update flag
      *
      * @return the saved status entity object
      */
-    MetadataStatus setStatusExt(MetadataStatus status) throws Exception;
+    MetadataStatus setStatusExt(MetadataStatus status, boolean updateIndex) throws Exception;
 
     /**
      * Set status of metadata id and reindex metadata id afterwards.
@@ -97,6 +102,15 @@ public interface IMetadataStatus {
      * @throws Exception
      */
     MetadataStatus getStatus(int metadataId) throws Exception;
+
+    /**
+     * Given a metadata id, return the previous status of the metadata
+     *
+     * @param metadataId
+     * @return
+     * @throws Exception
+     */
+    MetadataStatus getPreviousStatus(int metadataId) throws Exception;
 
     /**
      * Given a metadata id, return the status of the metadata

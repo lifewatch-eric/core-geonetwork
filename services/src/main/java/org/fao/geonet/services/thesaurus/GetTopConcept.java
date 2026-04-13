@@ -18,7 +18,7 @@
 //===	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 //===
 //===	Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
-//===	Rome - Italy. email: GeoNetwork@fao.org
+//===	Rome - Italy. email: geonetwork@osgeo.org
 //==============================================================================
 
 package org.fao.geonet.services.thesaurus;
@@ -26,7 +26,6 @@ package org.fao.geonet.services.thesaurus;
 import jeeves.interfaces.Service;
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
-
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.Util;
 import org.fao.geonet.constants.Geonet;
@@ -58,7 +57,11 @@ public class GetTopConcept implements Service {
         GeonetContext gc = (GeonetContext) context.getHandlerContext(Geonet.CONTEXT_NAME);
         ThesaurusManager thesaurusMan = gc.getBean(ThesaurusManager.class);
 
+        Element response = new Element("descKeys");
         Thesaurus the = thesaurusMan.getThesaurusByName(sThesaurusName);
+        if (the == null) {
+            return response;
+        }
         String langForThesaurus = the.getIsoLanguageMapper().iso639_2_to_iso639_1(lang);
 
         KeywordsSearcher searcher = null;
@@ -66,7 +69,6 @@ public class GetTopConcept implements Service {
         // perform the search for the top concepts of the concept scheme
         searcher = new KeywordsSearcher(context, thesaurusMan);
 
-        Element response = new Element("descKeys");
         try {
             searcher.searchTopConcepts(sThesaurusName, langForThesaurus);
 

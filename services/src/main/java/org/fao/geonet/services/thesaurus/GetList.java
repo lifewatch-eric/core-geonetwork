@@ -18,7 +18,7 @@
 //===	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 //===
 //===	Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
-//===	Rome - Italy. email: GeoNetwork@fao.org
+//===	Rome - Italy. email: geonetwork@osgeo.org
 //==============================================================================
 
 package org.fao.geonet.services.thesaurus;
@@ -27,13 +27,10 @@ import jeeves.constants.Jeeves;
 import jeeves.interfaces.Service;
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
-
 import org.fao.geonet.kernel.ThesaurusManager;
 import org.jdom.Element;
 
 import java.nio.file.Path;
-
-//=============================================================================
 
 /**
  * Retrieve Thesauri list.
@@ -43,12 +40,6 @@ import java.nio.file.Path;
 public class GetList implements Service {
     public void init(Path appPath, ServiceConfig params) throws Exception {
     }
-
-    // --------------------------------------------------------------------------
-    // ---
-    // --- Service
-    // ---
-    // --------------------------------------------------------------------------
 
     public Element exec(Element params, ServiceContext context)
         throws Exception {
@@ -61,6 +52,3 @@ public class GetList implements Service {
     }
 
 }
-
-// =============================================================================
-

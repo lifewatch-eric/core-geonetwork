@@ -52,7 +52,6 @@ import org.fao.geonet.kernel.UpdateDatestamp;
 import org.fao.geonet.kernel.datamanager.IMetadataIndexer;
 import org.fao.geonet.kernel.datamanager.IMetadataManager;
 import org.fao.geonet.kernel.datamanager.IMetadataUtils;
-import org.fao.geonet.kernel.datamanager.base.BaseMetadataManager;
 import org.fao.geonet.kernel.harvest.BaseAligner;
 import org.fao.geonet.kernel.harvest.harvester.CategoryMapper;
 import org.fao.geonet.kernel.harvest.harvester.GroupMapper;
@@ -61,6 +60,7 @@ import org.fao.geonet.kernel.harvest.harvester.HarvestResult;
 import org.fao.geonet.kernel.harvest.harvester.HarvesterUtil;
 import org.fao.geonet.kernel.harvest.harvester.IHarvester;
 import org.fao.geonet.kernel.harvest.harvester.UUIDMapper;
+import org.fao.geonet.kernel.search.IndexingMode;
 import org.fao.geonet.lib.Lib;
 import org.fao.geonet.repository.MetadataValidationRepository;
 import org.fao.geonet.repository.OperationAllowedRepository;
@@ -396,6 +396,11 @@ class Harvester extends BaseAligner<OaiPmhParams> implements IHarvester<HarvestR
             schema = dataMan.autodetectSchema(md);
         }
 
+        // Translate metadata
+        if (params.isTranslateContent()) {
+            md = translateMetadataContent(context, md, schema);
+        }
+
         //
         // insert metadata
         //
@@ -426,7 +431,7 @@ class Harvester extends BaseAligner<OaiPmhParams> implements IHarvester<HarvestR
 
         addCategories(metadata, params.getCategories(), localCateg, context, null, false);
 
-        metadata = metadataManager.insertMetadata(context, metadata, md, true, false, false, UpdateDatestamp.NO, false, false);
+        metadata = metadataManager.insertMetadata(context, metadata, md, IndexingMode.none, false, UpdateDatestamp.NO, false, false);
 
         String id = String.valueOf(metadata.getId());
 
@@ -434,7 +439,7 @@ class Harvester extends BaseAligner<OaiPmhParams> implements IHarvester<HarvestR
 
         metadataManager.flush();
 
-        dataMan.indexMetadata(id, Math.random() < 0.01, null);
+        dataMan.indexMetadata(id, Math.random() < 0.01);
         result.addedMetadata++;
     }
 
@@ -472,7 +477,7 @@ class Harvester extends BaseAligner<OaiPmhParams> implements IHarvester<HarvestR
                 try {
                     Integer groupIdVal = null;
                     if (StringUtils.isNotEmpty(params.getOwnerIdGroup())) {
-                        groupIdVal = Integer.parseInt(params.getOwnerIdGroup());
+                        groupIdVal = getGroupOwner();
                     }
 
                     params.getValidate().validate(dataMan, context, md, groupIdVal);
@@ -495,7 +500,9 @@ class Harvester extends BaseAligner<OaiPmhParams> implements IHarvester<HarvestR
     catch(Exception e)
     {
             HarvestError harvestError = new HarvestError(context, e);
-            harvestError.setDescription("Raised exception while getting metadata file : "+ e);
+            harvestError.setDescription(String.format(
+                "Raised exception while getting metadata file %s. Error is: %s",
+                ri.id, e.getMessage()));
             this.errors.add(harvestError);
             harvestError.printLog();
             result.unretrievable++;
@@ -510,7 +517,7 @@ class Harvester extends BaseAligner<OaiPmhParams> implements IHarvester<HarvestR
     }
 
     private Element toDublinCore(Element md) {
-        Path styleSheet = context.getAppPath().resolve("conversion/oai_dc-to-dublin-core/main.xsl");
+        Path styleSheet = context.getAppPath().resolve(Geonet.Path.STYLESHEETS).resolve("conversion/oai_dc-to-dublin-core/main.xsl");
 
         try
         {
@@ -559,12 +566,16 @@ class Harvester extends BaseAligner<OaiPmhParams> implements IHarvester<HarvestR
                 updateSchema = true;
             }
 
+            // Translate metadata
+            if (params.isTranslateContent()) {
+                md = translateMetadataContent(context, md, schema);
+            }
+
             //
             // update metadata
             //
             boolean validate = false;
             boolean ufo = false;
-            boolean index = false;
             String language = context.getLanguage();
 
 
@@ -583,8 +594,8 @@ class Harvester extends BaseAligner<OaiPmhParams> implements IHarvester<HarvestR
                 metadataValidationRepository.deleteAll(MetadataValidationSpecs.hasMetadataId(Integer.parseInt(id)));
             }
 
-            final AbstractMetadata metadata = metadataManager.updateMetadata(context, id, md, validate, ufo, index, language, ri.changeDate.toString(),
-                true);
+            final AbstractMetadata metadata = metadataManager.updateMetadata(context, id, md, validate, ufo, language, ri.changeDate.toString(),
+                true, IndexingMode.none);
             if (force) {
                 //change ownership of metadata to new harvester
                 metadata.getHarvestInfo().setUuid(params.getUuid());
@@ -604,9 +615,9 @@ class Harvester extends BaseAligner<OaiPmhParams> implements IHarvester<HarvestR
             addCategories(metadata, params.getCategories(), localCateg, context, null, true);
 
             metadataManager.flush();
-            dataMan.indexMetadata(id, Math.random() < 0.01, null);
+            dataMan.indexMetadata(id, Math.random() < 0.01);
             result.updatedMetadata++;
-            metadataIndexer.indexMetadata(id, true, null);
+            metadataIndexer.indexMetadata(id, true, IndexingMode.full);
             result.updatedMetadata++;
         }
     }
@@ -615,7 +626,3 @@ class Harvester extends BaseAligner<OaiPmhParams> implements IHarvester<HarvestR
         return errors;
     }
 }
-
-//=============================================================================
-
-

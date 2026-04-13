@@ -1,5 +1,5 @@
 //=============================================================================
-//===	Copyright (C) 2001-2011 Food and Agriculture Organization of the
+//===	Copyright (C) 2001-2024 Food and Agriculture Organization of the
 //===	United Nations (FAO-UN), United Nations World Food Programme (WFP)
 //===	and United Nations Environment Programme (UNEP)
 //===
@@ -23,8 +23,9 @@
 
 package org.fao.geonet.kernel.datamanager.base;
 
-import static org.springframework.data.jpa.domain.Specifications.where;
+import static org.springframework.data.jpa.domain.Specification.where;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -108,7 +109,7 @@ public class BaseMetadataOperations implements IMetadataOperations, ApplicationE
     @Override
     public void deleteMetadataOper(String metadataId, boolean skipAllReservedGroup) throws Exception {
         if (skipAllReservedGroup) {
-            int[] exclude = new int[]{ReservedGroup.all.getId(), ReservedGroup.intranet.getId(), ReservedGroup.guest.getId()};
+            List<Integer> exclude = Arrays.asList(ReservedGroup.all.getId(), ReservedGroup.intranet.getId(), ReservedGroup.guest.getId());
             opAllowedRepo.deleteAllByMetadataIdExceptGroupId(Integer.parseInt(metadataId), exclude);
         } else {
             opAllowedRepo.deleteAllByMetadataId(Integer.parseInt(metadataId));
@@ -166,7 +167,7 @@ public class BaseMetadataOperations implements IMetadataOperations, ApplicationE
      */
     @Override
     public boolean forceSetOperation(ServiceContext context, int mdId, int grpId, int opId) throws Exception {
-        Optional<OperationAllowed> opAllowed = _getOperationAllowedToAdd(context, mdId, grpId, opId, false);
+        Optional<OperationAllowed> opAllowed = getOperationAllowedToAddInternal(context, mdId, grpId, opId, false);
 
         if (opAllowed.isPresent()) {
             Log.trace(Geonet.DATA_MANAGER, "Operation is allowed");
@@ -198,11 +199,11 @@ public class BaseMetadataOperations implements IMetadataOperations, ApplicationE
     @Override
     public Optional<OperationAllowed> getOperationAllowedToAdd(final ServiceContext context, final int mdId, final int grpId,
                                                                final int opId) {
-        return _getOperationAllowedToAdd(context, mdId, grpId, opId, true);
+        return getOperationAllowedToAddInternal(context, mdId, grpId, opId, true);
     }
 
-    private Optional<OperationAllowed> _getOperationAllowedToAdd(final ServiceContext context, final int mdId, final int grpId,
-                                                                 final int opId, boolean shouldCheckPermission) {
+    private Optional<OperationAllowed> getOperationAllowedToAddInternal(final ServiceContext context, final int mdId, final int grpId,
+                                                                        final int opId, boolean shouldCheckPermission) {
         Log.trace(Geonet.DATA_MANAGER, "_getOperationAllowedToAdd(" + mdId + ", "
             + grpId + ", " + opId + ", " + shouldCheckPermission + ")");
         final OperationAllowed operationAllowed = opAllowedRepo.findOneById_GroupIdAndId_MetadataIdAndId_OperationId(grpId, mdId, opId);
@@ -245,7 +246,7 @@ public class BaseMetadataOperations implements IMetadataOperations, ApplicationE
                     if (userGroupsOnly.equals("true")) {
                         // If user is member of the group, user can set operation
 
-                        if (userGroupRepo.exists(new UserGroupId().setGroupId(grpId).setUserId(userId))) {
+                        if (userGroupRepo.existsById(new UserGroupId().setGroupId(grpId).setUserId(userId))) {
                             throw new ServiceNotAllowedEx(
                                 "User can't set operation for group " + grpId + " because the user in not" + " member of this group.");
                         }
@@ -298,13 +299,13 @@ public class BaseMetadataOperations implements IMetadataOperations, ApplicationE
 
     /**
      * Unset operation without checking if user privileges allows the operation. This may be useful when a user is an editor and internal
-     * operations needs to update privilages for reserved group. eg. {@link org.fao.geonet.kernel.metadata.DefaultStatusActions}
+     * operations needs to update privileges for reserved group. eg. {@link org.fao.geonet.kernel.metadata.DefaultStatusActions}
      */
     @Override
     public void forceUnsetOperation(ServiceContext context, int mdId, int groupId, int operId) throws Exception {
         OperationAllowedId id = new OperationAllowedId().setGroupId(groupId).setMetadataId(mdId).setOperationId(operId);
-        if (opAllowedRepo.exists(id)) {
-            opAllowedRepo.delete(id);
+        if (opAllowedRepo.existsById(id)) {
+            opAllowedRepo.deleteById(id);
             if (svnManager != null) {
                 svnManager.setHistory(mdId + "", context);
             }
@@ -339,14 +340,12 @@ public class BaseMetadataOperations implements IMetadataOperations, ApplicationE
 
         setOperation(context, id, groupId, ReservedOperation.view);
         setOperation(context, id, groupId, ReservedOperation.notify);
+        setOperation(context, id, groupId, ReservedOperation.download);
+        setOperation(context, id, groupId, ReservedOperation.dynamic);
         //
-        // Restrictive: new and inserted records should not be editable,
-        // their resources can't be downloaded and any interactive maps can't be
-        // displayed by users in the same group
+        // Restrictive: new and inserted records should not be editable by users in the same group,
         if (fullRightsForGroup) {
             setOperation(context, id, groupId, ReservedOperation.editing);
-            setOperation(context, id, groupId, ReservedOperation.download);
-            setOperation(context, id, groupId, ReservedOperation.dynamic);
         }
         // Ultimately this should be configurable elsewhere
     }

@@ -21,10 +21,10 @@
  * Rome - Italy. email: geonetwork@osgeo.org
  */
 
-(function() {
-  goog.provide('gn_needhelp_directive');
+(function () {
+  goog.provide("gn_needhelp_directive");
 
-  var module = angular.module('gn_needhelp_directive', []);
+  var module = angular.module("gn_needhelp_directive", []);
 
   /**
    * @ngdoc directive
@@ -45,42 +45,137 @@
    * display only an icon and no label.
    *
    */
-  module.directive('gnNeedHelp', ['gnGlobalSettings', 'gnAlertService', '$http', '$q', '$translate',
-    function(gnGlobalSettings, gnAlertService, $http, $q, $translate) {
+  module.directive("gnNeedHelp", [
+    "gnGlobalSettings",
+    "gnAlertService",
+    "gnConfigService",
+    "gnConfig",
+    "$http",
+    "$q",
+    "$translate",
+    function (
+      gnGlobalSettings,
+      gnAlertService,
+      gnConfigService,
+      gnConfig,
+      $http,
+      $q,
+      $translate
+    ) {
       return {
-        restrict: 'A',
+        restrict: "A",
         replace: true,
-        templateUrl: '../../catalog/components/common/needhelp/partials/' +
-            'needhelp.html',
-        link: function(scope, element, attrs) {
-          scope.iconOnly = attrs.iconOnly === 'true';
-          var helpBaseUrl = gnGlobalSettings.docUrl ||
-              'https://geonetwork-opensource.org/manuals/trunk/';
+        templateUrl:
+          "../../catalog/components/common/needhelp/partials/" + "needhelp.html",
+        link: function (scope, element, attrs) {
+          scope.iconOnly = attrs.iconOnly === "true";
+          scope.documentationLinks = null;
+          scope.applicationVersion = "";
 
-          var testAndOpen = function(url) {
-            var defer = $q.defer();
-            $http.head(url).then(function(data) {
-              window.open(url, 'gn-documentation');
-              defer.resolve(data);
-            }, function(data) {
-              gnAlertService.addAlert({
-                msg: $translate.instant('docPageNotFoundAtUrl') + ' ' + url,
-                type: 'warning'
+          scope.helpBaseUrl =
+            "https://docs.geonetwork-opensource.org/{{version}}/{{lang}}";
+
+          gnConfigService.load().then(function (c) {
+            var version = gnConfig["system.platform.version"];
+            scope.applicationVersion = version.substring(0, version.lastIndexOf("."));
+
+            var docUrl = gnConfig["system.documentation.url"];
+
+            if (docUrl) {
+              scope.helpBaseUrl = docUrl;
+            }
+          });
+
+          scope.$watch("documentationLinks", function (n, o) {
+            if (n !== o && n != null) {
+              scope.checkUrl();
+            }
+          });
+
+          /**
+           * load the JSON file with all the documentation links and put the links in the scope
+           */
+          var loadManualUrls = function () {
+            if (!scope.documentationLinks) {
+              $http({
+                url: "../../config/manual.json",
+                method: "GET",
+                cache: true
+              }).then(function (response) {
+                scope.documentationLinks = response.data;
               });
-              defer.reject(data);
-            });
+            }
+          };
+
+          /**
+           * Check if the URL to the help page is found, if not, hide the `help` button
+           *
+           * @returns {boolean} the url is found or not
+           */
+          scope.checkUrl = function () {
+            var pageId = attrs.gnNeedHelp;
+            if (scope.documentationLinks !== null) {
+              var page = scope.documentationLinks[pageId];
+
+              return page !== undefined;
+            }
+            return false;
+          };
+
+          var testAndOpen = function (url) {
+            var defer = $q.defer();
+            $http.head(url).then(
+              function (data) {
+                window.open(url, "gn-documentation");
+                defer.resolve(data);
+              },
+              function (data) {
+                gnAlertService.addAlert({
+                  msg: $translate.instant("docPageNotFoundAtUrl") + " " + url,
+                  type: "warning"
+                });
+                defer.reject(data);
+              }
+            );
             return defer.promise;
           };
 
-          scope.showHelp = function() {
-            var page = attrs.gnNeedHelp;
-            var helpPageUrl = helpBaseUrl + gnGlobalSettings.lang + '/' + page;
-            testAndOpen(helpPageUrl).then(function() {}, function() {
-              testAndOpen( helpBaseUrl + 'en/' + page)
-            });
+          /**
+           * Get the URL of the corresponding help page and open it in a new tab
+           * @returns {boolean}
+           */
+          scope.showHelp = function () {
+            var pageId = attrs.gnNeedHelp;
+            var page = scope.documentationLinks[pageId];
+            var baseUrl;
+
+            if (gnGlobalSettings.lang !== "en") {
+              baseUrl = scope.helpBaseUrl.replace("{{lang}}", gnGlobalSettings.lang);
+            } else {
+              baseUrl = scope.helpBaseUrl.replace("/{{lang}}", "");
+            }
+
+            baseUrl = baseUrl.replace("{{version}}", scope.applicationVersion);
+
+            var helpPageUrl = baseUrl + "/" + page;
+
+            testAndOpen(helpPageUrl).then(
+              function () {},
+              function () {
+                var baseUrl = scope.helpBaseUrl
+                  .replace("/{{lang}}", "")
+                  .replace("{{version}}", scope.applicationVersion);
+                var helpPageUrl = baseUrl + "/" + page;
+
+                testAndOpen(helpPageUrl);
+              }
+            );
             return true;
           };
+
+          loadManualUrls();
         }
       };
-    }]);
+    }
+  ]);
 })();

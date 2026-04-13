@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (C) 2001-2016 Food and Agriculture Organization of the
+  ~ Copyright (C) 2001-2020 Food and Agriculture Organization of the
   ~ United Nations (FAO-UN), United Nations World Food Programme (WFP)
   ~ and United Nations Environment Programme (UNEP)
   ~
@@ -29,6 +29,8 @@
                 xmlns:gn-fn-index="http://geonetwork-opensource.org/xsl/functions/index"
                 xmlns:daobs="http://daobs.org"
                 xmlns:saxon="http://saxon.sf.net/"
+                xmlns:util="java:org.fao.geonet.util.XslUtil"
+                xmlns:date-util="java:org.fao.geonet.utils.DateUtil"
                 extension-element-prefixes="saxon"
                 exclude-result-prefixes="#all"
                 version="2.0">
@@ -43,15 +45,8 @@
               encoding="utf-8"
               escape-uri-attributes="yes"/>
 
-
-  <!-- List of keywords to search for to flag a record as opendata.
-   Do not put accents or upper case letters here as comparison will not
-   take them in account. -->
-  <xsl:variable name="openDataKeywords"
-                select="'opendata|open data|donnees ouvertes'"/>
-
   <xsl:variable name="dateFormat" as="xs:string"
-                select="'[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01]'"/>
+                select="'[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01][ZN]'"/>
 
   <xsl:variable name="separator" as="xs:string"
                 select="'|'"/>
@@ -69,79 +64,161 @@
   <xsl:template match="simpledc"
                 mode="index">
     <!-- Main variables for the document -->
+
+    <xsl:variable name="mainTitle" as="xs:string?"
+                  select="dc:title[1]"/>
+
+    <xsl:variable name="resourceTitleObject" as="xs:string"
+                  select="concat('{',
+                          $doubleQuote, 'default', $doubleQuote, ':',
+                          $doubleQuote, util:escapeForJson($mainTitle) ,$doubleQuote,
+                        '}')"/>
+
     <xsl:variable name="identifier" as="xs:string?"
                   select="dc:identifier[1]"/>
 
+    <xsl:variable name="revisionDateType"
+                  select="'revision'"/>
+
+    <xsl:variable name="creationDateType"
+                  select="'creation'"/>
+
     <!-- Create a first document representing the main record. -->
     <doc>
-      <documentType>metadata</documentType>
-      <documentStandard>dublin-core</documentStandard>
+      <xsl:copy-of select="gn-fn-index:add-field('docType', 'metadata')"/>
 
       <!-- Index the metadata document as XML -->
       <document>
         <!--<xsl:value-of select="saxon:serialize(., 'default-serialize-mode')"/>-->
       </document>
-      <uuid>
-        <xsl:value-of select="$identifier"/>
-      </uuid>
-      <metadataIdentifier>
-        <xsl:value-of select="$identifier"/>
-      </metadataIdentifier>
+      <xsl:copy-of select="gn-fn-index:add-field('metadataIdentifier', $identifier)"/>
 
+
+      <!-- Since GN sets the timezone in system/server/timeZone setting as Java system default
+        timezone we can rely on XSLT functions to get current date in the right timezone -->
       <harvestedDate>
         <xsl:value-of select="format-dateTime(current-dateTime(), $dateFormat)"/>
       </harvestedDate>
 
 
-      <!-- For multilingual docs it is good to have a title in the default locale.  In this type of metadata we don't have one but in the general case we do so we need to add it to all -->
-      <resourceTitle><xsl:value-of select="string(dc:title)"/></resourceTitle>
+      <!-- For multilingual docs it is good to have a title in the default locale.
+       In this type of metadata we don't have one but in the general
+       case we do so we need to add it to all -->
+      <xsl:for-each select="dc:title[1]">
+        <xsl:copy-of select="gn-fn-index:add-object-field('resourceTitleObject', $resourceTitleObject)"/>
+      </xsl:for-each>
 
-      <xsl:for-each select="dc:language">
-        <mainLanguage><xsl:value-of select="string(.)"/></mainLanguage>
+      <xsl:for-each select="dc:language[1]">
+        <xsl:copy-of select="gn-fn-index:add-field('resourceLanguage', current())"/>
       </xsl:for-each>
 
       <xsl:for-each select="dct:abstract|dc:description">
-        <resourceAbstract><xsl:value-of select="string(.)"/></resourceAbstract>
+        <xsl:copy-of select="gn-fn-index:add-field('resourceAbstract', current())"/>
       </xsl:for-each>
 
-      <xsl:for-each select="dc:date">
-        <creationDateForResource><xsl:value-of select="string(.)"/></creationDateForResource>
+      <xsl:for-each select="dct:created[. != '']">
+
+        <xsl:variable name="creationDate"
+                      select="date-util:convertToISOZuluDateTime(string(current()))"/>
+        <xsl:element name="{$creationDateType}DateForResource">
+          <xsl:value-of select="$creationDate"/>
+        </xsl:element>
+        <xsl:element name="{$creationDateType}YearForResource">
+          <xsl:value-of select="substring($creationDate, 0, 5)"/>
+        </xsl:element>
+        <xsl:element name="{$creationDateType}MonthForResource">
+          <xsl:value-of select="substring($creationDate, 0, 8)"/>
+        </xsl:element>
+        <!--creationDateForResource><xsl:value-of select="date-util:convertToISOZuluDateTime(string(.))"/></creationDateForResource-->
       </xsl:for-each>
 
-      <xsl:for-each select="dct:modified">
-        <revisionDateForResource><xsl:value-of select="string(.)"/></revisionDateForResource>
+      <xsl:for-each select="dct:modified[. != '']">
+        <dateStamp><xsl:value-of select="date-util:convertToISOZuluDateTime(normalize-space(.))"/></dateStamp>
+
+        <xsl:variable name="revisionDate"
+                      select="date-util:convertToISOZuluDateTime(string(current()))"/>
+        <xsl:element name="{$revisionDateType}DateForResource">
+          <xsl:value-of select="$revisionDate"/>
+        </xsl:element>
+        <xsl:element name="{$revisionDateType}YearForResource">
+          <xsl:value-of select="substring($revisionDate, 0, 5)"/>
+        </xsl:element>
+        <xsl:element name="{$revisionDateType}MonthForResource">
+          <xsl:value-of select="substring($revisionDate, 0, 8)"/>
+        </xsl:element>
+        <!--revisionDateForResource><xsl:value-of select="date-util:convertToISOZuluDateTime(string(.))"/></revisionDateForResource-->
       </xsl:for-each>
 
       <xsl:for-each select="dc:format">
-        <format><xsl:value-of select="string(.)"/></format>
+        <format><xsl:value-of select="util:escapeForJson(.)"/></format>
       </xsl:for-each>
 
-      <xsl:for-each select="dc:type">
-        <resourceType><xsl:value-of select="string(.)"/></resourceType>
+      <xsl:for-each select="dc:type[. != '']">
+        <resourceType><xsl:value-of select="util:escapeForJson(.)"/></resourceType>
       </xsl:for-each>
 
       <xsl:for-each select="dc:source">
-        <lineage><xsl:value-of select="string(.)"/></lineage>
+        <lineage><xsl:value-of select="util:escapeForJson(.)"/></lineage>
       </xsl:for-each>
 
+      <!-- TODO Change mapping of dc:relation -->
       <xsl:for-each select="dc:relation">
-        <related><xsl:value-of select="string(.)"/></related>
+        <related><xsl:value-of select="util:escapeForJson(.)"/></related>
       </xsl:for-each>
 
+      <!-- TODO Change mapping of dct:accessRights -->
       <xsl:for-each select="dct:accessRights">
-        <useLimitation><xsl:value-of select="string(.)"/></useLimitation>
+        <useLimitation><xsl:value-of select="util:escapeForJson(.)"/></useLimitation>
       </xsl:for-each>
 
+      <!-- TODO Change mapping of dct:rights -->
       <xsl:for-each select="dct:rights">
-        <useLimitation><xsl:value-of select="string(.)"/></useLimitation>
+        <useLimitation><xsl:value-of select="util:escapeForJson(.)"/></useLimitation>
       </xsl:for-each>
 
-      <xsl:for-each select="dct:spatial">
-        <geoTag><xsl:value-of select="string(.)"/></geoTag>
-      </xsl:for-each>
-      <xsl:for-each select="dc:subject">
-        <tag><xsl:value-of select="string(.)"/></tag>
-      </xsl:for-each>
+      <xsl:variable name="allKeywords">
+        <xsl:variable name="keywords"
+                      select="dc:subject[. != '']"/>
+        <xsl:if test="count($keywords) > 0">
+          <thesaurus>
+            <info type="theme" field="otherKeywords-theme"/>
+            <keywords>
+              <xsl:for-each select="$keywords">
+                <keyword>
+                  <values>
+                    <value>
+                      "default": <xsl:value-of select="concat($doubleQuote, util:escapeForJson(.), $doubleQuote)"/>
+                    </value>
+                  </values>
+                </keyword>
+              </xsl:for-each>
+            </keywords>
+          </thesaurus>
+        </xsl:if>
+
+        <xsl:variable name="geoDescription"
+                      select="dct:spatial[. != '']"/>
+        <xsl:if test="count($geoDescription) > 0">
+          <thesaurus>
+            <info type="place" field="otherKeywords-place"/>
+            <keywords>
+              <xsl:for-each select="$geoDescription">
+                <keyword>
+                  <values>
+                    <value>
+                      "default": <xsl:value-of select="concat($doubleQuote, util:escapeForJson(.), $doubleQuote)"/>
+                    </value>
+                  </values>
+                </keyword>
+              </xsl:for-each>
+            </keywords>
+          </thesaurus>
+        </xsl:if>
+      </xsl:variable>
+
+      <xsl:call-template name="build-all-keyword-fields">
+        <xsl:with-param name="allKeywords" select="$allKeywords"/>
+      </xsl:call-template>
 
 
 
@@ -149,59 +226,97 @@
         <xsl:variable name="name" select="tokenize(., '/')[last()]"/>
         <!-- Index link where last token after the last / is the link name. -->
         <link type="object">{
-          "protocol":"<xsl:value-of select="'WWW-LINK'"/>",
-          "url":"<xsl:value-of select="gn-fn-index:json-escape(.)"/>",
-          "name":"<xsl:value-of select="gn-fn-index:json-escape($name)"/>",
-          "description":""
+          "protocol":"<xsl:value-of select="'WWW:LINK'"/>",
+          "urlObject":{"default": "<xsl:value-of select="util:escapeForJson(.)"/>"},
+          "nameObject":{"default": "<xsl:value-of select="util:escapeForJson($name)"/>"},
+          "descriptionObject":{"default": ""},
+          "function": ""
           }</link>
       </xsl:for-each>
-      <xsl:for-each select="(dct:references|dc:relation)[normalize-space(.) != ''
-                              and matches(., '.*(.gif|.png.|.jpeg|.jpg)$', 'i')]">
-        <xsl:variable name="thumbnailType"
-                      select="if (position() = 1) then 'thumbnail' else 'overview'"/>
-        <!-- First thumbnail is flagged as thumbnail and could be considered the main one -->
-        <overviewUrl><xsl:value-of select="concat($thumbnailType, '|', ., '|')"/></overviewUrl>
+
+      <xsl:variable name="overviews"
+                    select="(dct:references|dc:relation)[normalize-space(.) != ''
+                              and matches(., '.*(.gif|.png|.jpeg|.jpg)$', 'i')]"/>
+
+      <xsl:copy-of select="gn-fn-index:add-field('hasOverview',
+                            if (count($overviews) > 0) then 'true' else 'false')"/>
+
+      <xsl:for-each select="$overviews">
+        <overview type="object">{
+          "url":"<xsl:value-of select="current()"/>"
+          <xsl:if test="$isStoringOverviewInIndex">
+            <xsl:variable name="data"
+                          select="util:buildDataUrl(., 140)"/>
+            <xsl:if test="$data != ''">,
+              "data": "<xsl:value-of select="$data"/>"
+            </xsl:if>
+          </xsl:if>
+          }</overview>
       </xsl:for-each>
 
 
       <!-- This index for "coverage" requires significant expansion to
          work well for spatial searches. It now only works for very
          strictly formatted content
-         North 46.3, South 42.51, East 3.88, West -1.84
+         North 46.3, South 42.51, East 3.88, West -1.84 -->
       <xsl:for-each select="/simpledc/dc:coverage">
         <xsl:variable name="coverage" select="."/>
 
         <xsl:choose>
           <xsl:when test="starts-with(., 'North')">
-            <xsl:variable name="n" select="substring-after($coverage,'North ')"/>
-            <xsl:variable name="north" select="substring-before($n, ',')"/>
-            <xsl:variable name="s" select="substring-after($coverage,'South ')"/>
-            <xsl:variable name="south" select="substring-before($s, ',')"/>
-            <xsl:variable name="e" select="substring-after($coverage,'East ')"/>
-            <xsl:variable name="east" select="substring-before($e, ',')"/>
-            <xsl:variable name="w" select="substring-after($coverage,'West ')"/>
-            <xsl:variable name="west"
-                          select="if (contains($w, '. ')) then substring-before($w, '. ') else $w"/>
+            <xsl:variable name="nt" select="substring-after($coverage,'North ')"/>
+            <xsl:variable name="n" select="substring-before($nt, ',')"/>
+            <xsl:variable name="st" select="substring-after($coverage,'South ')"/>
+            <xsl:variable name="s" select="substring-before($st, ',')"/>
+            <xsl:variable name="et" select="substring-after($coverage,'East ')"/>
+            <xsl:variable name="e" select="substring-before($et, ',')"/>
+            <xsl:variable name="wt" select="substring-after($coverage,'West ')"/>
+            <xsl:variable name="w"
+                          select="if (contains($wt, '. ')) then substring-before($wt, '. ') else $wt"/>
             <xsl:variable name="p" select="substring-after($coverage,'(')"/>
             <xsl:variable name="place" select="substring-before($p,')')"/>
 
-            <Field name="westBL" string="{$west}" store="false" index="true"/>
-            <Field name="eastBL" string="{$east}" store="false" index="true"/>
-            <Field name="southBL" string="{$south}" store="false" index="true"/>
-            <Field name="northBL" string="{$north}" store="false" index="true"/>
-            <Field name="geoBox" string="{concat($west, '|',
-                                                  $south, '|',
-                                                  $east, '|',
-                                                  $north
-                                                  )}" store="true" index="false"/>
+            <xsl:choose>
+              <xsl:when test="-180 &lt;= number($e) and number($e) &lt;= 180 and
+                              -180 &lt;= number($w) and number($w) &lt;= 180 and
+                              -90 &lt;= number($s) and number($s) &lt;= 90 and
+                              -90 &lt;= number($n) and number($n) &lt;= 90">
+                <xsl:choose>
+                  <xsl:when test="$e = $w and $s = $n">
+                    <location><xsl:value-of select="concat($s, ',', $w)"/></location>
+                  </xsl:when>
+                  <xsl:when
+                    test="($e = $w and $s != $n) or ($e != $w and $s = $n)">
+                    <!-- Probably an invalid bbox indexing a point only -->
+                    <location><xsl:value-of select="concat($s, ',', $w)"/></location>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <geom type="object">
+                      <xsl:text>{"type": "Polygon",</xsl:text>
+                      <xsl:text>"coordinates": [[</xsl:text>
+                      <xsl:value-of select="concat('[', $w, ',', $s, ']')"/>
+                      <xsl:text>,</xsl:text>
+                      <xsl:value-of select="concat('[', $e, ',', $s, ']')"/>
+                      <xsl:text>,</xsl:text>
+                      <xsl:value-of select="concat('[', $e, ',', $n, ']')"/>
+                      <xsl:text>,</xsl:text>
+                      <xsl:value-of select="concat('[', $w, ',', $n, ']')"/>
+                      <xsl:text>,</xsl:text>
+                      <xsl:value-of select="concat('[', $w, ',', $s, ']')"/>
+                      <xsl:text>]]}</xsl:text>
+                    </geom>
 
-            <Field name="keyword" string="{$place}" store="true" index="true"/>
+                    <location><xsl:value-of select="concat(
+                                              (number($s) + number($n)) div 2,
+                                              ',',
+                                              (number($w) + number($e)) div 2)"/></location>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:when>
+            </xsl:choose>
           </xsl:when>
-          <xsl:otherwise>
-            <Field name="keyword" string="{.}" store="true" index="true"/>
-          </xsl:otherwise>
         </xsl:choose>
-      </xsl:for-each>-->
+      </xsl:for-each>
     </doc>
   </xsl:template>
 </xsl:stylesheet>

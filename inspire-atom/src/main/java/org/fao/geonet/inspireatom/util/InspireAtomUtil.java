@@ -1,5 +1,5 @@
 //=============================================================================
-//===	Copyright (C) 2001-2017 Food and Agriculture Organization of the
+//===	Copyright (C) 2001-2024 Food and Agriculture Organization of the
 //===	United Nations (FAO-UN), United Nations World Food Programme (WFP)
 //===	and United Nations Environment Programme (UNEP)
 //===
@@ -22,22 +22,23 @@
 //==============================================================================
 package org.fao.geonet.inspireatom.util;
 
-import jeeves.constants.Jeeves;
-import jeeves.server.ServiceConfig;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jeeves.server.context.ServiceContext;
 import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.api.exception.ResourceNotFoundException;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.AbstractMetadata;
 import org.fao.geonet.domain.ReservedOperation;
 import org.fao.geonet.exceptions.UnAuthorizedException;
+import org.fao.geonet.inspireatom.model.DatasetFeedInfo;
 import org.fao.geonet.kernel.DataManager;
 import org.fao.geonet.kernel.datamanager.IMetadataUtils;
-import org.fao.geonet.kernel.search.LuceneSearcher;
-import org.fao.geonet.kernel.search.MetaSearcher;
-import org.fao.geonet.kernel.search.SearchManager;
-import org.fao.geonet.kernel.search.SearcherType;
+import org.fao.geonet.kernel.search.EsSearchManager;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.lib.Lib;
 import org.fao.geonet.util.XslUtil;
@@ -48,16 +49,12 @@ import org.fao.geonet.utils.XmlRequest;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
-import org.jdom.Text;
-import org.jdom.xpath.XPath;
 
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.fao.geonet.kernel.search.EsSearchManager.FIELDLIST_CORE;
 
 
 /**
@@ -66,16 +63,12 @@ import java.util.Map;
  * @author Jose García
  */
 public class InspireAtomUtil {
+    private static final String EXTRACT_DATASETS_FROM_SERVICE_XSLT = "extract-datasetinfo-from-service-feed.xsl";
 
     /**
      * Xslt process to get the related datasets in service metadata.
      **/
     private static final String EXTRACT_DATASETS = "extract-datasets.xsl";
-
-    /**
-     * Xslt process to get if a metadata is a service or a dataset.
-     **/
-    private static final String EXTRACT_MD_TYPE = "extract-type.xsl";
 
     /**
      * Xslt process to get the atom feed link from the metadata.
@@ -116,6 +109,10 @@ public class InspireAtomUtil {
      * The download url suffix for download of dataset atom feeds.
      **/
     public static final String LOCAL_DOWNLOAD_DATASET_URL_SUFFIX = "atom/download/dataset";
+
+    private InspireAtomUtil() {
+
+    }
 
     /**
      * Issue an http request to retrieve the remote Atom feed document.
@@ -163,7 +160,7 @@ public class InspireAtomUtil {
                                               final String crs)
         throws Exception {
 
-        List<Element> elementsToRemove = new ArrayList<Element>();
+        List<Element> elementsToRemove = new ArrayList<>();
 
         Iterator it = feed.getChildren().iterator();
 
@@ -191,7 +188,7 @@ public class InspireAtomUtil {
     public static boolean isServiceMetadata(DataManager dm, String schema, Element md) throws Exception {
         java.nio.file.Path styleSheet = dm.getSchemaDir(schema).resolve("extract-type.xsl");
 
-        Map<String, Object> paramsM = new HashMap<String, Object>();
+        Map<String, Object> paramsM = new HashMap<>();
         String mdType = Xml.transform(md, styleSheet, paramsM).getText().trim();
 
         return "service".equalsIgnoreCase(mdType);
@@ -224,6 +221,38 @@ public class InspireAtomUtil {
         return datasets;
     }
 
+    /**
+     * @param atomFeedDocument Atom service feed document
+     * @param dataManager      DataManager.
+     * @return List of datasets referenced in the service feed.
+     * @throws Exception Exception.
+     */
+    public static List<DatasetFeedInfo> extractRelatedDatasetsInfoFromServiceFeed(final String atomFeedDocument, final DataManager dataManager)
+        throws Exception {
+        Element serviceFeed = Xml.loadString(atomFeedDocument, false);
+
+        java.nio.file.Path defaultStyleSheet = dataManager.getSchemaDir("iso19139").resolve(EXTRACT_DATASETS_FROM_SERVICE_XSLT);
+
+        Map<String, Object> params = new HashMap<>();
+        Element atomIndexFields = Xml.transform(serviceFeed, defaultStyleSheet, params);
+
+        List<DatasetFeedInfo> datasetsInformation = new ArrayList<>();
+
+        for (Object field : atomIndexFields.getChildren()) {
+            Element f = (Element) field;
+
+            // Some feed entries contain an empty identifier, skip them
+            if (StringUtils.isNotEmpty(f.getChildText("identifier"))) {
+                DatasetFeedInfo datasetFeedInfo = new DatasetFeedInfo(f.getChildText("identifier"),
+                    f.getChildText("namespace"),
+                    f.getChildText("feedUrl"));
+
+                datasetsInformation.add(datasetFeedInfo);
+            }
+        }
+
+        return datasetsInformation;
+    }
 
     public static Map<String, String> retrieveServiceMetadataWithAtomFeeds(final DataManager dataManager,
                                                                            final List<AbstractMetadata> iso19139Metadata,
@@ -256,7 +285,7 @@ public class InspireAtomUtil {
                                                                 List<AbstractMetadata> iso19139Metadata, String type,
                                                                 String atomProtocol) throws Exception {
 
-        Map<String, String> metadataAtomFeeds = new HashMap<String, String>();
+        Map<String, String> metadataAtomFeeds = new HashMap<>();
 
         for (AbstractMetadata md : iso19139Metadata) {
             int id = md.getId();
@@ -302,56 +331,101 @@ public class InspireAtomUtil {
         return atomFeed;
     }
 
-    public static List<AbstractMetadata> searchMetadataByType(ServiceContext context,
-                                                              SearchManager searchMan,
-                                                              String type) {
+    public static List<AbstractMetadata> searchMetadataByTypeAndProtocol(ServiceContext context,
+                                                                         EsSearchManager searchMan,
+                                                                         String type,
+                                                                         String protocol) {
+        String jsonQuery = "{" +
+            "    \"bool\": {" +
+            "      \"must\": [" +
+            "        {" +
+            "          \"term\": {" +
+            "            \"resourceType\": {" +
+            "              \"value\": \"%s\"" +
+            "            }" +
+            "          }" +
+            "        }, " +
+            "        {" +
+            "          \"nested\": {" +
+            "            \"path\": \"link\"," +
+            "            \"query\": {" +
+            "              \"term\": {" +
+            "                \"link.protocol\": {" +
+            "                  \"value\": \"%s\"" +
+            "                }" +
+            "              }" +
+            "            }" +
+            "          }" +
+            "        }" +
+            "      ]" +
+            "    }" +
+            "}";
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<AbstractMetadata> allMdInfo = new ArrayList<>();
 
-        Element request = new Element(Jeeves.Elem.REQUEST);
-        request.addContent(new Element("type").setText(type));
-        request.addContent(new Element("fast").setText("true"));
-
-        // perform the search and return the results read from the index
-        MetaSearcher searcher = null;
         try {
-            searcher = searchMan.newSearcher(SearcherType.LUCENE, Geonet.File.SEARCH_LUCENE);
-            searcher.search(context, request, new ServiceConfig());
+            JsonNode esJsonQuery = objectMapper.readTree(String.format(jsonQuery, type, protocol));
 
-            Map<Integer, AbstractMetadata> allMdInfo = ((LuceneSearcher) searcher).getAllMdInfo(context, searcher.getSize());
-            return new ArrayList<>(allMdInfo.values());
+            final SearchResponse result = searchMan.query(
+                esJsonQuery,
+                FIELDLIST_CORE,
+                0, 10000);
+
+            IMetadataUtils dataManager = context.getBean(IMetadataUtils.class);
+            for (SearchHit hit : result.getHits()) {
+                String id = hit.getSourceAsMap().get(Geonet.IndexFieldNames.ID).toString();
+                allMdInfo.add(dataManager.findOne(id));
+            }
         } catch (Exception ex) {
             Log.error(Geonet.ATOM, ex.getMessage(), ex);
             return new ArrayList<>();
-        } finally {
-            if (searcher != null) searcher.close();
         }
+        return allMdInfo;
     }
 
 
-    public static String retrieveDatasetUuidFromIdentifier(ServiceContext context,
-                                                           SearchManager searchMan,
+    public static String retrieveDatasetUuidFromIdentifier(EsSearchManager searchMan,
                                                            String datasetIdCode) {
+        String jsonQuery = "{" +
+            "    \"bool\": {" +
+            "      \"must\": [" +
+            "        {" +
+            "          \"term\": {" +
+            "            \"resourceIdentifier.code\": {" +
+            "              \"value\": \"%s\"" +
+            "            }" +
+            "          }" +
+            "        }," +
+            "        {" +
+            "          \"term\": {" +
+            "            \"isPublishedToAll\": {" +
+            "              \"value\": \"true\"" +
+            "            }" +
+            "          }" +
+            "        }" +
 
-        String uuid = "";
+            "      ]" +
+            "    }" +
+            "}";
+        ObjectMapper objectMapper = new ObjectMapper();
+        String id = "";
+        try {
+            JsonNode esJsonQuery = objectMapper.readTree(String.format(jsonQuery, datasetIdCode));
 
-        Element request = new Element(Jeeves.Elem.REQUEST);
-        request.addContent(new Element("identifier").setText(datasetIdCode));
-        request.addContent(new Element("has_atom").setText("y"));
-        request.addContent(new Element("fast").setText("true"));
+            final SearchResponse result = searchMan.query(
+                esJsonQuery,
+                FIELDLIST_CORE,
+                0, 1);
 
-        // perform the search and return the results read from the index
+            TotalHits totalHits = result.getHits().getTotalHits();
 
-        try (MetaSearcher searcher = searchMan.newSearcher(SearcherType.LUCENE, Geonet.File.SEARCH_LUCENE)) {
-            searcher.search(context, request, new ServiceConfig());
-
-            List<String> uuids = ((LuceneSearcher) searcher).getAllUuids(1, context);
-            if (uuids.size() > 0) {
-                uuid = uuids.get(0);
+            if ((totalHits != null) && (totalHits.value > 0)) {
+                id = result.getHits().getAt(0).getId();
             }
         } catch (Exception ex) {
             Log.error(Geonet.ATOM, ex.getMessage(), ex);
         }
-
-        return uuid;
+        return id;
     }
 
     public static Element prepareServiceFeedEltBeforeTransform(final String schema,
@@ -431,7 +505,8 @@ public class InspireAtomUtil {
      * @return the ATOM feed as a JDOM element.
      * @throws Exception See InspireAtomUtilTest.testLocalDatasetTransform() for an example of calling this method.
      */
-    public static Element convertDatasetMdToAtom(final String schema, final Element md, final DataManager dataManager,
+    public static Element convertDatasetMdToAtom(final String schema, final Element md,
+                                                 final DataManager dataManager,
                                                  Map<String, Object> params) throws Exception {
 
         Path styleSheet = getAtomFeedXSLStylesheet(schema, dataManager);
@@ -445,49 +520,58 @@ public class InspireAtomUtil {
             .resolve(TRANSFORM_MD_TO_ATOM_FEED);
     }
 
-    public static Element getDatasetFeed(final ServiceContext context, final String spIdentifier, final String spNamespace, final Map<String, Object> params, String requestedLanguage) throws Exception {
+    public static Element getMetadataFeedByResourceIdentifier(final ServiceContext context, final String spIdentifier,
+                                                              final String spNamespace, final Map<String, Object> params, String requestedLanguage) throws Exception {
 
-        ServiceConfig config = new ServiceConfig();
-        SearchManager searchMan = context.getBean(SearchManager.class);
+        EsSearchManager searchMan = context.getBean(EsSearchManager.class);
 
         // Search for the dataset identified by spIdentifier
         AbstractMetadata datasetMd = null;
-        Document dsLuceneSearchParams = createDefaultLuceneSearcherParams();
-        dsLuceneSearchParams.getRootElement().addContent(new Element("identifier").setText(spIdentifier));
-        if (StringUtils.isNotBlank(spNamespace)) {
-            dsLuceneSearchParams.getRootElement().addContent(new Element("identifierNamespace").setText(spNamespace));
+
+        String jsonQuery = "{" +
+            "     \"term\": {" +
+            "       \"resourceIdentifier.code\": {" +
+            "         \"value\": \"%s\"" +
+            "       }" +
+            "     }" +
+            "}";
+        ObjectMapper objectMapper = new ObjectMapper();
+        IMetadataUtils repo = context.getBean(IMetadataUtils.class);
+
+        try {
+//            The following was not migrated.
+//            AND query was not supported by Lucene in this case if you have more than one resource identifier
+//            With ES, we could use nested object for that or 2 distinct fields
+//            if (StringUtils.isNotBlank(spNamespace)) {
+//                dsLuceneSearchParams.getRootElement().addContent(new Element("identifierNamespace").setText(spNamespace));
+//            }
+// ...
+// search with namespace return none, then it does one without it. Only do search without namespace for now
+//                if (searchResult.getContentSize() == 0) {
+//                    if (StringUtils.isNotBlank(spNamespace)) {
+//                        dsLuceneSearchParams.getRootElement().removeChild("identifierNamespace");
+//                        searcher.search(context, dsLuceneSearchParams.getRootElement(), config);
+//                        searchResult = searcher.present(context, dsLuceneSearchParams.getRootElement(), config);
+//                    }
+//                }
+            JsonNode esJsonQuery = objectMapper.readTree(String.format(jsonQuery, spIdentifier));
+
+            final SearchResponse result = searchMan.query(
+                esJsonQuery,
+                FIELDLIST_CORE,
+                0, 1);
+            for (SearchHit hit : result.getHits()) {
+                datasetMd = repo.findOneByUuid(hit.getId());
+            }
+        } catch (Exception e) {
+
         }
-        dsLuceneSearchParams.getRootElement().addContent(new Element("type").setText("dataset"));
-
-        try (MetaSearcher searcher = searchMan.newSearcher(SearcherType.LUCENE, Geonet.File.SEARCH_LUCENE)) {
-            searcher.search(context, dsLuceneSearchParams.getRootElement(), config);
-            Element searchResult = searcher.present(context, dsLuceneSearchParams.getRootElement(), config);
-
-            XPath xp = XPath.newInstance("//response/metadata/geonet:info/uuid/text()");
-            xp.addNamespace("geonet", "http://www.fao.org/geonetwork");
-            if (searchResult.getContentSize() == 0) {
-                if (StringUtils.isNotBlank(spNamespace)) {
-                    dsLuceneSearchParams.getRootElement().removeChild("identifierNamespace");
-                    searcher.search(context, dsLuceneSearchParams.getRootElement(), config);
-                    searchResult = searcher.present(context, dsLuceneSearchParams.getRootElement(), config);
-                }
-            }
-            if (searchResult.getContentSize() > 0) {
-                Text uuidTxt = (Text) xp.selectSingleNode(new Document(searchResult));
-                String datasetMdUuid = uuidTxt.getText();
-
-                IMetadataUtils repo = context.getBean(IMetadataUtils.class);
-                datasetMd = repo.findOneByUuid(datasetMdUuid);
-            }
-
-        } finally {
-            if (datasetMd == null) {
-                throw new ResourceNotFoundException(String.format(
-                    "No dataset found with resource identifier '%s'. Check that a record exist with hierarchy level is set to 'dataset' with a resource identifier set to '%s'.", spIdentifier, spIdentifier));
-            }
+        if (datasetMd == null) {
+            throw new ResourceNotFoundException(String.format(
+                "No dataset found with resource identifier '%s'. Check that a record exist with hierarchy level is set to 'dataset'" +
+                    " with a resource identifier set to '%s'.", spIdentifier, spIdentifier));
         }
 
-        // check user's rights
         try {
             Lib.resource.checkPrivilege(context, String.valueOf(datasetMd.getId()), ReservedOperation.view);
         } catch (Exception e) {
@@ -495,50 +579,67 @@ public class InspireAtomUtil {
             throw new UnAuthorizedException("Access denied to metadata " + datasetMd.getUuid(), e);
         }
 
-        String serviceMdUuid = null;
-        Document luceneParamSearch = createDefaultLuceneSearcherParams();
-        luceneParamSearch.getRootElement().addContent(new Element("operatesOn").setText(datasetMd.getUuid() + " or " + spIdentifier));
-        luceneParamSearch.getRootElement().addContent(new Element("serviceType").setText("download"));
+        jsonQuery = "{" +
+            "    \"bool\": {" +
+            "      \"must\": [" +
+            "        {" +
+            "          \"terms\": {" +
+            "            \"recordOperateOn\": [" +
+            "              \"%s\", \"%s\"" +
+            "            ]" +
+            "          }" +
+            "        }, " +
+            "        {" +
+            "          \"term\": {" +
+            "            \"serviceType\": {" +
+            "              \"value\": \"%s\"" +
+            "            }" +
+            "          }" +
+            "        }" +
+            "      ]" +
+            "    }" +
+            "}";
+        AbstractMetadata serviceMetadata = null;
 
-        try (MetaSearcher searcher = searchMan.newSearcher(SearcherType.LUCENE, Geonet.File.SEARCH_LUCENE)) {
-            searcher.search(context, luceneParamSearch.getRootElement(), config);
-            Element searchResult = searcher.present(context, luceneParamSearch.getRootElement(), config);
+        try {
+            JsonNode esJsonQuery = objectMapper.readTree(String.format(jsonQuery, datasetMd.getUuid(), spIdentifier, "download"));
 
-            XPath xp = XPath.newInstance("//response/metadata/geonet:info/uuid/text()");
-            xp.addNamespace("geonet", "http://www.fao.org/geonetwork");
-
-            Text uuidTxt = (Text) xp.selectSingleNode(new Document(searchResult));
-            serviceMdUuid = uuidTxt.getText();
-        } finally {
-            if (serviceMdUuid == null) {
-                throw new ResourceNotFoundException(String.format("No service operating the dataset '%s'. Check that a service is attached to that dataset and that its service type is set to 'download'.", datasetMd.getUuid()));
+            final SearchResponse result = searchMan.query(
+                esJsonQuery,
+                FIELDLIST_CORE,
+                0, 1);
+            for (SearchHit hit : result.getHits()) {
+                serviceMetadata = repo.findOneByUuid(hit.getId());
             }
+        } catch (Exception e) {
+
+        }
+        if (serviceMetadata == null) {
+            throw new ResourceNotFoundException(String.format(
+                "No service operating the dataset '%s'. " +
+                    "Check that a service is attached to that dataset and that its service type is set to 'download'.",
+                datasetMd.getUuid()));
+
         }
 
         DataManager dm = context.getBean(DataManager.class);
         Element md = datasetMd.getXmlData(false);
+        String schema = datasetMd.getDataInfo().getSchemaId();
+
         if (StringUtils.isBlank(requestedLanguage)) {
-            String schema = dm.getMetadataSchema(String.valueOf(datasetMd.getId()));
             String defaultLanguage = dm.extractDefaultLanguage(schema, md);
             requestedLanguage = XslUtil.twoCharLangCode(defaultLanguage);
         }
-        Element inputDoc = InspireAtomUtil.prepareDatasetFeedEltBeforeTransform(md, serviceMdUuid);
+        Element inputDoc = InspireAtomUtil.prepareDatasetFeedEltBeforeTransform(md, serviceMetadata.getUuid());
 
         params.put("requestedLanguage", requestedLanguage);
-        return InspireAtomUtil.convertDatasetMdToAtom("iso19139", inputDoc, dm, params);
+        return InspireAtomUtil.convertDatasetMdToAtom(schema, inputDoc, dm, params);
     }
 
-    private static Document createDefaultLuceneSearcherParams() {
-        Document luceneParamSearch = new Document(new Element("request").
-            addContent(new Element("from").setText("1")).
-            addContent(new Element("to").setText("1000")).
-            addContent(new Element("fast").setText("index")));
-
-        return luceneParamSearch;
-    }
-
-    public static Element prepareOpenSearchDescriptionEltBeforeTransform(final ServiceContext context, final Map<String, Object> params, final String fileIdentifier, final String schema, final Element serviceAtomFeed, final String defaultLanguage,
-                                                                         final DataManager dataManager) throws Exception {
+    public static Element prepareOpenSearchDescriptionEltBeforeTransform(final ServiceContext context,
+                                                                         final Map<String, Object> params, final String fileIdentifier,
+                                                                         final Element serviceAtomFeed, final String defaultLanguage
+    ) throws Exception {
 
         List<String> keywords = retrieveKeywordsFromFileIdentifier(context, fileIdentifier);
         Namespace ns = serviceAtomFeed.getNamespace();
@@ -548,7 +649,7 @@ public class InspireAtomUtil {
         response.addContent(new Element("fileId").setText(fileIdentifier));
         response.addContent(new Element("title").setText(serviceAtomFeed.getChildText("title", ns)));
         response.addContent(new Element("subtitle").setText(serviceAtomFeed.getChildText("subtitle", ns)));
-        List<String> languages = new ArrayList<String>();
+        List<String> languages = new ArrayList<>();
         languages.add(XslUtil.twoCharLangCode(defaultLanguage));
         Iterator<Element> linksChildren = (serviceAtomFeed.getChildren("link", ns)).iterator();
         while (linksChildren.hasNext()) {
@@ -575,7 +676,7 @@ public class InspireAtomUtil {
         response.addContent(datasetsEl);
         Namespace inspiredlsns = serviceAtomFeed.getNamespace("inspire_dls");
         Iterator<Element> datasets = (serviceAtomFeed.getChildren("entry", ns)).iterator();
-        List<String> fileTypes = new ArrayList<String>();
+        List<String> fileTypes = new ArrayList<>();
         while (datasets.hasNext()) {
             Element dataset = datasets.next();
             String datasetIdCode = dataset.getChildText("spatial_dataset_identifier_code", inspiredlsns);
@@ -583,7 +684,7 @@ public class InspireAtomUtil {
 
             Element datasetAtomFeed = null;
             try {
-                datasetAtomFeed = InspireAtomUtil.getDatasetFeed(context, datasetIdCode, datasetIdNs, params, XslUtil.twoCharLangCode(defaultLanguage));
+                datasetAtomFeed = InspireAtomUtil.getMetadataFeedByResourceIdentifier(context, datasetIdCode, datasetIdNs, params, XslUtil.twoCharLangCode(defaultLanguage));
             } catch (Exception e) {
                 Log.error(Geonet.ATOM, "No dataset metadata found with uuid:"
                     + fileIdentifier);
@@ -598,7 +699,7 @@ public class InspireAtomUtil {
                     datasetEl.addContent(new Element("authorName").setText(authorName));
                 }
             }
-            Map<String, Integer> downloadsCountByCrs = new HashMap<String, Integer>();
+            Map<String, Integer> downloadsCountByCrs = new HashMap<>();
             Iterator<Element> entries = (datasetAtomFeed.getChildren("entry", ns)).iterator();
             while (entries.hasNext()) {
                 Element entry = entries.next();
@@ -607,7 +708,7 @@ public class InspireAtomUtil {
                     String term = category.getAttributeValue("term");
                     Integer count = downloadsCountByCrs.get(term);
                     if (count == null) {
-                        count = new Integer(0);
+                        count = 0;
                     }
                     downloadsCountByCrs.put(term, count + 1);
                 }
@@ -674,7 +775,8 @@ public class InspireAtomUtil {
         return doc.getRootElement();
     }
 
-    public static Element convertServiceMdToOpenSearchDescription(final ServiceContext context, final Element md, final Map<String, Object> params) throws Exception {
+    public static Element convertServiceMdToOpenSearchDescription(final ServiceContext context, final Element md,
+                                                                  final Map<String, Object> params) throws Exception {
 
         Path styleSheet = getOpenSearchDesciptionXSLStylesheet(context);
         return Xml.transform(md, styleSheet, params);
@@ -707,29 +809,19 @@ public class InspireAtomUtil {
         return datasetEl;
     }
 
-    public static List<String> retrieveKeywordsFromFileIdentifier(ServiceContext context, String fileIdentifier) {
-        List<String> keywordsList = new ArrayList<String>();
-        Element request = new Element(Jeeves.Elem.REQUEST);
-        request.addContent(new Element("fileId").setText(fileIdentifier));
-        //request.addContent(new Element("has_atom").setText("y"));
-        request.addContent(new Element("fast").setText("true"));
-        SearchManager searchMan = context.getBean(SearchManager.class);
-        // perform the search and return the results read from the index
-
-        try (MetaSearcher searcher = searchMan.newSearcher(SearcherType.LUCENE, Geonet.File.SEARCH_LUCENE)) {
-            searcher.search(context, request, new ServiceConfig());
-
-            List<Element> keywordElems = ((LuceneSearcher) searcher).getSummary().getChild("summary").getChild("keywords").getChildren();
-            for (Element elem : keywordElems) {
-                String keyword = elem.getAttributeValue("name");
-                if (!keywordsList.contains(keyword)) {
-                    keywordsList.add(keyword);
-                }
+    public static List<String> retrieveKeywordsFromFileIdentifier(ServiceContext context, String uuid) {
+        EsSearchManager searchManager = context.getBean(EsSearchManager.class);
+        List<String> keywordsList = new ArrayList<>();
+        try {
+            Map<String, Object> document = searchManager.getDocument(uuid);
+            Object tags = document.get("tag");
+            if (tags instanceof List) {
+                ArrayList<HashMap<String, String>> list = (ArrayList) tags;
+                list.forEach(tag -> keywordsList.add(tag.get("default")));
             }
         } catch (Exception ex) {
             Log.error(Geonet.ATOM, ex.getMessage(), ex);
         }
-
         return keywordsList;
     }
 }

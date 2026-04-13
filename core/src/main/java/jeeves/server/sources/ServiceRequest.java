@@ -18,7 +18,7 @@
 //===	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //===
 //===	Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
-//===	Rome - Italy. email: GeoNetwork@fao.org
+//===	Rome - Italy. email: geonetwork@osgeo.org
 //==============================================================================
 
 package jeeves.server.sources;
@@ -210,7 +210,7 @@ public class ServiceRequest {
 
     //---------------------------------------------------------------------------
 
-    public void beginStream(String contentType, int contentLength, String contentDisp,
+    public void beginStream(String contentType, long contentLength, String contentDisp,
                             boolean cache) {
     }
 

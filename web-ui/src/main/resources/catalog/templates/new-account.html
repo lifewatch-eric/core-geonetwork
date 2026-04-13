@@ -6,46 +6,103 @@
       </div>
       <div class="panel-body">
         <p data-translate="">newAccountInfo</p>
-        <form class="form-horizontal clearfix" id="userinfo">
-          <input type="hidden" name="_csrf" value="{{csrf}}"/>
+        <form
+          name="gnNewAccount"
+          class="form-horizontal clearfix"
+          id="userinfo"
+          novalidate=""
+        >
+          <input type="hidden" name="_csrf" value="{{csrf}}" />
 
           <fieldset class="pull-left">
             <legend data-translate="">personal</legend>
-            <div class="form-group">
+            <div
+              class="form-group"
+              data-ng-class="gnNewAccount.name.$error.required ? 'has-error' : ''"
+            >
               <label for="inputName" translate="">name</label>
-              <input type="text" class="form-control"
-                      aria-label="{{'name' | translate}}"
-                      data-ng-model="userInfo.name"
-                      id="inputName" name="name"/>
+              <input
+                type="text"
+                class="form-control"
+                maxlength="255"
+                aria-label="{{'name' | translate}}"
+                data-ng-model="userInfo.name"
+                id="inputName"
+                name="name"
+                required=""
+              />
             </div>
             <div class="form-group">
-              <label for="inputUsername" translate="">surname</label>
-              <input type="text" class="form-control"
-                      aria-label="{{'surname' | translate}}"
-                      data-ng-model="userInfo.surname"
-                      id="inputUsername" name="surname"/>
+              <label for="inputSurname" translate="">surname</label>
+              <input
+                type="text"
+                class="form-control"
+                maxlength="255"
+                aria-label="{{'surname' | translate}}"
+                data-ng-model="userInfo.surname"
+                id="inputSurname"
+                name="surname"
+              />
+            </div>
+            <div
+              class="form-group"
+              data-ng-class="gnNewAccount.email.$error.required ? 'has-error' : ''"
+            >
+              <label for="inputEmail" data-translate="">email</label>
+              <input
+                type="email"
+                id="inputEmail"
+                name="email"
+                maxlength="255"
+                aria-label="{{'email' | translate}}"
+                data-ng-model="userInfo.username"
+                autofocus=""
+                class="form-control"
+                required=""
+              />
             </div>
             <div class="form-group">
-              <label data-translate="">email</label>
-              <input type="email" name="email"
-                      aria-label="{{'email' | translate}}"
-                      data-ng-model="userInfo.username"
-                      autofocus="" class="form-control"/>
+              <label for="inputOrg" data-translate="">organisation</label>
+              <input
+                type="text"
+                name="org"
+                id="inputOrg"
+                aria-label="{{'organisation' | translate}}"
+                data-ng-model="userInfo.organisation"
+                class="form-control"
+              />
             </div>
             <div class="form-group">
-              <label data-translate="">organisation</label>
-              <input type="text" name="org"
-                      aria-label="{{'organisation' | translate}}"
-                      data-ng-model="userInfo.organisation"
-                      class="form-control"/>
+              <label for="selectProfile" data-translate="">requestedProfile</label>
+              <select
+                name="profile"
+                id="selectProfile"
+                data-ng-model="userInfo.profile"
+                data-ng-change="updateGroupSelection()"
+                aria-label="{{'requestedProfile' | translate}}"
+                class="form-control"
+                required=""
+              >
+                <option data-ng-repeat="p in profiles" value="{{p}}">
+                  {{p | translate}}
+                </option>
+              </select>
             </div>
+
             <div class="form-group">
-              <label data-translate="">requestedProfile</label>
-              <select name="profile"
-                      data-ng-model="userInfo.profile"
-                      aria-label="{{'requestedProfile' | translate}}"
-                      class="form-control">
-                <option data-ng-repeat="p in profiles" value="{{p}}">{{p | translate}}</option>
+              <label for="selectGroup" data-translate="">requestedGroup</label>
+              <select
+                name="group"
+                id="selectGroup"
+                data-ng-model="userInfo.group"
+                data-ng-disabled="userInfo.profile == 'Administrator'"
+                aria-label="{{'requestedGroup' | translate}}"
+                class="form-control"
+              >
+                <option value=""></option>
+                <option data-ng-repeat="p in groups" value="{{p.id}}">
+                  {{p.label[lang]}}
+                </option>
               </select>
             </div>
           </fieldset>
@@ -54,52 +111,87 @@
             <legend data-translate="">address</legend>
 
             <div class="form-group">
-              <label data-translate="">address</label>
-              <input type="text" name="address"
-                      aria-label="{{'address' | translate}}"
-                      data-ng-model="userInfo.address.address"
-                      class="form-control"/>
+              <label for="inputAddress" data-translate="">address</label>
+              <input
+                type="text"
+                name="address"
+                id="inputAddress"
+                maxlength="255"
+                aria-label="{{'address' | translate}}"
+                data-ng-model="userInfo.address.address"
+                class="form-control"
+              />
             </div>
             <div class="form-group">
-              <label data-translate="">zip</label>
-                <input type="text" name="zip" class="form-control"
-                       aria-label="{{'zip' | translate}}"
-                       data-ng-model="userInfo.address.zip"/>
+              <label for="inputZip" data-translate="">zip</label>
+              <input
+                type="text"
+                name="zip"
+                id="inputZip"
+                maxlength="16"
+                class="form-control"
+                aria-label="{{'zip' | translate}}"
+                data-ng-model="userInfo.address.zip"
+              />
             </div>
             <div class="form-group">
-              <label data-translate="">state</label>
-              <input type="text" name="state" class="form-control"
-                      aria-label="{{'state' | translate}}"
-                      data-ng-model="userInfo.address.state"/>
+              <label for="inputState" data-translate="">state</label>
+              <input
+                type="text"
+                name="state"
+                id="inputState"
+                maxlength="255"
+                class="form-control"
+                aria-label="{{'state' | translate}}"
+                data-ng-model="userInfo.address.state"
+              />
             </div>
             <div class="form-group">
               <label data-translate="">city</label>
-              <input type="text" name="city" class="form-control"
-                      aria-label="{{'city' | translate}}"
-                      data-ng-model="userInfo.address.city"/>
+              <input
+                type="text"
+                name="city"
+                maxlength="255"
+                class="form-control"
+                aria-label="{{'city' | translate}}"
+                data-ng-model="userInfo.address.city"
+              />
             </div>
             <div class="form-group">
-              <label data-translate=""
-                     data-ng-model="userInfo.address.country">country</label>
+              <label for="inputCountry" data-translate="">country</label>
               <!-- TODO : Add country list -->
-              <input type="text" name="country" class="form-control"
-                      aria-label="{{'country' | translate}}"/>
+              <input
+                type="text"
+                name="country"
+                id="inputCountry"
+                maxlength="255"
+                class="form-control"
+                aria-label="{{'country' | translate}}"
+                data-ng-model="userInfo.address.country"
+              />
             </div>
           </fieldset>
 
-
           <div class="form-group" data-ng-if="recaptchaEnabled">
-            <div vc-recaptcha class="col-lg-8"
-               theme="'light'"
-               key="recaptchaKey"></div>
+            <div vc-recaptcha class="col-lg-8" theme="'light'" key="recaptchaKey"></div>
 
-            <span class="col-lg-8" style="color: red;" data-ng-show="resolveRecaptcha" data-translate="">
+            <span
+              class="col-lg-8"
+              style="color: red"
+              data-ng-show="resolveRecaptcha"
+              data-translate=""
+            >
               resolveCaptcha
             </span>
           </div>
         </form>
-        <button data-gn-click-and-spin="register('#userinfo')" class="btn btn-primary btn-block"
-                data-translate="">register
+        <button
+          data-ng-disabled="!gnNewAccount.$valid"
+          data-gn-click-and-spin="register('#userinfo')"
+          class="btn btn-primary btn-block"
+          data-translate=""
+        >
+          register
         </button>
       </div>
     </div>

@@ -84,7 +84,29 @@
     <for name="gmd:organisationName" use="data-gn-anchor-switcher"/>
     -->
 
+    <!-- Example of data-gn-field-upload-div directive:
 
+    Create a widget to handle editing of Anchor fields, that require to upload files to the metadata and link them.
+
+    Files are stored in the metadata store, the same way as when adding online resources.
+
+    Format of the xml snippet created:
+
+    <gmd:supplementalInformation>
+      <gmx:Anchor xlink:href="http://localhost:8080/geonetwork/srv/api/records/cde2f47f-4a3f-4da1-8918-9923e7d372f1/attachments/report2019.docx">
+        Report 2019
+      </gmx:Anchor>
+    </gmd:supplementalInformation>
+
+    The directive doesn't support multilingual fields.
+
+    Parameters:
+        data-allow-modify-xlink="true": allows to modify the xlink href (defaults to false)
+
+    <for name="gmd:supplementalInformation" use="data-gn-field-upload-div">
+      <directiveAttributes data-allow-modify-xlink="true" data-link-href="eval#gmx:Anchor/@xlink:href" />
+    </for>
+    -->
 
     <for name="gts:TM_PeriodDuration" use="data-gn-field-duration-div"/>
     <for name="gml:duration" use="data-gn-field-duration-div"/>
@@ -94,6 +116,33 @@
     <for name="gco:Integer" use="number"/>
     <for name="gco:Real" use="number"/>
     <for name="gco:Boolean" use="checkbox"/>
+
+    <!-- Use data-gn-checkbox-with-nilreason for INSPIRE conformity, using xpath attribute.Similar configuration can be
+         applied to other boolean fields that require to handle nilreason value.
+
+         And additional change is required in inflate-metadata.xsl, for the elements to handle with this directive to add gco:Boolean
+         when missing due to nilreason attribute and work nicely with the metadata editor.
+
+         Example with gmd:pass:
+
+           <xsl:template match="gmd:pass[@gco:nilReason and not(gco:Boolean)]">
+            <xsl:copy>
+              <xsl:copy-of select="@*" />
+
+              <gco:Boolean></gco:Boolean>
+            </xsl:copy>
+          </xsl:template>
+
+          Update-fixed-info.xsl already removes gco:Boolean when empty due to nilreason attribute, to avoid xsd errors. No need to change it.
+    -->
+    <!--<for name="gco:Boolean"
+         xpath="/gmd:MD_Metadata/gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:report/gmd:DQ_DomainConsistency/gmd:result/gmd:DQ_ConformanceResult/gmd:pass"
+         use="data-gn-checkbox-with-nilreason">
+      <directiveAttributes
+        data-tag-name="gmd:pass"
+        data-nilreason="eval#@gco:nilReason"
+        data-labels='{"true": "conformant", "false": "notConformant", "unknown": "notEvaluated"}'/>
+    </for>-->
 
 
     <for name="gco:Date" use="data-gn-date-picker"/>
@@ -121,7 +170,7 @@
         data-search-action="true"
         data-popup-action="true"
         data-template-type="extent"
-        data-filter='{"_root": "gmd:EX_Extent"}'
+        data-filter='{"root": "gmd:EX_Extent"}'
         data-insert-modes=""/>
     </for>
 
@@ -132,7 +181,7 @@
               data-search-action="true"
               data-popup-action="true"
               data-template-type="format"
-              data-filter='{"_root": "gmd:MD_Format"}'
+              data-filter='{"root": "gmd:MD_Format"}'
               data-insert-modes="xlink"/>
     </for>
     <for name="gmd:distributionFormat" addDirective="data-gn-directory-entry-selector">
@@ -141,7 +190,7 @@
               data-search-action="true"
               data-popup-action="true"
               data-template-type="format"
-              data-filter='{"_root": "gmd:MD_Format"}'
+              data-filter='{"root": "gmd:MD_Format"}'
               data-insert-modes="xlink"/>
     </for>
     -->
@@ -196,7 +245,7 @@
         data-template-add-action="true"
         data-search-action="true"
         data-popup-action="true"
-        data-filter='{"_root": "gmd:DQ_DomainConsistency"}'
+        data-filter='{"root": "gmd:DQ_DomainConsistency"}'
         data-insert-modes=""
         data-template-type="report"/>
     </for>
@@ -209,7 +258,7 @@
       <directiveAttributes
               data-template-add-action="true"
               data-template-type="onLine"
-              data-filter='{"_root": "gmd:CI_OnlineResource"}'/>
+              data-filter='{"root": "gmd:CI_OnlineResource"}'/>
     </for>
     -->
 
@@ -228,7 +277,7 @@
 
       Exclude all thesaurus already used in the metadata:
       -->
-      <directiveAttributes data-include="xpath::string-join(gmd:MD_Metadata/gmd:identificationInfo
+      <directiveAttributes data-include="xpath::string-join(*
                                           //gmd:thesaurusName/*/gmd:identifier/*/
                                             gmd:code/gmx:Anchor/
                                               concat('-', substring-after(text()[. != ''], 'geonetwork.thesaurus.')), ',')"/>
@@ -247,6 +296,9 @@
     <name>gmd:spatialRepresentationInfo</name>
     <name>gmd:pointOfContact</name>
     <name>gmd:contact</name>
+    <name>gmd:processor</name>
+    <name>gmd:userContactInfo</name>
+    <name>gmd:resourceSpecificUsage</name>
     <name>gmd:graphicOverview</name>
     <name>gmd:citedResponsibleParty</name>
     <name>gmd:dataQualityInfo</name>
@@ -354,6 +406,7 @@
       <name>gmd:checkPointDescription</name>
       <name>gmd:transformationDimensionDescription</name>
       <name>gmd:orientationParameterDescription</name>
+      <name>gmd:userDefinedMaintenanceFrequency</name>
       <name>gmd:distance</name>
       <name>gmd:geometricObjectCount</name>
       <name>srv:name</name>
@@ -464,6 +517,7 @@
     -->
     <view name="inspire" upAndDownControlHidden="true" displayIfServiceInfo="/settings/system/inspire/enable='true'">
       <sidePanel>
+        <directive data-gn-need-help="creating-metadata"/>
         <directive data-gn-validation-report=""/>
         <directive data-gn-onlinesrc-list=""/>
         <directive gn-geo-publisher=""
@@ -471,7 +525,6 @@
                    data-config="{{gnCurrentEdit.geoPublisherConfig}}"
                    data-lang="lang"/>
         <directive data-gn-suggestion-list=""/>
-        <directive data-gn-need-help="user-guide/describing-information/creating-metadata.html"/>
       </sidePanel>
 
       <tab id="inspire" default="true" mode="flat">
@@ -1186,7 +1239,7 @@
                           <gmd:MD_Identifier>
                             <gmd:code>
                               <gmx:Anchor xmlns:gmx="http://www.isotc211.org/2005/gmx"
-                                          xlink:href="http://localhost:8080/geonetwork/srv/eng/thesaurus.download?ref=external.theme.inspire-service-taxonomy">
+                                          xlink:href="http://localhost:8080/geonetwork/srv/api/registries/vocabularies/external.theme.inspire-service-taxonomy">
                                 geonetwork.thesaurus.external.theme.inspire-service-taxonomy</gmx:Anchor>
                             </gmd:code>
                           </gmd:MD_Identifier>
@@ -1248,7 +1301,7 @@
                           <gmd:MD_Identifier>
                             <gmd:code>
                               <gmx:Anchor
-                                xlink:href="http://localhost:8080/geonetwork/srv/eng/thesaurus.download?ref=external.theme.httpinspireeceuropaeutheme-theme">
+                                xlink:href="http://localhost:8080/geonetwork/srv/api/registries/vocabularies/external.theme.httpinspireeceuropaeutheme-theme">
                                 geonetwork.thesaurus.external.theme.httpinspireeceuropaeutheme-theme
                               </gmx:Anchor>
                             </gmd:code>
@@ -3120,19 +3173,22 @@
     <!--
     Customize the editor layout by adding a class attribute
     <view name="default" class="gn-indent-bluescale gn-label-above-input">-->
-    <view name="default">
+    <view name="default" default="true"
+          class="gn-label-above-input gn-indent-bluescale">
       <sidePanel>
-        <!-- General online source manager
-        <directive data-gn-onlinesrc-list=""/>
-        -->
-
         <!-- Simple overview manager + online source manger for other types
         Limit the max number of overviews with data-number-of-overviews="3" attribute.
         In the full view, editor can access and manage the file store and
         thumbnail name and description not supported by the overview manager.
         -->
-        <directive data-gn-validation-report=""/>
-        <directive data-gn-overview-manager=""/>
+        <directive data-gn-need-help="creating-metadata"/>
+
+        <directive data-gn-overview-manager=""
+                   data-file-types=".png,.gif,.jpeg,.jpg"/>
+
+        <directive data-gn-file-uploader=""
+                   data-type="onlines"/>
+
         <directive data-gn-onlinesrc-list=""
                    data-types="onlinesrc|parent|dataset|service|source|sibling|associated|fcats"/>
 
@@ -3141,18 +3197,47 @@
                    data-config="{{gnCurrentEdit.geoPublisherConfig}}"
                    data-lang="lang"/>
 
+        <directive data-gn-validation-report=""/>
+
         <directive data-gn-suggestion-list=""/>
-        <directive data-gn-need-help="user-guide/describing-information/creating-metadata.html"/>
+
       </sidePanel>
 
       <tab id="default" default="true" mode="flat">
-        <section xpath="/gmd:MD_Metadata/gmd:identificationInfo"/>
+        <!--
+        Example for file upload in the main form
+        <section>
+          <field xpath="/gmd:MD_Metadata/gmd:identificationInfo//gmd:title"/>
+
+          * Manage uploaded file with a WWW:DOWNLOAD protocol
+          <directive data-gn-file-uploader=""
+                     data-type="onlines"/>
+
+          * Same but with custom titles and icons
+          <directive data-gn-file-uploader=""
+                     data-title="Resource for download"
+                     data-btn-label="Drop a file here"
+                     data-icon="fa-cloud"
+                     data-type="onlines"/>
+
+          * Without the panel
+          <directive data-gn-file-uploader=""
+                     data-title=""
+                     data-type="onlines"/>
+
+          * With a custom protocol
+          <directive data-gn-file-uploader=""
+                     data-protocol="DIRECTDOWNLOAD"
+                     data-type="onlines"/>
+        </section>-->
+
+        <section xpath="/gmd:MD_Metadata/gmd:identificationInfo" collapsible="false"/>
         <section xpath="/gmd:MD_Metadata/gmd:referenceSystemInfo"/>
         <section xpath="/gmd:MD_Metadata/gmd:spatialRepresentationInfo"/>
         <section xpath="/gmd:MD_Metadata/gmd:distributionInfo"/>
         <section xpath="/gmd:MD_Metadata/gmd:dataQualityInfo"/>
         <section xpath="/gmd:MD_Metadata/gmd:contentInfo"/>
-        <section>
+        <section name="metadata" collapsed="true">
           <field xpath="/gmd:MD_Metadata/gmd:fileIdentifier"/>
           <field xpath="/gmd:MD_Metadata/gmd:language" or="language" in="/gmd:MD_Metadata"/>
           <field xpath="/gmd:MD_Metadata/gmd:characterSet"/>
@@ -3216,8 +3301,10 @@
       </thesaurusList>
 
     </view>
-    <view name="advanced">
+    <view name="advanced"
+          class="gn-label-above-input gn-indent-bluescale">
       <sidePanel>
+        <directive data-gn-need-help="creating-metadata"/>
         <directive data-gn-validation-report=""/>
         <directive data-gn-onlinesrc-list=""/>
         <directive gn-geo-publisher=""
@@ -3225,7 +3312,6 @@
                    data-config="{{gnCurrentEdit.geoPublisherConfig}}"
                    data-lang="lang"/>
         <directive data-gn-suggestion-list=""/>
-        <directive data-gn-need-help="user-guide/describing-information/creating-metadata.html"/>
       </sidePanel>
 
       <tab id="identificationInfo" default="true">
@@ -3294,6 +3380,7 @@
     </view>
     <view name="xml">
       <sidePanel>
+        <directive data-gn-need-help="creating-metadata"/>
         <directive data-gn-validation-report=""/>
         <directive data-gn-onlinesrc-list=""/>
         <directive gn-geo-publisher=""
@@ -3301,7 +3388,6 @@
                    data-config="{{gnCurrentEdit.geoPublisherConfig}}"
                    data-lang="lang"/>
         <directive data-gn-suggestion-list=""/>
-        <directive data-gn-need-help="user-guide/describing-information/creating-metadata.html"/>
       </sidePanel>
       <tab id="xml" default="true"/>
     </view>

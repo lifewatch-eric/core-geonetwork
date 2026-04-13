@@ -91,7 +91,7 @@ public class HarvesterSettingsManager {
         Element el = null;
         if (s != null) {
             HarvesterSetting r = null;
-            HashMap<Integer, List<HarvesterSetting>> mapSettings = new HashMap<Integer, List<HarvesterSetting>>();
+            Map<Integer, List<HarvesterSetting>> mapSettings = new HashMap<Integer, List<HarvesterSetting>>();
             List<HarvesterSetting> settings = null;
             // create Map where keys are idParent
             // this is avoid to multiple call in base
@@ -207,7 +207,7 @@ public class HarvesterSettingsManager {
             }
         }
 
-        settingsRepo.save(toSave);
+        settingsRepo.saveAll(toSave);
 
         return success;
     }
@@ -216,7 +216,12 @@ public class HarvesterSettingsManager {
      * When adding to a newly created node, path must be 'id:...'.
      */
     public String add(String path, Object name, Object value) {
-        if (name == null)
+        return add(path, name, value, false);
+    }
+
+    public String add(String path, Object name, Object value, boolean encrypted) {
+
+            if (name == null)
             throw new IllegalArgumentException("Name cannot be null");
 
         String sName = makeString(name);
@@ -231,7 +236,8 @@ public class HarvesterSettingsManager {
         if (parent == null)
             return null;
 
-        HarvesterSetting child = new HarvesterSetting().setParent(parent).setName(sName).setValue(sValue);
+        HarvesterSetting child = new HarvesterSetting().setParent(parent)
+            .setName(sName).setValue(sValue).setEncrypted(encrypted);
 
         settingsRepo.save(child);
         return Integer.toString(child.getId());
@@ -248,11 +254,12 @@ public class HarvesterSettingsManager {
         HarvesterSetting s = settingsRepo.findOneByPath(path);
         if (s == null)
             return false;
-        
+
         //First we have to remove all children
         removeChildren(s.getId());
 
         settingsRepo.delete(s);
+        settingsRepo.flush();
         return true;
     }
 
@@ -344,7 +351,7 @@ public class HarvesterSettingsManager {
     /**
      * Create recursively the tree of harvesterSettings
      */
-    private Element buildFromMap(HarvesterSetting s, HashMap<Integer, List<HarvesterSetting>> mapSettings) {
+    private Element buildFromMap(HarvesterSetting s, Map<Integer, List<HarvesterSetting>> mapSettings) {
         if (s == null) {
             return null;
         }

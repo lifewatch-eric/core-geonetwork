@@ -1,0 +1,72 @@
+<div data-ng-controller="LfwMapSearchController" id="lfw-mapsearch-container">
+  <!-- Filters -->
+  <div class="map-search-field" data-ng-search-form="" data-runSearch="true">
+    <div class="row search-types">     
+      <div class="grp-input-select col-md-2 col-sm-12" ng-repeat="agg in aggregations">
+        <label for="MapSearchFacet" style= "font-weight: normal;">
+        <option value="" ng-if="agg.label">{{agg.label}}</option> 
+        <option value="" ng-if="!agg.label">{{('facet-' + agg.key) | facetKeyTranslator}}</option>
+        </label>
+        <select name="MapSearchFacet" class="form-control" ng-model="currentFilters[agg.key]" ng-change="onResourceTypeChanged()">
+          <option value="">Any</option>
+          <option ng-repeat="item in agg.items" value={{item.value}}>
+            {{::item.value | limitTo: 50 | facetTranslator: agg.key | capitalize}}
+            {{item.value.length > 50 ? '...' : ''}} ({{item.count}})
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-" data-ng-search-form="" data-runSearch="true">
+    <!-- Map -->
+    <markers-map search-obj="searchObj"></markers-map>
+
+    <div class="row gn-row-results">
+      <!-- Results tools (pagination, bulk actions, sorting, ...) -->
+      <div class="row gn-row-tools hidden-print" data-ng-show="searchResults.records.length > 0">
+        <div class="col-xs-6 col-sm-3 gn-nopadding-left">
+          <div data-gn-selection-widget="" data-ng-if="showBatchDropdown" data-results="searchResults"></div>
+        </div>
+  
+        <div class="col-xs-12 col-sm-6 text-center">
+          <div class="" data-gn-pagination="paginationInfo" data-hits-values="searchObj.hitsperpageValues"
+            data-enable-hot-keys="" data-enable-events=""></div>
+        </div>
+  
+        <div class="col-xs-6 col-sm-3 gn-nopadding-right text-right navbar-right">
+          <div data-sortby-combo="" class="d-inline-block" data-params="searchObj.params"
+            data-gn-sortby-values="searchObj.sortbyValues"></div>
+  
+          <div data-gn-results-tpl-switcher="" class="d-inline-block"></div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="row gn-row-results">
+        <div class="gn-search-facet col-md-12">
+          <div class="row">
+            <div class="col-xs-12 gn-nopadding-left gn-nopadding-right">
+              <span class="loading fa fa-spinner fa-spin" ng-if="searching"></span>
+
+              <div class="alert alert-warning" role="alert" ng-if="!searching && searchResults.count == 0">
+                <i class="fa fa-frown-o"></i>
+                <span data-translate="">zarooResult</span>
+              </div>
+
+              <div data-ng-show="searchResults.records.length > 0" data-gn-results-container=""
+                data-search-results="searchResults" data-template-url="resultTemplate" data-map="searchObj.searchMap"
+                class="searchByMap-list shadow"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pop-up -->
+  <div id="popup" class="ol-popup">
+    <span id="popup-closer" class="ol-popup-closer"></span>
+    <div id="popup-content"></div>
+  </div>
+</div>

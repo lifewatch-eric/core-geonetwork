@@ -1,5 +1,5 @@
 //==============================================================================
-//===	Copyright (C) 2001-2008 Food and Agriculture Organization of the
+//===	Copyright (C) 2001-2023 Food and Agriculture Organization of the
 //===	United Nations (FAO-UN), United Nations World Food Programme (WFP)
 //===	and United Nations Environment Programme (UNEP)
 //===
@@ -23,8 +23,11 @@
 
 package org.fao.geonet.api.records.formatters;
 
-import org.fao.geonet.kernel.setting.SettingManager;
+import jeeves.interfaces.Service;
+import jeeves.server.ServiceConfig;
+import jeeves.server.context.ServiceContext;
 import org.fao.geonet.api.records.extent.MapRenderer;
+import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.util.XslUtil;
 import org.fao.geonet.utils.BinaryFile;
 import org.jdom.Element;
@@ -35,10 +38,6 @@ import java.io.File;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import jeeves.interfaces.Service;
-import jeeves.server.ServiceConfig;
-import jeeves.server.context.ServiceContext;
 
 /**
  * Allows a user to display a metadata in PDF with a particular formatters
@@ -71,6 +70,7 @@ public class PDF implements Service {
             renderer.createPDF(os);
         }
 
+        // Jeeves ServiceManager will delete the temporary file at the end of the request
         return BinaryFile.encode(200, tempFile.toAbsolutePath().normalize(), true).getElement();
     }
 

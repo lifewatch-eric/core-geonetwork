@@ -69,7 +69,7 @@
                 select="/documents/*[*:language = 'en']/*:label[@xml:lang = 'en']"/>
 
   <xsl:variable name="statusSuffix"
-                select="'registry/status/valid'"/>
+                select="'/status/valid'"/>
 
   <xsl:variable name="hasBroaderNarrowerLinks"
                 select="count(//*[1]/*:containeditems/*/*:parents) > 0"/>
@@ -84,6 +84,12 @@
     <title thesaurus="Spatial scope"
            register="Spatial scope"
            date="2019-05-22"/>
+    <title thesaurus="INSPIRE priority data set"
+           register="INSPIRE priority data set"
+           date="2018-04-04"/>
+    <title thesaurus="IACS data"
+           register="IACS data"
+           date="2021-06-08"/>
   </xsl:variable>
 
   <xsl:variable name="isInspireThemes"
@@ -96,8 +102,6 @@
                 select="$thesaurusTitles/title[@register = $registerEnglishTitle]/@date"/>
 
   <xsl:template match="/documents">
-
-
     <rdf:RDF xmlns:skos="http://www.w3.org/2004/02/skos/core#"
              xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
              xmlns:dc="http://purl.org/dc/elements/1.1/"

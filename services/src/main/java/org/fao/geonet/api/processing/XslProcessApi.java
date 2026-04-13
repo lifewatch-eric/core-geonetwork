@@ -23,27 +23,32 @@
 
 package org.fao.geonet.api.processing;
 
-import static org.fao.geonet.api.ApiParams.API_PARAM_RECORD_UUIDS_OR_SELECTION;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-
-import java.io.StringWriter;
-import java.nio.file.Path;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.xml.transform.stream.StreamResult;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Optional;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jeeves.server.UserSession;
+import jeeves.server.context.ServiceContext;
+import jeeves.services.ReadWriteController;
 import org.fao.geonet.ApplicationContextHolder;
-import org.fao.geonet.api.API;
 import org.fao.geonet.api.ApiParams;
 import org.fao.geonet.api.ApiUtils;
 import org.fao.geonet.api.processing.report.XsltMetadataProcessingReport;
+import org.fao.geonet.domain.AbstractMetadata;
 import org.fao.geonet.events.history.RecordProcessingChangeEvent;
 import org.fao.geonet.kernel.DataManager;
 import org.fao.geonet.kernel.MetadataIndexerProcessor;
 import org.fao.geonet.kernel.SchemaManager;
+import org.fao.geonet.kernel.UpdateDatestamp;
+import org.fao.geonet.kernel.datamanager.IMetadataManager;
+import org.fao.geonet.kernel.datamanager.IMetadataUtils;
+import org.fao.geonet.kernel.setting.SettingManager;
+import org.fao.geonet.repository.specification.MetadataSpecs;
+import org.fao.geonet.utils.Diff;
+import org.fao.geonet.utils.DiffType;
 import org.fao.geonet.utils.Log;
 import org.fao.geonet.utils.Xml;
 import org.jdom.Element;
@@ -54,48 +59,39 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringWriter;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import jeeves.server.UserSession;
-import jeeves.server.context.ServiceContext;
-import jeeves.services.ReadWriteController;
-import springfox.documentation.annotations.ApiIgnore;
+import static org.fao.geonet.api.ApiParams.API_PARAM_RECORD_UUIDS_OR_SELECTION;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
 /**
  * Process a metadata with an XSL transformation declared for the metadata schema. Parameters sent
  * to the service are forwaded to XSL process.
- *
+ * <p>
  * In each xml/schemas/schemaId directory, a process could be added in a directory called process.
  * Then the process could be called using the following URL : http://localhost:8080/geonetwork/srv/eng/md.processing.batch
  * ?process=keywords-comma-exploder&url=http://xyz
- *
+ * <p>
  * In that example the process has to be named keywords-comma-exploder.xsl.
- *
+ * <p>
  * To retrieve parameters in XSL process use the following: <code> <xsl:param
  * name="url">http://localhost:8080/</xsl:param> </code>
  *
  * @author fxprunayre
  */
 @RequestMapping(value = {
-    "/{portal}/api/processes",
-    "/{portal}/api/" + API.VERSION_0_1 +
-        "/processes"
+    "/{portal}/api/processes"
 })
-@Api(value = "processes",
-    tags = "processes",
+@Tag(name = "processes",
     description = "Processing operations")
 @Controller("xslprocess")
 @ReadWriteController
@@ -107,13 +103,18 @@ public class XslProcessApi {
     @Autowired
     SchemaManager schemaMan;
 
-    @ApiOperation(
-        value = "Preview process result applied to one or more records",
-        nickname = "previewProcessRecordsUsingXslt",
-        notes = ApiParams.API_OP_NOTE_PROCESS_PREVIEW +
+    @Autowired
+    private IMetadataManager metadataManager;
+
+    @Autowired
+    SettingManager settingManager;
+
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Preview process result applied to one or more records",
+        description = ApiParams.API_OP_NOTE_PROCESS_PREVIEW +
             " When errors occur during processing, the processing report is returned in JSON format.")
     @RequestMapping(
-        value = "/{process}",
+        value = "/{process:.+}",
         method = RequestMethod.GET,
         consumes = {
             MediaType.TEXT_HTML_VALUE,
@@ -124,39 +125,52 @@ public class XslProcessApi {
         })
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole('Editor')")
+    @PreAuthorize("hasAuthority('Editor')")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Processed records."),
-        @ApiResponse(code = 403, message = ApiParams.API_RESPONSE_NOT_ALLOWED_ONLY_EDITOR)
+        @ApiResponse(responseCode = "200", description = "Processed records."),
+        @ApiResponse(responseCode = "403", description = ApiParams.API_RESPONSE_NOT_ALLOWED_ONLY_EDITOR)
     })
     public Object previewProcessRecords(
-        @ApiParam(
-            value = ApiParams.API_PARAM_PROCESS_ID
+        @Parameter(
+            description = ApiParams.API_PARAM_PROCESS_ID
         )
         @PathVariable
             String process,
-        @ApiParam(value = API_PARAM_RECORD_UUIDS_OR_SELECTION,
+        @Parameter(
+            description = "Return differences with diff, diffhtml or patch",
+            required = false
+        )
+        @RequestParam(
+            required = false
+        )
+            DiffType diffType,
+        @Parameter(description = API_PARAM_RECORD_UUIDS_OR_SELECTION,
             required = false,
             example = "")
         @RequestParam(required = false)
             String[] uuids,
-        @ApiParam(
-            value = ApiParams.API_PARAM_BUCKET_NAME,
+        @Parameter(
+            description = ApiParams.API_PARAM_BUCKET_NAME,
             required = false)
         @RequestParam(
             required = false
         )
             String bucket,
-        @ApiParam(value = "Append documents before processing",
+        @Parameter(description = "Append documents before processing",
             required = false,
             example = "false")
         @RequestParam(required = false, defaultValue = "false")
             boolean appendFirst,
-        @ApiIgnore
+        @Parameter(description = "Apply update fixed info",
+            required = false,
+            example = "false")
+        @RequestParam(required = false, defaultValue = "true")
+        boolean applyUpdateFixedInfo,
+        @Parameter(hidden = true)
             HttpSession httpSession,
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpServletRequest request,
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpServletResponse response) throws IllegalArgumentException {
         UserSession session = ApiUtils.getUserSession(httpSession);
 
@@ -197,17 +211,29 @@ public class XslProcessApi {
                     mergedDocuments.addContent(dataMan.getMetadata(id));
                 } else {
                     // Save processed metadata
+                    ServiceContext serviceContext = ApiUtils.createServiceContext(request);
                     if (isText) {
-                        output.append(XslProcessUtils.processAsText(ApiUtils.createServiceContext(request),
+                        output.append(XslProcessUtils.processAsText(serviceContext,
                             id, process, false,
                             xslProcessingReport, siteURL, request.getParameterMap())
                         );
                     } else {
-                        Element record = XslProcessUtils.process(ApiUtils.createServiceContext(request),
+                        Element record = XslProcessUtils.process(serviceContext,
                             id, process, false, false,
                             false, xslProcessingReport, siteURL, request.getParameterMap());
                         if (record != null) {
-                            preview.addContent(record.detach());
+                            if (applyUpdateFixedInfo) {
+                                record = metadataManager.updateFixedInfo(dataMan.getMetadataSchema(id),
+                                    Optional.<Integer>absent(), uuid, record, null, UpdateDatestamp.NO, serviceContext);
+                            }
+                            if (diffType != null) {
+                                IMetadataUtils metadataUtils = serviceContext.getBean(IMetadataUtils.class);
+                                AbstractMetadata metadata = metadataUtils.findOne(id);
+                                preview.addContent(
+                                    Diff.diff(metadata.getData(), Xml.getString(record), diffType));
+                            } else {
+                                preview.addContent(record.detach());
+                            }
                         }
                     }
                 }
@@ -217,7 +243,7 @@ public class XslProcessApi {
                 if (process.endsWith(".csv")) {
                     StringWriter sw = new StringWriter();
                     Xml.transform(
-                        mergedDocuments, xslProcessing,  new StreamResult(sw), null);
+                        mergedDocuments, xslProcessing, new StreamResult(sw), null);
                     return sw.toString();
                 } else {
                     return Xml.transform(mergedDocuments, xslProcessing);
@@ -237,66 +263,64 @@ public class XslProcessApi {
                 return mapper.writeValueAsString(xslProcessingReport);
             } catch (JsonProcessingException errorReportException) {
                 return String.format("Failed to generate error report due to '%s'.",
-                    errorReportException.getMessage().toString());
+                    errorReportException.getMessage());
             }
         }
 
         return isText ? output.toString() : preview;
     }
 
-    @ApiOperation(
-        value = "Apply a process to one or more records",
-        nickname = "processRecordsUsingXslt",
-        notes = ApiParams.API_OP_NOTE_PROCESS)
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Apply a process to one or more records",
+        description = ApiParams.API_OP_NOTE_PROCESS)
     @RequestMapping(
-        value = "/{process}",
+        value = "/{process:.+}",
         method = RequestMethod.POST,
         produces = {
             MediaType.APPLICATION_JSON_VALUE
         })
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('Editor')")
+    @PreAuthorize("hasAuthority('Editor')")
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Report about processed records."),
-        @ApiResponse(code = 403, message = ApiParams.API_RESPONSE_NOT_ALLOWED_ONLY_EDITOR)
+        @ApiResponse(responseCode = "201", description = "Report about processed records."),
+        @ApiResponse(responseCode = "403", description = ApiParams.API_RESPONSE_NOT_ALLOWED_ONLY_EDITOR)
     })
     public XsltMetadataProcessingReport processRecords(
-        @ApiParam(
-            value = ApiParams.API_PARAM_PROCESS_ID
+        @Parameter(
+            description = ApiParams.API_PARAM_PROCESS_ID
         )
         @PathVariable
             String process,
-        @ApiParam(value = API_PARAM_RECORD_UUIDS_OR_SELECTION,
+        @Parameter(description = API_PARAM_RECORD_UUIDS_OR_SELECTION,
             required = false,
             example = "")
         @RequestParam(required = false)
             String[] uuids,
-        @ApiParam(
-            value = ApiParams.API_PARAM_BUCKET_NAME,
+        @Parameter(
+            description = ApiParams.API_PARAM_BUCKET_NAME,
             required = false)
         @RequestParam(
             required = false
         )
             String bucket,
-        @ApiParam(
-            value = ApiParams.API_PARAM_UPDATE_DATESTAMP,
-            required = false,
-            defaultValue = "true"
+        @Parameter(
+            description = ApiParams.API_PARAM_UPDATE_DATESTAMP,
+            required = false
         )
         @RequestParam(
             required = false,
             defaultValue = "true"
         )
             boolean updateDateStamp,
-        @ApiParam(value = "Index after processing",
+        @Parameter(description = "Index after processing",
             required = false,
             example = "false")
         @RequestParam(required = false, defaultValue = "true")
             boolean index,
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpSession httpSession,
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpServletRequest request) throws Exception {
         UserSession session = ApiUtils.getUserSession(httpSession);
 
@@ -315,7 +339,7 @@ public class XslProcessApi {
                 ApiUtils.createServiceContext(request),
                 dataMan, records, process, httpSession, siteURL,
                 xslProcessingReport, request, index, updateDateStamp, userSession.getUserIdAsInt());
-            m.process();
+            m.process(settingManager.getSiteId());
 
         } catch (Exception exception) {
             xslProcessingReport.addError(exception);
@@ -362,26 +386,37 @@ public class XslProcessApi {
         }
 
         @Override
-        public void process() throws Exception {
+        public void process(String catalogueId) throws Exception {
             DataManager dataMan = context.getBean(DataManager.class);
+            IMetadataUtils metadataUtils = context.getBean(IMetadataUtils.class);
+
             ApplicationContext appContext = ApplicationContextHolder.get();
             for (String uuid : this.records) {
-                String id = getDataManager().getMetadataId(uuid);
-                Log.info("org.fao.geonet.services.metadata",
-                    "Processing metadata with id:" + id);
+                List<Integer> idList = metadataUtils.findAllIdsBy(MetadataSpecs.hasMetadataUuid(uuid));
 
-                Element beforeMetadata = dataMan.getMetadata(context, id, false, false, false);
+                // Increase the total records counter when processing a metadata with approved and working copies
+                // as the initial counter doesn't take in account this case
+                if (idList.size() > 1) {
+                    xslProcessingReport.setTotalRecords(xslProcessingReport.getNumberOfRecords() + 1);
+                }
 
-                XslProcessUtils.process(context, id, process,
-                    true, index, updateDateStamp, xslProcessingReport,
-                    siteURL, request.getParameterMap());
+                for (Integer id : idList) {
+                    Log.info("org.fao.geonet.services.metadata",
+                        "Processing metadata with id:" + id);
 
-                Element afterMetadata = dataMan.getMetadata(context, id, false, false, false);
+                    Element beforeMetadata = dataMan.getMetadata(context, String.valueOf(id), false, false, false);
 
-                XMLOutputter outp = new XMLOutputter();
-                String xmlAfter = outp.outputString(afterMetadata);
-                String xmlBefore = outp.outputString(beforeMetadata);
-                new RecordProcessingChangeEvent(Long.parseLong(id), this.userId, xmlBefore, xmlAfter, process).publish(appContext);
+                    XslProcessUtils.process(context, String.valueOf(id), process,
+                        true, index, updateDateStamp, xslProcessingReport,
+                        siteURL, request.getParameterMap());
+
+                    Element afterMetadata = dataMan.getMetadata(context, String.valueOf(id), false, false, false);
+
+                    XMLOutputter outp = new XMLOutputter();
+                    String xmlAfter = outp.outputString(afterMetadata);
+                    String xmlBefore = outp.outputString(beforeMetadata);
+                    new RecordProcessingChangeEvent(id, this.userId, xmlBefore, xmlAfter, process).publish(appContext);
+                }
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * Copyright (C) 2001-2023 Food and Agriculture Organization of the
  * United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * and United Nations Environment Programme (UNEP)
  *
@@ -59,13 +59,14 @@ public interface SourceRepository extends GeonetRepository<Source, String>, JpaS
     @Nullable
     Source findOneByUuid(@Nonnull String uuid);
 
+
     public
     @Nullable
     List<Source> findByLogo(@Nonnull String logo);
 
     public
     @Nullable
-    List<Source> findByType(@Nonnull SourceType sourceType);
+    List<Source> findByType(@Nonnull SourceType sourceType, Sort sort);
 
     public
     @Nullable
@@ -74,4 +75,6 @@ public interface SourceRepository extends GeonetRepository<Source, String>, JpaS
     public
     @Nullable
     List<Source> findByGroupOwnerIn(Set<Integer> groupOwner);
+
+    boolean existsByUuidAndType(String name, SourceType type);
 }

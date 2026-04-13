@@ -38,7 +38,7 @@ then
 fi
 
 
-if [[ $1 =~ ^[0-9]+.[0-9]+.[0-9x]+(-SNAPSHOT|-RC[0-2]|-[0-9]+)?$ ]]; then
+if [[ $1 =~ ^[0-9]+.[0-9]+.[0-9x]+(-SNAPSHOT|-RC[0-2]|-alpha.[0-9]+|-[0-9]+)?$ ]]; then
     echo
 else
 	echo
@@ -50,7 +50,7 @@ else
 	exit
 fi
 
-if [[ $2 =~ ^[0-9]+.[0-9]+.[0-9x]+(-SNAPSHOT|-RC[0-2]|-[0-9]+)?$ ]]; then
+if [[ $2 =~ ^[0-9]+.[0-9]+.[0-9x]+(-SNAPSHOT|-RC[0-2]|-alpha.[0-9]+|-[0-9]+)?$ ]]; then
     # Retrieve version and subversion
     if [[ $2 =~ ^[0-9]+.[0-9]+.[0-9]+-.*$ ]]; then
         new_version_main=`echo $2 | cut -d- -f1`
@@ -94,27 +94,20 @@ echo
 
 # TODO: check that version is the version in the file to be updated.
 
-# Update version in sphinx doc files
-echo 'Documentation'
-echo ' * updating docs/manuals/source/conf.py'
-sed $sedopt "s/${version}/${new_version_main}/g" docs/manuals/source/conf.py
+# Update release properties
+echo 'Release (ZIP bundle)'
+echo '  * updating release/build.properties'
+sed $sedopt "s/version=.*/version=${new_version_main}/g" release/build.properties
+sed $sedopt "s/subVersion=.*/subVersion=${sub_version}/g" release/build.properties
 echo
-
-# Update installer
-echo 'Installer'
-echo '  * updating installer/build.xml'
-sed $sedopt "s/property name=\"version\" value=\".*\"/property name=\"version\" value=\"${new_version_main}\"/g" installer/build.xml
-sed $sedopt "s/property name=\"subVersion\" value=\".*\"/property name=\"subVersion\" value=\"${sub_version}\"/g" installer/build.xml
-echo
-
 
 # Update SQL - needs improvements
 echo 'SQL script'
 sed $sedopt "s/'system\/platform\/version', '.*', 0/'system\/platform\/version', '${new_version_main}', 0/g" web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-default.sql
 sed $sedopt "s/'system\/platform\/subVersion', '.*', 0/'system\/platform\/subVersion', '${sub_version}', 0/g" web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-default.sql
 
-find . -wholename *v${version//[.]/}/migrate-default.sql -exec sed $sedopt "s/value='${version}' WHERE name='system\/platform\/version'/value='${new_version_main}' WHERE name='system\/platform\/version'/g" {} \;
-find . -wholename *v${version//[.]/}/migrate-default.sql -exec sed $sedopt "s/value='.*' WHERE name='system\/platform\/subVersion'/value='${sub_version}' WHERE name='system\/platform\/subVersion'/g" {} \;
+find . -wholename *v${new_version_main_nopoint//[.]/}/migrate-default.sql -exec sed $sedopt "s/value='${version}' WHERE name='system\/platform\/version'/value='${new_version_main}' WHERE name='system\/platform\/version'/g" {} \;
+find . -wholename *v${new_version_main_nopoint//[.]/}/migrate-default.sql -exec sed $sedopt "s/value='.*' WHERE name='system\/platform\/subVersion'/value='${sub_version}' WHERE name='system\/platform\/subVersion'/g" {} \;
 
 # Update version pom files
 mvn versions:set-property -Dproperty=gn.project.version -DnewVersion=${new_version}

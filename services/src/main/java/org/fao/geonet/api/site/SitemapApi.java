@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * Copyright (C) 2001-2023 Food and Agriculture Organization of the
  * United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * and United Nations Environment Programme (UNEP)
  *
@@ -23,21 +23,13 @@
 
 package org.fao.geonet.api.site;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.fao.geonet.NodeInfo;
-import org.fao.geonet.api.API;
 import org.fao.geonet.api.ApiParams;
-import org.fao.geonet.domain.ISODate;
-import org.fao.geonet.domain.Metadata;
-import org.fao.geonet.domain.MetadataDataInfo_;
-import org.fao.geonet.domain.Metadata_;
-import org.fao.geonet.domain.OperationAllowed;
-import org.fao.geonet.domain.OperationAllowedId_;
-import org.fao.geonet.domain.ReservedOperation;
+import org.fao.geonet.domain.*;
 import org.fao.geonet.exceptions.SitemapDocumentNotFoundEx;
 import org.fao.geonet.kernel.GeonetworkDataDirectory;
 import org.fao.geonet.kernel.setting.SettingManager;
@@ -51,34 +43,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.domain.Specifications;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
 import static org.fao.geonet.api.ApiParams.API_CLASS_CATALOG_TAG;
 
-/**
- *
- */
-
 @RequestMapping(value = {
-    "/{portal}/api",
-    "/{portal}/api/" + API.VERSION_0_1
+    "/{portal}/api"
 })
-@Api(value = API_CLASS_CATALOG_TAG,
-    tags = API_CLASS_CATALOG_TAG,
+@Tag(name = API_CLASS_CATALOG_TAG,
     description = ApiParams.API_CLASS_CATALOG_OPS)
 @Controller("sitemap")
 public class SitemapApi {
@@ -104,90 +89,89 @@ public class SitemapApi {
     GeonetworkDataDirectory dataDirectory;
 
 
-    @ApiOperation(
-        value = "robots.txt",
-        notes = "",
-        nickname = "getRobotsText")
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "robots.txt",
+        description = "")
     @RequestMapping(
         path = "/robots.txt",
-        produces = MediaType.TEXT_PLAIN_VALUE,
         method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "robots.txt file for SEO.")
+        @ApiResponse(responseCode = "200", description = "robots.txt file for SEO.")
     })
-    @ResponseBody
-    public String getRobotsText() throws Exception {
-        StringBuffer response = new StringBuffer();
-        response.append("sitemap: ").append(settingManager.getNodeURL()).append("api/sitemap").append("\n");
-        response.append("sitemap: ").append(settingManager.getNodeURL()).append("api/sitemap?format=rdf");
-        return response.toString();
+    public void getRobotsText(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        StringBuilder content = new StringBuilder(256);
+        String contextPath = request.getContextPath();
+        content.append("User-agent: *\n");
+        content.append("Disallow: ").append(contextPath).append("/catalog/\n");
+        content.append("Disallow: ").append(contextPath).append("/static/\n");
+        content.append("Sitemap: ").append(settingManager.getNodeURL()).append("api/sitemap\n");
+        content.append("Sitemap: ").append(settingManager.getNodeURL()).append("api/sitemap?format=rdf");
+        response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+        response.getWriter().append(content);
     }
 
-    @ApiOperation(
-        value = "Get sitemap",
-        notes = "",
-        nickname = "getSitemap")
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Get sitemap",
+        description = "")
     @RequestMapping(
         path = "/sitemap",
-        produces = MediaType.APPLICATION_XML_VALUE,
         method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Site map.")
+        @ApiResponse(responseCode = "200", description = "Site map.")
     })
-    public @ResponseBody
-    ResponseEntity<Element> getSitemap(
-        @ApiParam(
-            value = "Format (xml or html).",
+    public void getSitemap(
+        @Parameter(
+            description = "Format (xml or html).",
             required = false
         )
         @RequestParam(
             required = false,
             defaultValue = FORMAT_HTML
         )
-            String format,
-        @ApiParam(
-            value = "page.",
+        String format,
+        @Parameter(
+            description = "page.",
             required = false
         )
         @RequestParam(
             required = false,
             defaultValue = "0"
         )
-            Integer doc,
-        @ApiIgnore
-            HttpServletRequest request
+        Integer doc,
+        @Parameter(hidden = true)
+        HttpServletResponse response
     ) throws Exception {
         if (!(format.equalsIgnoreCase(FORMAT_HTML) ||
             format.equalsIgnoreCase(FORMAT_XML))) {
             format = FORMAT_HTML;
         }
 
-        Integer allgroup = 1;
+        int allGroup = 1;
 
-        Specifications<OperationAllowed> spec = Specifications.where(
+        Specification<OperationAllowed> spec = Specification.where(
             OperationAllowedSpecs.hasOperation(ReservedOperation.view));
-        spec = spec.and(OperationAllowedSpecs.hasGroupId(allgroup));
+        spec = spec.and(OperationAllowedSpecs.hasGroupId(allGroup));
 
         final List<Integer> list = operationAllowedRepository.findAllIds(
             spec,
             OperationAllowedId_.metadataId);
 
-        Sort sortByChangeDateDesc = new Sort(
+        Sort sortByChangeDateDesc = Sort.by(
             Sort.Direction.DESC,
             Metadata_.dataInfo.getName() + "." + MetadataDataInfo_.changeDate.getName());
 
-        long metadatataCount = metadataRepository.count((Specification<Metadata>) MetadataSpecs.hasMetadataIdIn(list));
-        long pages = (long) Math.ceil((double) metadatataCount / MAX_ITEMS_PER_PAGE);
+        long metadataCount = metadataRepository.count((Specification<Metadata>) MetadataSpecs.hasMetadataIdIn(list));
+        long pages = (long) Math.ceil((double) metadataCount / MAX_ITEMS_PER_PAGE);
 
-        Element result = null;
+        Element result;
 
         if (doc > 0) {
             // Requesting a sitemap specific document
             if (doc <= pages) {
-                final PageRequest pageRequest = new PageRequest(doc - 1, MAX_ITEMS_PER_PAGE, sortByChangeDateDesc);
-                result = metadataRepository.findAllUuidsAndChangeDatesAndSchemaId(list, pageRequest);
+                final PageRequest pageRequest = PageRequest.of(doc - 1, MAX_ITEMS_PER_PAGE, sortByChangeDateDesc);
+                result = metadataRepository.findUuidsAndChangeDatesAndSchemaId(list, pageRequest);
 
                 Element formatEl = new Element("format");
                 formatEl.setText(format.toLowerCase());
@@ -197,9 +181,9 @@ public class SitemapApi {
             }
         } else {
             // Request the sitemap (no specific document)
-            if (metadatataCount <= MAX_ITEMS_PER_PAGE) {
+            if (metadataCount <= MAX_ITEMS_PER_PAGE) {
                 // Request the full sitemap
-                result = metadataRepository.findAllUuidsAndChangeDatesAndSchemaId(list);
+                result = metadataRepository.findUuidsAndChangeDatesAndSchemaId(list);
 
                 Element formatEl = new Element("format");
                 formatEl.setText(format.toLowerCase());
@@ -225,7 +209,7 @@ public class SitemapApi {
         root.addContent(requestElt);
         root.addContent(result);
 
-        Element sitemap = Xml.transform(root, xslt);
-        return new ResponseEntity<>(sitemap, HttpStatus.OK);
+        response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE);
+        Xml.transform(root, xslt, response.getOutputStream());
     }
 }

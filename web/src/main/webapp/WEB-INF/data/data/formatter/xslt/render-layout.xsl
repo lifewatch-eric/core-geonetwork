@@ -2,6 +2,10 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:gn-fn-render="http://geonetwork-opensource.org/xsl/functions/render"
                 xmlns:gn-fn-core="http://geonetwork-opensource.org/xsl/functions/core"
+                xmlns:tr="java:org.fao.geonet.api.records.formatters.SchemaLocalizations"
+                xmlns:gn-fn-metadata="http://geonetwork-opensource.org/xsl/functions/metadata"
+                xmlns:utils="java:org.fao.geonet.util.XslUtil"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns:saxon="http://saxon.sf.net/"
                 extension-element-prefixes="saxon"
                 exclude-result-prefixes="#all"
@@ -10,12 +14,14 @@
   <xsl:import href="common/render-html.xsl"/>
   <xsl:import href="common/functions-core.xsl"/>
   <xsl:import href="common/utility-tpl.xsl"/>
+  <xsl:import href="common/menu-fn.xsl"/>
 
   <xsl:import href="render-variables.xsl"/>
   <xsl:import href="render-functions.xsl"/>
   <xsl:import href="render-layout-fields.xsl"/>
 
-  <xsl:output method="html"/>
+  <xsl:output omit-xml-declaration="yes" method="xhtml" doctype-system="html" indent="yes"
+              encoding="UTF-8"/>
 
   <!-- Those templates should be overriden in the schema plugin - start -->
   <xsl:template mode="getMetadataTitle" match="*"/>
@@ -45,7 +51,10 @@
             <xsl:call-template name="render-record"/>
           </xsl:with-param>
           <xsl:with-param name="title">
-            <xsl:apply-templates mode="getMetadataTitle" select="$metadata"/>
+            <xsl:variable name="title">
+              <xsl:apply-templates mode="getMetadataTitle" select="$metadata"/>
+            </xsl:variable>
+            <xsl:copy-of select="if ($title/div) then $title/div[1] else $title"/>
           </xsl:with-param>
           <xsl:with-param name="description">
             <xsl:apply-templates mode="getMetadataAbstract" select="$metadata"/>
@@ -56,14 +65,81 @@
           <xsl:with-param name="thumbnail">
             <xsl:apply-templates mode="getMetadataThumbnail" select="$metadata"/>
           </xsl:with-param>
+          <xsl:with-param name="meta">
+            <xsl:call-template name="render-language-meta"/>
+          </xsl:with-param>
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
+  <!--
+  https://support.google.com/webmasters/answer/189077
+  -->
+  <xsl:template name="render-language-meta">
+    <xsl:variable name="metadataOtherLanguages">
+      <saxon:call-template name="{concat('get-', $schema, '-other-languages')}"/>
+    </xsl:variable>
+
+    <xsl:variable name="defaultLanguage"
+                  select="$metadataOtherLanguages/*[position() = last()]/@code"/>
+
+    <xsl:for-each select="$metadataOtherLanguages/*">
+      <link rel="alternate"
+            hreflang="{utils:twoCharLangCode(@code)}"
+            href="{$nodeUrl}api/records/{$metadataUuid}?language={@code}" />
+    </xsl:for-each>
+    <xsl:if test="count($metadataOtherLanguages/*) > 1">
+      <link rel="alternate"
+            hreflang="x-default"
+            href="{$nodeUrl}api/records/{$metadataUuid}?language=all" />
+    </xsl:if>
+  </xsl:template>
+
+
+  <xsl:template name="render-language-switcher">
+    <xsl:if test="$language = 'all'">
+      <div class="gn-multilingual-field">
+        <ul class="nav nav-pills">
+          <script src="{$nodeUrl}../catalog/js/GnLandingPageLib.js?v={$buildNumber}">&amp;nbsp;</script>
+          <script type="text/javascript">
+            window.onload = function() {
+              document.getElementById('gn-default-lang-link').click();
+            };
+          </script>
+
+          <xsl:variable name="metadataOtherLanguages">
+            <saxon:call-template name="{concat('get-', $schema, '-other-languages')}"/>
+          </xsl:variable>
+
+          <xsl:variable name="defaultLanguage"
+                        select="$metadataOtherLanguages/*[position() = last()]/@code"/>
+
+          <xsl:for-each select="($metadataOtherLanguages/*[@default], $metadataOtherLanguages/*[not(@default)])">
+            <li class="">
+              <a id="{if (@default) then 'gn-default-lang-link' else ''}"
+                 onclick="gnLandingPage.displayLanguage('{@code}', this);">
+                <xsl:variable name="label"
+                              select="utils:getIsoLanguageLabel(@code, @code)"/>
+                <xsl:value-of select="if ($label != '') then $label else @code"/><xsl:text> </xsl:text>
+              </a>
+            </li>
+          </xsl:for-each>
+          <xsl:if test="count($metadataOtherLanguages/*) > 1">
+            <li class="active">
+              <a onclick="gnLandingPage.displayLanguage('', this);">
+                <xsl:value-of select="'All'"/>
+              </a>
+            </li>
+          </xsl:if>
+        </ul>
+      </div>
+    </xsl:if>
+  </xsl:template>
+
+
   <xsl:template name="render-record">
     <div class="container-fluid gn-metadata-view gn-schema-{$schema}">
-
       <xsl:variable name="type">
         <xsl:apply-templates mode="getMetadataHierarchyLevel" select="$metadata"/>
       </xsl:variable>
@@ -80,16 +156,19 @@
 
             <header>
               <h1>
-                <i class="fa gn-icon-{$type}"><xsl:comment select="'icon'"/></i>
-                <xsl:value-of select="$title"/>
+                <i class="fa fa-fw gn-icon-{$type}"></i>
+                <xsl:copy-of select="$title"/>
               </h1>
+
+              <xsl:call-template name="render-language-switcher"/>
 
               <xsl:apply-templates mode="getMetadataHeader" select="$metadata"/>
 
               <xsl:if test="$related != ''">
                 <div gn-related="md"
                      data-user="user"
-                     data-types="{$related}"><xsl:comment select="'icon'"/></div>
+                     data-layout="card"
+                     data-types="{$related}"></div>
               </xsl:if>
             </header>
 
@@ -132,7 +211,7 @@
             <br/>
             <section class="gn-md-side-providedby">
               <h2>
-                <i class="fa fa-fw fa-cog"><xsl:comment select="'icon'"/></i>
+                <i class="fa fa-fw fa-cog"></i>
                 <span><xsl:value-of select="$schemaStrings/providedBy"/></span>
               </h2>
               <img class="gn-source-logo"
@@ -143,32 +222,32 @@
             <xsl:if test="$isSocialbarEnabled">
               <section class="gn-md-side-social">
                 <h2>
-                  <i class="fa fa-fw fa-share-square-o"><xsl:comment select="'icon'"/></i>
+                  <i class="fa fa-fw fa-share-square-o"></i>
                   <span><xsl:value-of select="$schemaStrings/shareOnSocialSite"/></span>
                 </h2>
                 <a href="https://twitter.com/share?url={encode-for-uri($nodeUrl)}api%2Frecords%2F{$metadataUuid}"
                    target="_blank"
                    aria-label="Twitter"
                    class="btn btn-default">
-                  <i class="fa fa-fw fa-twitter"><xsl:comment select="'icon'"/></i>
+                  <i class="fa fa-fw fa-twitter"></i>
                 </a>
                 <a href="https://www.facebook.com/sharer.php?u={encode-for-uri($nodeUrl)}api%2Frecords%2F{$metadataUuid}"
                    target="_blank"
                    aria-label="Facebook"
                    class="btn btn-default">
-                  <i class="fa fa-fw fa-facebook"><xsl:comment select="'icon'"/></i>
+                  <i class="fa fa-fw fa-facebook"></i>
                 </a>
                 <a href="http://www.linkedin.com/shareArticle?mini=true&amp;summary=&amp;url={encode-for-uri($nodeUrl)}api%2Frecords%2F{$metadataUuid}"
                    target="_blank"
                    aria-label="LinkedIn"
                    class="btn btn-default">
-                  <i class="fa fa-fw fa-linkedin"><xsl:comment select="'icon'"/></i>
+                  <i class="fa fa-fw fa-linkedin"></i>
                 </a>
                 <a href="mailto:?subject={$title}&amp;body={encode-for-uri($nodeUrl)}api%2Frecords%2F{$metadataUuid}"
                    target="_blank"
                    aria-label="Email"
                    class="btn btn-default">
-                  <i class="fa fa-fw fa-envelope-o"><xsl:comment select="'icon'"/></i>
+                  <i class="fa fa-fw fa-envelope-o"></i>
                 </a>
               </section>
             </xsl:if>
@@ -178,7 +257,7 @@
             <xsl:if test="$viewMenu = 'true'">
               <section class="gn-md-side-viewmode">
                 <h2>
-                  <i class="fa fa-fw fa-eye"><xsl:comment select="'icon'"/></i>
+                  <i class="fa fa-fw fa-eye"></i>
                   <span><xsl:value-of select="$schemaStrings/viewMode"/></span>
                 </h2>
                 <xsl:for-each select="$configuration/editor/views/view[not(@disabled)]">
@@ -202,29 +281,31 @@
                   </ul>
                 </xsl:for-each>
               </section>
-
-              <section class="gn-md-side-access">
-                <a class="btn btn-block btn-primary"
-                   href="{if ($portalLink != '')
-                          then replace($portalLink, '\$\{uuid\}', $metadataUuid)
-                          else concat($nodeUrl, $language, '/catalog.search#/metadata/', $metadataUuid)}">
-                  <i class="fa fa-fw fa-link"><xsl:comment select="'icon'"/></i>
-                  <xsl:value-of select="$schemaStrings/linkToPortal"/>
-                </a>
-                <div class="hidden-xs hidden-sm">
-                  <xsl:value-of select="$schemaStrings/linkToPortal-help"/>
-                </div>
-              </section>
             </xsl:if>
 
-            <xsl:if test="$sideRelated != ''">
+            <section class="gn-md-side-access">
+              <a class="btn btn-block btn-primary"
+                 href="{if ($portalLink != '')
+                        then replace($portalLink, '\$\{uuid\}', $metadataUuid)
+                        else utils:getDefaultUrl($metadataUuid, $language)}">
+                <i class="fa fa-fw fa-link"></i>
+                <xsl:value-of select="$schemaStrings/linkToPortal"/>
+              </a>
+              <div class="hidden-xs hidden-sm">
+                <xsl:value-of select="$schemaStrings/linkToPortal-help"/>
+              </div>
+            </section>
+
+            <!-- Don't add the associated resources in the metadata static page, this page doesn't include JS libs -->
+            <xsl:if test="$sideRelated != '' and $root != 'html'">
               <section class="gn-md-side-associated">
                 <h2>
-                  <i class="fa fa-fw fa-link"><xsl:comment select="'icon'"/></i>
+                  <i class="fa fa-fw fa-link"></i>
                   <span><xsl:value-of select="$schemaStrings/associatedResources"/></span>
                 </h2>
                 <div gn-related="md"
                      data-user="user"
+                     data-layout="card"
                      data-types="{$sideRelated}">
                   Not available
                 </div>
@@ -240,7 +321,6 @@
              data-watch=""
              data-filter="div > h3"/>-->
         <footer>
-          <xsl:comment>Not yet</xsl:comment>
         </footer>
       </article>
       <br/>
@@ -315,33 +395,48 @@
   -->
   <xsl:template mode="render-view"
                 match="section[@xpath]">
-    <div id="gn-view-{generate-id()}" class="gn-tab-content">
-      <xsl:apply-templates mode="render-view" select="@xpath"/>
-      <xsl:comment select="'icon'"/>
-    </div>
+    <xsl:variable name="isDisplayed"
+                  as="xs:boolean"
+                  select="gn-fn-metadata:check-elementandsession-visibility(
+                  $schema, $metadata, $serviceInfo, @displayIfRecord, @displayIfServiceInfo)"/>
+
+    <xsl:if test="$isDisplayed">
+      <div id="gn-view-{generate-id()}" class="gn-tab-content">
+        <xsl:apply-templates mode="render-view" select="@xpath"/>
+        
+      </div>
+    </xsl:if>
   </xsl:template>
 
 
   <xsl:template mode="render-view"
                 match="section[not(@xpath)]">
+    <xsl:variable name="isDisplayed"
+                  as="xs:boolean"
+                  select="gn-fn-metadata:check-elementandsession-visibility(
+                  $schema, $metadata, $serviceInfo, @displayIfRecord, @displayIfServiceInfo)"/>
 
-    <xsl:variable name="content">
-      <xsl:apply-templates mode="render-view"
-                           select="section|field|xsl"/>&#160;
-    </xsl:variable>
+    <xsl:if test="$isDisplayed">
+      <xsl:variable name="content">
+        <xsl:apply-templates mode="render-view"
+                             select="section|field|xsl"/>&#160;
+      </xsl:variable>
 
-    <xsl:if test="count($content/*) > 0">
-      <div id="gn-section-{generate-id()}" class="gn-tab-content">
-        <xsl:if test="@name">
-          <xsl:variable name="title"
-                        select="gn-fn-render:get-schema-strings($schemaStrings, @name)"/>
-
-          <xsl:element name="h{1 + count(ancestor-or-self::*[name(.) = 'section'])}">
-            <xsl:value-of select="$title"/>
-          </xsl:element>
-        </xsl:if>
-        <xsl:copy-of select="$content"/>
-      </div>
+      <xsl:if test="count($content/*) > 0">
+        <div id="gn-section-{generate-id()}" class="gn-tab-content">
+          <xsl:if test="@name">
+            <xsl:variable name="title"
+                          select="
+                          if (contains( @name, ':'))
+                          then gn-fn-render:get-schema-labels($schemaLabels, @name)
+                          else gn-fn-render:get-schema-strings($schemaStrings, @name) "/>
+            <xsl:element name="h{1 + count(ancestor-or-self::*[name(.) = 'section'])}">
+              <xsl:value-of select="$title"/>
+            </xsl:element>
+          </xsl:if>
+          <xsl:copy-of select="$content"/>
+        </div>
+      </xsl:if>
     </xsl:if>
   </xsl:template>
 
@@ -443,6 +538,7 @@
               </xsl:apply-templates>
             </xsl:for-each>
           </xsl:for-each>
+          &#160;
         </div>
       </xsl:for-each>
     </div>
@@ -451,6 +547,8 @@
   <!-- Render metadata elements defined by XPath -->
   <xsl:template mode="render-view" match="@xpath">
     <xsl:param name="base" select="$metadata"/>
+    <xsl:param name="collapsible" as="xs:boolean" select="true()" required="no"/>
+    <xsl:param name="collapsed" as="xs:boolean" select="false()" required="no"/>
 
     <!-- Matching nodes -->
     <xsl:variable name="nodes">
@@ -469,8 +567,78 @@
     <xsl:for-each select="$nodes">
       <xsl:apply-templates mode="render-field">
         <xsl:with-param name="fieldName" select="$fieldName"/>
+        <xsl:with-param name="collapsible" select="$collapsible"/>
+        <xsl:with-param name="collapsed" select="$collapsed"/>
       </xsl:apply-templates>
     </xsl:for-each>
+  </xsl:template>
+
+
+
+  <xsl:template mode="render-field"
+                match="*[*/name() = $configuration/editor/tableFields/table/@for and
+                         $isFlatMode = true()]"
+                priority="2001">
+    <xsl:variable name="isFirstOfItsKind"
+                  select="count(preceding-sibling::*[name() = current()/name()]) = 0"/>
+    <xsl:if test="$isFirstOfItsKind">
+      <xsl:variable name="tableConfig"
+                    select="$configuration/editor/tableFields/table[@for = current()/*/name()]"/>
+      <dl class="gn-table">
+        <dt>
+          <xsl:value-of select="tr:nodeLabel(tr:create($schema), name(), null)"/>
+        </dt>
+        <dd>
+          <table class="table">
+            <thead>
+              <tr>
+                <xsl:for-each select="$tableConfig/header/col[@label]">
+                  <th>
+                    <xsl:value-of select="tr:nodeLabel(tr:create($schema), @label, null)"/>
+                  </th>
+                </xsl:for-each>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <xsl:call-template name="render-table-row">
+                  <xsl:with-param name="tableConfig" select="$tableConfig"/>
+                </xsl:call-template>
+              </tr>
+              <xsl:for-each select="following-sibling::*[name() = current()/name()]">
+                <tr>
+                  <xsl:call-template name="render-table-row">
+                    <xsl:with-param name="tableConfig" select="$tableConfig"/>
+                  </xsl:call-template>
+                </tr>
+              </xsl:for-each>
+            </tbody>
+          </table>
+        </dd>
+      </dl>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="render-table-row">
+    <xsl:param name="tableConfig"/>
+
+    <xsl:variable name="root"
+                  select="."/>
+
+    <!-- Only if child context. eg. <gmd:pointOfContact xlink:href=
+    may not have children if xlink fails to resolve. -->
+    <xsl:if test="$root/*">
+      <xsl:for-each select="$tableConfig/row/col[@xpath]">
+        <xsl:variable name="node">
+          <saxon:call-template name="{concat('evaluate-', $schema)}">
+            <xsl:with-param name="base" select="$root/*"/>
+            <xsl:with-param name="in" select="concat('/', @xpath)"/>
+          </saxon:call-template>
+        </xsl:variable>
+        <td><xsl:apply-templates mode="render-value"
+                                 select="if ($node//@codeListValue) then $node//@codeListValue else $node"/></td>
+      </xsl:for-each>
+    </xsl:if>
   </xsl:template>
 
 

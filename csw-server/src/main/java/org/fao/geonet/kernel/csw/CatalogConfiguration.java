@@ -24,31 +24,37 @@
 package org.fao.geonet.kernel.csw;
 
 import jeeves.constants.ConfigFile;
-import jeeves.server.overrides.ConfigurationOverrides;
-
+import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.csw.common.Csw;
 import org.fao.geonet.kernel.GeonetworkDataDirectory;
 import org.fao.geonet.kernel.SchemaManager;
 import org.fao.geonet.utils.Log;
 import org.fao.geonet.utils.Xml;
+import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.nio.file.Path;
-import java.util.*;
-
 import javax.servlet.ServletContext;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class CatalogConfiguration {
 
     // GetRecords variables
-    private final HashMap<String, String> _fieldMapping = new HashMap<String, String>();
-    private final HashMap<String, HashMap<String, String>> _fieldMappingXPath = new HashMap<String, HashMap<String, String>>();
+    private final HashMap<String, CatalogConfigurationGetRecordsField> _fieldMapping = new HashMap<String, CatalogConfigurationGetRecordsField>();
     private final Set<String> _isoQueryables = new HashSet<String>();
     private final Set<String> _additionalQueryables = new HashSet<String>();
     private final Set<String> _getRecordsConstraintLanguage = new HashSet<String>();
+
+    private String defaultSortField = "_score";
+    private String defaultSortOrder = "DESC";
     private final Set<String> _getRecordsOutputFormat = new HashSet<String>();
     private final Set<String> _getRecordsOutputSchema = new HashSet<String>();
     private final Set<String> _getRecordsTypenames = new HashSet<String>();
@@ -96,7 +102,6 @@ public class CatalogConfiguration {
         Log.info(Geonet.CSW, "Loading : " + configFile);
 
         Element configRoot = Xml.loadFile(configFile);
-        ConfigurationOverrides.DEFAULT.updateWithOverrides(configFile.toString(), _servletContext, _dataDir.getWebappDir(), configRoot);
 
         @SuppressWarnings("unchecked")
         List<Element> operationsList = configRoot.getChildren(Csw.ConfigFile.Child.OPERATIONS);
@@ -198,13 +203,21 @@ public class CatalogConfiguration {
     }
 
     private void initGetRecordsConfig(Element operation) {
+        Attribute sortBy = operation.getAttribute("defaultSortField");
+        if (sortBy != null) {
+            defaultSortField = sortBy.getValue();
+        }
+        Attribute sortOrder = operation.getAttribute("defaultSortOrder");
+        if (sortOrder != null) {
+            defaultSortOrder = sortOrder.getValue();
+        }
         // Only one child parameters
         Element params = operation
             .getChild(Csw.ConfigFile.Operation.Child.PARAMETERS);
         @SuppressWarnings("unchecked")
         List<Element> paramsList = params.getChildren(Csw.ConfigFile.Parameters.Child.PARAMETER);
 
-        String name, field, type, range;
+        String name, field, type, range, sortField;
         for (Element param : paramsList) {
             name = param
                 .getAttributeValue(Csw.ConfigFile.Parameter.Attr.NAME);
@@ -214,14 +227,17 @@ public class CatalogConfiguration {
                 .getAttributeValue(Csw.ConfigFile.Parameter.Attr.TYPE);
             range = param
                 .getAttributeValue(Csw.ConfigFile.Parameter.Attr.RANGE, "false");
+            sortField = param
+                .getAttributeValue(Csw.ConfigFile.Parameter.Attr.SORT_FIELD);
+            if (StringUtils.isEmpty(sortField)) {
+                sortField = field;
+            }
 
 
             // TODO: OGC 07-45:
             // Case sensitivity is as follows: For the common queryables use the same case as defined in the base
             // specification (e.g. ‘apiso:title’), for the additional queryables use the cases as defined in this profile
             // (tables 9-14), e.g. ‘apiso:RevisionDate’.
-
-            _fieldMapping.put(name.toLowerCase(), field);
 
             if (range.equals("true"))
                 _getRecordsRangeFields.add(field);
@@ -236,7 +252,7 @@ public class CatalogConfiguration {
             List<Element> xpathList = param.getChildren(Csw.ConfigFile.Parameter.Child.XPATH);
             Iterator<Element> itXPath = xpathList.iterator();
             String schema, path;
-            HashMap<String, String> xpathMap = new HashMap<String, String>();
+            Map<String, String> xpathMap = new HashMap<String, String>();
             while (itXPath.hasNext()) {
                 Element xpath = itXPath.next();
 
@@ -247,11 +263,14 @@ public class CatalogConfiguration {
                     .getAttributeValue(Csw.ConfigFile.XPath.Attr.PATH);
 
                 xpathMap.put(schema, path);
-
             }
 
-            _fieldMappingXPath.put(name.toLowerCase(), xpathMap);
+            CatalogConfigurationGetRecordsField fieldInfo =
+                new CatalogConfigurationGetRecordsField(name, type, range.equals("true"), field, sortField, xpathMap);
+            _fieldMapping.put(name.toLowerCase(), fieldInfo);
         }
+
+
 
         // OutputFormat parameter
         _getRecordsOutputFormat.addAll(getOutputFormat(operation));
@@ -298,14 +317,9 @@ public class CatalogConfiguration {
         return outformatList;
     }
 
-    public HashMap<String, String> getFieldMapping() {
+    public HashMap<String, CatalogConfigurationGetRecordsField> getFieldMapping() {
         init();
         return _fieldMapping;
-    }
-
-    public HashMap<String, HashMap<String, String>> getFieldMappingXPath() {
-        init();
-        return _fieldMappingXPath;
     }
 
     public Set<String> getTypeMapping(String type) {
@@ -317,10 +331,6 @@ public class CatalogConfiguration {
             return _additionalQueryables;
     }
 
-
-    // -------------
-    //   Getters
-    // -------------
 
     /**
      * @return the _numberOfKeywords
@@ -407,4 +417,19 @@ public class CatalogConfiguration {
         return _increasePopularity;
     }
 
+    public void setDefaultSortField(String defaultSortField) {
+        this.defaultSortField = defaultSortField;
+    }
+
+    public String getDefaultSortField() {
+        return defaultSortField;
+    }
+
+    public void setDefaultSortOrder(String defaultSortOrder) {
+        this.defaultSortOrder = defaultSortOrder;
+    }
+
+    public String getDefaultSortOrder() {
+        return defaultSortOrder;
+    }
 }

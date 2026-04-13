@@ -10,6 +10,8 @@ import org.fao.geonet.domain.MetadataLink;
 import org.fao.geonet.domain.MetadataType;
 import org.fao.geonet.kernel.SchemaManager;
 import org.fao.geonet.kernel.datamanager.IMetadataManager;
+import org.fao.geonet.kernel.search.IndexingMode;
+import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.repository.LinkRepository;
 import org.fao.geonet.repository.LinkStatusRepository;
 import org.fao.geonet.repository.MetadataLinkRepository;
@@ -69,9 +71,12 @@ public class UrlAnalyzerTest extends AbstractCoreIntegrationTest {
 
     @Autowired
     protected MetadataLinkRepository metadataLinkRepository;
-    
+
     @Autowired
     private UrlChecker urlChecker;
+
+    @Autowired
+    protected SettingManager settingManager;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -231,6 +236,8 @@ public class UrlAnalyzerTest extends AbstractCoreIntegrationTest {
         assertEquals(0, statusRepository.findAll().size());
 
         linkRepository.findAll().stream().forEach(toTest::testLink);
+        entityManager.flush();
+        entityManager.clear();
 
         List<LinkStatus> allStatus = statusRepository.findAll();
         assertEquals(6, allStatus.size());
@@ -245,6 +252,8 @@ public class UrlAnalyzerTest extends AbstractCoreIntegrationTest {
         Mockito.when(mockUrlChecker.getUrlStatus(contains("aquastat"))).thenReturn(new LinkStatus().setStatusValue("418").setStatusInfo("I am teapot").setFailing(true));
         Mockito.when(mockUrlChecker.getUrlStatus(contains("data.fao"))).thenReturn(new LinkStatus().setStatusValue("418").setStatusInfo("I am teapot").setFailing(true));
         linkRepository.findAll().stream().forEach(toTest::testLink);
+        entityManager.flush();
+        entityManager.clear();
 
         allStatus = statusRepository.findAll();
         assertEquals(12, allStatus.size());
@@ -263,6 +272,7 @@ public class UrlAnalyzerTest extends AbstractCoreIntegrationTest {
         toTest.metadataLinkRepository = metadataLinkRepository;
         toTest.entityManager = entityManager;
         toTest.urlChecker = urlChecker;
+        toTest.settingManager = settingManager;
         return toTest;
     }
 
@@ -287,8 +297,7 @@ public class UrlAnalyzerTest extends AbstractCoreIntegrationTest {
                 context,
                 metadata,
                 element,
-                false,
-                true,
+                IndexingMode.full,
                 false,
                 NO,
                 false,

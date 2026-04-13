@@ -21,107 +21,149 @@
  * Rome - Italy. email: geonetwork@osgeo.org
  */
 
-(function() {
-  goog.provide('gn_category_directive');
+(function () {
+  goog.provide("gn_category_directive");
 
-  var module = angular.module('gn_category_directive', []);
+  var module = angular.module("gn_category_directive", []);
 
   /**
-     * Provide a list of categories if at least one
-     * exist in the catalog
-     *
-     */
-  module.directive('gnCategory', ['$http', '$translate',
-    function($http, $translate) {
-
+   * Provide a list of categories if at least one
+   * exist in the catalog
+   *
+   */
+  module.directive("gnCategory", [
+    "$http",
+    "$translate",
+    function ($http, $translate) {
       return {
-        restrict: 'A',
+        restrict: "A",
         replace: true,
         transclude: true,
         scope: {
-          element: '=gnCategory',
-          lang: '@lang',
-          label: '@label'
+          element: "=gnCategory",
+          lang: "@lang",
+          label: "@label"
         },
-        templateUrl: '../../catalog/components/category/partials/' +
-            'category.html',
-        link: function(scope, element, attrs) {
-          $http.get('../api/tags', {cache: true}).
-              success(function(data) {
-                scope.categories = data;
-              });
+        templateUrl: "../../catalog/components/category/partials/" + "category.html",
+        link: function (scope, element, attrs) {
+          $http.get("../api/tags", { cache: true }).then(function (response) {
+            scope.categories = response.data;
+          });
 
-          scope.sortByLabel = function(c) {
+          scope.sortByLabel = function (c) {
             return c.label[scope.lang];
           };
         }
-        
       };
-    }]);
+    }
+  ]);
 
-  module.directive('gnBatchCategories', [
-    'gnUtilityService', '$http', '$translate', '$q',
-    function(gnUtilityService, $http, $translate, $q) {
-
+  module.directive("gnBatchCategories", [
+    "gnUtilityService",
+    "$http",
+    "$translate",
+    "$q",
+    function (gnUtilityService, $http, $translate, $q) {
       return {
-        restrict: 'A',
+        restrict: "A",
         replace: true,
         transclude: true,
-        templateUrl: '../../catalog/components/category/partials/' +
-            'batchcategory.html',
-        link: function(scope, element, attrs) {
+        templateUrl: "../../catalog/components/category/partials/" + "batchcategory.html",
+        link: function (scope, element, attrs) {
           scope.report = null;
+          scope.categoryIsSelected = false;
 
-          $http.get('../api/tags', {cache: true}).
-              success(function(data) {
-                scope.categories = data;
-              });
+          scope.selectCategory = function () {
+            scope.categoryIsSelected = true;
+          };
 
-          scope.save = function(replace) {
+          $http.get("../api/tags", { cache: true }).then(function (response) {
+            scope.categories = response.data;
+          });
+
+          scope.reset = function () {
+            element.find("input.ng-dirty").each(function (idx, el) {
+              el.checked = false;
+            });
+            scope.catsForm.$setPristine();
+            scope.catsForm.$setUntouched();
+            scope.categoryIsSelected = false;
+          };
+
+          scope.save = function (replace) {
             scope.report = null;
-            var defer = $q.defer();
-            var params = [];
-            var url = '../api/records/tags?' +
-                        '&bucket=' +
-                (attrs.selectionBucket || 'metadata') + '&' +
-                        (replace ? 'clear=true&id=' : 'id=');
-            angular.forEach(scope.categories, function(c) {
+            var defer = $q.defer(),
+              tagsToAdd = [],
+              tagsToRemove = [],
+              url =
+                "../api/records/tags?" +
+                "&bucket=" +
+                (attrs.selectionBucket || "metadata") +
+                "&" +
+                (replace ? "clear=true&" : "");
+            angular.forEach(scope.categories, function (c) {
               if (c.checked === true) {
-                params.push(c.id);
+                tagsToAdd.push(c.id);
               }
             });
-            $http.put(url + params.join('&id='))
-                .success(function(data) {
-                  scope.processReport = data;
+            if (tagsToAdd.length > 0) {
+              url = url + "&id=" + tagsToAdd.join("&id=");
+            }
 
-                  gnUtilityService.openModal({
-                    title: $translate.instant('categoriesUpdated'),
+            element.find("input.ng-dirty").each(function (c, el) {
+              if (el.checked === false) {
+                tagsToRemove.push($(el).attr("name"));
+              }
+            });
+            if (tagsToRemove.length > 0) {
+              url = url + "&removeId=" + tagsToRemove.join("&removeId=");
+            }
+
+            $http.put(url).then(
+              function (response) {
+                var data = response.data;
+
+                scope.processReport = data;
+
+                gnUtilityService.openModal(
+                  {
+                    title: $translate.instant("categoriesUpdated"),
                     content: '<div gn-batch-report="processReport"></div>',
-                    className: 'gn-category-popup',
-                    onCloseCallback: function() {
+                    className: "gn-category-popup",
+                    onCloseCallback: function () {
                       scope.processReport = null;
                     }
-                  }, scope, 'CategoryUpdated');
+                  },
+                  scope,
+                  "CategoryUpdated"
+                );
 
-                  scope.report = data;
-                  defer.resolve(data);
-                }).error(function(data) {
-                  scope.processReport = data;
+                scope.report = data;
+                defer.resolve(data);
+              },
+              function (response) {
+                scope.processReport = response.data;
 
-                  gnUtilityService.openModal({
-                    title: $translate.instant('categoriesUpdated'),
+                gnUtilityService.openModal(
+                  {
+                    title: $translate.instant("categoriesUpdated"),
                     content: '<div gn-batch-report="processReport"></div>',
-                    className: 'gn-category-popup',
-                    onCloseCallback: function() {
+                    className: "gn-category-popup",
+                    onCloseCallback: function () {
                       scope.processReport = null;
                     }
-                  }, scope, 'CategoryUpdated');
+                  },
+                  scope,
+                  "CategoryUpdated"
+                );
 
-                  defer.reject(data);
-                });
+                defer.reject(data);
+              }
+            );
             return defer.promise;
           };
         }
       };
-    }]);
+    }
+  ]);
 })();

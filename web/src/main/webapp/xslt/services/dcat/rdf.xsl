@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (C) 2001-2016 Food and Agriculture Organization of the
+  ~ Copyright (C) 2001-2021 Food and Agriculture Organization of the
   ~ United Nations (FAO-UN), United Nations World Food Programme (WFP)
   ~ and United Nations Environment Programme (UNEP)
   ~
@@ -37,16 +37,7 @@
   <xsl:include href="../../common/base-variables.xsl"/>
   <xsl:include href="../../common/profiles-loader-tpl-rdf.xsl"/>
 
-  <xsl:variable name="port">
-    <xsl:choose>
-      <xsl:when test="$env/system/server/protocol = 'https'">
-        <xsl:value-of select="$env/system/server/securePort"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$env/system/server/port"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
+  <xsl:variable name="port"> <xsl:value-of select="$env/system/server/port"/></xsl:variable>
 
   <xsl:variable name="url"
                 select="concat($env/system/server/protocol, '://',
@@ -182,7 +173,7 @@
           <foaf:name>Thesaurus org</foaf:name>
           </foaf:Organization>
           </dc:creator>-->
-        <dct:uri><xsl:value-of select="$url"/>/srv/eng/thesaurus.download?ref=<xsl:value-of
+        <dct:uri><xsl:value-of select="$url"/>/srv/api/registries/vocabularies/<xsl:value-of
           select="key"/>
         </dct:uri>
         <!--

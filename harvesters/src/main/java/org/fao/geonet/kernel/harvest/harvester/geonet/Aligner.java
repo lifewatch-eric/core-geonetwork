@@ -1,5 +1,5 @@
 //=============================================================================
-//===    Copyright (C) 2001-2007 Food and Agriculture Organization of the
+//===    Copyright (C) 2001-2024 Food and Agriculture Organization of the
 //===    United Nations (FAO-UN), United Nations World Food Programme (WFP)
 //===    and United Nations Environment Programme (UNEP)
 //===
@@ -25,18 +25,15 @@ package org.fao.geonet.kernel.harvest.harvester.geonet;
 
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.Logger;
+import org.fao.geonet.MetadataResourceDatabaseMigration;
+import org.fao.geonet.api.exception.ResourceNotFoundException;
 import org.fao.geonet.api.records.attachments.Store;
 import org.fao.geonet.constants.Geonet;
-import org.fao.geonet.domain.AbstractMetadata;
-import org.fao.geonet.domain.ISODate;
-import org.fao.geonet.domain.Metadata;
-import org.fao.geonet.domain.MetadataResource;
-import org.fao.geonet.domain.MetadataResourceVisibility;
-import org.fao.geonet.domain.MetadataType;
-import org.fao.geonet.domain.Pair;
+import org.fao.geonet.domain.*;
 import org.fao.geonet.domain.userfeedback.RatingsSetting;
 import org.fao.geonet.exceptions.NoSchemaMatchesException;
 import org.fao.geonet.kernel.DataManager;
@@ -44,23 +41,14 @@ import org.fao.geonet.kernel.UpdateDatestamp;
 import org.fao.geonet.kernel.datamanager.IMetadataManager;
 import org.fao.geonet.kernel.datamanager.IMetadataUtils;
 import org.fao.geonet.kernel.harvest.BaseAligner;
-import org.fao.geonet.kernel.harvest.harvester.CategoryMapper;
-import org.fao.geonet.kernel.harvest.harvester.GroupMapper;
-import org.fao.geonet.kernel.harvest.harvester.HarvestError;
-import org.fao.geonet.kernel.harvest.harvester.HarvestResult;
-import org.fao.geonet.kernel.harvest.harvester.HarvesterUtil;
-import org.fao.geonet.kernel.harvest.harvester.RecordInfo;
-import org.fao.geonet.kernel.harvest.harvester.UUIDMapper;
-import org.fao.geonet.kernel.mef.IMEFVisitor;
-import org.fao.geonet.kernel.mef.IVisitor;
-import org.fao.geonet.kernel.mef.Importer;
-import org.fao.geonet.kernel.mef.MEF2Visitor;
-import org.fao.geonet.kernel.mef.MEFLib;
-import org.fao.geonet.kernel.mef.MEFVisitor;
+import org.fao.geonet.kernel.harvest.harvester.*;
+import org.fao.geonet.kernel.mef.*;
+import org.fao.geonet.kernel.search.IndexingMode;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.kernel.setting.Settings;
 import org.fao.geonet.repository.GroupRepository;
 import org.fao.geonet.repository.MetadataRepository;
+import org.fao.geonet.schema.iso19139.ISO19139SchemaPlugin;
 import org.fao.geonet.utils.Log;
 import org.fao.geonet.utils.Xml;
 import org.fao.geonet.utils.XmlRequest;
@@ -72,16 +60,9 @@ import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 
 public class Aligner extends BaseAligner<GeonetParams> {
 
@@ -97,9 +78,10 @@ public class Aligner extends BaseAligner<GeonetParams> {
     private UUIDMapper localUuids;
     private String processName;
     private String preferredSchema;
-    private Map<String, Object> processParams = new HashMap<String, Object>();
+    private Map<String, Object> processParams = new HashMap<>();
     private MetadataRepository metadataRepository;
-    private HashMap<String, HashMap<String, String>> hmRemoteGroups = new HashMap<String, HashMap<String, String>>();
+    private Map<String, Map<String, String>> hmRemoteGroups = new HashMap<>();
+    private SettingManager settingManager;
 
     public Aligner(AtomicBoolean cancelMonitor, Logger log, ServiceContext context, XmlRequest req,
                    GeonetParams params, Element remoteInfo) {
@@ -113,6 +95,8 @@ public class Aligner extends BaseAligner<GeonetParams> {
         dataMan = gc.getBean(DataManager.class);
         metadataManager = gc.getBean(IMetadataManager.class);
         metadataRepository = gc.getBean(MetadataRepository.class);
+        settingManager = gc.getBean(SettingManager.class);
+
         result = new HarvestResult();
 
         //--- save remote categories and groups into hashmaps for a fast access
@@ -131,12 +115,12 @@ public class Aligner extends BaseAligner<GeonetParams> {
 
     //--------------------------------------------------------------------------
 
-    private void setupLocEntity(List<Element> list, HashMap<String, HashMap<String, String>> hmEntity) {
+    private void setupLocEntity(List<Element> list, Map<String, Map<String, String>> hmEntity) {
 
         for (Element entity : list) {
             String name = entity.getChildText("name");
 
-            HashMap<String, String> hm = new HashMap<String, String>();
+            Map<String, String> hm = new HashMap<>();
             hmEntity.put(name, hm);
 
             @SuppressWarnings("unchecked")
@@ -180,7 +164,7 @@ public class Aligner extends BaseAligner<GeonetParams> {
 
                     result.locallyRemoved++;
                 }
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 log.error("Couldn't remove metadata with uuid " + uuid);
                 log.error(t);
                 result.unchangedMetadata++;
@@ -214,7 +198,6 @@ public class Aligner extends BaseAligner<GeonetParams> {
                     String id = dataMan.getMetadataId(ri.uuid);
 
                     // look up value of localrating/enable
-                    SettingManager settingManager = context.getBean(SettingManager.class);
                     String localRating = settingManager.getValue(Settings.SYSTEM_LOCALRATING_ENABLE);
 
                     if (id == null) {
@@ -233,7 +216,6 @@ public class Aligner extends BaseAligner<GeonetParams> {
                                     params.useChangeDateForUpdate(),
                                     localUuids.getChangeDate(ri.uuid), true);
                                 log.info("Overriding record with uuid " + ri.uuid);
-                                result.updatedMetadata++;
 
                                 if (params.isIfRecordExistAppendPrivileges()) {
                                     addPrivileges(id, params.getPrivileges(), localGroups, context);
@@ -247,6 +229,7 @@ public class Aligner extends BaseAligner<GeonetParams> {
                             case SKIP:
                                 log.debug("Skipping record with uuid " + ri.uuid);
                                 result.uuidSkipped++;
+                                break;
                             default:
                                 break;
                         }
@@ -265,7 +248,7 @@ public class Aligner extends BaseAligner<GeonetParams> {
                     }
 
                 }
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 log.error("Couldn't insert or update metadata with uuid " + ri.uuid);
                 log.error(t);
                 result.unchangedMetadata++;
@@ -299,7 +282,7 @@ public class Aligner extends BaseAligner<GeonetParams> {
             Log.debug(Geonet.MEF, "Multiple metadata files");
 
         Map<String, Pair<String, Element>> mdFiles =
-            new HashMap<String, Pair<String, Element>>();
+            new HashMap<>();
         for (Path file : files) {
             if (Files.isRegularFile(file)) {
                 Element metadata = Xml.loadFile(file);
@@ -370,14 +353,15 @@ public class Aligner extends BaseAligner<GeonetParams> {
     }
 
     private void addMetadata(final RecordInfo ri, final boolean localRating, String uuid) throws Exception {
-        final String id[] = {null};
-        final Element md[] = {null};
+        final String[] id = {null};
+        final Element[] md = {null};
 
         //--- import metadata from MEF file
 
-        Path mefFile = retrieveMEF(ri.uuid);
+        Path mefFile = null;
 
         try {
+            mefFile = retrieveMEF(ri.uuid);
             String fileType = "mef";
             MEFLib.Version version = MEFLib.getMEFVersion(mefFile);
             if (version != null && version.equals(MEFLib.Version.V2)) {
@@ -457,10 +441,8 @@ public class Aligner extends BaseAligner<GeonetParams> {
             result.unretrievable++;
             log.error(e);
         } finally {
-            try {
-                Files.deleteIfExists(mefFile);
-            } catch (IOException e) {
-                log.warning("Unable to delete mefFile: " + mefFile);
+            if (mefFile != null) {
+                FileUtils.deleteQuietly(mefFile.toFile());
             }
         }
     }
@@ -480,10 +462,15 @@ public class Aligner extends BaseAligner<GeonetParams> {
 
         if (log.isDebugEnabled()) log.debug("  - Adding metadata with remote uuid:" + ri.uuid);
 
+        // Translate metadata
+        if (params.isTranslateContent()) {
+            md = translateMetadataContent(context, md, schema);
+        }
+
         try {
             Integer groupIdVal = null;
             if (StringUtils.isNotEmpty(params.getOwnerIdGroup())) {
-                groupIdVal = Integer.parseInt(params.getOwnerIdGroup());
+                groupIdVal = getGroupOwner();
             }
 
             params.getValidate().validate(dataMan, context, md, groupIdVal);
@@ -493,10 +480,18 @@ public class Aligner extends BaseAligner<GeonetParams> {
             return null;
         }
 
+        if (params.mefFormatFull && ri.schema.startsWith(ISO19139SchemaPlugin.IDENTIFIER)) {
+            // In GeoNetwork 3.x, links to resources changed:
+            // * thumbnails contains full URL instead of file name only
+            // * API mode change old URL structure.
+            MetadataResourceDatabaseMigration.updateMetadataResourcesLink(md, null, settingManager);
+        }
+
         if (!params.xslfilter.equals("")) {
             md = HarvesterUtil.processMetadata(dataMan.getSchema(schema),
                 md, processName, processParams);
         }
+
         // insert metadata
         // If MEF format is full, private file links needs to be updated
         boolean ufo = params.mefFormatFull;
@@ -522,7 +517,7 @@ public class Aligner extends BaseAligner<GeonetParams> {
 
         addCategories(metadata, params.getCategories(), localCateg, context, null, false);
 
-        metadata = metadataManager.insertMetadata(context, metadata, md, true, false, ufo, UpdateDatestamp.NO, false, false);
+        metadata = metadataManager.insertMetadata(context, metadata, md, IndexingMode.none, ufo, UpdateDatestamp.NO, false, false);
 
         String id = String.valueOf(metadata.getId());
 
@@ -551,7 +546,7 @@ public class Aligner extends BaseAligner<GeonetParams> {
         }
         context.getBean(IMetadataManager.class).save(metadata);
 
-        dataMan.indexMetadata(id, Math.random() < 0.01, null);
+        dataMan.indexMetadata(id, Math.random() < 0.01);
         result.addedMetadata++;
 
         return id;
@@ -605,13 +600,13 @@ public class Aligner extends BaseAligner<GeonetParams> {
     }
 
     private Map<String, Set<String>> buildPrivileges(Element privil) {
-        Map<String, Set<String>> map = new HashMap<String, Set<String>>();
+        Map<String, Set<String>> map = new HashMap<>();
 
         for (Object o : privil.getChildren("group")) {
             Element group = (Element) o;
             String name = group.getAttributeValue("name");
 
-            Set<String> set = new HashSet<String>();
+            Set<String> set = new HashSet<>();
             map.put(name, set);
 
             for (Object op : group.getChildren("operation")) {
@@ -672,18 +667,20 @@ public class Aligner extends BaseAligner<GeonetParams> {
      */
     private void updateMetadata(final RecordInfo ri, final String id, final boolean localRating,
                                 final boolean useChangeDate, String localChangeDate, Boolean force) throws Exception {
-        final Element md[] = {null};
-        final Element publicFiles[] = {null};
-        final Element privateFiles[] = {null};
+        final Element[] md = {null};
+        final Element[] publicFiles = {null};
+        final Element[] privateFiles = {null};
 
         if (localUuids.getID(ri.uuid) == null && !force) {
             if (log.isDebugEnabled())
                 log.debug("  - Skipped metadata managed by another harvesting node. uuid:" + ri.uuid + ", name:" + params.getName());
         } else {
             if (force || !useChangeDate || ri.isMoreRecentThan(localChangeDate)) {
-                Path mefFile = retrieveMEF(ri.uuid);
+                Path mefFile = null;
 
                 try {
+                    mefFile = retrieveMEF(ri.uuid);
+
                     String fileType = "mef";
                     MEFLib.Version version = MEFLib.getMEFVersion(mefFile);
                     if (version != null && version.equals(MEFLib.Version.V2)) {
@@ -736,12 +733,9 @@ public class Aligner extends BaseAligner<GeonetParams> {
                     //--- we ignore the exception here. Maybe the metadata has been removed just now
                     result.unretrievable++;
                 } finally {
-                    try {
-                        Files.deleteIfExists(mefFile);
-                    } catch (IOException e) {
-                        log.warning("Unable to delete mefFile: " + mefFile);
+                    if (mefFile != null) {
+                        FileUtils.deleteQuietly(mefFile.toFile());
                     }
-
                 }
             } else {
                 result.unchangedMetadata++;
@@ -754,10 +748,15 @@ public class Aligner extends BaseAligner<GeonetParams> {
         String date = localUuids.getChangeDate(ri.uuid);
 
 
+        // Translate metadata
+        if (params.isTranslateContent()) {
+            md = translateMetadataContent(context, md, ri.schema);
+        }
+
         try {
             Integer groupIdVal = null;
             if (StringUtils.isNotEmpty(params.getOwnerIdGroup())) {
-                groupIdVal = Integer.parseInt(params.getOwnerIdGroup());
+                groupIdVal = getGroupOwner();
             }
 
             params.getValidate().validate(dataMan, context, md, groupIdVal);
@@ -767,17 +766,23 @@ public class Aligner extends BaseAligner<GeonetParams> {
             return;
         }
 
-        final IMetadataManager metadataManager = context.getBean(IMetadataManager.class);
-        AbstractMetadata metadata;
+        Metadata metadata;
         if (!force && !ri.isMoreRecentThan(date)) {
             if (log.isDebugEnabled())
                 log.debug("  - XML not changed for local metadata with uuid:" + ri.uuid);
             result.unchangedMetadata++;
-            metadata = metadataRepository.findOne(id);
+            metadata = metadataRepository.findOneById(Integer.valueOf(id));
             if (metadata == null) {
                 throw new NoSuchElementException("Unable to find a metadata with ID: " + id);
             }
         } else {
+            if (params.mefFormatFull && ri.schema.startsWith(ISO19139SchemaPlugin.IDENTIFIER)) {
+                // In GeoNetwork 3.x, links to resources changed:
+                // * thumbnails contains full URL instead of file name only
+                // * API mode change old URL structure.
+                MetadataResourceDatabaseMigration.updateMetadataResourcesLink(md, null, settingManager);
+            }
+
             if (!params.xslfilter.equals("")) {
                 md = HarvesterUtil.processMetadata(dataMan.getSchema(ri.schema),
                     md, processName, processParams);
@@ -788,14 +793,12 @@ public class Aligner extends BaseAligner<GeonetParams> {
 
             boolean validate = false;
             boolean ufo = params.mefFormatFull;
-            boolean index = false;
             boolean updateDateStamp = true;
             String language = context.getLanguage();
-            metadataManager.updateMetadata(context, id, md, validate, ufo, index, language, ri.changeDate,
-                updateDateStamp);
-            metadata = metadataRepository.findOne(id);
+            metadataManager.updateMetadata(context, id, md, validate, ufo, language, ri.changeDate,
+                updateDateStamp, IndexingMode.none);
+            metadata = metadataRepository.findOneById(Integer.valueOf(id));
             result.updatedMetadata++;
-
             if (force) {
                 //change ownership of metadata to new harvester
                 metadata.getHarvestInfo().setUuid(params.getUuid());
@@ -807,7 +810,7 @@ public class Aligner extends BaseAligner<GeonetParams> {
 
         metadata.getCategories().clear();
         addCategories(metadata, params.getCategories(), localCateg, context, null, true);
-        metadata = metadataRepository.findOne(id);
+        metadata = metadataRepository.findOneById(Integer.valueOf(id));
 
         Element general = info.getChild("general");
 
@@ -840,7 +843,7 @@ public class Aligner extends BaseAligner<GeonetParams> {
         metadataManager.save(metadata);
 //        dataMan.flush();
 
-        dataMan.indexMetadata(id, Math.random() < 0.01, null);
+        dataMan.indexMetadata(id, Math.random() < 0.01);
     }
 
     private void handleFile(String id, String file, MetadataResourceVisibility visibility, String changeDate,
@@ -858,7 +861,7 @@ public class Aligner extends BaseAligner<GeonetParams> {
     }
 
     private void removeOldFile(Store store, String metadataUuid, Element infoFiles, MetadataResourceVisibility visibility) throws Exception {
-        final List<MetadataResource> resources = store.getResources(context, metadataUuid, visibility, null);
+        final List<MetadataResource> resources = store.getResources(context, metadataUuid, visibility, null, true);
         for (MetadataResource resource: resources) {
             if (infoFiles != null && !existsFile(resource.getId(), infoFiles)) {
                 if (log.isDebugEnabled()) {
@@ -889,12 +892,18 @@ public class Aligner extends BaseAligner<GeonetParams> {
         ISODate remIsoDate = new ISODate(changeDate);
         boolean saveFile;
 
-        final MetadataResource description = store.getResourceDescription(context, metadataUuid, visibility, file, true);
-        if (description == null) {
-            saveFile = true;
-        } else {
-            ISODate locIsoDate = new ISODate(description.getLastModification().getTime(), false);
+        Store.ResourceHolder resourceHolder;
+        try {
+            resourceHolder = store.getResource(context, metadataUuid, visibility, file, true);
+        } catch (ResourceNotFoundException ex) {
+            resourceHolder = null;
+        }
+
+        if ((resourceHolder != null) && (resourceHolder.getMetadata() != null)) {
+            ISODate locIsoDate = new ISODate(resourceHolder.getMetadata().getLastModification().getTime(), false);
             saveFile = (remIsoDate.timeDifferenceInSeconds(locIsoDate) > 0);
+        } else {
+            saveFile = true;
         }
 
         if (saveFile) {

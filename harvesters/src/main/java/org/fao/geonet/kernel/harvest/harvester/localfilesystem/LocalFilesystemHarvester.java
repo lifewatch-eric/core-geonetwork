@@ -43,8 +43,8 @@ import org.fao.geonet.kernel.harvest.harvester.AbstractHarvester;
 import org.fao.geonet.kernel.harvest.harvester.CategoryMapper;
 import org.fao.geonet.kernel.harvest.harvester.GroupMapper;
 import org.fao.geonet.kernel.harvest.harvester.HarvestResult;
+import org.fao.geonet.kernel.search.IndexingMode;
 import org.fao.geonet.repository.MetadataRepository;
-import org.fao.geonet.repository.OperationAllowedRepository;
 import org.fao.geonet.repository.specification.MetadataSpecs;
 import org.fao.geonet.utils.IO;
 import org.jdom.Element;
@@ -111,7 +111,7 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult, L
             log.debug("Starting to delete locally existing metadata " +
                 "from the same source if they " +
                 " were not in this harvesting result...");
-            List<Integer> existingMetadata = context.getBean(MetadataRepository.class).findAllIdsBy((Specification<Metadata>) MetadataSpecs.hasHarvesterUuid(params.getUuid()));
+            List<Integer> existingMetadata = context.getBean(MetadataRepository.class).findIdsBy((Specification<Metadata>) MetadataSpecs.hasHarvesterUuid(params.getUuid()));
             for (Integer existingId : existingMetadata) {
 
                 if (cancelMonitor.get()) {
@@ -145,8 +145,14 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult, L
 
         String language = context.getLanguage();
 
-        final AbstractMetadata metadata = metadataManager.updateMetadata(context, id, xml, false, false, false, language, changeDate,
-            true);
+        // Translate metadata
+        if (params.isTranslateContent()) {
+            String schema = dataMan.getMetadataSchema(id);
+            xml = aligner.translateMetadataContent(context, xml, schema);
+        }
+
+        final AbstractMetadata metadata = metadataManager.updateMetadata(context, id, xml, false, false, language, changeDate,
+            true, IndexingMode.none);
 
         if (force) {
             //change ownership of metadata to new harvester (Used in OVERRIDE option)
@@ -157,8 +163,6 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult, L
             metadataManager.save(metadata);
         }
 
-        OperationAllowedRepository repository = context.getBean(OperationAllowedRepository.class);
-        repository.deleteAllByMetadataId(Integer.parseInt(id));
         aligner.addPrivileges(id, params.getPrivileges(), localGroups, context);
 
         metadata.getCategories().clear();
@@ -166,7 +170,7 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult, L
 
         metadataManager.flush();
 
-        dataMan.indexMetadata(id, true, null);
+        dataMan.indexMetadata(id, true);
     }
 
     String addMetadata(Element xml, String uuid, String schema, GroupMapper localGroups, final CategoryMapper localCateg,
@@ -177,14 +181,31 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult, L
 
         AbstractMetadata metadata = new Metadata();
         metadata.setUuid(uuid);
-        String xmlUuid = metadataUtils.extractUUID(schema, md);
+
+        MetadataType metadataType = MetadataType.lookup(params.recordType);
+
+        String xmlUuid = null;
+        if (metadataType == MetadataType.METADATA) {
+            xmlUuid = metadataUtils.extractUUID(schema, md);
+        } else if (metadataType == MetadataType.SUB_TEMPLATE) {
+            xmlUuid = md.getAttributeValue("uuid");
+        } else if (metadataType == MetadataType.TEMPLATE_OF_SUB_TEMPLATE) {
+            xmlUuid = md.getAttributeValue("uuid");
+        }
+
         if (!uuid.equals(xmlUuid)) {
             md = metadataUtils.setUUID(schema, uuid, md);
         }
+
+        // Translate metadata
+        if (params.isTranslateContent()) {
+            md = aligner.translateMetadataContent(context, md, schema);
+        }
+
         metadata.getDataInfo().
             setSchemaId(schema).
             setRoot(xml.getQualifiedName()).
-            setType(MetadataType.lookup(params.recordType)).
+            setType(metadataType).
             setCreateDate(new ISODate(createDate)).
             setChangeDate(new ISODate(createDate));
         metadata.getSourceInfo().
@@ -197,7 +218,7 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult, L
 
         aligner.addCategories(metadata, params.getCategories(), localCateg, context, null, false);
 
-        metadata = metadataManager.insertMetadata(context, metadata, md, true, false, false, UpdateDatestamp.NO, false, false);
+        metadata = metadataManager.insertMetadata(context, metadata, md, IndexingMode.none, false, UpdateDatestamp.NO, false, false);
 
         String id = String.valueOf(metadata.getId());
 
@@ -206,7 +227,7 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult, L
         metadataManager.flush();
 
         if (index) {
-            dataMan.indexMetadata(id, true, null);
+            dataMan.indexMetadata(id, true);
         }
         return id;
     }
@@ -220,19 +241,23 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult, L
     }
 
     private void runBeforeScript() throws IOException, InterruptedException {
-		if (StringUtils.isEmpty(params.beforeScript)) {
+        if (StringUtils.isEmpty(params.beforeScript)) {
 			return;
 		}
-		log.info("Running the before script: " + params.beforeScript);
-        List<String> args = new ArrayList<String>(Arrays.asList(params.beforeScript.split(" ")));
-        Process process = new ProcessBuilder(args).
-				redirectError(ProcessBuilder.Redirect.INHERIT).
-				redirectOutput(ProcessBuilder.Redirect.INHERIT).
-				start();
-		int result = process.waitFor();
-		if ( result != 0 ) {
-			log.warning("The beforeScript failed with exit value=" + Integer.toString(result));
-			throw new RuntimeException("The beforeScript returned an error: " + Integer.toString(result));
-		}
+
+        throw new InterruptedException("Script option is currently disabled.");
+        // TODO: Script MUST be limited to well known ones added by a
+        // catalog admin in the data directory. To be improved
+        //		log.info("Running the before script: " + params.beforeScript);
+        //        List<String> args = new ArrayList<String>(Arrays.asList(params.beforeScript.split(" ")));
+        //        Process process = new ProcessBuilder(args).
+        //				redirectError(ProcessBuilder.Redirect.INHERIT).
+        //				redirectOutput(ProcessBuilder.Redirect.INHERIT).
+        //				start();
+        //		int result = process.waitFor();
+        //		if ( result != 0 ) {
+        //			log.warning("The beforeScript failed with exit value=" + Integer.toString(result));
+        //			throw new RuntimeException("The beforeScript returned an error: " + Integer.toString(result));
+        //		}
 	}
 }

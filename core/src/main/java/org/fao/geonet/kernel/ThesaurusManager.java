@@ -1,4 +1,4 @@
-//===	Copyright (C) 2001-2005 Food and Agriculture Organization of the
+//===	Copyright (C) 2001-2023 Food and Agriculture Organization of the
 //===	United Nations (FAO-UN), United Nations World Food Programme (WFP)
 //===	and United Nations Environment Programme (UNEP)
 //===
@@ -17,7 +17,7 @@
 //===	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 //===
 //===	Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
-//===	Rome - Italy. email: GeoNetwork@fao.org
+//===	Rome - Italy. email: geonetwork@osgeo.org
 //==============================================================================
 
 package org.fao.geonet.kernel;
@@ -37,21 +37,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.Util;
 import org.fao.geonet.constants.Geonet;
-import org.fao.geonet.domain.Constants;
 import org.fao.geonet.domain.AbstractMetadata;
-import org.fao.geonet.domain.ThesaurusActivation;
+import org.fao.geonet.kernel.datamanager.IMetadataManager;
+import org.fao.geonet.kernel.datamanager.IMetadataSchemaUtils;
 import org.fao.geonet.kernel.datamanager.IMetadataUtils;
 import org.fao.geonet.kernel.oaipmh.Lib;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.kernel.setting.Settings;
 import org.fao.geonet.languages.IsoLanguagesMapper;
-import org.fao.geonet.repository.ThesaurusActivationRepository;
 import org.fao.geonet.utils.IO;
 import org.fao.geonet.utils.Log;
 import org.fao.geonet.utils.Xml;
@@ -64,21 +63,51 @@ import org.openrdf.sesame.config.SailConfig;
 import org.openrdf.sesame.constants.RDFFormat;
 import org.openrdf.sesame.repository.local.LocalRepository;
 import org.openrdf.sesame.repository.local.LocalService;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Maps;
 
 import jeeves.server.context.ServiceContext;
 import jeeves.xlink.Processor;
-
+import org.springframework.beans.factory.annotation.Value;
 
 public class ThesaurusManager implements ThesaurusFinder {
 
+    @Autowired
     private SettingManager settingManager;
-    private ConcurrentHashMap<String, Thesaurus> thesauriMap = new ConcurrentHashMap<String, Thesaurus>();
+
+    @Autowired
+    private GeonetworkDataDirectory geonetworkDataDirectory;
+
+    @Autowired
+    private IMetadataUtils iMetadataUtils;
+
+    @Autowired
+    private IMetadataManager metadataManager;
+
+    @Autowired
+    private IsoLanguagesMapper isoLanguagesMapper;
+
+    @Autowired
+    private IMetadataSchemaUtils metadataSchemaUtils;
+
+    @Autowired
+    private AllThesaurus allThesaurus;
+
+    private ConcurrentHashMap<String, Thesaurus> thesauriMap = new ConcurrentHashMap<>();
     private LocalService service = null;
     private Path thesauriDirectory = null;
     private boolean initialized = false;
-    private AllThesaurus allThesaurus;
+
+    @Value("${thesaurus.cache.maxsize:50000}")
+    private int thesaurusCacheMaxSize = 50000;
+
+    public int getThesaurusCacheMaxSize() {
+        return thesaurusCacheMaxSize;
+    }
+
+    public void setThesaurusCacheMaxSize(int thesaurusCacheMaxSize) {
+        this.thesaurusCacheMaxSize = thesaurusCacheMaxSize;
+    }
 
     /**
      * Initialize ThesaurusManager.
@@ -92,10 +121,9 @@ public class ThesaurusManager implements ThesaurusFinder {
             return;
         }
         this.initialized = true;
-        this.settingManager = context.getBean(SettingManager.class);
 
         final String siteURL = this.settingManager.getSiteURL(context);
-        this.allThesaurus = new AllThesaurus(this, getIsoLanguagesMapper(context), siteURL);
+        allThesaurus.init(siteURL);
 
         // Get Sesame interface
         service = Sesame.getService();
@@ -103,7 +131,7 @@ public class ThesaurusManager implements ThesaurusFinder {
         Path thesauriDir = IO.toPath(thesauriRepository);
 
         if (!Files.exists(thesauriDir)) {
-            thesauriDir = context.getBean(GeonetworkDataDirectory.class).resolveWebResource(thesauriRepository);
+            thesauriDir = geonetworkDataDirectory.resolveWebResource(thesauriRepository);
         }
 
         thesauriDir = thesauriDir.toAbsolutePath();
@@ -167,7 +195,7 @@ public class ThesaurusManager implements ThesaurusFinder {
      */
     private void loadRepositories(Path thesauriDirectory, String root, ServiceContext context) throws IOException {
 
-        final String siteURL = context.getBean(SettingManager.class).getSiteURL(context);
+        final String siteURL = settingManager.getSiteURL(context);
 
         try (DirectoryStream<Path> paths = Files.newDirectoryStream(thesauriDirectory, "*.rdf")) {
             for (Path aRdfDataFile : paths) {
@@ -191,10 +219,10 @@ public class ThesaurusManager implements ThesaurusFinder {
                         continue;
                     }
 
-                    gst = new Thesaurus(getIsoLanguagesMapper(context), rdfFileName, root, thesaurusDirName, outputRdf, siteURL);
+                    gst = new Thesaurus(isoLanguagesMapper, rdfFileName, root, thesaurusDirName, outputRdf, siteURL, thesaurusCacheMaxSize);
 
                 } else {
-                    gst = new Thesaurus(getIsoLanguagesMapper(context), rdfFileName, root, thesaurusDirName, thesauriDirectory.resolve(aRdfDataFile), siteURL);
+                    gst = new Thesaurus(isoLanguagesMapper, rdfFileName, root, thesaurusDirName, thesauriDirectory.resolve(aRdfDataFile), siteURL, thesaurusCacheMaxSize);
                 }
 
                 try {
@@ -214,12 +242,11 @@ public class ThesaurusManager implements ThesaurusFinder {
      * @param os   OutputStream to write rdf to from XSLT conversion
      */
     private void getRegisterMetadataAsRdf(String uuid, OutputStream os, ServiceContext context) throws Exception {
-        AbstractMetadata mdInfo = context.getBean(IMetadataUtils.class).findOneByUuid(uuid);
+        AbstractMetadata mdInfo = iMetadataUtils.findOneByUuid(uuid);
         Integer id = mdInfo.getId();
-        final DataManager dataManager = context.getBean(DataManager.class);
-        Element md = dataManager.getMetadata("" + id);
+        Element md = metadataManager.getMetadata("" + id);
         Processor.detachXLink(md, context);
-        final String siteURL = context.getBean(SettingManager.class).getSiteURL(context);
+        final String siteURL = settingManager.getSiteURL(context);
         Element env = Lib.prepareTransformEnv(
             mdInfo.getUuid(),
             mdInfo.getDataInfo().getChangeDate().getDateAndTime(),
@@ -230,7 +257,7 @@ public class ThesaurusManager implements ThesaurusFinder {
         root.addContent(md);
         root.addContent(env);
 
-        Path styleSheet = dataManager.getSchemaDir("iso19135").resolve("convert").resolve(Geonet.File.EXTRACT_SKOS_FROM_ISO19135);
+        Path styleSheet = metadataSchemaUtils.getSchemaDir("iso19135").resolve("convert").resolve(Geonet.File.EXTRACT_SKOS_FROM_ISO19135);
         Xml.transform(root, styleSheet, os);
     }
 
@@ -247,9 +274,11 @@ public class ThesaurusManager implements ThesaurusFinder {
     }
 
     /**
-     * @param writeTitle TODO
+     * @param writeConceptScheme Write the concept scheme and details
+     *                           (title, description, ...) in the graph.
+     *                           Used when creating local thesaurus.
      */
-    public void addThesaurus(Thesaurus gst, boolean writeTitle) throws Exception {
+    public void addThesaurus(Thesaurus gst, boolean writeConceptScheme) throws Exception {
 
         String thesaurusName = gst.getKey();
 
@@ -264,10 +293,29 @@ public class ThesaurusManager implements ThesaurusFinder {
         createThesaurusRepository(gst);
         thesauriMap.put(thesaurusName, gst);
 
-        if (writeTitle) {
-            gst.addTitleElement(gst.getTitle());
+        if (writeConceptScheme) {
+            gst.createConceptScheme(
+                gst.getTitle(),
+                gst.getMultilingualTitles(),
+                gst.getDescription(),
+                gst.getMultilingualDescriptions(),
+                gst.getFname(),
+                gst.getDname(),
+                gst.getDefaultNamespace());
+        }
+    }
+
+    public void addOrReloadThesaurus(Thesaurus gst) throws Exception {
+        if (thesauriMap.replace(gst.getKey(), gst) != null) {
+            service.removeRepository(gst.getKey());
         }
 
+        createThesaurusRepository(gst);
+        thesauriMap.put(gst.getKey(), gst);
+
+        if (Log.isDebugEnabled(Geonet.THESAURUS_MAN)) {
+            Log.debug(Geonet.THESAURUS_MAN, "Thesaurus " + gst.getKey() + " loaded.");
+        }
     }
 
     /**
@@ -328,20 +376,31 @@ public class ThesaurusManager implements ThesaurusFinder {
 
     @Override
     public Thesaurus getThesaurusByConceptScheme(String uri) {
-
         for (Map.Entry<String, Thesaurus> entry : getThesauriMap().entrySet()) {
             try {
                 Thesaurus thesaurus = entry.getValue();
-
                 if (thesaurus.hasConceptScheme(uri)) {
                     return thesaurus;
                 }
-
             } catch (Exception e) {
                 Log.error(Geonet.THESAURUS_MAN, "Get Thesaurus By Concept Scheme error", e);
             }
         }
 
+        return null;
+    }
+
+    public Thesaurus getThesaurusByTitle(String title) {
+        for (Map.Entry<String, Thesaurus> entry : getThesauriMap().entrySet()) {
+            try {
+                Thesaurus thesaurus = entry.getValue();
+                if (thesaurus.getTitle().equals(title)) {
+                    return thesaurus;
+                }
+            } catch (Exception e) {
+                Log.error(Geonet.THESAURUS_MAN, "Get thesaurus by title error", e);
+            }
+        }
         return null;
     }
 
@@ -367,8 +426,8 @@ public class ThesaurusManager implements ThesaurusFinder {
         // check whether we have created a thesaurus for this register already
         String aRdfDataFile = uuid + ".rdf";
         Path thesaurusFile = buildThesaurusFilePath(aRdfDataFile, root, type);
-        final String siteURL = context.getBean(SettingManager.class).getSiteURL(context);
-        Thesaurus gst = new Thesaurus(getIsoLanguagesMapper(context), aRdfDataFile, root, type, thesaurusFile, siteURL);
+        final String siteURL = settingManager.getSiteURL(context);
+        Thesaurus gst = new Thesaurus(isoLanguagesMapper, aRdfDataFile, root, type, thesaurusFile, siteURL, thesaurusCacheMaxSize);
 
         try (OutputStream outputRdfStream = Files.newOutputStream(thesaurusFile)) {
             getRegisterMetadataAsRdf(uuid, outputRdfStream, context);
@@ -377,25 +436,11 @@ public class ThesaurusManager implements ThesaurusFinder {
         }
 
         String theKey = gst.getKey();
-        gst.retrieveThesaurusTitle();
+        gst.retrieveThesaurusInformation();
 
-        if (thesauriMap.replace(theKey, gst) == null) {
-            createThesaurusRepository(gst);
-            thesauriMap.put(theKey, gst);
-            if (Log.isDebugEnabled(Geonet.THESAURUS_MAN))
-                Log.debug(Geonet.THESAURUS_MAN, "Created thesaurus " + theKey + " from register " + uuid);
-        } else {
-            service.removeRepository(theKey);
-            createThesaurusRepository(gst);
-            if (Log.isDebugEnabled(Geonet.THESAURUS_MAN))
-                Log.debug(Geonet.THESAURUS_MAN, "Rebuilt thesaurus " + theKey + " from register " + uuid);
-        }
+        addOrReloadThesaurus(gst);
 
         return theKey;
-    }
-
-    private IsoLanguagesMapper getIsoLanguagesMapper(ServiceContext context) {
-        return context.getBean(IsoLanguagesMapper.class);
     }
 
     /**
@@ -417,6 +462,9 @@ public class ThesaurusManager implements ThesaurusFinder {
             String dname = currentTh.getDname();
             elDname.addContent(dname);
 
+            Element description = new Element("description");
+            description.addContent(currentTh.getDescription());
+
             Element elFname = new Element("filename");
             String fname = currentTh.getFname();
             elFname.addContent(fname);
@@ -428,6 +476,73 @@ public class ThesaurusManager implements ThesaurusFinder {
             }
             elTitle.addContent(title);
 
+            //add multilingual titles in to response
+            //      "multilingualTitles":     [
+            //            { "lang": "fr","title": "Data Usage Scope FR"},
+            //            {"lang": "en","title": "Data Usage Scope EN"}
+            //      ],
+            Element elMultilingualTitles = new Element("multilingualTitles");
+            for (Map.Entry<String, String> entry : currentTh.getMultilingualTitles().entrySet()) {
+                if (StringUtils.isNotBlank(entry.getValue())) {
+                    Element elMultilingualTitle = new Element("multilingualTitle");
+                    Element elMultilingualTitleLang = new Element("lang");
+                    elMultilingualTitleLang.setText(entry.getKey());
+                    Element elMultilingualTitleTitle = new Element("title");
+                    elMultilingualTitleTitle.setText(entry.getValue());
+                    elMultilingualTitle.addContent(elMultilingualTitleLang);
+                    elMultilingualTitle.addContent(elMultilingualTitleTitle);
+
+                    elMultilingualTitles.addContent(elMultilingualTitle);
+                }
+            }
+
+            //add dublin core items to the response
+            // "dublinCoreMultilingual": [
+            //    { "lang": "fr","tag":"title","value": "Data Usage Scope FR"},
+            //    {"lang": "en","tag":"title","value": "Data Usage Scope EN"}
+            //]
+            Element elDublinCoreMultilingual = new Element("dublinCoreMultilinguals");
+            for (Map.Entry<String, Map<String,String>> entryLang : currentTh.getDublinCoreMultilingual().entrySet()) {
+                String lang = entryLang.getKey();
+                for (Map.Entry<String, String> entryItem : entryLang.getValue().entrySet()) {
+                    if (StringUtils.isNotBlank(entryItem.getValue())) {
+                        Element elItem = new Element("dublinCoreMultilingual");
+                        Element elLang = new Element("lang");
+                        elLang.setText(lang);
+                        Element elTag = new Element("tag");
+                        elTag.setText(entryItem.getKey());
+                        Element elValue = new Element("value");
+                        elValue.setText(entryItem.getValue());
+
+                        elItem.addContent(elLang);
+                        elItem.addContent(elTag);
+                        elItem.addContent(elValue);
+
+                        elDublinCoreMultilingual.addContent(elItem);
+                    }
+                }
+            }
+
+            //add multilingual descriptions in to response
+            //      "multilingualDescriptions":     [
+            //            { "lang": "fr","title": "Data Usage Scope FR"},
+            //            {"lang": "en","title": "Data Usage Scope EN"}
+            //      ],
+            Element elMultilingualDescriptions = new Element("multilingualDescriptions");
+            for (Map.Entry<String, String> entry : currentTh.getMultilingualDescriptions().entrySet()) {
+                if (StringUtils.isNotBlank(entry.getValue())) {
+                    Element elMultilingualDescription = new Element("multilingualDescription");
+                    Element elMultilingualDescLang = new Element("lang");
+                    elMultilingualDescLang.setText(entry.getKey());
+                    Element elMultilingualDescDesc = new Element("description");
+                    elMultilingualDescDesc.setText(entry.getValue());
+                    elMultilingualDescription.addContent(elMultilingualDescLang);
+                    elMultilingualDescription.addContent(elMultilingualDescDesc);
+
+                    elMultilingualDescriptions.addContent(elMultilingualDescription);
+                }
+            }
+
             Element elType = new Element("type");
             String type = currentTh.getType();
             elType.addContent(type);
@@ -435,6 +550,18 @@ public class ThesaurusManager implements ThesaurusFinder {
             Element elDate = new Element("date");
             String date = currentTh.getDate();
             elDate.addContent(date);
+
+            Element elCreatedDate = new Element("createdDate");
+            String createdDate = currentTh.getCreatedDate();
+            elCreatedDate.addContent(createdDate);
+
+            Element elIssuedDate = new Element("issuedDate");
+            String issuedDate = currentTh.getIssuedDate();
+            elIssuedDate.addContent(issuedDate);
+
+            Element elModifiedDate = new Element("modifiedDate");
+            String modifiedDate = currentTh.getModifiedDate();
+            elModifiedDate.addContent(modifiedDate);
 
             Element elUrl = new Element("url");
             String url = currentTh.getDownloadUrl();
@@ -444,27 +571,21 @@ public class ThesaurusManager implements ThesaurusFinder {
             String defaultURI = currentTh.getDefaultNamespace();
             elDefaultURI.addContent(defaultURI);
 
-
-            Element elActivated = new Element("activated");
-
-            // By default thesaurus are enabled (if nothing defined in db)
-            char activated = Constants.YN_TRUE;
-            final ThesaurusActivationRepository activationRepository = context.getBean(ThesaurusActivationRepository.class);
-            final ThesaurusActivation activation = activationRepository.findOne(currentTh.getKey());
-            if (activation != null && !activation.isActivated()) {
-                activated = Constants.YN_FALSE;
-            }
-            elActivated.setText("" + activated);
-
             elLoop.addContent(elKey);
             elLoop.addContent(elDname);
+            elLoop.addContent(description);
             elLoop.addContent(elFname);
             elLoop.addContent(elTitle);
+            elLoop.addContent(elMultilingualTitles);
+            elLoop.addContent(elDublinCoreMultilingual);
+            elLoop.addContent(elMultilingualDescriptions);
             elLoop.addContent(elDate);
+            elLoop.addContent(elCreatedDate);
+            elLoop.addContent(elIssuedDate);
+            elLoop.addContent(elModifiedDate);
             elLoop.addContent(elUrl);
             elLoop.addContent(elDefaultURI);
             elLoop.addContent(elType);
-            elLoop.addContent(elActivated);
 
             elRoot.addContent(elLoop);
         }

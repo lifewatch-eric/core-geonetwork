@@ -25,7 +25,6 @@ package org.fao.geonet.api.records.formatters.groovy.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import org.fao.geonet.api.records.attachments.Store;
 import org.fao.geonet.api.records.formatters.FormatType;
 import org.fao.geonet.api.records.formatters.groovy.Environment;
@@ -35,8 +34,8 @@ import org.fao.geonet.api.records.formatters.groovy.template.FileResult;
 import org.fao.geonet.domain.MetadataResourceVisibility;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents the summary of a metadata element.  It is often the top section of a metadata view and
@@ -82,7 +81,7 @@ public class Summary {
     }
 
     public FileResult getResult() throws Exception {
-        HashMap<String, Object> params = Maps.newHashMap();
+        Map<String, Object> params = Maps.<String,Object>newHashMap();
 
         params.put("logo", logo);
         params.put("title", title != null ? title : "");
@@ -145,7 +144,7 @@ public class Summary {
         final Store store = env.getBean("resourceStore", Store.class);
         try {
             return store.getResourceDescription(env.getContext(), env.getMetadataUUID(), MetadataResourceVisibility.PUBLIC,
-                                                imgFile, true) != null;
+                imgFile, true) != null;
         } catch (Exception e) {
             return false;
         }

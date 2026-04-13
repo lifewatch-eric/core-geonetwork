@@ -1,0 +1,276 @@
+<div class="row" data-ng-controller="LfwGnFiltersConfiguratorController" id="filter-configurator">
+
+  <div class="sidebar" style="width: 65px; z-index: 10;">
+    <div class="sidebar-col-main">
+      <ul data-ng-if="user.isUserAdmin()" class="nav nav-sidebar" role="menu">
+        <li>
+          <a data-gn-active-tb-item="admin.console#/home">
+            <i class="fa fa-fw fa-th"></i>
+            <span translate>adminHome</span>
+          </a>
+        </li>
+        <li role="separator" class="divider"></li>
+        <li data-ng-repeat="t in userAdminMenu">
+          <a data-gn-active-tb-item="admin.console{{t.route}}">
+            <i class="fa fa-fw {{t.icon}}"></i>
+            <span translate>{{t.name | translate}}</span>
+          </a>
+        </li>
+      </ul>
+      <ul data-ng-if="user.isAdministrator()" class="nav nav-sidebar" role="menu">
+        <li>
+          <a data-gn-active-tb-item="admin.console#/home">
+            <i class="fa fa-fw fa-th"></i>
+            <span translate>adminHome</span>
+          </a>
+        </li>
+        <li role="separator" class="divider"></li>
+        <li data-ng-repeat="t in adminMenu">
+          <a data-gn-active-tb-item="{{gnCfg.mods.admin.appUrl}}{{t.route}}">
+            <i class="fa fa-fw {{t.icon}}"></i>
+            <span translate>{{t.name | translate}}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="main" style="margin-left: 65px;" ng-show="loading">
+    <div ng-show="loading" style="width: fit-content; margin: 0 auto;">
+      <span class="loading fa fa-spinner fa-spin"
+          style="font-size: 32px; background: transparent;">
+      </span>
+    </div>
+  </div>
+  <div class="main" style="margin-left: 65px;" >
+  
+    <!-- Top toolbar, including save button -->
+    <div class="col-sm-12 btn-toolbar" style="display: flex; margin-bottom: 1rem;">
+      <button type="button" class="btn btn-primary" data-ng-click="createNewFilter()">
+        <span class="fa fa-file"></span> New Filter
+      </button>
+  
+      <!-- Spacer -->
+      <div style="flex-grow: 1;"></div>
+      
+      <button type="button" class="btn btn-default" data-ng-click="showFacetsPreview()">
+          <span class="fa fa-eye"></span> Preview Facets Filters
+      </button>
+      <button type="button" class="btn btn-default" data-ng-click="showMapPreview()">
+          <span class="fa fa-eye"></span> Preview Map Filters
+      </button>
+      <button type="button" class="btn btn-primary" data-ng-click="saveConfiguration()">
+          <span class="fa fa-save"></span> Save
+      </button>
+    </div>
+  
+    <div>
+      <div class="col-sm-4">
+        <div class="panel panel-default">
+          <div class="panel-heading ng-scope">Filters List</div>
+          <div class="panel panel-body" style="margin-top:10px;">
+            <tabset data-ng-show="config !== 'null'" type="pills" justified="false" role="tablist">
+              <tab heading="Facet" role="tab" active="true">
+                <div class="panel-heading ng-scope">Filters Assigned to Facet</div>
+                <div class="ng-scope">
+                  <table class="table table-striped" id="assignedFiltersListFacet">
+                    <tbody>
+                      <tr>
+                        <div class="row">
+                          <div class="panel panel-default">
+                            <div class="panel panel-body" style="margin-top:0; padding: 0;">
+                              <filters-list-table
+                                config="configuration"
+                                frontend-id="'facets'"
+                                enabled="true"
+                                edit-filter="selectFilter(key)" 
+                                selected-filter="selectedFilter"
+                              ></filters-list-table>
+                            </div>
+                          </div>
+                        </div>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="panel-heading ng-scope">Filters Not Assigned to Facet</div>
+                <div class="ng-scope">
+                  <table class="table table-striped" id="notAssignedFiltersListFacet">
+                    <tbody>
+                      <tr>
+                        <div class="row">
+                          <div class="panel panel-default">
+                            <div class="panel panel-body" style="margin-top:0; padding: 0;">
+                              <filters-list-table 
+                                config="configuration"
+                                frontend-id="'facets'"
+                                enabled="false"
+                                edit-filter="selectFilter(key)" 
+                                selected-filter="selectedFilter"
+                              ></filters-list-table>
+                            </div>
+                          </div>
+                        </div>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </tab>
+              <tab heading="Map" role="tab">
+                <div class="panel-heading ng-scope">Filters Assigned to Map</div>
+                <div class="ng-scope">
+                  <table class="table table-striped" id="assignedFiltersListMap">
+                    <tbody>
+                      <tr>
+                        <div class="row">
+                          <div class="panel panel-default">
+                            <div class="panel panel-body" style="margin-top:0; padding: 0;">
+                              <filters-list-table 
+                                config="configuration"
+                                frontend-id="'map'"
+                                enabled="true"
+                                edit-filter="selectFilter(key)"
+                                selected-filter="selectedFilter"
+                              ></filters-list-table>
+                            </div>
+                          </div>
+                        </div>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="panel-heading ng-scope">Filters Not Assigned to Map</div>
+                <div class="ng-scope">
+                  <table class="table table-striped" id="notAssignedFiltersListMap">
+                    <tbody>
+                      <tr>
+                        <div class="row">
+                          <div class="panel panel-default">
+                            <div class="panel panel-body" style="margin-top:0; padding: 0;">
+                              <filters-list-table 
+                                config="configuration"
+                                frontend-id="'map'"
+                                enabled="false"
+                                edit-filter="selectFilter(key)"
+                                selected-filter="selectedFilter"
+                              ></filters-list-table>
+                            </div>
+                          </div>
+                        </div>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </tab>
+  
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-8" data-ng-show="!selectedFilter">
+        <div class="panel panel-default">
+          <div class="panel panel-body" style="height: 450px; margin-top:0;">
+            Select a Filter or create a New Filter
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-8" data-ng-show="selectedFilter">
+        <div class="panel panel-default">
+          <div class="panel panel-body" style="height:100%; margin-top:0;">
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading ng-scope">General Filter Settings</div>
+                  <div class="panel panel-body" style="width:100%; margin-top:0;">
+                    <label class="d-block" data-translate="">Filter Name</label>
+                    <input class="form-control" data-ng-model="selectedFilter.label" placeholder="Filter name"
+                      style="margin-bottom:10px;" ng-class="{'has-error': selectedFilter.label.length == 0}"/>
+                    <div>
+                      <label class="d-block" style="margin-top:10px;" data-translate="">Select where show the
+                        filter</label>
+                    </div>
+  
+                    <div class="row form-group" style="margin-bottom:0;">
+                      <div class="col-sm-1">
+                        <input type="checkbox" id="FacetCB" name="FacetCB" data-ng-model="selectedFilter.showIn.facets" data-ng-change="onShowInChanged()"  />
+                      </div>
+                      <div class="col-sm-5 gn-nopadding-left">
+                        <label class="control-label">Facets</label>
+                      </div>
+                    </div>
+  
+                    <div class="row form-group" style="margin-bottom:0;">
+                      <div class="col-sm-1">
+                        <input type="checkbox" id="MapCB" name="MapCB" data-ng-model="selectedFilter.showIn.map" data-ng-change="onShowInChanged()" />
+                      </div>
+                      <div class="col-sm-5 gn-nopadding-left">
+                        <label class="control-label">Map</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <mapping-tree
+                  types="mdTypes"
+                  templates="templates",
+                  add-mapping="addMapping(type, template, path)"
+                ></mapping-tree>
+              </div>
+            </div>
+            <div class="row">
+              <div class="panel panel-default">
+                <div class="panel-heading">Filter Associated Fields</div>
+                <div class="panel panel-body" style="margin-top:0;">
+                  <filters-mapping-table mappings="selectedFilter.mappings" templates="templatesList"></filters-mapping-table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- facet preview modal -->
+  <div
+  class="modal gn-userfeedback-modal preview-modal"
+  id="filter-preview-modal"
+  tabindex="-1"
+  role="dialog"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" data-ng-click="closePreview()" data-dismiss="modal" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h1 class="modal-title">
+            <i class="fa fa-eye"></i>&nbsp;
+            <span data-translate="">Preview {{showFacetModal ? 'Facet' : showMapModal ? 'Map' : '' }} Filters</span>
+          </h1>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div ng-if="showFacetModal" class="col-md-12" style="padding: 0;">
+              <iframe ng-src="catalog.search#/search/preview" class="preview-scrn" width="100%" height="100vh" frameborder="0"></iframe>
+            </div>
+            <div ng-if="showMapModal" class="col-md-12" style="padding: 0;">
+              <iframe ng-src="catalog.search#/mapsearch/preview" class="preview-scrn" width="100%" height="100vh" frameborder="0"></iframe>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-default"
+          data-dismiss="modal"
+          data-translate=""
+          data-ng-click="closePreview()"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>

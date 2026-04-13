@@ -23,30 +23,35 @@
 
 package org.fao.geonet.api.standards;
 
-import com.itextpdf.text.Meta;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jeeves.server.context.ServiceContext;
 import org.apache.commons.lang.StringUtils;
-import org.fao.geonet.api.API;
 import org.fao.geonet.api.ApiParams;
 import org.fao.geonet.api.ApiUtils;
 import org.fao.geonet.api.exception.ResourceNotFoundException;
 import org.fao.geonet.api.exception.WebApplicationException;
 import org.fao.geonet.api.tools.i18n.LanguageUtils;
-import org.fao.geonet.kernel.Schema;
+import org.fao.geonet.domain.Profile;
 import org.fao.geonet.kernel.SchemaManager;
 import org.fao.geonet.kernel.schema.MetadataSchema;
 import org.fao.geonet.kernel.schema.editorconfig.BatchEditing;
 import org.fao.geonet.kernel.schema.editorconfig.Editor;
 import org.fao.geonet.kernel.schema.labels.Codelists;
+import org.fao.geonet.kernel.setting.SettingManager;
+import org.fao.geonet.kernel.setting.Settings;
+import org.fao.geonet.util.UserUtil;
 import org.fao.geonet.utils.Xml;
 import org.jdom.Element;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,25 +60,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.servlet.http.HttpServletRequest;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-
-import jeeves.server.context.ServiceContext;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
  */
 
 @RequestMapping(value = {
-    "/{portal}/api/standards",
-    "/{portal}/api/" + API.VERSION_0_1 +
-        "/standards"
+    "/{portal}/api/standards"
 })
-@Api(value = "standards",
-    tags = "standards",
+@Tag(name = "standards",
     description = "Standard related operations")
 @Controller("standards")
 public class StandardsApi implements ApplicationContextAware {
@@ -84,6 +91,12 @@ public class StandardsApi implements ApplicationContextAware {
     @Autowired
     LanguageUtils languageUtils;
 
+    @Autowired
+    SettingManager settingManager;
+
+    @Autowired
+    RoleHierarchy roleHierarchy;
+
     private ApplicationContext context;
 
     public synchronized void setApplicationContext(ApplicationContext context) {
@@ -91,8 +104,7 @@ public class StandardsApi implements ApplicationContextAware {
     }
 
 
-    @ApiOperation(value = "Get standards",
-        nickname = "getStandards")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Get standards")
     @RequestMapping(
         method = RequestMethod.GET,
         produces = {
@@ -102,17 +114,16 @@ public class StandardsApi implements ApplicationContextAware {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "List of standards.")
+        @ApiResponse(responseCode = "200", description = "List of standards.")
     })
-    List<MetadataSchema> getConfigurations() throws Exception {
+    List<MetadataSchema> getStandardConfigurations() throws Exception {
         Set<String> schemaIds = schemaManager.getSchemas();
         List<MetadataSchema> schemaList = new ArrayList<>(schemaIds.size());
         schemaIds.stream().forEach(id -> schemaList.add(schemaManager.getSchema(id)));
         return schemaList;
     }
 
-    @ApiOperation(value = "Reload standards",
-        nickname = "reloadStandards")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Reload standards")
     @RequestMapping(
         value = "/reload",
         method = RequestMethod.GET,
@@ -123,15 +134,14 @@ public class StandardsApi implements ApplicationContextAware {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Standards reloaded.")
+        @ApiResponse(responseCode = "200", description = "Standards reloaded.")
     })
     void reloadSchema() throws Exception {
         Set<String> schemaIds = schemaManager.getSchemas();
         schemaIds.stream().forEach(id -> schemaManager.reloadSchema(id));
     }
 
-    @ApiOperation(value = "Get batch editor configuration for standards",
-        nickname = "getBatchConfigurations")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Get batch editor configuration for standards")
     @RequestMapping(value = "/batchconfiguration",
         method = RequestMethod.GET,
         produces = {
@@ -139,17 +149,22 @@ public class StandardsApi implements ApplicationContextAware {
         })
     @ResponseStatus(HttpStatus.OK)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Batch editor configuration.")
+        @ApiResponse(responseCode = "200", description = "Batch editor configuration.")
     })
     public
     @ResponseBody
     Map<String, BatchEditing> getConfigurations(
-        @ApiParam(value = ApiParams.API_PARAM_SCHEMA_IDENTIFIERS,
+        @Parameter(description = ApiParams.API_PARAM_SCHEMA_IDENTIFIERS,
             required = false,
             example = "iso19139")
         @RequestParam(required = false)
-            String[] schema
+            String[] schema,
+        HttpServletRequest request
     ) throws Exception {
+
+        ServiceContext serviceContext = ApiUtils.createServiceContext(request);
+        UserUtil.checkUserProfileLevel(serviceContext.getUserSession(), settingManager, roleHierarchy, Settings.METADATA_BATCH_EDITING_ACCESS_LEVEL, Profile.Editor, "batch edit metadata");
+
         List<String> listOfRequestedSchema = schema == null ? new ArrayList<String>() : Arrays.asList(schema);
         Set<String> listOfSchemas = schemaManager.getSchemas();
         Map<String, BatchEditing> schemasConfig = new HashMap<>();
@@ -167,8 +182,7 @@ public class StandardsApi implements ApplicationContextAware {
     }
 
 
-    @ApiOperation(value = "Get batch editor configuration for a standard",
-        nickname = "getBatchConfiguration")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Get batch editor configuration for a standard")
     @RequestMapping(value = "/{schema}/batchconfiguration",
         method = RequestMethod.GET,
         produces = {
@@ -178,7 +192,7 @@ public class StandardsApi implements ApplicationContextAware {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     Map<String, BatchEditing> getConfiguration(
-        @ApiParam(value = "Schema identifier",
+        @Parameter(description = "Schema identifier",
             required = true,
             example = "iso19139")
         @PathVariable
@@ -195,8 +209,47 @@ public class StandardsApi implements ApplicationContextAware {
     }
 
 
-    @ApiOperation(value = "Get codelist translations",
-        nickname = "getSchemaTranslations")
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Get multiple codelist translations",
+        description = "All translations are combined in the same object. " +
+            "No distinction by codelist. This is useful if you need " +
+            "lots of codelists terms to be loaded.")
+    @RequestMapping(value = "/{schema}/codelists",
+        method = RequestMethod.GET,
+        produces = {
+            MediaType.APPLICATION_JSON_VALUE
+        })
+    @ResponseBody
+    public Map<String, String> getCodelistsTranslations(
+        @Parameter(description = "Schema identifier",
+            required = true,
+            example = "iso19139")
+        @PathVariable String schema,
+        @Parameter(
+            description = "Codelist element name or alias"
+        )
+        @RequestParam String[] codelist,
+        HttpServletRequest request
+    ) throws Exception {
+        Map<String, String> response = new LinkedHashMap<String, String>();
+        final ServiceContext context = ApiUtils.createServiceContext(request);
+        Locale language = languageUtils.parseAcceptLanguage(request.getLocales());
+        context.setLanguage(language.getISO3Language());
+
+        for (String c : codelist) {
+            Element e = StandardsUtils.getCodelist(c, schemaManager,
+                schema, null, null, null, context, null);
+
+            List<Element> listOfEntry = e.getChildren("entry");
+            for (Element entry : listOfEntry) {
+                response.put(entry.getChildText("code"), entry.getChildText("label"));
+            }
+        }
+        return response;
+    }
+
+
+    @io.swagger.v3.oas.annotations.Operation(summary = "Get codelist translations")
     @RequestMapping(value = "/{schema}/codelists/{codelist}",
         method = RequestMethod.GET,
         produces = {
@@ -204,12 +257,12 @@ public class StandardsApi implements ApplicationContextAware {
         })
     @ResponseBody
     public Map<String, String> getSchemaTranslations(
-        @ApiParam(value = "Schema identifier",
+        @Parameter(description = "Schema identifier",
             required = true,
             example = "iso19139")
         @PathVariable String schema,
-        @ApiParam(
-            value = "Codelist element name or alias"
+        @Parameter(
+            description = "Codelist element name or alias"
         )
         @PathVariable String codelist,
         @RequestParam(required = false) String parent,
@@ -233,8 +286,7 @@ public class StandardsApi implements ApplicationContextAware {
         return response;
     }
 
-    @ApiOperation(value = "Get codelist details",
-        nickname = "getSchemaCodelistsWithDetails")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Get codelist details")
     @RequestMapping(value = "/{schema}/codelists/{codelist}/details",
         method = RequestMethod.GET,
         produces = {
@@ -243,28 +295,28 @@ public class StandardsApi implements ApplicationContextAware {
         })
     @ResponseBody
     public Codelists.Codelist getSchemaCodelistsWithDetails(
-        @ApiParam(value = "Schema identifier",
+        @Parameter(description = "Schema identifier",
             required = true,
             example = "iso19139")
         @PathVariable String schema,
-        @ApiParam(
-            value = "Codelist element name or alias"
+        @Parameter(
+            description = "Codelist element name or alias"
         )
         @PathVariable String codelist,
-        @ApiParam(
-            value = "Parent name with namespace which may indicate a more precise label as defined in context attribute."
+        @Parameter(
+            description = "Parent name with namespace which may indicate a more precise label as defined in context attribute."
         )
         @RequestParam(required = false) String parent,
-        @ApiParam(
-            value = "Display if condition as defined in the codelist.xml file. Allows to select a more precise codelist when more than one is defined for same name."
+        @Parameter(
+            description = "Display if condition as defined in the codelist.xml file. Allows to select a more precise codelist when more than one is defined for same name."
         )
         @RequestParam(required = false) String displayIf,
-        @ApiParam(
-            value = "XPath of the element to target which may indicate a more precise label as defined in context attribute."
+        @Parameter(
+            description = "XPath of the element to target which may indicate a more precise label as defined in context attribute."
         )
         @RequestParam(required = false) String xpath,
-        @ApiParam(
-            value = "ISO type of the element to target which may indicate a more precise label as defined in context attribute. (Same as context. TODO: Deprecate ?)"
+        @Parameter(
+            description = "ISO type of the element to target which may indicate a more precise label as defined in context attribute. (Same as context. TODO: Deprecate ?)"
         )
         @RequestParam(required = false) String isoType,
         HttpServletRequest request
@@ -279,8 +331,7 @@ public class StandardsApi implements ApplicationContextAware {
         return (Codelists.Codelist) Xml.unmarshall(e, Codelists.Codelist.class);
     }
 
-    @ApiOperation(value = "Get descriptor details",
-        nickname = "getElementDetails")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Get descriptor details")
     @RequestMapping(value = "/{schema}/descriptors/{element}/details",
         method = RequestMethod.GET,
         produces = {
@@ -289,12 +340,12 @@ public class StandardsApi implements ApplicationContextAware {
         })
     @ResponseBody
     public org.fao.geonet.kernel.schema.labels.Element getElementDetails(
-        @ApiParam(value = "Schema identifier",
+        @Parameter(description = "Schema identifier",
             required = true,
             example = "iso19139")
         @PathVariable String schema,
-        @ApiParam(
-            value = "Descriptor name",
+        @Parameter(
+            description = "Descriptor name",
             required = true
         )
         @PathVariable String element,
@@ -315,8 +366,7 @@ public class StandardsApi implements ApplicationContextAware {
     }
 
 
-    @ApiOperation(value = "Get editor associated resources panel configuration",
-        nickname = "getEditorAssociatedPanelConfiguration")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Get editor associated resources panel configuration")
     @RequestMapping(value = "/{schema}/editor/associatedpanel/config/{name:[a-zA-Z]+}.json",
         method = RequestMethod.GET,
         produces = {
@@ -324,13 +374,12 @@ public class StandardsApi implements ApplicationContextAware {
         })
     @ResponseBody
     public String getEditorAssociatedPanelConfiguration(
-        @ApiParam(value = "Schema identifier",
+        @Parameter(description = "Schema identifier",
             required = true,
             example = "iso19139")
         @PathVariable String schema,
-        @ApiParam(value = "Configuration identifier",
+        @Parameter(description = "Configuration identifier",
             required = true,
-            defaultValue = "default",
             example = "default")
         @PathVariable String name
     ) throws Exception {
@@ -369,8 +418,9 @@ public class StandardsApi implements ApplicationContextAware {
         }
 
         throw new ResourceNotFoundException(String.format(
-        "Associated panel '%s' configuration not found for schema and its dependency '%s'.",
+            "Associated panel '%s' configuration not found for schema and its dependency '%s'.",
             name, schemasProcessed.toString()));
 
     }
+
 }

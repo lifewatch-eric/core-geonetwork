@@ -22,11 +22,39 @@
 //===	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //===
 //===	Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
-//===	Rome - Italy. email: GeoNetwork@fao.org
+//===	Rome - Italy. email: geonetwork@osgeo.org
 //==============================================================================
 
 package jeeves.server;
 
+import jeeves.component.ProfileManager;
+import jeeves.constants.ConfigFile;
+import jeeves.constants.Jeeves;
+import jeeves.interfaces.ApplicationHandler;
+import jeeves.monitor.MonitorManager;
+import jeeves.server.context.ServiceContext;
+import jeeves.server.dispatchers.ServiceManager;
+import jeeves.server.sources.ServiceRequest;
+import jeeves.server.sources.http.JeevesServlet;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.fao.geonet.ApplicationContextHolder;
+import org.fao.geonet.Constants;
+import org.fao.geonet.Logger;
+import org.fao.geonet.Util;
+import org.fao.geonet.exceptions.BadInputEx;
+import org.fao.geonet.kernel.GeonetworkDataDirectory;
+import org.fao.geonet.utils.Log;
+import org.fao.geonet.utils.TransformerFactoryFactory;
+import org.fao.geonet.utils.Xml;
+import org.jdom.Element;
+import org.springframework.context.ConfigurableApplicationContext;
+
+import javax.annotation.PreDestroy;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.xml.transform.TransformerConfigurationException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,48 +64,11 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PreDestroy;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.xml.transform.TransformerConfigurationException;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.PropertyConfigurator;
-import org.fao.geonet.ApplicationContextHolder;
-import org.fao.geonet.Constants;
-import org.fao.geonet.Logger;
-import org.fao.geonet.Util;
-import org.fao.geonet.domain.Service;
-import org.fao.geonet.domain.ServiceParam;
-import org.fao.geonet.exceptions.BadInputEx;
-import org.fao.geonet.kernel.GeonetworkDataDirectory;
-import org.fao.geonet.repository.ServiceRepository;
-import org.fao.geonet.utils.Log;
-import org.fao.geonet.utils.TransformerFactoryFactory;
-import org.fao.geonet.utils.Xml;
-import org.jdom.Element;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
-
-import jeeves.component.ProfileManager;
-import jeeves.constants.ConfigFile;
-import jeeves.constants.Jeeves;
-import jeeves.interfaces.ApplicationHandler;
-import jeeves.monitor.MonitorManager;
-import jeeves.server.context.ServiceContext;
-import jeeves.server.dispatchers.ServiceManager;
-import jeeves.server.overrides.ConfigurationOverrides;
-import jeeves.server.sources.ServiceRequest;
-import jeeves.server.sources.http.JeevesServlet;
-
-//=============================================================================
 
 /**
  * This is the main class. It handles http connections and inits the system
@@ -102,12 +93,6 @@ public class JeevesEngine {
     private Path _appPath;
     private int _maxUploadSize;
 
-
-    //---------------------------------------------------------------------------
-    //---
-    //--- Init
-    //---
-    //---------------------------------------------------------------------------
 
     public static void handleStartupError(Throwable e) {
         Log.fatal(Log.ENGINE, "Raised exception during init");
@@ -138,13 +123,10 @@ public class JeevesEngine {
         }
 
         try {
-            Path log4jConfig = configPath.resolve("log4j.cfg");
+            Path log4jConfig = configPath.resolve("log4j2.xml");
             if (Files.exists(log4jConfig)) {
-                PropertyConfigurator.configure(log4jConfig.toUri().toURL());
+                LogManager.getContext(null, false, log4jConfig.toUri());
             }
-
-            ConfigurationOverrides.DEFAULT.updateLoggingAsAccordingToOverrides(servletContext, appPath);
-
 
             _monitorManager.init(servletContext, baseUrl);
             JeevesEngine.this._appPath = appPath;
@@ -181,7 +163,6 @@ public class JeevesEngine {
 
 
             loadConfigFile(servletContext, configPath, Jeeves.CONFIG_FILE, _serviceMan);
-            loadConfigDB(appContext, -1);
 
             //--- handlers must be started here because they may need the context
             //--- with the ProfileManager already loaded
@@ -273,8 +254,6 @@ public class JeevesEngine {
         info("Loading : " + file);
 
         Element configRoot = Xml.loadFile(file);
-
-        ConfigurationOverrides.DEFAULT.updateWithOverrides(file.toString(), servletContext, _appPath, configRoot);
 
         Element elGeneral = configRoot.getChild(ConfigFile.Child.GENERAL);
         Element elDefault = configRoot.getChild(ConfigFile.Child.DEFAULT);
@@ -452,7 +431,7 @@ public class JeevesEngine {
 
                 info("--- Handler started ---------------------------------------");
             } catch (Exception e) {
-                Map<String, String> errors = new HashMap<String, String>();
+                Map<String, String> errors = new HashMap<>();
                 String eS = "Raised exception while starting the application. " +
                     "Fix the error and restart.";
                 error(eS);
@@ -621,69 +600,5 @@ public class JeevesEngine {
 
     public ProfileManager getProfileManager() {
         return getServiceManager().getProfileManager();
-    }
-
-    /**
-     * Create or reload Jeeves services from a configuration stored in the Services table of the
-     * DBMS resource.
-     *
-     * @param serviceIdentifierToLoad -1 for all or the service identifier
-     */
-    public void loadConfigDB(ApplicationContext context, int serviceIdentifierToLoad) {
-        try {
-            Element eltServices = new Element("services");
-            eltServices.setAttribute("package", "org.fao.geonet");
-
-            java.util.List<Service> serviceList = null;
-            ServiceRepository serviceRepo = context.getBean(ServiceRepository.class);
-            if (serviceIdentifierToLoad == -1) {
-                serviceList = serviceRepo.findAll();
-            } else {
-                serviceList = Collections.singletonList(serviceRepo.findOne(serviceIdentifierToLoad));
-            }
-
-            for (Service service : serviceList) {
-                if (service != null) {
-                    Element srv = new Element("service");
-                    Element cls = new Element("class");
-
-                    List<ServiceParam> paramList = service.getParameters();
-                    StringBuilder filter = new StringBuilder();
-                    if (!service.getExplicitQuery().isEmpty()) {
-                        filter.append(service.getExplicitQuery());
-                    }
-                    for (ServiceParam serviceParam : paramList) {
-                        if (serviceParam.getValue() != null && !serviceParam.getValue().trim().isEmpty()) {
-                            filter.append(" ");
-                            if (serviceParam.getOccur() == null) {
-                                filter.append("+");
-                            } else {
-                                filter.append(serviceParam.getOccur());
-                            }
-                            filter.append(serviceParam.getName()).append(":").append(serviceParam.getValue());
-                        }
-                    }
-                    cls.addContent(new Element("param").
-                        setAttribute("name", "filter").
-                        setAttribute("value", filter.toString().trim()));
-
-                    srv.setAttribute("name", service.getName())
-                        .addContent(
-                            cls.setAttribute("name",
-                                service.getClassName()));
-                    eltServices.addContent(srv);
-                }
-            }
-
-            _dbServices.add(eltServices);
-
-            for (int i = 0; i < _dbServices.size(); i++) {
-                initServices(_dbServices.get(i));
-            }
-        } catch (Exception e) {
-            warning("Jeeves DBMS service configuration lookup failed (database may not be available yet). Message is: "
-                + e.getMessage());
-        }
-
     }
 }

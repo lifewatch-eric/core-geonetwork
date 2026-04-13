@@ -24,54 +24,37 @@
 package org.fao.geonet;
 
 import com.google.common.collect.Lists;
-
-import org.locationtech.jts.geom.MultiPolygon;
-
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
-
 import org.fao.geonet.domain.Source;
 import org.fao.geonet.domain.SourceType;
 import org.fao.geonet.kernel.DataManager;
 import org.fao.geonet.kernel.GeonetworkDataDirectory;
 import org.fao.geonet.kernel.SchemaManager;
 import org.fao.geonet.kernel.ThesaurusManager;
-import org.fao.geonet.kernel.search.LuceneConfig;
-import org.fao.geonet.kernel.search.SearchManager;
-import org.fao.geonet.kernel.search.index.DirectoryFactory;
-import org.fao.geonet.kernel.search.spatial.SpatialIndexWriter;
+import org.fao.geonet.kernel.search.EsSearchManager;
 import org.fao.geonet.kernel.setting.SettingManager;
-import org.fao.geonet.languages.LanguageDetector;
+import org.fao.geonet.languages.IsoLanguagesMapper;
 import org.fao.geonet.repository.SourceRepository;
 import org.fao.geonet.util.ThreadUtils;
 import org.fao.geonet.utils.IO;
 import org.fao.geonet.utils.TransformerFactoryFactory;
 import org.fao.geonet.utils.Xml;
-import org.geotools.data.DataStore;
-import org.geotools.feature.AttributeTypeBuilder;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.jdom.Element;
-import org.opengis.feature.type.AttributeDescriptor;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import javax.sql.DataSource;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-import javax.sql.DataSource;
-
-import static org.fao.geonet.constants.Geonet.Config.LANGUAGE_PROFILES_DIR;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -84,12 +67,23 @@ public class GeonetTestFixture {
     private volatile static FileSystemPool.CreatedFs templateFs;
     private volatile static SchemaManager templateSchemaManager;
     @Autowired
-    protected DirectoryFactory _directoryFactory;
-    @Autowired
-    protected DataStore dataStore;
+    private EsSearchManager esSearchManager;
     @Autowired
     private ConfigurableApplicationContext _applicationContext;
+    @Autowired
+    private IsoLanguagesMapper isoLanguagesMapper;
+    @Autowired
+    private GeonetworkDataDirectory geonetworkDataDirectory;
+    @Autowired
+    private ThesaurusManager thesaurusManager;
+    @Autowired
+    private DataManager dataManager;
+    @Autowired
+    private DataSource dataSource;
+    @Autowired
+    private SettingManager settingManager;
     private FileSystemPool.CreatedFs currentFs;
+
 
     public void tearDown() {
         IO.setFileSystemThreadLocal(null);
@@ -103,88 +97,69 @@ public class GeonetTestFixture {
         TransformerFactoryFactory.init("de.fzi.dbs.xml.transform.CachingTransformerFactory");
 //        TransformerFactoryFactory.init("net.sf.saxon.TransformerFactoryImpl");
 
-        if (templateFs == null) {
-            synchronized (GeonetTestFixture.class) {
-                if (templateFs == null) {
-                    templateFs = FILE_SYSTEM_POOL.getTemplate();
+        synchronized (GeonetTestFixture.class) {
+            if (templateFs == null) {
+                templateFs = FILE_SYSTEM_POOL.getTemplate();
 
-                    Path templateDataDirectory = templateFs.dataDir;
-                    IO.copyDirectoryOrFile(webappDir.resolve("WEB-INF/data"), templateDataDirectory, true, new DirectoryStream
-                        .Filter<Path>() {
-                        @Override
-                        public boolean accept(Path entry) throws IOException {
-                            return !entry.toString().contains("schema_plugins") &&
-                                !entry.getFileName().toString().startsWith(".") &&
-                                !entry.getFileName().toString().endsWith(".iml") &&
-                                !entry.toString().contains("metadata_data") &&
-                                !entry.toString().contains("removed") &&
-                                !entry.toString().contains("metadata_subversion") &&
-                                !entry.toString().contains("upload") &&
-                                !entry.toString().contains("index") &&
-                                !entry.toString().contains("resources");
-                        }
-                    });
-                    Path schemaPluginsDir = templateDataDirectory.resolve("config/schema_plugins");
-                    deploySchema(webappDir, schemaPluginsDir);
-                    LanguageDetector.init(AbstractCoreIntegrationTest.getWebappDir(test.getClass()).resolve(_applicationContext.getBean
-                        (LANGUAGE_PROFILES_DIR, String.class)));
+                Path templateDataDirectory = templateFs.dataDir;
+                IO.copyDirectoryOrFile(webappDir.resolve("WEB-INF/data"), templateDataDirectory, true, new DirectoryStream
+                    .Filter<Path>() {
+                    @Override
+                    public boolean accept(Path entry) throws IOException {
+                        return !entry.toString().contains("schema_plugins") &&
+                            !entry.getFileName().toString().startsWith(".") &&
+                            !entry.getFileName().toString().endsWith(".iml") &&
+                            !entry.toString().contains("metadata_data") &&
+                            !entry.toString().contains("removed") &&
+                            !entry.toString().contains("metadata_subversion") &&
+                            !entry.toString().contains("upload") &&
+                            !entry.toString().contains("resources");
+                    }
+                });
 
-                    final GeonetworkDataDirectory geonetworkDataDirectory = _applicationContext.getBean(GeonetworkDataDirectory.class);
-                    final ServiceConfig serviceConfig = new ServiceConfig(Lists.<Element>newArrayList());
-                    geonetworkDataDirectory.init("geonetwork", webappDir, templateDataDirectory, serviceConfig, null);
-                    test.addTestSpecificData(geonetworkDataDirectory);
+                Path schemaPluginsDir = templateDataDirectory.resolve("config/schema_plugins");
+                deploySchema(webappDir, schemaPluginsDir);
 
-                    templateSchemaManager = initSchemaManager(webappDir, geonetworkDataDirectory);
+                final ServiceConfig serviceConfig = new ServiceConfig(Lists.newArrayList());
+                geonetworkDataDirectory.init("geonetwork", webappDir, templateDataDirectory, serviceConfig, null);
+                test.addTestSpecificData(geonetworkDataDirectory);
 
-                    _applicationContext.getBean(LuceneConfig.class).configure("WEB-INF/config-lucene.xml");
-                    _applicationContext.getBean(SearchManager.class).init(100);
-                    Files.createDirectories(templateDataDirectory.resolve("data/resources/htmlcache"));
-                }
+                // Create ES index
+                esSearchManager.init(true, Optional.empty());
+
+                templateSchemaManager = initSchemaManager(webappDir, geonetworkDataDirectory);
+
+                Files.createDirectories(templateDataDirectory.resolve("data/resources/htmlcache"));
             }
+            isoLanguagesMapper.reinit();
         }
 
-        final String fsName = test.getClass().getSimpleName().replaceAll("[^a-z0-9A-Z]", "") + UUID.randomUUID().toString();
+        final String fsName = test.getClass().getSimpleName().replaceAll("[^a-z0-9A-Z]", "") + UUID.randomUUID();
         currentFs = FILE_SYSTEM_POOL.get(fsName);
 
         assertTrue(Files.isDirectory(currentFs.dataDir.resolve("config")));
         assertTrue(Files.isDirectory(currentFs.dataDir.resolve("data")));
 
-        System.setProperty(LuceneConfig.USE_NRT_MANAGER_REOPEN_THREAD, Boolean.toString(true));
         configureNodeId(test);
 
 
         final GeonetworkDataDirectory dataDir = configureDataDir(test, webappDir, currentFs.dataDir);
         configureNewSchemaManager(dataDir, webappDir);
 
-        // TODO: I don't know why but this corrupts other tests that will fail depending on the run order:
-        //  assertCorrectDataDir();
-        // for example, running GeonetworkDataDirectoryMultiNodeServiceConfigOnlySystemDataDirSetTest, then
-        // GeonetworkDataDirectoryMultiNodeSystemPropertyOnlySystemDataDirSetTest with that line enabled, the second fails.
-
-        if (test.resetLuceneIndex()) {
-            _directoryFactory.resetIndex();
-        }
-
         ServiceContext serviceContext = test.createServiceContext();
 
         ApplicationContextHolder.set(_applicationContext);
         serviceContext.setAsThreadLocal();
 
-        _applicationContext.getBean(LuceneConfig.class).configure("WEB-INF/config-lucene.xml");
-        _applicationContext.getBean(SearchManager.class).initNonStaticData(100);
-        _applicationContext.getBean(DataManager.class).init(serviceContext, false);
-        _applicationContext.getBean(ThesaurusManager.class).init(true, serviceContext, "WEB-INF/data/config/codelist");
-
+        dataManager.init(serviceContext, false);
+        thesaurusManager.init(true, serviceContext, "WEB-INF/data/config/codelist");
 
         addSourceUUID(dataDir);
 
-        final DataSource dataSource = _applicationContext.getBean(DataSource.class);
         try (Connection conn = dataSource.getConnection()) {
-            ThreadUtils.init(conn.getMetaData().getURL(), _applicationContext.getBean(SettingManager.class));
+            ThreadUtils.init(conn.getMetaData().getURL(), settingManager);
         }
-
     }
-
 
     protected void configureNewSchemaManager(GeonetworkDataDirectory dataDir, Path webappDir) throws Exception {
         final SchemaManager schemaManager = _applicationContext.getBean(SchemaManager.class);
@@ -194,7 +169,7 @@ public class GeonetTestFixture {
 
     protected void addSourceUUID(GeonetworkDataDirectory dataDirectory) {
         String siteUuid = dataDirectory.getSystemDataDir().getFileName().toString();
-        _applicationContext.getBean(SettingManager.class).setSiteUuid(siteUuid);
+        settingManager.setSiteUuid(siteUuid);
         final SourceRepository sourceRepository = _applicationContext.getBean(SourceRepository.class);
         List<Source> sources = sourceRepository.findAll();
         if (sources.isEmpty()) {
@@ -252,13 +227,13 @@ public class GeonetTestFixture {
         } catch (NoSuchBeanDefinitionException e) {
             _applicationContext.getBeanFactory().registerSingleton("serviceConfig", serviceConfig);
             _applicationContext.getBeanFactory().registerSingleton(initializedString, initializedString);
-            SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-            AttributeDescriptor geomDescriptor = new AttributeTypeBuilder().crs(DefaultGeographicCRS.WGS84).binding(MultiPolygon.class)
-                .buildDescriptor("the_geom");
-            builder.setName("spatialIndex");
-            builder.add(geomDescriptor);
-            builder.add(SpatialIndexWriter._IDS_ATTRIBUTE_NAME, String.class);
-            this.dataStore.createSchema(builder.buildFeatureType());
+//            SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+//            AttributeDescriptor geomDescriptor = new AttributeTypeBuilder().crs(DefaultGeographicCRS.WGS84).binding(MultiPolygon.class)
+//                .buildDescriptor("the_geom");
+//            builder.setName("spatialIndex");
+//            builder.add(geomDescriptor);
+//            builder.add(SpatialIndexWriter._IDS_ATTRIBUTE_NAME, String.class);
+//            this.dataStore.createSchema(builder.buildFeatureType());
 
         }
         return serviceConfig;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * Copyright (C) 2001-2020 Food and Agriculture Organization of the
  * United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * and United Nations Environment Programme (UNEP)
  *
@@ -33,21 +33,10 @@ import org.jdom.JDOMException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -60,11 +49,14 @@ import java.util.List;
  */
 @Entity
 @Access(AccessType.PROPERTY)
-@Table(name = "HarvestHistory")
+@Table(name = HarvestHistory.TABLE_NAME)
 @EntityListeners(HarvestHistoryEntityListenerManager.class)
 @SequenceGenerator(name = HarvestHistory.ID_SEQ_NAME, initialValue = 100, allocationSize = 1)
 public class HarvestHistory extends GeonetEntity {
+    public static final String TABLE_NAME = "HarvestHistory";
     static final String ID_SEQ_NAME = "harvest_history_id_seq";
+    public static final String HARVEST_DATE_COLUMN_NAME = "harvestdate";
+    public static final String ID_COLUMN_NAME = "id";
     private int _id;
     private ISODate _harvestDate;
     private int _elapsedTime;
@@ -84,6 +76,7 @@ public class HarvestHistory extends GeonetEntity {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_SEQ_NAME)
+    @Column(name = ID_COLUMN_NAME)
     public int getId() {
         return _id;
     }
@@ -107,7 +100,7 @@ public class HarvestHistory extends GeonetEntity {
      * @return the harvest date
      */
 
-    @AttributeOverride(name = "dateAndTime", column = @Column(name = "harvestdate", length = 30))
+    @AttributeOverride(name = "dateAndTimeUtc", column = @Column(name = HARVEST_DATE_COLUMN_NAME, length = 30))
     public ISODate getHarvestDate() {
         return _harvestDate;
     }
@@ -250,7 +243,7 @@ public class HarvestHistory extends GeonetEntity {
      * @return the harvester info.
      */
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
+    @Type(type = "org.hibernate.type.TextType")
     // this is a work around for postgres so postgres can correctly load clobs
     public String getInfo() {
         return _info;
@@ -307,29 +300,30 @@ public class HarvestHistory extends GeonetEntity {
     private Element checkInfoXml(Element infoAsXml) {
         List<Element> logfileElements = infoAsXml.getChildren("logfile");
         // check logfiles present to ensure path exists
-        if (logfileElements.size() > 0) {
-            if (logfileElements.size() != 1) {
-                Log.warning(Constants.DOMAIN_LOG_MODULE, "Harvest history unexpectedly lists multiple logfiles: " + logfileElements.size());
-            }
-            boolean isLogFileFound = false;
-            for (Iterator iter = logfileElements.iterator(); iter.hasNext();) {
-                Element logfile = (Element) iter.next();
-                String path = logfile.getText();
-                File file = new File(path);
-                if (file.exists() && file.canRead()) {
-                    if (isLogFileFound) {
-                        // we already have one logfile
-                        Log.warning(Constants.DOMAIN_LOG_MODULE, "Ignoring add unexpected logfile: `" + path + "`");
-                        iter.remove();
-                    } else {
-                        isLogFileFound = true;
-                    }
-                } else {
-                    Log.warning(Constants.DOMAIN_LOG_MODULE, "Harvest history logfile `" + path + "` ignored, no longer available");
-                    iter.remove();
-                }
-            }
-        }
+        // TODO: Would require to check in the app log folder
+       if (logfileElements.size() > 0) {
+           if (logfileElements.size() != 1) {
+               Log.debug(Constants.DOMAIN_LOG_MODULE, "Harvest history unexpectedly lists multiple logfiles: " + logfileElements.size());
+           }
+           boolean isLogFileFound = false;
+           for (Iterator iter = logfileElements.iterator(); iter.hasNext();) {
+               Element logfile = (Element) iter.next();
+               String path = Paths.get(Log.getLogfile().getParent()).resolve(logfile.getText()).toString();
+               File file = new File(path);
+               if (file.exists() && file.canRead()) {
+                   if (isLogFileFound) {
+                       // we already have one logfile
+                       Log.debug(Constants.DOMAIN_LOG_MODULE, "Ignoring add unexpected logfile: `" + path + "`");
+                       iter.remove();
+                   } else {
+                       isLogFileFound = true;
+                   }
+               } else {
+                   Log.debug(Constants.DOMAIN_LOG_MODULE, "Harvest history logfile `" + path + "` ignored, no longer available");
+                   iter.remove();
+               }
+           }
+       }
         return infoAsXml;
     }
 
@@ -352,7 +346,7 @@ public class HarvestHistory extends GeonetEntity {
      * @return the parameters used for performing the harvesting.
      */
     @Lob
-    @Type(type = "org.hibernate.type.StringClobType")
+    @Type(type = "org.hibernate.type.TextType")
     // this is a work around for postgres so postgres can correctly load clobs
     public String getParams() {
         return _params;

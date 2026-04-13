@@ -48,7 +48,7 @@
   <xsl:variable name="i18n" select="/root/gui/i18n"/>
   <!-- Used by SearchApi loading translation from JSON locale files. -->
   <xsl:variable name="t" select="/root/translations"/>
-  <xsl:variable name="lang" select="/root/gui/language"/>
+  <xsl:variable name="lang" select="if (/root/gui/language) then /root/gui/language else 'eng'"/>
   <xsl:variable name="lang2chars" select="/root/gui/lang2chars"/>
   <xsl:variable name="requestParameters" select="/root/request"/>
 
@@ -61,15 +61,21 @@
   <xsl:variable name="withD3" select="$service = 'admin.console'"/>
 
   <xsl:variable name="searchView"
-                select="if (/root/request/view) then /root/request/view else if(util:getSettingValue('system/ui/defaultView')) then util:getSettingValue('system/ui/defaultView') else 'default'"></xsl:variable>
+                select="if (/root/request/view) then util:encodeForJavaScript(/root/request/view) else if(util:getSettingValue('system/ui/defaultView')) then util:getSettingValue('system/ui/defaultView') else 'default'"></xsl:variable>
   <xsl:variable name="angularModule"
                 select="if ($angularApp = 'gn_search') then concat('gn_search_', $searchView) else $angularApp"></xsl:variable>
 
-  <xsl:variable name="shibbolethOn"
-                select="util:existsBean('shibbolethConfiguration')"/>
-                
-  <xsl:variable name="shibbolethHideLogin"
-                select="util:shibbolethHideLogin()"/>
+  <xsl:variable name="isDisableLoginForm"
+                select="util:isDisableLoginForm()"/>
+
+  <xsl:variable name="isShowLoginAsLink"
+                select="util:isShowLoginAsLink()"/>
+
+  <xsl:variable name="isUserProfileUpdateEnabled"
+                select="util:isUserProfileUpdateEnabled()"/>
+
+  <xsl:variable name="isUserGroupUpdateEnabled"
+                select="util:isUserGroupUpdateEnabled()"/>
 
   <!-- Define which JS module to load using Closure -->
   <xsl:variable name="angularApp" select="
@@ -87,18 +93,25 @@
       or $service = 'search'
       or $service = 'md.format.html') then 'gn_search'
     else if ($service = 'display') then 'gn_formatter_viewer'
+    else if ($service = 'portal') then 'gn_portal'
     else 'gn'"/>
 
   <xsl:variable name="customFilename" select="concat($angularApp, '_', $searchView)"></xsl:variable>
 
   <!-- Catalog settings -->
-  <xsl:variable name="env" select="/root/gui/systemConfig"/>
+  <xsl:variable name="env">
+    <system>
+      <xsl:copy-of select="if (/root/gui/systemConfig)
+                            then /root/gui/systemConfig
+                            else /root/gui/env/*"/>
+    </system>
+  </xsl:variable>
 
   <!-- Only system settings (use for backward compatibility replacing
   /root/gui/env by $envSystem is equivalent). New reference to setting
   should use $env.
   -->
-  <xsl:variable name="envSystem" select="/root/gui/systemConfig/system"/>
+  <xsl:variable name="envSystem" select="/root/gui/env/system"/>
 
   <!-- URL for services - may not be defined FIXME or use fullURL instead -->
   <xsl:variable name="siteURL" select="/root/gui/siteURL"/>
@@ -134,6 +147,12 @@
                         then true()
                         else false()"/>
 
+  <xsl:variable name="isVegaEnabled"
+                select="if ($service = 'catalog.search' and
+                            (util:getUiConfigurationJsonProperty(/root/request/ui, 'mods.search.isVegaEnabled') = 'true' or /root/request/isVegaEnabled))
+                        then true()
+                        else false()"/>
+
   <xsl:variable name="isSocialbarEnabled"
                 select="if (util:getUiConfigurationJsonProperty(/root/request/ui, 'mods.recordview.isSocialbarEnabled') = 'true')
                         then true()
@@ -147,4 +166,9 @@
                 select="'^WWW:DOWNLOAD.*|^FILE:GEO|FILE:RASTER|^DB:POSTGIS'"/>
   <xsl:variable name="layerMatchingPattern"
                 select="'^OGC:WMS.*'"/>
+
+
+  <xsl:variable name="userFeedbackEnabled" select="$envSystem/userFeedback/enable = 'true'" />
+
+  <xsl:variable name="metadataUserFeedbackEnabled" select="$envSystem/localrating/enable = 'advanced'" />
 </xsl:stylesheet>

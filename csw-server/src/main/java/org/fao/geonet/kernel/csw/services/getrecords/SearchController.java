@@ -1,5 +1,5 @@
 //=============================================================================
-//===	Copyright (C) 2001-2007 Food and Agriculture Organization of the
+//===	Copyright (C) 2001-2024 Food and Agriculture Organization of the
 //===	United Nations (FAO-UN), United Nations World Food Programme (WFP)
 //===	and United Nations Environment Programme (UNEP)
 //===
@@ -23,10 +23,15 @@
 
 package org.fao.geonet.kernel.csw.services.getrecords;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jeeves.server.context.ServiceContext;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
 import org.fao.geonet.ApplicationContextHolder;
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.NodeInfo;
@@ -39,71 +44,106 @@ import org.fao.geonet.csw.common.ResultType;
 import org.fao.geonet.csw.common.exceptions.CatalogException;
 import org.fao.geonet.csw.common.exceptions.InvalidParameterValueEx;
 import org.fao.geonet.csw.common.exceptions.NoApplicableCodeEx;
-import org.fao.geonet.domain.Pair;
+import org.fao.geonet.domain.AbstractMetadata;
 import org.fao.geonet.kernel.DataManager;
 import org.fao.geonet.kernel.SchemaManager;
+import org.fao.geonet.kernel.csw.services.getrecords.es.CswFilter2Es;
+import org.fao.geonet.kernel.datamanager.IMetadataUtils;
 import org.fao.geonet.kernel.schema.MetadataSchema;
-import org.fao.geonet.kernel.search.LuceneSearcher;
-import org.fao.geonet.kernel.search.SearchManager;
-import org.fao.geonet.kernel.setting.SettingInfo;
+import org.fao.geonet.kernel.search.EsFilterBuilder;
+import org.fao.geonet.kernel.search.EsSearchManager;
 import org.fao.geonet.utils.Log;
 import org.fao.geonet.utils.Xml;
-import org.geotools.gml2.GMLConfiguration;
-import org.jdom.*;
-import org.springframework.context.ApplicationContext;
+import org.jdom.Attribute;
+import org.jdom.Content;
+import org.jdom.Element;
+import org.jdom.Namespace;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-/**
- * TODO javadoc.
- */
+
 public class SearchController {
 
     public final static String DEFAULT_ELEMENTNAMES_STRATEGY = "relaxed";
-    private final Set<String> _selector;
-    private final Set<String> _uuidselector;
-    private GMLConfiguration _gmlConfig;
-    private ApplicationContext _applicationContext;
 
-    //---------------------------------------------------------------------------
-    //---
-    //--- Single public method to perform the general search tasks
-    //---
-    //---------------------------------------------------------------------------
+    @Autowired
+    NodeInfo node;
 
-    public SearchController(ApplicationContext applicationContext) {
-        _selector = Collections.singleton("_id");
-        _uuidselector = Collections.singleton("_uuid");
-        _gmlConfig = new GMLConfiguration();
-        this._applicationContext = applicationContext;
-    }
+    @Autowired
+    IMetadataUtils metadataUtils;
+
+    @Autowired
+    private EsSearchManager searchManager;
+
+    @Autowired
+    private FieldMapper fieldMapper;
+
+    @Autowired
+    private EsFilterBuilder esFilterBuilder;
+
+
+    @Autowired
+    private SchemaManager schemaManager;
 
     /**
      * Retrieves metadata from the database. Conversion between metadata record and output schema
      * are defined in xml/csw/schemas/ directory.
      *
-     * @param context    service context
-     * @param id         id of metadata
-     * @param setName    requested ElementSetName
-     * @param outSchema  requested OutputSchema
-     * @param elemNames  requested ElementNames
-     * @param typeName   requested typeName
-     * @param resultType requested ResultType
-     * @param strategy   ElementNames strategy
-     * @throws CatalogException hmm
+     * @param context                        service context
+     * @param id                             id of metadata
+     * @param setName                        requested ElementSetName
+     * @param outSchema                      requested OutputSchema
+     * @param elemNames                      requested ElementNames
+     * @param typeName                       requested typeName
+     * @param resultType                     requested ResultType
+     * @param strategy                       ElementNames strategy
+     * @param checkMetadataAvailableInPortal Checks if the metadata can be retrieved in the portal.
+     *                                       Used in GetRecordById. GetRecords does a query with this check already.
      * @return The XML metadata record if the record could be converted to the required output
      * schema. Null if no conversion available for the schema (eg. fgdc record can not be converted
      * to ISO).
+     * @throws CatalogException hmm
      */
-    public static Element retrieveMetadata(ServiceContext context, String id, ElementSetName setName, String
-        outSchema, Set<String> elemNames, String typeName, ResultType resultType, String strategy, String displayLanguage) throws CatalogException {
+    public Element retrieveMetadata(ServiceContext context, String id, ElementSetName setName, String
+        outSchema, Set<String> elemNames, String typeName, ResultType resultType, String strategy, String displayLanguage,
+                                    boolean checkMetadataAvailableInPortal) throws CatalogException {
+
+        if (checkMetadataAvailableInPortal) {
+            // Check if the metadata is available in the portal
+            String elasticSearchQuery = "{ \"bool\": {\n" +
+                "            \"must\": [\n" +
+                "        {" +
+                "          \"term\": {" +
+                "            \"id\": {" +
+                "              \"value\": \"%s\"" +
+                "            }" +
+                "          }" +
+                "        } " +
+                "            ]\n" +
+                "          ,\"filter\":{\"query_string\":{\"query\":\"%s\"}}}}";
+
+            JsonNode esJsonQuery;
+
+            try {
+                String filterQueryString = esFilterBuilder.build(context, "metadata", false, node);
+                String jsonQuery = String.format(elasticSearchQuery, id, filterQueryString);
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                esJsonQuery = objectMapper.readTree(jsonQuery);
+
+                TotalHits total = searchManager.query(esJsonQuery, new HashSet<>(), 0, 0).getHits().getTotalHits();
+
+                if (total.value == 0) {
+                    return null;
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+        }
 
         try {
             //--- get metadata from DB
@@ -142,12 +182,12 @@ public class SearchController {
 
             res = applyElementNames(context, elemNames, typeName, scm, schema, res, resultType, info, strategy);
 
-            if(Log.isDebugEnabled(Geonet.CSW_SEARCH))
+            if (Log.isDebugEnabled(Geonet.CSW_SEARCH))
                 Log.debug(Geonet.CSW_SEARCH, "SearchController:retrieveMetadata: before applying postprocessing on metadata Element for id " + id);
 
             res = applyPostProcessing(context, scm, schema, res, outSchema, setName, resultType, id, displayLanguage);
 
-            if(Log.isDebugEnabled(Geonet.CSW_SEARCH))
+            if (Log.isDebugEnabled(Geonet.CSW_SEARCH))
                 Log.debug(Geonet.CSW_SEARCH, "SearchController:retrieveMetadata: All processing is complete on metadata Element for id " + id);
 
             if (res != null) {
@@ -169,39 +209,39 @@ public class SearchController {
 
     /**
      * Applies requested ElementNames and typeNames.
-     *
+     * <p>
      * For ElementNames, several strategies are implemented. Clients can determine the behaviour by
      * sending attribute "elementname_strategy" with one of the following values:
-     *
+     * <p>
      * csw202 relaxed context geonetwork26
-     *
+     * <p>
      * The default is 'relaxed'. The strategies cause the following behaviour:
-     *
+     * <p>
      * csw202 -- compliant to the CSW2.0.2 specification. In particular this means that complete
      * metadata are returned that match the requested ElementNames, only if they are valid for their
      * XSD. This is because GeoNetwork only supports OutputFormat=application/xml, which mandates
      * that valid documents are returned. Because possibly not many of the catalog's metadata are
      * valid, this is not the default.
-     *
+     * <p>
      * relaxed -- like csw202, but dropped the requirement to only include valid metadata. So this
      * returns complete metadata that match the requested ElementNames. This is the default
      * strategy.
-     *
+     * <p>
      * context -- does not return complete metadata but only the elements matching the request, in
      * their context (i.e. all ancestor elements up to the root of the document are retained). This
      * strategy is similar to geonetwork26 but the context allows clients to determine which of the
      * elements returned corresponds to which of the elements requested (in case they have the same
      * name).
-     *
+     * <p>
      * geonetwork26 -- behaviour as in GeoNetwork 2.6. Just return the requested elements, stripped
      * of any context. This can make it impossible for the client to determine which of the elements
      * returned corresponds to which of the elements requested; for example if the client asks for
      * gmd:title, the response may contain various gmd:title elements taken from different locations
      * in the metadata document.
-     *
+     * <p>
      * ------------------------------------------------- Relevant sections of specification about
      * typeNames:
-     *
+     * <p>
      * OGC 07-006 10.8.4.8: The typeNames parameter is a list of one or more names of queryable
      * entities in the catalogue's information model that may be constrained in the predicate of the
      * query. In the case of XML realization of the OGC core metadata properties (Subclause 10.2.5),
@@ -212,16 +252,16 @@ public class SearchController {
      * addition, all or some of the these queryable entity names may be specified in the query to
      * define which metadata record elements the query should present in the response to the
      * GetRecords operation.
-     *
+     * <p>
      * OGC 07-045:
-     *
+     * <p>
      * 8.2.2.1.1 Request (GetRecords) TypeNames. Must support *one* of “csw:Record” or
      * “gmd:MD_Metadata” in a query. Default value is “csw:Record”.
-     *
+     * <p>
      * So, in OGC 07-045, exactly one of csw:Record or gmd:MD_Metadata is mandated for typeName.
-     *
+     * <p>
      * ---------------------------------- Relevant specs about ElementNames:
-     *
+     * <p>
      * OGC 07-006 10.8.4.9: The ElementName parameter is used to specify one or more metadata record
      * elements, from the output schema specified using the outputSchema parameter, that the query
      * shall present in the response to the a GetRecords operation. Since clause 10.2.5 realizes the
@@ -229,19 +269,19 @@ public class SearchController {
      * XPath expression perhaps using qualified names. In the general case, a complete XPath
      * expression may be required to correctly reference an element in the information model of the
      * catalog.
-     *
+     * <p>
      * However, in the case where the typeNames attribute on the Query element contains a single
      * value, the catalogue can infer the first step in the path expression and it can be omitted.
      * This is usually the case when querying the core metadata properties since the only queryable
      * target is csw:Record.
-     *
+     * <p>
      * If the metadata record element names are not from the schema specified using the outputSchema
      * parameter, then the service shall raise an exception as described in Subclause 10.3.7.
-     *
+     * <p>
      * OGC 07-045: Usage of the ELEMENTNAME is not further specified here.
-     *
+     * <p>
      * ---------------------------------- Relevant specs about outputFormat:
-     *
+     * <p>
      * OGC 07-006 10.8.4.4 outputFormat parameter: In the case where the output format is
      * application/xml, the CSW shall generate an XML document that validates against a schema
      * document that is specified in the output document via the xsi:schemaLocation attribute
@@ -281,7 +321,7 @@ public class SearchController {
             }
 
             boolean metadataContainsAllRequestedElementNames = true;
-            List<Element> nodes = new ArrayList<Element>();
+            List<Element> nodes = new ArrayList<>();
             for (String elementName : elementNames) {
                 if (Log.isDebugEnabled(Geonet.CSW_SEARCH))
                     Log.debug(Geonet.CSW_SEARCH, "SearchController dealing with elementName: " + elementName);
@@ -334,8 +374,8 @@ public class SearchController {
                             Log.debug(Geonet.CSW_SEARCH, "strategy is context, constructing context to root");
                         }
 
-                        List<Element> elementsInContextMatching = new ArrayList<Element>();
-                        for (Element match : elementsInContextMatching) {
+                        List<Element> elementsInContextMatching = new ArrayList<>();
+                        for (Element match : elementsMatching) {
                             Element parent = match.getParentElement();
                             while (parent != null) {
                                 parent.removeContent();
@@ -362,7 +402,7 @@ public class SearchController {
                 }
             }
 
-            if (metadataContainsAllRequestedElementNames == true) {
+            if (metadataContainsAllRequestedElementNames) {
                 if (Log.isDebugEnabled(Geonet.CSW_SEARCH))
                     Log.debug(Geonet.CSW_SEARCH, "metadata containa all requested elementnames: included in response");
 
@@ -390,10 +430,6 @@ public class SearchController {
                     }
                     matchingMetadata = result;
                 }
-
-                if (resultType == ResultType.RESULTS_WITH_SUMMARY) {
-                    matchingMetadata.addContent((Content) info.clone());
-                }
                 result = matchingMetadata;
             } else {
                 if (Log.isDebugEnabled(Geonet.CSW_SEARCH))
@@ -410,153 +446,170 @@ public class SearchController {
     /**
      * TODO improve description of method. Performs the general search tasks.
      *
-     * @param context                     Service context
-     * @param startPos                    start position (if paged)
-     * @param maxRecords                  max records to return
-     * @param resultType                  requested ResultType
-     * @param outSchema                   requested OutputSchema
-     * @param setName                     requested ElementSetName
-     * @param filterExpr                  requested FilterExpression
-     * @param filterVersion               requested Filter version
-     * @param sort                        requested sorting
-     * @param elemNames                   requested ElementNames
-     * @param typeName                    requested typeName
-     * @param maxHitsFromSummary          ?
-     * @param cswServiceSpecificContraint specific contraint for specialized CSW services
-     * @param strategy                    ElementNames strategy
+     * @param context            Service context
+     * @param startPos           start position (if paged)
+     * @param maxRecords         max records to return
+     * @param resultType         requested ResultType
+     * @param outSchema          requested OutputSchema
+     * @param setName            requested ElementSetName
+     * @param filterExpr         requested FilterExpression
+     * @param filterVersion      requested Filter version
+     * @param sort               requested sorting
+     * @param elemNames          requested ElementNames
+     * @param typeName           requested typeName
+     * @param maxHitsFromSummary ?
+     * @param strategy           ElementNames strategy
      * @return result
      * @throws CatalogException hmm
      */
-    public Pair<Element, Element> search(ServiceContext context, int startPos, int maxRecords,
+        public Element search(ServiceContext context, int startPos, int maxRecords,
                                          ResultType resultType, String outSchema, ElementSetName setName,
-                                         Element filterExpr, String filterVersion, Sort sort,
+                                         Element filterExpr, String filterVersion, List<SortBuilder<FieldSortBuilder>> sort,
                                          Set<String> elemNames, String typeName, int maxHitsFromSummary,
-                                         String cswServiceSpecificContraint, String strategy) throws CatalogException {
+                                         String strategy) throws CatalogException {
+
+        String elasticSearchQuery = convertCswFilterToEsQuery(filterExpr, filterVersion);
+
+        JsonNode esJsonQuery;
+
+        try {
+            String filterQueryString = esFilterBuilder.build(context, "metadata", false, node);
+            String jsonQuery = String.format(elasticSearchQuery, filterQueryString);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            esJsonQuery = objectMapper.readTree(jsonQuery);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         Element results = new Element("SearchResults", Csw.NAMESPACE_CSW);
 
-        CatalogSearcher searcher = new CatalogSearcher(_gmlConfig, _selector, _uuidselector, _applicationContext);
+        // TODO: Check to get summary or remove custom summary output
 
-        context.getUserSession().setProperty(Geonet.Session.SEARCH_RESULT, searcher);
+        try {
+            SearchResponse result = searchManager.query(esJsonQuery, new HashSet<>(), startPos - 1, maxRecords, sort);
 
-        // search for results, filtered and sorted
-        Pair<Element, List<ResultItem>> summaryAndSearchResults = searcher.search(context, filterExpr, filterVersion,
-            typeName, sort, resultType, startPos, maxRecords, maxHitsFromSummary, cswServiceSpecificContraint);
+            SearchHit[] hits = result.getHits().getHits();
 
-        Element summary = summaryAndSearchResults.one();
-        int numMatches = Integer.parseInt(summary.getAttributeValue("count"));
-        if (numMatches != 0 && startPos > numMatches) {
-            throw new InvalidParameterValueEx("startPosition", String.format(
-                "Start position (%d) can't be greater than number of matching records (%d for current search).",
-                startPos, numMatches
-            ));
+            long numMatches = result.getHits().getTotalHits().value;
+
+            if (numMatches != 0 && startPos > numMatches) {
+                throw new InvalidParameterValueEx("startPosition", String.format(
+                    "Start position (%d) can't be greater than number of matching records (%d for current search).",
+                    startPos, numMatches
+                ));
+            }
+
+            int counter = 0;
+
+            for(SearchHit hit : hits) {
+                int mdId =  Integer.parseInt((String) hit.getSourceAsMap().get("id"));
+
+                AbstractMetadata metadata = metadataUtils.findOne(mdId);
+
+                String displayLanguage = context.getLanguage();
+                // The query to retrieve GetRecords, filters by portal. No need to re-check again when retrieving each metadata.
+                Element resultMD = retrieveMetadata(context, metadata.getId() + "",
+                    setName, outSchema, elemNames, typeName, resultType, strategy, displayLanguage, false);
+
+                if (resultMD != null) {
+                    if (resultType == ResultType.RESULTS) {
+                        results.addContent(resultMD);
+                    }
+
+                    counter++;
+                }
+
+            }
+
+            results.setAttribute("numberOfRecordsMatched", Long.toString(numMatches));
+            results.setAttribute("numberOfRecordsReturned", Long.toString(counter));
+            results.setAttribute("elementSet", setName.toString());
+
+
+            if (numMatches > counter + (startPos -1)) {
+                results.setAttribute("nextRecord", Long.toString(counter + startPos));
+            } else {
+                results.setAttribute("nextRecord", "0");
+            }
+
+            return results;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
 
-
-        final SettingInfo settingInfo = context.getBean(SearchManager.class).getSettingInfo();
-        String displayLanguage = LuceneSearcher.determineLanguage(context, filterExpr, settingInfo).presentationLanguage;
-        // retrieve actual metadata for results
-        int counter = retrieveMetadataMatchingResults(context, results, summaryAndSearchResults, maxRecords, setName,
-            outSchema, elemNames, typeName, resultType, strategy, displayLanguage);
-
-        //
-        // properties of search result
-        //
-        results.setAttribute("numberOfRecordsMatched", numMatches + "");
-        results.setAttribute("numberOfRecordsReturned", counter + "");
-        results.setAttribute("elementSet", setName.toString());
-
-        int nextRecord = counter + startPos;
-        if (nextRecord > numMatches) {
-            //  "number of records returned to client nextRecord -
-            // position of next record in the result set
-            // (0 if no records remain)"
-            // Cf. http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd
-            results.setAttribute("nextRecord", "0");
-        } else {
-            results.setAttribute("nextRecord", nextRecord + "");
-        }
-
-        return Pair.read(summary, results);
+        //context.getUserSession().setProperty(Geonet.Session.SEARCH_RESULT, searcher);
     }
 
-    /**
-     * Retrieve actual metadata matching the results. Adds elements to results parameter as a side
-     * effect.
-     *
-     * @param context                 Service context
-     * @param results                 retrieved results
-     * @param summaryAndSearchResults results from search
-     * @param maxRecords              equested max records to return
-     * @param elementSetName          requested ElementSetName
-     * @param outputSchema            requested OutputSchema
-     * @param elementNames            requested ElementNames
-     * @param typeName                requested typeName
-     * @param resultType              requested ResultType
-     * @param strategy                ElementNames strategy
-     * @return number of results from search that could be retrieved
-     * @throws CatalogException hmm
-     */
-    private int retrieveMetadataMatchingResults(ServiceContext context,
-                                                Element results,
-                                                Pair<Element, List<ResultItem>> summaryAndSearchResults,
-                                                int maxRecords, ElementSetName elementSetName,
-                                                String outputSchema, Set<String> elementNames,
-                                                String typeName, ResultType resultType, String strategy, String displayLanguage)
-        throws CatalogException {
 
-        List<ResultItem> resultsList = summaryAndSearchResults.two();
-        int counter = 0;
-        for (int i = 0; (i < maxRecords) && (i < resultsList.size()); i++) {
-            ResultItem resultItem = resultsList.get(i);
-            String id = resultItem.getID();
-            Element md = null;
+    /**
+     * Applies stylesheet according to ElementSetName and schema.
+     *
+     * @param context        Service context
+     * @param schemaManager  schemamanager
+     * @param schema         schema
+     * @param result         result
+     * @param outputSchema   requested OutputSchema
+     * @param elementSetName requested ElementSetName
+     * @param resultType     requested ResultTYpe
+     * @param id             metadata id
+     * @return metadata
+     * @throws InvalidParameterValueEx hmm
+     */
+    public Element applyElementSetName(ServiceContext context, SchemaManager schemaManager, String schema,
+                                       Element result, String outputSchema, ElementSetName elementSetName,
+                                       ResultType resultType, String id, String displayLanguage) throws InvalidParameterValueEx {
+        Path schemaDir = schemaManager.getSchemaCSWPresentDir(schema);
+        Path styleSheet = schemaDir.resolve(outputSchema + "-" + elementSetName + ".xsl");
+
+        if (!Files.exists(styleSheet)) {
+            context.warning(
+                String.format(
+                    "OutputSchema '%s' not supported for metadata with '%s' (%s). Corresponding XSL transformation '%s' does not exist. The record will not be returned in response.",
+                    outputSchema, id, schema, styleSheet.toString()));
+            return null;
+        } else {
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("lang", displayLanguage);
 
             try {
-                md = retrieveMetadata(context, id, elementSetName, outputSchema, elementNames, typeName, resultType, strategy, displayLanguage);
-                // metadata cannot be retrieved
-                if (md == null) {
-                    results.addContent(new Comment(String.format("Metadata with id '%s' returned null.", id)));
-                    context.warning("SearchController : Metadata not found or invalid schema : " + id);
-                }
-                // metadata can be retrieved
-                else {
-                    // metadata must be included in response
-                    if ((resultType == ResultType.RESULTS || resultType == ResultType.RESULTS_WITH_SUMMARY)) {
-                        results.addContent(md);
-                    }
-                }
-            } catch (InvalidParameterValueEx e) {
-                results.addContent(new Comment(e.getMessage()));
+                result = Xml.transform(result, styleSheet, params);
+            } catch (Exception e) {
+                context.error("Error while transforming metadata with id : " + id + " using " + styleSheet);
+                context.error("  (C) StackTrace:\n" + Util.getStackTrace(e));
+                return null;
             }
-            counter++;
+            return result;
         }
-        return counter;
+    }
+
+    private String convertCswFilterToEsQuery(Element xml, String filterVersion) {
+        return CswFilter2Es.translate(FilterParser.parseFilter(xml, filterVersion), fieldMapper);
     }
 
     /**
      * Applies postprocessing stylesheet if available.
-     *
+     * <p>
      * Postprocessing files should be in the present/csw folder of the schema and have this naming:
-     *
+     * <p>
      * For default CSW service
-     *
+     * <p>
      * 1) gmd-csw-postprocessing.xsl : Postprocessing xsl applied for CSW service when requesting iso (gmd) output
      * 2) csw-csw-postprocessing.xsl : Postprocessing xsl applied for CSW service when requesting ogc (csw) output
+     * <p>
+     * For a custom sub-portal named inspire
+     * <p>
+     * 1) gmd-inspire-postprocessing.xsl : Postprocessing xsl applied for custom inspire sub-portal when requesting iso output
+     * 2) csw-inspire-postprocessing.xsl : Postprocessing xsl applied for custom inspire sub-portal when requesting ogc (csw) output
      *
-     * For a custom CSW service named csw-inspire
-     *
-     * 1) gmd-csw-inspire-postprocessing.xsl : Postprocessing xsl applied for custom CSW csw-inspire service when requesting iso output
-     * 2) csw-csw-inspire-postprocessing.xsl : Postprocessing xsl applied for custom CSW csw-inspire service when requesting ogc (csw) output
-     *
-     * @param context Service context
-     * @param schemaManager schemamanager
-     * @param schema schema
-     * @param result result
-     * @param outputSchema requested OutputSchema
-     * @param elementSetName requested ElementSetName
-     * @param resultType requested ResultTYpe
-     * @param id metadata id
+     * @param context         Service context
+     * @param schemaManager   schemamanager
+     * @param schema          schema
+     * @param result          result
+     * @param outputSchema    requested OutputSchema
+     * @param elementSetName  requested ElementSetName
+     * @param resultType      requested ResultTYpe
+     * @param id              metadata id
      * @param displayLanguage language to use in response
      * @return metadata
      * @throws InvalidParameterValueEx hmm
@@ -564,7 +617,7 @@ public class SearchController {
     private static Element applyPostProcessing(ServiceContext context, SchemaManager schemaManager, String schema,
                                                Element result, String outputSchema, ElementSetName elementSetName,
                                                ResultType resultType, String id, String displayLanguage) throws InvalidParameterValueEx {
-        Path schemaDir  = schemaManager.getSchemaCSWPresentDir(schema);
+        Path schemaDir = schemaManager.getSchemaCSWPresentDir(schema);
         final NodeInfo nodeInfo = ApplicationContextHolder.get().getBean(NodeInfo.class);
 
 
@@ -573,9 +626,8 @@ public class SearchController {
             + "-postprocessing.xsl");
 
         if (Files.exists(styleSheet)) {
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = new HashMap<>();
             params.put("lang", displayLanguage);
-            params.put("displayInfo", resultType == ResultType.RESULTS_WITH_SUMMARY ? "true" : "false");
 
             try {
                 result = Xml.transform(result, styleSheet, params);

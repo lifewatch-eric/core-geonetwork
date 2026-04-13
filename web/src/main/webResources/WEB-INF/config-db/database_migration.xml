@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (C) 2001-2016 Food and Agriculture Organization of the
+  ~ Copyright (C) 2001-2020 Food and Agriculture Organization of the
   ~ United Nations (FAO-UN), United Nations World Food Programme (WFP)
   ~ and United Nations Environment Programme (UNEP)
   ~
@@ -21,28 +21,18 @@
   ~ Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
   ~ Rome - Italy. email: geonetwork@osgeo.org
   -->
-
-<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:util="http://www.springframework.org/schema/util"
-       default-lazy-init="true"
-       xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-	">
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util" xmlns="http://www.springframework.org/schema/beans" default-lazy-init="true" xsi:schemaLocation="   http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd  ">
   <bean id="database-migration-bean" class="org.fao.geonet.DatabaseMigration">
     <property name="migration" ref="migrationMap"/>
     <property name="initAfter" value="javax.sql.DataSource"/>
+    <property name="dbMigrationOnStartup" value="\${db.migration_onstartup}"/>
   </bean>
   <bean id="database-data-migration-bean" class="org.fao.geonet.DatabaseMigration">
     <property name="migration" ref="dataMigrationMap"/>
     <property name="initAfter" value="org.springframework.orm.jpa.JpaTransactionManager"/>
+    <property name="dbMigrationOnStartup" value="\${db.migration_onstartup}"/>
   </bean>
-
-  <util:map id="migrationMap"
-            map-class="java.util.LinkedHashMap"
-            key-type="java.lang.String"
-            value-type="java.util.List">
+  <util:map id="migrationMap" map-class="java.util.LinkedHashMap" key-type="java.lang.String" value-type="java.util.List">
     <entry key="2.4.3">
       <list>
         <value>WEB-INF/classes/setup/sql/migrate/v243/migrate-</value>
@@ -148,13 +138,23 @@
         <value>WEB-INF/classes/setup/sql/migrate/v306/migrate-</value>
       </list>
     </entry>
+    <entry key="4.0.0">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v400/migrate-db-</value>
+      </list>
+    </entry>
+    <entry key="4.2.4">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v424/migrate-db-</value>
+      </list>
+    </entry>
+    <entry key="4.2.5">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v425/migrate-db-</value>
+      </list>
+    </entry>
   </util:map>
-
-
-  <util:map id="dataMigrationMap"
-            map-class="java.util.LinkedHashMap"
-            key-type="java.lang.String"
-            value-type="java.util.List">
+  <util:map id="dataMigrationMap" map-class="java.util.LinkedHashMap" key-type="java.lang.String" value-type="java.util.List">
     <entry key="3.0.3">
       <list>
         <value>WEB-INF/classes/setup/sql/migrate/v303/migrate-</value>
@@ -251,9 +251,142 @@
         <value>WEB-INF/classes/setup/sql/migrate/v3101/migrate-</value>
       </list>
     </entry>
+    <entry key="3.10.2">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v3102/migrate-</value>
+      </list>
+    </entry>
+    <entry key="3.10.3">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v3103/migrate-</value>
+      </list>
+    </entry>
+    <entry key="3.10.4">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v3104/migrate-</value>
+      </list>
+    </entry>
     <entry key="3.11.0">
       <list>
+        <value>java:v3110.UpdateMetadataStatus</value>
         <value>WEB-INF/classes/setup/sql/migrate/v3110/migrate-</value>
+        <value>java:v3110.MigrateEncryptor</value>
+        <value>java:v3110.UpdateUISettingsMigration</value>
+      </list>
+    </entry>
+    <entry key="3.12.0">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v3120/migrate-</value>
+      </list>
+    </entry>
+    <entry key="3.12.1">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v3121/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.0.0">
+      <list>
+        <value>java:v400.UpdateAllSequenceValueToMax</value>
+        <value>WEB-INF/classes/setup/sql/migrate/v400/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.0.1">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v401/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.0.2">
+      <list>
+        <value>java:v402.SetSequenceValueToMaxOfMessageProducerEntity</value>
+        <value>WEB-INF/classes/setup/sql/migrate/v402/migrate-</value>
+        <!--
+        <value>java:v402.DateTimeMigrationTask</value>
+-->
+      </list>
+    </entry>
+    <entry key="4.0.3">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v403/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.0.4">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v404/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.0.5">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v405/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.0.6">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v406/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.0.7">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v407/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.0">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v420/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.1">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v421/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.2">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v422/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.3">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v423/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.4">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v424/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.5">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v425/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.6">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v426/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.7">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v427/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.8">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v428/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.9">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v429/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.10">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v4210/migrate-</value>
+      </list>
+    </entry>
+    <entry key="4.2.11">
+      <list>
+        <value>WEB-INF/classes/setup/sql/migrate/v4211/migrate-</value>
       </list>
     </entry>
   </util:map>

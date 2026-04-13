@@ -18,13 +18,15 @@
 //===	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //===
 //===	Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
-//===	Rome - Italy. email: GeoNetwork@fao.org
+//===	Rome - Italy. email: geonetwork@osgeo.org
 //==============================================================================
 
 package org.fao.geonet.exceptions;
 
 import org.fao.geonet.Constants;
 import org.jdom.Element;
+
+import static org.fao.geonet.utils.Xml.XML10_ILLEGAL_CHAR_PATTERN;
 
 //=============================================================================
 
@@ -74,7 +76,9 @@ public abstract class JeevesException extends RuntimeException {
         }
 
         Element error = new Element(Constants.ERROR)
-            .addContent(new Element("message").setText(msg))
+            .addContent(new Element("message").setText(
+                msg == null ? 
+                    "" : msg.replaceAll(XML10_ILLEGAL_CHAR_PATTERN, "")))
             .addContent(new Element("class").setText(cls))
             .addContent(getStackTrace(t, 10));
 

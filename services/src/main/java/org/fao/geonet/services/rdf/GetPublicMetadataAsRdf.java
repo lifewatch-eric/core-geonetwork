@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * Copyright (C) 2001-2023 Food and Agriculture Organization of the
  * United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * and United Nations Environment Programme (UNEP)
  *
@@ -26,7 +26,6 @@ package org.fao.geonet.services.rdf;
 import jeeves.interfaces.Service;
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
-
 import org.fao.geonet.api.records.rdf.RdfOutputManager;
 import org.fao.geonet.api.records.rdf.RdfSearcher;
 import org.fao.geonet.services.thesaurus.GetList;
@@ -41,12 +40,6 @@ public class GetPublicMetadataAsRdf implements Service {
     public void init(Path appPath, ServiceConfig params) throws Exception {
     }
 
-    //--------------------------------------------------------------------------
-    //---
-    //--- Service
-    //---
-    //--------------------------------------------------------------------------
-
     public Element exec(Element params, ServiceContext context) throws Exception {
         Element thesaurusEl = new GetList().exec(params, context);
 
@@ -55,6 +48,7 @@ public class GetPublicMetadataAsRdf implements Service {
         RdfSearcher rdfHarvestSearcher = new RdfSearcher(params, context);
         File rdfFile = manager.createRdfFile(context, rdfHarvestSearcher);
 
+        // Jeeves ServiceManager deletes the rdf temporary file when the request  has been dispatched
         return BinaryFile.encode(200, rdfFile.toPath().toAbsolutePath().normalize(), true).getElement();
     }
 

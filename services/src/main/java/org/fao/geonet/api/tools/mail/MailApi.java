@@ -45,15 +45,25 @@ package org.fao.geonet.api.tools.mail;
 //===	Rome - Italy. email: geonetwork@osgeo.org
 //==============================================================================
 
-import org.fao.geonet.ApplicationContextHolder;
+import static org.fao.geonet.api.ApiParams.API_CLASS_TOOLS_OPS;
+import static org.fao.geonet.api.ApiParams.API_CLASS_TOOLS_TAG;
+import static org.fao.geonet.util.LocalizedEmailComponent.ComponentType.*;
+import static org.fao.geonet.util.LocalizedEmailComponent.KeyType;
+import static org.fao.geonet.util.LocalizedEmailComponent.ReplacementType.*;
+import static org.fao.geonet.util.LocalizedEmailParameter.ParameterType;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.fao.geonet.api.API;
 import org.fao.geonet.api.tools.i18n.LanguageUtils;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.kernel.setting.Settings;
+import org.fao.geonet.languages.FeedbackLanguages;
+import org.fao.geonet.util.LocalizedEmail;
+import org.fao.geonet.util.LocalizedEmailParameter;
+import org.fao.geonet.util.LocalizedEmailComponent;
 import org.fao.geonet.util.MailUtil;
 import org.fao.geonet.utils.Log;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -63,26 +73,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.servlet.ServletRequest;
 import java.util.Locale;
 import java.util.ResourceBundle;
-
-import javax.servlet.ServletRequest;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 
 /**
  *
  */
 
 @RequestMapping(value = {
-    "/{portal}/api/tools/mail",
-    "/{portal}/api/" + API.VERSION_0_1 +
-        "/tools/mail"
+    "/{portal}/api/tools/mail"
 })
-@Api(value = "tools",
-    tags = "tools",
-    description = "Utility operations")
+@Tag(name = API_CLASS_TOOLS_TAG,
+    description = API_CLASS_TOOLS_OPS)
 @Controller("mail")
 public class MailApi {
 
@@ -92,28 +95,47 @@ public class MailApi {
     @Autowired
     SettingManager settingManager;
 
-    @ApiOperation(value = "Test mail configuration",
-        notes = "Send an email to the catalog feedback email.",
-        nickname = "testMailConfiguration")
+    @Autowired
+    FeedbackLanguages feedbackLanguages;
+
+    @io.swagger.v3.oas.annotations.Operation(summary = "Test mail configuration",
+        description = "Send an email to the catalog feedback email.")
     @RequestMapping(value = "/test",
         produces = MediaType.TEXT_PLAIN_VALUE,
         method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PreAuthorize("hasRole('Administrator')")
+    @PreAuthorize("hasAuthority('Administrator')")
     public ResponseEntity<String> testMailConfiguration(ServletRequest request) throws Exception {
         Locale locale = languageUtils.parseAcceptLanguage(request.getLocales());
         ResourceBundle messages = ResourceBundle.getBundle("org.fao.geonet.api.Messages", locale);
+        Locale[] feedbackLocales = feedbackLanguages.getLocales(locale);
 
         String to = settingManager.getValue(Settings.SYSTEM_FEEDBACK_EMAIL);
-        String subject = String.format(messages.getString(
-            "mail_config_test_subject"),
-            settingManager.getSiteName(),
-            to);
-        String message = String.format(messages.getString(
-            "mail_config_test_message"),
-            settingManager.getNodeURL(),
-            settingManager.getNodeURL(),
-            settingManager.getNodeURL());
+
+        LocalizedEmailComponent emailSubjectComponent = new LocalizedEmailComponent(SUBJECT, "mail_config_test_subject", KeyType.MESSAGE_KEY, POSITIONAL_FORMAT);
+        LocalizedEmailComponent emailMessageComponent = new LocalizedEmailComponent(MESSAGE, "mail_config_test_message", KeyType.MESSAGE_KEY, POSITIONAL_FORMAT);
+
+        for (Locale feedbackLocale : feedbackLocales) {
+            emailSubjectComponent.addParameters(
+                feedbackLocale,
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 1, settingManager.getSiteName()),
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 2, to)
+            );
+
+            emailMessageComponent.addParameters(
+                feedbackLocale,
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 1, settingManager.getNodeURL()),
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 2, settingManager.getNodeURL()),
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 3, settingManager.getNodeURL())
+            );
+        }
+
+        LocalizedEmail localizedEmail = new LocalizedEmail(true);
+        localizedEmail.addComponents(emailSubjectComponent, emailMessageComponent);
+
+        String subject = localizedEmail.getParsedSubject(feedbackLocales);
+        String message = localizedEmail.getParsedMessage(feedbackLocales);
+
         try {
             MailUtil.testSendMail(to, subject, null, message, settingManager, to, "");
             return new ResponseEntity<>(String.format(

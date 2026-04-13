@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * Copyright (C) 2001-2024 Food and Agriculture Organization of the
  * United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * and United Nations Environment Programme (UNEP)
  *
@@ -21,14 +21,12 @@
  * Rome - Italy. email: geonetwork@osgeo.org
  */
 
-(function() {
-  goog.provide('gn_catalog_service');
+(function () {
+  goog.provide("gn_catalog_service");
 
-  goog.require('gn_urlutils_service');
+  goog.require("gn_urlutils_service");
 
-  var module = angular.module('gn_catalog_service', [
-    'gn_urlutils_service'
-  ]);
+  var module = angular.module("gn_catalog_service", ["gn_urlutils_service"]);
 
   /**
    * @ngdoc service
@@ -44,29 +42,29 @@
    * metadatas such as create, import, copy or delete.
    * Other operations like save are provided by another service `gnEditor`.
    */
-  module.factory('gnMetadataManager', [
-    '$http',
-    '$location',
-    '$timeout',
-    'gnUrlUtils',
-    'Metadata',
-    function($http, $location, $timeout, gnUrlUtils, Metadata) {
+  module.factory("gnMetadataManager", [
+    "$http",
+    "$location",
+    "$timeout",
+    "gnUrlUtils",
+    "Metadata",
+    function ($http, $location, $timeout, gnUrlUtils, Metadata) {
       return {
         //TODO: rewrite calls with gnHttp
 
         /**
-           * @ngdoc method
-           * @name gnMetadataManager#remove
-           * @methodOf gnMetadataManager
-           *
-           * @description
-           * Delete a metadata from catalog
-           *
-           * @param {string} id Internal id of the metadata
-           * @return {HttpPromise} Future object
-           */
-        remove: function(id) {
-          return $http.delete('../api/records/' + id);
+         * @ngdoc method
+         * @name gnMetadataManager#remove
+         * @methodOf gnMetadataManager
+         *
+         * @description
+         * Delete a metadata from catalog
+         *
+         * @param {string} id Internal id of the metadata
+         * @return {HttpPromise} Future object
+         */
+        remove: function (id) {
+          return $http.delete("../api/records/" + id);
         },
 
         /**
@@ -80,8 +78,8 @@
          * @param {string} id Internal id of the metadata
          * @return {HttpPromise} Future object
          */
-        validate: function(id) {
-          return $http.put('../api/records/' + id + '/validate/internal');
+        validate: function (id) {
+          return $http.put("../api/records/" + id + "/validate/internal");
         },
 
         /**
@@ -96,66 +94,74 @@
          * @param {bool} newState true is validated, false is rejected
          * @return {HttpPromise} Future object
          */
-        validateDirectoryEntry: function(id, newState) {
-          var param = '?isvalid=' + (newState ? 'true' : 'false');
-          return $http.put('../api/records/' + id + '/validate/internal' + param);
+        validateDirectoryEntry: function (id, newState) {
+          var param = "?isvalid=" + (newState ? "true" : "false");
+          return $http.put("../api/records/" + id + "/validate/internal" + param);
         },
 
         /**
-           * @ngdoc method
-           * @name gnMetadataManager#copy
-           * @methodOf gnMetadataManager
-           *
-           * @description
-           * Create a copy of a metadata. The copy will belong to the same group
-           * of the original metadata and will be of the same type (isTemplate,
-           * isChild, fullPrivileges).
-           *
-           * @param {string} id Internal id of the metadata to be copied.
-           * @param {string} groupId Internal id of the group of the metadata
-           * @param {boolean} withFullPrivileges privileges to assign.
-           * @param {boolean|string} isTemplate type of the metadata (bool is
-           *  for TEMPLATE, other values are SUB_TEMPLATE and
-           *  TEMPLATE_OF_SUB_TEMPLATE)
-           * @param {boolean} isChild is child of a parent metadata
-           * @param {string} metadataUuid , the uuid of the metadata to create
-           *                 (when metadata uuid is set to manual)
-           * @param {boolean} hasCategoryOfSource copy categories from source
-           * @return {HttpPromise} Future object
-           */
-        copy: function(id, groupId, withFullPrivileges,
-            isTemplate, isChild, metadataUuid, hasCategoryOfSource) {
+         * @ngdoc method
+         * @name gnMetadataManager#copy
+         * @methodOf gnMetadataManager
+         *
+         * @description
+         * Create a copy of a metadata. The copy will belong to the same group
+         * of the original metadata and will be of the same type (isTemplate,
+         * isChild, fullPrivileges).
+         *
+         * @param {string} id Internal id of the metadata to be copied.
+         * @param {string} groupId Internal id of the group of the metadata
+         * @param {boolean} withFullPrivileges privileges to assign.
+         * @param {boolean|string} isTemplate type of the metadata (bool is
+         *  for TEMPLATE, other values are SUB_TEMPLATE and
+         *  TEMPLATE_OF_SUB_TEMPLATE)
+         * @param {boolean} isChild is child of a parent metadata
+         * @param {string} metadataUuid , the uuid of the metadata to create
+         *                 (when metadata uuid is set to manual)
+         * @param {boolean} hasCategoryOfSource copy categories from source
+         * @return {HttpPromise} Future object
+         */
+        copy: function (
+          id,
+          groupId,
+          withFullPrivileges,
+          isTemplate,
+          isChild,
+          metadataUuid,
+          hasCategoryOfSource
+        ) {
           // new md type determination
           var mdType;
           switch (isTemplate) {
-            case 'TEMPLATE_OF_SUB_TEMPLATE':
-              mdType = 'TEMPLATE_OF_SUB_TEMPLATE';
+            case "TEMPLATE_OF_SUB_TEMPLATE":
+              mdType = "TEMPLATE_OF_SUB_TEMPLATE";
               break;
 
-            case 'SUB_TEMPLATE':
-              mdType = 'SUB_TEMPLATE';
+            case "SUB_TEMPLATE":
+              mdType = "SUB_TEMPLATE";
               break;
 
-            case 'TEMPLATE':
+            case "TEMPLATE":
             case true:
-              mdType = 'TEMPLATE';
+              mdType = "TEMPLATE";
               break;
 
-            default: mdType = 'METADATA';
+            default:
+              mdType = "METADATA";
           }
 
           var url = gnUrlUtils.toKeyValue({
             metadataType: mdType,
             sourceUuid: id,
-            isChildOfSource: isChild ? 'true' : 'false',
+            isChildOfSource: isChild ? "true" : "false",
             group: groupId,
-            isVisibleByAllGroupMembers: withFullPrivileges ? 'true' : 'false',
-            targetUuid: metadataUuid || '',
-            hasCategoryOfSource: hasCategoryOfSource ? 'true' : 'false'
+            allowEditGroupMembers: withFullPrivileges ? "true" : "false",
+            targetUuid: metadataUuid || "",
+            hasCategoryOfSource: hasCategoryOfSource ? "true" : "false"
           });
-          return $http.put('../api/records/duplicate?' + url, {
+          return $http.put("../api/records/duplicate?" + url, {
             headers: {
-              'Accept': 'application/json'
+              Accept: "application/json"
             }
           });
         },
@@ -171,48 +177,115 @@
          * @param {Object} data Params to send to md.insert service
          * @return {HttpPromise} Future object
          */
-        importFromXml: function(urlParams, xml) {
-          return $http.put('../api/records?' + urlParams, xml, {
+        importFromXml: function (urlParams, xml) {
+          return $http.put("../api/records?" + urlParams, xml, {
             headers: {
-              'Content-Type': 'application/xml'
+              "Content-Type": "application/xml"
             }
           });
         },
 
         /**
-           * @ngdoc method
-           * @name gnMetadataManager#create
-           * @methodOf gnMetadataManager
-           *
-           * @description
-           * Create a new metadata as a copy of an existing template.
-           * Will forward to `copy` method.
-           *
-           * @param {string} id Internal id of the metadata to be copied.
-           * @param {string} groupId Internal id of the group of the metadata
-           * @param {boolean} withFullPrivileges privileges to assign.
-           * @param {boolean} isTemplate type of the metadata
-           * @param {boolean} isChild is child of a parent metadata
-           * @param {string} tab is the metadata editor tab to open
-           * @param {string} metadataUuid , the uuid of the metadata to create
-           *                 (when metadata uuid is set to manual)
-           * @param {boolean} hasCategoryOfSource copy categories from source
-           * @return {HttpPromise} Future object
-           */
-        create: function(id, groupId, withFullPrivileges,
-            isTemplate, isChild, tab, metadataUuid, hasCategoryOfSource) {
+         * @ngdoc method
+         * @name gnMetadataManager#create
+         * @methodOf gnMetadataManager
+         *
+         * @description
+         * Create a new metadata as a copy of an existing template.
+         * Will forward to `copy` method.
+         *
+         * @param {string} id Internal id of the metadata to be copied.
+         * @param {string} groupId Internal id of the group of the metadata
+         * @param {boolean} withFullPrivileges privileges to assign.
+         * @param {boolean} isTemplate type of the metadata
+         * @param {boolean} isChild is child of a parent metadata
+         * @param {string} tab is the metadata editor tab to open
+         * @param {string} metadataUuid , the uuid of the metadata to create
+         *                 (when metadata uuid is set to manual)
+         * @param {boolean} hasCategoryOfSource copy categories from source
+         * @return {HttpPromise} Future object
+         */
+        create: function (
+          id,
+          groupId,
+          withFullPrivileges,
+          isTemplate,
+          isChild,
+          tab,
+          metadataUuid,
+          hasCategoryOfSource
+        ) {
+          return this.copy(
+            id,
+            groupId,
+            withFullPrivileges,
+            isTemplate,
+            isChild,
+            metadataUuid,
+            hasCategoryOfSource
+          ).then(function (response) {
+            var path = "/metadata/" + response.data;
+            if (tab) {
+              path += "/tab/" + tab;
+            }
+            $location
+              .path(path)
+              .search("justcreated")
+              .search("redirectUrl", "catalog.edit");
+          });
+        },
 
-          return this.copy(id, groupId, withFullPrivileges,
-              isTemplate, isChild, metadataUuid, hasCategoryOfSource)
-              .success(function(id) {
-                var path = '/metadata/' + id;
-                if (tab) {
-                  path += '/tab/' + tab;
+        /**
+         * @ngdoc method
+         * @name gnMetadataManager#getMdObjByUuidInPortal
+         * @methodOf gnMetadataManager
+         *
+         * @description
+         * Get the metadata js object from catalog. Trigger a search and
+         * return a promise.
+         * @param {portal} portal name to query, null to use the current portal
+         * @param {string} uuid or id of the metadata
+         * @param {array} isTemplate optional isTemplate value (y, n, s, t...)
+         * @return {HttpPromise} of the $http post
+         */
+        getMdObjByUuidInPortal: function (portal, uuid, isTemplate) {
+          var url;
+
+          if (portal == null) {
+            // Use current portal
+            url = "../api/search/records/_search";
+          } else {
+            url = "../../" + portal + "/api/search/records/_search";
+          }
+
+          return $http
+            .post(url, {
+              query: {
+                bool: {
+                  must: [
+                    {
+                      multi_match: {
+                        query: uuid,
+                        fields: ["id", "uuid"]
+                      }
+                    },
+                    {
+                      terms: {
+                        isTemplate: isTemplate !== undefined ? isTemplate : ["n"]
+                      }
+                    },
+                    { terms: { draft: ["n", "y", "e"] } }
+                  ]
                 }
-                $location.path(path)
-                .search('justcreated')
-                .search('redirectUrl', 'catalog.edit');
-              });
+              }
+            })
+            .then(function (r) {
+              if (r.data.hits.total.value > 0) {
+                return new Metadata(r.data.hits.hits[0]);
+              } else {
+                console.warn("Record with UUID/ID " + uuid + " not found.");
+              }
+            });
         },
 
         /**
@@ -221,19 +294,14 @@
          * @methodOf gnMetadataManager
          *
          * @description
-         * Get the metadata js object from catalog. Trigger a search and
+         * Get the metadata js object from catalog current portal. Trigger a search and
          * return a promise.
-         * @param {string} uuid of the metadata
-         * @param {string} isTemplate optional isTemplate value (s, t...)
-         * @return {HttpPromise} of the $http get
+         * @param {string} uuid or id of the metadata
+         * @param {array} isTemplate optional isTemplate value (y, n, s, t...)
+         * @return {HttpPromise} of the $http post
          */
-        getMdObjByUuid: function(uuid, isTemplate) {
-          return $http.get('qi?_uuid=' + uuid + '' +
-              '&fast=index&_content_type=json&buildSummary=false' +
-              (isTemplate !== undefined ? '&isTemplate=' + isTemplate : '')).
-              then(function(resp) {
-                return new Metadata(resp.data.metadata);
-              });
+        getMdObjByUuid: function (uuid, isTemplate) {
+          return this.getMdObjByUuidInPortal(null, uuid, isTemplate);
         },
 
         /**
@@ -245,16 +313,11 @@
          * Get the metadata js object from catalog. Trigger a search and
          * return a promise.
          * @param {string} id of the metadata
-         * @param {string} isTemplate optional isTemplate value (s, t...)
-         * @return {HttpPromise} of the $http get
+         * @param {array} isTemplate optional isTemplate value (y, n, s, t...)
+         * @return {HttpPromise} of the $http post
          */
-        getMdObjById: function(id, isTemplate) {
-          return $http.get('q?_id=' + id + '' +
-              '&fast=index&_content_type=json&buildSummary=false' +
-              (isTemplate !== undefined ? '&_isTemplate=' + isTemplate : '')).
-              then(function(resp) {
-                return new Metadata(resp.data.metadata);
-              });
+        getMdObjById: function (id, isTemplate) {
+          return this.getMdObjByUuid(id, isTemplate);
         },
 
         /**
@@ -268,13 +331,11 @@
          * @param {object} md to reload
          * @return {HttpPromise} of the $http get
          */
-        updateMdObj: function(md) {
-          return this.getMdObjByUuid(md.getUuid()).then(
-              function(md_) {
-                angular.extend(md, md_);
-                return md;
-              }
-          );
+        updateMdObj: function (md) {
+          return this.getMdObjByUuid(md.uuid).then(function (md_) {
+            angular.extend(md, md_);
+            return md;
+          });
         }
       };
     }
@@ -290,36 +351,30 @@
    * services used in the UI.
    */
 
-  module.value('gnHttpServices', {
-    mdGetPDFSelection: 'pdf.selection.search', // TODO: CHANGE
-    mdGetRDF: 'rdf.metadata.get',
-    mdGetMEF: 'mef.export', // Deprecated service
-    mdGetXML19139: 'xml_iso19139',
-    csv: 'csv.search',
+  module.value("gnHttpServices", {
+    mdGetXML19139: "xml_iso19139",
 
-    publish: 'md.publish',
-    unpublish: 'md.unpublish',
+    publish: "md.publish",
+    unpublish: "md.unpublish",
 
-    processAll: 'md.processing.batch',
-    processReport: 'md.processing.batch.report',
-    processXml: 'xml.metadata.processing',
+    processAll: "md.processing.batch",
+    processReport: "md.processing.batch.report",
+    processXml: "xml.metadata.processing",
 
-    suggest: 'suggest',
+    suggest: "suggest",
 
-    search: 'q',
-    internalSearch: 'qi',
-    subtemplate: 'subtemplate',
-    lang: 'lang?_content_type=json&',
-    removeThumbnail: 'md.thumbnail.remove?_content_type=json&',
-    removeOnlinesrc: 'resource.del.and.detach', // TODO: CHANGE
-    suggest: 'suggest',
-    facetConfig: 'search/facet/config',
-    selectionLayers: 'selection.layers',
+    search: "q",
+    internalSearch: "qi",
+    subtemplate: "subtemplate",
+    lang: "lang?_content_type=json&",
+    removeThumbnail: "md.thumbnail.remove?_content_type=json&",
+    removeOnlinesrc: "resource.del.and.detach", // TODO: CHANGE
+    suggest: "suggest",
+    selectionLayers: "selection.layers",
 
-    featureindexproxy: '../../index/features',
-    indexproxy: '../../index/records'
+    featureindexproxy: "../../index/features",
+    indexproxy: "../../index/records"
   });
-
 
   /**
    * @ngdoc service
@@ -335,25 +390,28 @@
    * for geonetwork usage. It is based on `gnHttpServices` to
    * get service url.
    */
-  module.provider('gnHttp', function() {
+  module.provider("gnHttp", function () {
+    this.$get = [
+      "$http",
+      "gnHttpServices",
+      "$location",
+      "gnUrlUtils",
+      function ($http, gnHttpServices, $location, gnUrlUtils) {
+        var originUrl = (this.originUrl = gnUrlUtils.urlResolve(
+          window.location.href,
+          true
+        ));
 
-    this.$get = ['$http', 'gnHttpServices' , '$location', 'gnUrlUtils',
-      function($http, gnHttpServices, $location, gnUrlUtils) {
-
-        var originUrl = this.originUrl = gnUrlUtils.urlResolve(
-            window.location.href, true);
-
-        var defaults = this.defaults = {
+        var defaults = (this.defaults = {
           host: originUrl.host,
           pathname: originUrl.pathname,
           protocol: originUrl.protocol
-        };
+        });
 
-        var urlSplit = originUrl.pathname.split('/');
+        var urlSplit = originUrl.pathname.split("/");
         if (urlSplit.lenght < 3) {
           //TODO manage error
-        }
-        else {
+        } else {
           angular.extend(defaults, {
             webapp: urlSplit[1],
             srv: urlSplit[2],
@@ -361,7 +419,6 @@
           });
         }
         return {
-
           /**
            * @ngdoc method
            * @name gnHttp#callService
@@ -379,12 +436,11 @@
            * $http#get method
            * @return {HttpPromise} Future object
            */
-          callService: function(serviceKey, params, httpConfig) {
-
+          callService: function (serviceKey, params, httpConfig) {
             var config = {
               url: gnHttpServices[serviceKey] || serviceKey,
               params: params,
-              method: 'GET'
+              method: "GET"
             };
             angular.extend(config, httpConfig);
             return $http(config);
@@ -395,11 +451,12 @@
            * @param {string} serviceKey
            * @return {*}
            */
-          getService: function(serviceKey) {
+          getService: function (serviceKey) {
             return gnHttpServices[serviceKey];
           }
         };
-      }];
+      }
+    ];
   });
 
   /**
@@ -432,18 +489,19 @@
       }
      </code>
    */
-  module.value('gnConfig', {
+  module.value("gnConfig", {
     key: {
-      isXLinkEnabled: 'system.xlinkResolver.enable',
-      isXLinkLocal: 'system.xlinkResolver.localXlinkEnable',
-      isSelfRegisterEnabled: 'system.userSelfRegistration.enable',
-      isFeedbackEnabled: 'system.userFeedback.enable',
-      isInspireEnabled: 'system.inspire.enable',
-      isRatingUserFeedbackEnabled: 'system.localrating.enable',
-      isSearchStatEnabled: 'system.searchStats.enable',
-      isHideWithHelEnabled: 'system.hidewithheldelements.enable'
+      isXLinkEnabled: "system.xlinkResolver.enable",
+      isXLinkLocal: "system.xlinkResolver.localXlinkEnable",
+      isSelfRegisterEnabled: "system.userSelfRegistration.enable",
+      isFeedbackEnabled: "system.userFeedback.enable",
+      isMetadataFeedbackEnabled: "system.userFeedback.metadata.enable",
+      isInspireEnabled: "system.inspire.enable",
+      isRatingUserFeedbackEnabled: "system.localrating.enable",
+      isSearchStatEnabled: "system.searchStats.enable",
+      isHideWithHelEnabled: "system.hidewithheldelements.enable"
     },
-    'map.is3DModeAllowed': window.location.search.indexOf('with3d') !== -1
+    "map.is3DModeAllowed": window.location.search.indexOf("with3d") !== -1
   });
 
   /**
@@ -457,14 +515,14 @@
    * @description
    * Load the catalog config and push it to gnConfig.
    */
-  module.factory('gnConfigService', [
-    '$http', '$q',
-    'gnConfig',
-    function($http, $q, gnConfig) {
+  module.factory("gnConfigService", [
+    "$http",
+    "$q",
+    "gnConfig",
+    function ($http, $q, gnConfig) {
       var defer = $q.defer();
       var loadPromise = defer.promise;
       return {
-
         /**
          * @ngdoc method
          * @name gnConfigService#load
@@ -476,27 +534,62 @@
          *
          * @return {HttpPromise} Future object
          */
-        load: function() {
-          return $http.get('../api/site/settings', {cache: true})
-              .then(function(response) {
-                angular.extend(gnConfig, response.data);
-                // Replace / by . in settings name
-                angular.forEach(gnConfig, function(value, key) {
-                  if (key.indexOf('/') !== -1) {
-                    gnConfig[key.replace(/\//g, '.')] = value;
-                    delete gnConfig[key];
-                  }
-                });
-                // Override parameter if set in URL
-                if (window.location.search.indexOf('with3d') !== -1) {
-                  gnConfig['map.is3DModeAllowed'] = true;
+        load: function () {
+          return $http.get("../api/site/settings", { cache: true }).then(
+            function (response) {
+              angular.extend(gnConfig, response.data);
+              // Replace / by . in settings name
+              angular.forEach(gnConfig, function (value, key) {
+                if (key.indexOf("/") !== -1) {
+                  gnConfig[key.replace(/\//g, ".")] = value;
+                  delete gnConfig[key];
                 }
-                defer.resolve(gnConfig);
-              }, function() {
-                defer.reject();
               });
+              // Override parameter if set in URL
+              if (window.location.search.indexOf("with3d") !== -1) {
+                gnConfig["map.is3DModeAllowed"] = true;
+              }
+              defer.resolve(gnConfig);
+            },
+            function () {
+              defer.reject();
+            }
+          );
         },
         loadPromise: loadPromise,
+
+        parseFilters: function (filters) {
+          var separator = ":";
+          return filters.split(" AND ").map(function (clause) {
+            var filter = clause.split(separator),
+              field = filter.shift(),
+              not = field && field.startsWith("-");
+            return {
+              field: not ? field.substr(1) : field,
+              regex: new RegExp(filter.join(separator)),
+              not: not
+            };
+          });
+        },
+
+        testFilters: function (filters, object) {
+          var results = [];
+          filters.forEach(function (filter, j) {
+            var prop = object[filter.field];
+            if (
+              prop !== undefined &&
+              ((!filter.not && prop.match(filter.regex) != null) ||
+                (filter.not && prop.match(filter.regex) == null))
+            ) {
+              results[j] = true;
+            } else {
+              results[j] = false;
+            }
+          });
+          return results.reduce(function (prev, curr) {
+            return prev && curr;
+          });
+        },
 
         /**
          * @ngdoc method
@@ -509,32 +602,40 @@
          *
          * @return {String} service url.
          */
-        getServiceURL: function() {
-          var port = '';
-          if (gnConfig['system.server.protocol'] === 'http' &&
-             gnConfig['system.server.port'] &&
-             gnConfig['system.server.port'] != null &&
-             gnConfig['system.server.port'] != 80) {
-
-            port = ':' + gnConfig['system.server.port'];
-
-          } else if (gnConfig['system.server.protocol'] === 'https' &&
-             gnConfig['system.server.securePort'] &&
-             gnConfig['system.server.securePort'] != null &&
-             gnConfig['system.server.securePort'] != 443) {
-
-            port = ':' + gnConfig['system.server.securePort'];
-
+        getServiceURL: function (useDefaultNode) {
+          var port = "";
+          if (
+            gnConfig["system.server.protocol"] === "http" &&
+            gnConfig["system.server.port"] &&
+            gnConfig["system.server.port"] != null &&
+            gnConfig["system.server.port"] != 80
+          ) {
+            port = ":" + gnConfig["system.server.port"];
+          } else if (
+            gnConfig["system.server.protocol"] === "https" &&
+            gnConfig["system.server.port"] &&
+            gnConfig["system.server.port"] != null &&
+            gnConfig["system.server.port"] != 443
+          ) {
+            port = ":" + gnConfig["system.server.port"];
           }
 
-          var url = gnConfig['system.server.protocol'] + '://' +
-              gnConfig['system.server.host'] + port +
-              gnConfig.env.baseURL + '/' +
-              gnConfig.env.node + '/';
+          var node = !useDefaultNode ? gnConfig.env.node : gnConfig.env.defaultNode;
+
+          var url =
+            gnConfig["system.server.protocol"] +
+            "://" +
+            gnConfig["system.server.host"] +
+            port +
+            gnConfig.env.baseURL +
+            "/" +
+            node +
+            "/";
           return url;
         }
       };
-    }]);
+    }
+  ]);
 
   /**
    * @ngdoc service
@@ -546,318 +647,386 @@
    * json output of the search service. It also provides some functions
    * on the metadata.
    */
-  module.factory('Metadata', function() {
-    function Metadata(k) {
-      $.extend(true, this, k);
-      var listOfArrayFields = ['topicCat', 'category', 'keyword',
-        'securityConstraints', 'resourceConstraints', 'legalConstraints',
-        'denominator', 'resolution', 'geoDesc', 'geoBox', 'inspirethemewithac',
-        'status', 'status_text', 'crs', 'identifier', 'responsibleParty',
-        'mdLanguage', 'datasetLang', 'type', 'link', 'crsDetails',
-        'creationDate', 'publicationDate', 'revisionDate', 'spatialRepresentationType_text'];
-      var listOfJsonFields = ['keywordGroup', 'crsDetails'];
-      // See below; probably not necessary
-      var record = this;
-      this.linksCache = [];
-      $.each(listOfArrayFields, function(idx) {
-        var field = listOfArrayFields[idx];
-        if (angular.isDefined(record[field]) &&
-            !angular.isArray(record[field])) {
-          record[field] = [record[field]];
-        }
-      });
-      // Note: this step does not seem to be necessary; TODO: remove or refactor
-      $.each(listOfJsonFields, function(idx) {
-        var fieldName = listOfJsonFields[idx];
-        if (angular.isDefined(record[fieldName])) {
-          try {
-            record[fieldName] = angular.fromJson(record[fieldName]);
-            var field = record[fieldName];
+  module.factory("Metadata", [
+    "gnLangs",
+    "$translate",
+    "gnConfigService",
+    "gnGlobalSettings",
+    "gnSearchSettings",
+    function (gnLangs, $translate, gnConfigService, gnGlobalSettings, gnSearchSettings) {
+      function Metadata(k) {
+        // Move _source properties to the root.
+        var source = k._source;
+        delete k._source;
+        $.extend(true, this, k, source);
+        var fields = k.fields;
+        delete k.fields;
+        $.extend(true, this, k, fields);
 
-            // Combine all document keywordGroup fields
-            // in one object. Applies to multilingual records
-            // which may have multiple values after combining
-            // documents from all index
-            // fixme: not sure how to precess this, take first array as main
-            // object or take last arrays when they appear (what is done here)
-            if (fieldName === 'keywordGroup' && angular.isArray(field)) {
-              var thesaurusList = {};
-              for (var i = 0; i < field.length; i++) {
-                var thesauri = field[i];
-                $.each(thesauri, function(key) {
-                  if (!thesaurusList[key] && thesauri[key].length)
-                    thesaurusList[key] = thesauri[key];
-                });
-              }
-              record[fieldName] = thesaurusList;
-            }
-          } catch (e) {}
-        }
-      }.bind(this));
+        var record = this;
 
-      // Create a structure that reflects the transferOption/onlinesrc tree
-      var links = [];
-      angular.forEach(this.link, function(link) {
-        var linkInfo = formatLink(link);
-        var idx = linkInfo.group - 1;
-        if (!links[idx]) {
-          links[idx] = [linkInfo];
+        if (angular.isDefined(record.geom) && !angular.isArray(record.geom)) {
+          record.geom = [record.geom];
         }
-        else if (angular.isArray(links[idx])) {
-          links[idx].push(linkInfo);
-        }
-      });
-      this.linksTree = links;
-    };
 
-    function formatLink(sLink) {
-      var linkInfos = sLink.split('|');
-      return {
-        name: linkInfos[0],
-        title: linkInfos[0],
-        url: linkInfos[2],
-        desc: linkInfos[1],
-        protocol: linkInfos[3],
-        contentType: linkInfos[4],
-        group: linkInfos[5] ? parseInt(linkInfos[5]) : undefined,
-        applicationProfile: linkInfos[6]
-      };
-    }
-    function parseLink(sLink) {
+        this.translateMultingualFields(this);
 
-    };
-
-    Metadata.prototype = {
-      getUuid: function() {
-        return this['geonet:info'].uuid;
-      },
-      getId: function() {
-        return this['geonet:info'].id;
-      },
-      getTitle: function() {
-        return this.title || this.defaultTitle;
-      },
-      isPublished: function() {
-        return this['geonet:info'].isPublishedToAll === 'true';
-      },
-      isValid: function() {
-        return this.valid === '1';
-      },
-      hasValidation: function() {
-        return (this.valid > -1);
-      },
-      isOwned: function() {
-        return this['geonet:info'].owner === 'true';
-      },
-      getOwnerId: function() {
-        return this['geonet:info'].ownerId;
-      },
-      getGroupOwner: function() {
-        return this['geonet:info'].owner;
-      },
-      getSchema: function() {
-        return this['geonet:info'].schema;
-      },
-      publish: function() {
-        this['geonet:info'].isPublishedToAll = this.isPublished() ?
-            'false' : 'true';
-      },
-
-      getLinks: function() {
-        return this.link;
-      },
-      getLinkGroup: function(layer) {
-        var links = this.getLinksByType('OGC');
-        for (var i = 0; i < links.length; ++i) {
-          var link = links[i];
-          if (link.name == layer.getSource().getParams().LAYERS) {
-            return link.group;
-          }
-        }
-      },
-      /**
-       * Get all links of the metadata of the given types.
-       * The types are strings in arguments.
-       * You can give the exact matching with # ('#OG:WMS') or just find an
-       * occurence for the match ('OGC').
-       * You can passe several types to find ('OGC','WFS', '#getCapabilities')
-       *
-       * If the first argument is a number, you do the search within the link
-       * group (search only onlinesrc in the given transferOptions).
-       *
-       * @return {*} an Array of links
-       */
-      getLinksByType: function() {
-        var ret = [];
-
-        var types = Array.prototype.splice.call(arguments, 0);
-        var groupId;
-
-        var key = types.join('|');
-        if (angular.isNumber(types[0])) {
-          groupId = types[0];
-          types.splice(0, 1);
-        }
-        if (this.linksCache[key] && !groupId) {
-          return this.linksCache[key];
-        }
-        angular.forEach(this.link, function(link) {
-          var linkInfo = formatLink(link);
-          if (types.length > 0) {
-            types.forEach(function(type) {
-              if (type.substr(0, 1) == '#') {
-                if (linkInfo.protocol == type.substr(1, type.length - 1) &&
-                    (!groupId || groupId == linkInfo.group)) {
-                  ret.push(linkInfo);
-                }
-              }
-              else {
-                if (linkInfo.protocol.toLowerCase().indexOf(
-                    type.toLowerCase()) >= 0 &&
-                    (!groupId || groupId == linkInfo.group)) {
-                  ret.push(linkInfo);
-                }
-              }
-            });
-          } else {
-            ret.push(linkInfo);
-          }
-        });
-        this.linksCache[key] = ret;
-        return ret;
-      },
-      getThumbnails: function() {
-        var images = {list: []};
-        if (angular.isArray(this.image)) {
-          for (var i = 0; i < this.image.length; i++) {
-            var s = this.image[i].split('|');
-            var insertFn = 'push';
-            if (s[0] === 'thumbnail') {
-              images.small = s[1];
-              var insertFn = 'unshift';
-            } else if (s[0] === 'overview') {
-              images.big = s[1];
-            }
-
-            //Is it a draft?
-            if( s[1].indexOf("/api/records/") >= 0
-                &&  s[1].indexOf("/api/records/")<  s[1].indexOf("/attachments/")) {
-              s[1] += "?approved=" + (this.draft != 'y');
-            }
-
-
-            images.list[insertFn]({url: s[1], label: s[2]});
-          }
-        } else if (angular.isDefined(this.image)){
-          var s = this.image.split('|');
-          images.list.push({url: s[1], label: s[2]});
-        }
-        return images;
-      },
-      /**
-       * Return an object containing metadata contacts
-       * as an array and resource contacts as array
-       *
-       * @return {{metadata: Array, resource: Array}}
-       */
-      getAllContacts: function() {
-        if (angular.isUndefined(this.allContacts) &&
-            angular.isDefined(this.responsibleParty)) {
-          this.allContacts = {metadata: [], resource: []};
-          for (var i = 0; i < this.responsibleParty.length; i++) {
-            var s = this.responsibleParty[i].split('|');
-            var contact = {
-              role: s[0] || '',
-              org: s[2] || '',
-              logo: s[3] || '',
-              email: s[4] || '',
-              name: s[5] || '',
-              position: s[6] || '',
-              address: s[7] || '',
-              phone: s[8] || '',
-              website: s[11] || ''
-            };
-            if (s[1] === 'resource') {
-              this.allContacts.resource.push(contact);
-            } else if (s[1] === 'metadata') {
-              this.allContacts.metadata.push(contact);
-            }
-          }
-        }
-        return this.allContacts;
-      },
-      /**
-       * Deprecated. Use getAllContacts instead
-       */
-      getContacts: function() {
-        var ret = {};
-        if (angular.isArray(this.responsibleParty)) {
-          for (var i = 0; i < this.responsibleParty.length; i++) {
-            var s = this.responsibleParty[i].split('|');
-            if (s[1] === 'resource') {
-              ret.resource = s[2];
-            } else if (s[1] === 'metadata') {
-              ret.metadata = s[2];
-            }
-          }
-        }
-        return ret;
-      },
-      getBoxAsPolygon: function(i) {
-        // Polygon((4.6810%2045.9170,5.0670%2045.9170,5.0670%2045.5500,4.6810%2045.5500,4.6810%2045.9170))
-        var bboxes = [];
-        if (this.geoBox[i]) {
-          var coords = this.geoBox[i].split('|');
-          return 'Polygon((' +
-              coords[0] + ' ' +
-              coords[1] + ',' +
-              coords[2] + ' ' +
-              coords[1] + ',' +
-              coords[2] + ' ' +
-              coords[3] + ',' +
-              coords[0] + ' ' +
-              coords[3] + ',' +
-              coords[0] + ' ' +
-              coords[1] + '))';
-        } else {
-          return null;
-        }
-      },
-      getOwnername: function() {
-        if (this.userinfo) {
-          var userinfo = this.userinfo.split('|');
-          try {
-            if (userinfo[2] !== userinfo[1]) {
-              return userinfo[2] + ' ' + userinfo[1];
-            } else {
-              return userinfo[1];
-            }
-          } catch (e) {
-            return '';
-          }
-        } else {
-          return '';
-        }
-      },
-      isWorkflowEnabled: function() {
-        var st = this.mdStatus;
-        var res = st &&
-            //Status is unknown
-            (!isNaN(st) && st != '0');
-
-        //What if it is an array: gmd:MD_ProgressCode
-        if (!res && Array.isArray(st)) {
-          angular.forEach(st, function(s) {
-            if (!isNaN(s) && s != '0') {
-              res = true;
+        if (this.related) {
+          $.each(Object.keys(this.related), function (value, key) {
+            if (angular.isArray(record.related[key])) {
+              record.related[key] = record.related[key].map(function (r) {
+                return new Metadata(r);
+              });
             }
           });
         }
-        return res;
+
+        // Open record not in current portal as a remote record
+        if (!gnGlobalSettings.isDefaultNode && this.origin === "catalog") {
+          this.remoteUrl =
+            "../../srv/" +
+            gnGlobalSettings.iso3lang +
+            "/catalog.search#/metadata/" +
+            this._id;
+        } else if (this.origin === "remote") {
+          this.remoteUrl = this.properties.url;
+          this.uuid = this._id;
+        }
+
+        // See below; probably not necessary
+        this.linksCache = [];
+        this.linksByType = {};
+        for (var p in gnSearchSettings.linkTypes) {
+          this.linksByType[p] = this.getLinksByType.apply(
+            this,
+            gnSearchSettings.linkTypes[p]
+          );
+        }
+
+        this.getAllContacts();
       }
-    };
-    return Metadata;
-  });
 
+      Metadata.prototype = {
+        translateMultilingualObjects: function (multilingualObjects) {
+          var mlObjs = angular.isArray(multilingualObjects)
+            ? multilingualObjects
+            : [multilingualObjects];
+          mlObjs.forEach(function (mlObj) {
+            mlObj.default =
+              mlObj["lang" + gnLangs.current] ||
+              mlObj.default ||
+              mlObj["lang" + this.mainLanguage];
+          });
+        },
+        translateCodelists: function (index) {
+          var codelists = angular.isArray(index) ? index : [index];
+          codelists.forEach(function (mlObj) {
+            mlObj.default =
+              mlObj["lang" + gnLangs.current] ||
+              ($translate.instant(mlObj.key) != mlObj.key &&
+                $translate.instant(mlObj.key)) ||
+              mlObj.default;
+          });
+        },
+        // For codelist, Object, and keywords, default property is replaced
+        // For Object a new field is also created without the Object suffix.
+        // The function is recursive
+        translateMultingualFields: function (index) {
+          for (var fieldName in index) {
+            var field = index[fieldName];
+            if (fieldName.endsWith("Object")) {
+              this.translateMultilingualObjects(field);
+              index[fieldName.replace(/Object$/g, "")] = angular.isArray(field)
+                ? field.map(function (mlObj) {
+                    return mlObj.default;
+                  })
+                : field.default;
+            } else if (fieldName.startsWith("cl_")) {
+              this.translateCodelists(field);
+            } else if (fieldName === "allKeywords") {
+              Object.keys(field).forEach(
+                function (th) {
+                  this.translateMultilingualObjects(field[th].keywords);
+                  if (field[th].multilingualTitle != null) {
+                    this.translateMultilingualObjects(field[th].multilingualTitle);
+                  }
+                }.bind(this)
+              );
+            } else if (
+              fieldName.match(/th_.*$/) !== null &&
+              fieldName.match(/.*(_tree|Number)$/) === null
+            ) {
+              this.translateMultilingualObjects(field);
+            } else if (typeof field === "object") {
+              this.translateMultingualFields(field);
+            }
+          }
+        },
+        getUuid: function () {
+          return this.uuid;
+        },
+        getMetadataLanguages: function () {
+          if (!this.mainLanguage) {
+            return [];
+          }
+          return [this.mainLanguage]
+            .concat(this.otherLanguage)
+            .unique()
+            .filter(function (l) {
+              // do not allow null values
+              return !!l;
+            });
+        },
+        isPublished: function (pubOption) {
+          if (pubOption) {
+            return this.isPublishedToGroup(pubOption.publicationGroup);
+          } else {
+            return JSON.parse(this.isPublishedToAll) === true;
+          }
+        },
+        isPublishedToGroup: function (group) {
+          if (group === "all") {
+            return JSON.parse(this.isPublishedToAll) === true;
+          } else if (group === "intranet") {
+            return JSON.parse(this.isPublishedToIntranet) === true;
+          } else if (group === "guest") {
+            return JSON.parse(this.isPublishedToGuest) === true;
+          }
 
+          return false;
+        },
+        isValid: function () {
+          return this.valid === "1";
+        },
+        hasValidation: function () {
+          return this.valid > -1;
+        },
+        isOwned: function () {
+          return this.owner === true;
+        },
+        getOwnerId: function () {
+          return this.ownerId;
+        },
+        getGroupOwner: function () {
+          return this.groupOwner;
+        },
+        getSchema: function () {
+          return this.schema;
+        },
+        publish: function (pubOption) {
+          if (pubOption) {
+            if (pubOption.publicationGroup === "all") {
+              this.isPublishedToAll = this.isPublished(pubOption) ? false : true;
+            } else if (pubOption.publicationGroup === "intranet") {
+              this.isPublishedToIntranet = this.isPublished(pubOption) ? false : true;
+            } else if (pubOption.publicationGroup === "guest") {
+              this.isPublishedToGuest = this.isPublished(pubOption) ? false : true;
+            }
+
+            if (pubOption.additionalPublications) {
+              var additionalPublicationGroups = Object.keys(
+                pubOption.additionalPublications
+              );
+              for (var i = 0; i < additionalPublicationGroups.length; i++) {
+                var additionalPublicationGroup = additionalPublicationGroups[i];
+
+                if (additionalPublicationGroup === pubOption.publicationGroup) {
+                  continue;
+                }
+
+                var additionalPubOption = {
+                  publicationGroup: additionalPublicationGroup
+                };
+                if (additionalPublicationGroup === "all") {
+                  this.isPublishedToAll = this.isPublished(additionalPubOption)
+                    ? false
+                    : true;
+                } else if (additionalPublicationGroup === "intranet") {
+                  this.isPublishedToIntranet = this.isPublished(additionalPubOption)
+                    ? false
+                    : true;
+                } else if (additionalPublicationGroup === "guest") {
+                  this.isPublishedToGuest = this.isPublished(additionalPubOption)
+                    ? false
+                    : true;
+                }
+              }
+            }
+
+            return;
+          }
+
+          this.isPublishedToAll = this.isPublished(pubOption) ? false : true;
+        },
+        getFields: function (filter) {
+          var values = {},
+            props = this,
+            keys = Object.keys(this).filter(function (name) {
+              return new RegExp(filter).test(name);
+            });
+          keys.forEach(function (k) {
+            values[k] = props[k];
+          });
+          return values;
+        },
+        getLinks: function () {
+          return this.link || [];
+        },
+        getLinkGroup: function (layer) {
+          var links = this.getLinksByType("OGC");
+          for (var i = 0; i < links.length; ++i) {
+            var link = links[i];
+            if (link.name == layer.getSource().getParams().LAYERS) {
+              return link.group;
+            }
+          }
+        },
+        /**
+         * Get all links of the metadata of the given types.
+         * The types are strings in arguments.
+         * You can give the exact matching with # ('#OGC:WMS') or just find an
+         * occurence for the match ('OGC').
+         * You can pass several types to find ('OGC','WFS', '#getCapabilities')
+         *
+         * If the first argument is a number, you do the search within the link
+         * group (search only onlinesrc in the given transferOptions).
+         *
+         * @return {*} an Array of links
+         */
+        getLinksByType: function () {
+          var ret = [];
+          var types = Array.prototype.splice.call(arguments, 0);
+          var groupId;
+
+          var key = types.join("|");
+          if (angular.isNumber(types[0])) {
+            groupId = types.splice(0, 1)[0];
+          }
+          if (this.linksCache[key] && groupId === undefined) {
+            return this.linksCache[key];
+          }
+          angular.forEach(this.link, function (link) {
+            if (types.length > 0) {
+              types.forEach(function (type) {
+                if (type.substr(0, 1) == "#") {
+                  var protocolMatch = link.protocol == type.substr(1, type.length - 1);
+                  if (
+                    (protocolMatch && groupId === undefined) ||
+                    (protocolMatch && groupId != undefined && groupId === link.group)
+                  ) {
+                    ret.push(link);
+                  }
+                } else {
+                  if (
+                    link.protocol.toLowerCase().indexOf(type.toLowerCase()) >= 0 &&
+                    (groupId === undefined || groupId === link.group)
+                  ) {
+                    ret.push(link);
+                  }
+                }
+              });
+            } else {
+              ret.push(link);
+            }
+          });
+          this.linksCache[key] = ret;
+          return ret;
+        },
+        getLinksByFilter: function (filter) {
+          if (this.linksCache[filter]) {
+            return this.linksCache[filter];
+          }
+          var filters = gnConfigService.parseFilters(filter),
+            links = this.getLinks(),
+            matches = [];
+          for (var i = 0; i < links.length; i++) {
+            gnConfigService.testFilters(filters, links[i]) && matches.push(links[i]);
+          }
+          this.linksCache[filter] = matches;
+          return matches;
+        },
+        isLinkDisabled: function (link) {
+          // TODO: Should be more consistent with schema-ident.xml filter section
+          var p = link && link.protocol;
+          if (p.match(/OGC:WMS|ESRI:REST|OGC:WFS/i) != null) {
+            return this.dynamic === false;
+          }
+          if (p.match(/WWW:DOWNLOAD.*|ATOM.*|DB.*|FILE.*/i) != null) {
+            return this.download === false;
+          }
+          return false;
+        },
+        /**
+         * Return an object containing metadata contacts
+         * as an array and resource contacts as array
+         *
+         * @return {{metadata: Array, resource: Array, distribution: Array}}
+         */
+        getAllContacts: function () {
+          this.allContacts = { metadata: [], resource: [] };
+          if (this.contact && this.contact.length > 0) {
+            this.allContacts.metadata = this.contact;
+          }
+          if (this.contactForResource && this.contactForResource.length > 0) {
+            this.allContacts.resource = this.contactForResource;
+          }
+          if (this.contactForDistribution && this.contactForDistribution.length > 0) {
+            this.allContacts.distribution = this.contactForDistribution;
+          }
+          return this.allContacts;
+        },
+        getOwnername: function () {
+          if (this.userinfo) {
+            var userinfo = this.userinfo.split("|");
+            try {
+              if (userinfo[2] !== userinfo[1]) {
+                return userinfo[2] + " " + userinfo[1];
+              } else {
+                return userinfo[1];
+              }
+            } catch (e) {
+              return "";
+            }
+          } else {
+            return "";
+          }
+        },
+        isWorkflowEnabled: function () {
+          var st = this.mdStatus;
+          var res =
+            st &&
+            //Status is unknown
+            !isNaN(st) &&
+            st != "0";
+
+          //What if it is an array: gmd:MD_ProgressCode
+          if (!res && Array.isArray(st)) {
+            angular.forEach(st, function (s) {
+              if (!isNaN(s) && s != "0") {
+                res = true;
+              }
+            });
+          }
+          return res;
+        },
+        getKeywordsGroupedByUriBase: function (thesaurusId, groupExtractionRegex) {
+          var thesaurus = this.allKeywords[thesaurusId];
+          if (thesaurus && thesaurus.keywords) {
+            var keywordsWithGroup = [];
+            for (var i = 0; i < thesaurus.keywords.length; i++) {
+              var k = angular.copy(thesaurus.keywords[i]);
+              k.group = k.link
+                ? k.link.replaceAll(new RegExp(groupExtractionRegex, "g"), "$1")
+                : "";
+              keywordsWithGroup.push(k);
+            }
+            return keywordsWithGroup;
+          } else {
+            return [];
+          }
+        }
+      };
+      return Metadata;
+    }
+  ]);
 })();

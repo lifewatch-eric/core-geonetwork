@@ -2,14 +2,9 @@ package org.fao.geonet.api.records.model.related;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -45,6 +40,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "relatedItem", propOrder = {
     "id",
+    "idx",
+    "hash",
     "url",
     "title",
     "type"
@@ -57,6 +54,8 @@ import javax.xml.bind.annotation.XmlType;
 public abstract class RelatedItem {
 
     protected String id;
+    protected String idx;
+    protected String hash;
     protected MultilingualValue url;
     protected String type;
 
@@ -79,6 +78,42 @@ public abstract class RelatedItem {
      */
     public void setId(String value) {
         this.id = value;
+    }
+
+    /**
+     * Gets the value of the idx property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getIdx() {
+        return idx;
+    }
+
+    /**
+     * Sets the value of the idx property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setIdx(String value) {
+        this.idx = value;
+    }
+
+    /**
+     * Gets the value of the hasg property.
+     *
+     * @return possible object is {@link String }
+     */
+    public String getHash() {
+        return hash;
+    }
+
+    /**
+     * Sets the value of the hash property.
+     *
+     * @param value allowed object is {@link String }
+     */
+    public void setHash(String value) {
+        this.hash = value;
     }
 
     /**

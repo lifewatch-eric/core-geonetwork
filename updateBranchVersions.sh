@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Usage to update branch from a release 2.6.2 version to 2.6.3-SNAPSHOT version 		
+# Usage to update branch from a release 2.6.2 version to 2.6.3-SNAPSHOT version
 # In root folder of branch code: ./updateBranchVersion.sh 2.6.2 2.6.3
 
-function showUsage 
+function showUsage
 {
-  echo -e "\nThis script is used to update branch from a release version to next SNAPSHOT version. Should be used in branch after creating a new release (tag)." 
+  echo -e "\nThis script is used to update branch from a release version to next SNAPSHOT version. Should be used in branch after creating a new release (tag)."
   echo
   echo -e "Usage: ./`basename $0 $1` actual_version next_version"
   echo
@@ -14,7 +14,7 @@ function showUsage
   echo
 }
 
-if [ "$1" = "-h" ] 
+if [ "$1" = "-h" ]
 then
 	showUsage
 	exit
@@ -26,7 +26,9 @@ then
   exit
 fi
 
-if [[ $1 != [0-9].[0-9].[0-9] ]]; then 
+if [[ $1 =~ ^[0-9]+.[0-9]+.[0-9]+$ ]]; then
+    echo
+else
 	echo
 	echo 'Update failed due to incorrect versionnumber format (' $1 ')'
 	echo 'The format should be three numbers separated by dots. e.g.: 2.7.0'
@@ -36,7 +38,9 @@ if [[ $1 != [0-9].[0-9].[0-9] ]]; then
 	exit
 fi
 
-if [[ $2 != [0-9].[0-9].[0-9] ]]; then 
+if [[ $2 =~ ^[0-9]+.[0-9]+.[0-9]+$ ]]; then
+    echo
+else
 	echo
 	echo 'Update failed due to incorrect new versionnumber format (' $2 ')'
 	echo 'The format should be three numbers separated by dots. e.g.: 2.7.1'
@@ -54,20 +58,16 @@ else
 fi
 
 echo
-echo 'Your Operating System is' $OSTYPE 
+echo 'Your Operating System is' $OSTYPE
 echo 'sed will use the following option: ' $sedopt
 echo
 
 version="$1"
 new_version="$2"
 
-# Update version in sphinx doc files
-sed $sedopt "s/${version}/${new_version}-SNAPSHOT/g" docs/eng/users/source/conf.py 
-sed $sedopt "s/${version}/${new_version}-SNAPSHOT/g" docs/eng/developer/source/conf.py
-
-# Update installer
-sed $sedopt "s/\<property name=\"version\" value=\"${version}\" \/\>/\<property name=\"version\" value=\"${new_version}\" \/\>/g" installer/build.xml
-sed $sedopt "s/\<property name=\"subVersion\" value=\"0\" \/\>/\<property name=\"subVersion\" value=\"SNAPSHOT\" \/\>/g" installer/build.xml
+# Update release properties
+sed $sedopt "s/version=${version}/version=${new_version}/g" release/build.properties
+sed $sedopt "s/subVersion=0/subVersion=SNAPSHOT/g" release/build.properties
 
 # Update version pom files
 find . -name pom.xml -exec sed $sedopt "s/${version}/${new_version}-SNAPSHOT/g" {} \;

@@ -38,7 +38,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 /**
- * Specifications for querying {@link org.fao.geonet.repository.UserRepository}.
+ * Specification for querying {@link org.fao.geonet.repository.UserRepository}.
  *
  * @author Jesse
  */
@@ -215,7 +215,7 @@ public final class MetadataSpecs {
             @Override
             public Predicate toPredicate(Root<AbstractMetadata> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
                 Path<String> schemaIdAttributePath = root.get(AbstractMetadata_.dataInfo).get(MetadataDataInfo_.schemaId);
-                Predicate likeSchemaIdPredicate = cb.like(schemaIdAttributePath, cb.literal("iso19139"));
+                Predicate likeSchemaIdPredicate = cb.like(schemaIdAttributePath, cb.literal("iso19139%"));
                 return likeSchemaIdPredicate;
             }
         };

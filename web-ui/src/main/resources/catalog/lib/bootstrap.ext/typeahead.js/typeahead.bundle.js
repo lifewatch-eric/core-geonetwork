@@ -359,7 +359,10 @@
         _.mixin(Transport.prototype, {
             _fingerprint: function fingerprint(o) {
                 o = o || {};
-                return o.url + o.type + $.param(o.data || {});
+                // Avoid Uncaught TypeError: String.prototype.indexOf called on null or undefined
+                // When using POST with JSON Body.
+                return o.url + o.type
+                  + (o.data && o.data.indexOf('{') ===0 ? o.data : $.param(o.data || {}));
             },
             _get: function(o, cb) {
                 var that = this, fingerprint, jqXhr;
@@ -1966,6 +1969,7 @@
             www.mixin(this);
             this.eventBus = o.eventBus;
             this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
+            this.showHintsOnFocus = o.showHintsOnFocus ? true : false;
             this.input = o.input;
             this.menu = o.menu;
             this.enabled = true;
@@ -2029,7 +2033,11 @@
                 this.eventBus.trigger("asyncreceive", query, dataset);
             },
             _onFocused: function onFocused() {
+              if (!this.showHintsOnFocus) {
                 this._minLengthMet() && this.menu.update(this.input.getQuery());
+              } else {
+                this._minLengthMet() && this.menu.update("");
+              }
             },
             _onBlurred: function onBlurred() {
                 if (this.input.hasQueryChangedSinceLastFocus()) {
@@ -2274,7 +2282,8 @@
                         input: input,
                         menu: menu,
                         eventBus: eventBus,
-                        minLength: o.minLength
+                        minLength: o.minLength,
+                      showHintsOnFocus: o.showHintsOnFocus
                     }, www);
                     $input.data(keys.www, www);
                     $input.data(keys.typeahead, typeahead);

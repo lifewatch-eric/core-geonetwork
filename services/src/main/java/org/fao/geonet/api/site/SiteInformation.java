@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * Copyright (C) 2001-2023 Food and Agriculture Organization of the
  * United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * and United Nations Environment Programme (UNEP)
  *
@@ -23,12 +23,21 @@
 
 package org.fao.geonet.api.site;
 
-import java.io.File;
-import java.io.FileInputStream;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jeeves.server.ServiceConfig;
+import jeeves.server.context.ServiceContext;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.elasticsearch.ElasticsearchException;
+import org.fao.geonet.GeonetContext;
+import org.fao.geonet.constants.Geonet;
+import org.fao.geonet.kernel.search.EsSearchManager;
+import org.fao.geonet.utils.Log;
+import org.fao.geonet.utils.TransformerFactoryFactory;
+
+import javax.sql.DataSource;
+import javax.xml.transform.TransformerFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Enumeration;
@@ -36,82 +45,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.sql.DataSource;
-import javax.xml.transform.TransformerFactory;
-
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.fao.geonet.GeonetContext;
-import org.fao.geonet.api.ApiUtils;
-import org.fao.geonet.constants.Geonet;
-import org.fao.geonet.kernel.GeonetworkDataDirectory;
-import org.fao.geonet.kernel.search.LuceneConfig;
-import org.fao.geonet.utils.Log;
-import org.fao.geonet.utils.TransformerFactoryFactory;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import jeeves.server.ServiceConfig;
-import jeeves.server.context.ServiceContext;
-
 /**
  * Created by francois on 04/06/16.
  */
 public class SiteInformation {
     final Properties properties = System.getProperties();
-
-    @JsonProperty(value = "catalogue")
-    public HashMap<String, String> getCatProperties() {
-        return catProperties;
-    }
-
-    public void setCatProperties(HashMap<String, String> catProperties) {
-        this.catProperties = catProperties;
-    }
-
-    @JsonProperty(value = "index")
-    public HashMap<String, String> getIndexProperties() {
-        return indexProperties;
-    }
-
-    public void setIndexProperties(HashMap<String, String> indexProperties) {
-        this.indexProperties = indexProperties;
-    }
-
-    @JsonProperty(value = "main")
-    public HashMap<String, String> getSystemProperties() {
-        return systemProperties;
-    }
-
-    public void setSystemProperties(HashMap<String, String> systemProperties) {
-        this.systemProperties = systemProperties;
-    }
-
-    @JsonProperty(value = "database")
-    public HashMap<String, String> getDatabaseProperties() {
-        return databaseProperties;
-    }
-
-    public void setDatabaseProperties(HashMap<String, String> databaseProperties) {
-        this.databaseProperties = databaseProperties;
-    }
-
-    @JsonProperty(value = "version")
-    public Map<String, String> getVersionProperties() {
-        return versionProperties;
-    }
-
-    public void setVersionProperties(HashMap<String, String> versionProperties) {
-        this.versionProperties = versionProperties;
-    }
-
-    private HashMap<String, String> catProperties = new HashMap<String, String>();
-    private HashMap<String, String> indexProperties = new HashMap<String, String>();
-    private HashMap<String, String> systemProperties = new HashMap<String, String>();
-    private HashMap<String, String> databaseProperties = new HashMap<String, String>();
-    private HashMap<String, String> versionProperties = new HashMap<String, String>();
+    private Map<String, String> catProperties = new HashMap<>();
+    private Map<String, String> indexProperties = new HashMap<>();
+    private Map<String, String> systemProperties = new HashMap<>();
+    private Map<String, String> databaseProperties = new HashMap<>();
+    private Map<String, String> versionProperties = new HashMap<>();
 
     public SiteInformation(final ServiceContext context, final GeonetContext gc) {
-        if(context.getUserSession().isAuthenticated()) {
+        if (context.getUserSession().isAuthenticated()) {
             loadCatalogueInfo(gc);
             try {
                 loadDatabaseInfo(context);
@@ -120,12 +66,57 @@ public class SiteInformation {
             }
             try {
                 loadIndexInfo(context);
-            } catch (IOException e) {
+            } catch (IOException | ElasticsearchException e) {
                 Log.error(Geonet.GEONETWORK, e.getMessage(), e);
             }
-            loadVersionInfo(context);
+            loadVersionInfo();
             loadSystemInfo();
         }
+    }
+
+    @JsonProperty(value = "catalogue")
+    public Map<String, String> getCatProperties() {
+        return catProperties;
+    }
+
+    public void setCatProperties(Map<String, String> catProperties) {
+        this.catProperties = catProperties;
+    }
+
+    @JsonProperty(value = "index")
+    public Map<String, String> getIndexProperties() {
+        return indexProperties;
+    }
+
+    public void setIndexProperties(Map<String, String> indexProperties) {
+        this.indexProperties = indexProperties;
+    }
+
+    @JsonProperty(value = "main")
+    public Map<String, String> getSystemProperties() {
+        return systemProperties;
+    }
+
+    public void setSystemProperties(Map<String, String> systemProperties) {
+        this.systemProperties = systemProperties;
+    }
+
+    @JsonProperty(value = "database")
+    public Map<String, String> getDatabaseProperties() {
+        return databaseProperties;
+    }
+
+    public void setDatabaseProperties(Map<String, String> databaseProperties) {
+        this.databaseProperties = databaseProperties;
+    }
+
+    @JsonProperty(value = "version")
+    public Map<String, String> getVersionProperties() {
+        return versionProperties;
+    }
+
+    public void setVersionProperties(Map<String, String> versionProperties) {
+        this.versionProperties = versionProperties;
     }
 
     /**
@@ -134,8 +125,9 @@ public class SiteInformation {
     private void loadCatalogueInfo(final GeonetContext gc) {
         ServiceConfig sc = gc.getBean(ServiceConfig.class);
 
-        String[] props = { Geonet.Config.DATA_DIR, Geonet.Config.CODELIST_DIR, Geonet.Config.CONFIG_DIR, Geonet.Config.SCHEMAPLUGINS_DIR,
-                Geonet.Config.SUBVERSION_PATH, Geonet.Config.RESOURCES_DIR, Geonet.Config.FORMATTER_PATH, Geonet.Config.BACKUP_DIR };
+        String[] props = {Geonet.Config.DATA_DIR, Geonet.Config.CODELIST_DIR, Geonet.Config.CONFIG_DIR,
+            Geonet.Config.INDEX_CONFIG_DIR, Geonet.Config.SCHEMAPLUGINS_DIR, Geonet.Config.SUBVERSION_PATH,
+            Geonet.Config.RESOURCES_DIR, Geonet.Config.FORMATTER_PATH, Geonet.Config.BACKUP_DIR};
 
         for (String prop : props) {
             catProperties.put("data." + prop, sc.getValue(prop));
@@ -168,18 +160,14 @@ public class SiteInformation {
     }
 
     /**
-     * Compute information about Lucene index.
+     * Compute information about index.
      */
     private void loadIndexInfo(ServiceContext context) throws IOException {
-        final GeonetworkDataDirectory dataDirectory = context.getBean(GeonetworkDataDirectory.class);
-        Path luceneDir = dataDirectory.getLuceneDir();
-        indexProperties.put("index.path", luceneDir.toAbsolutePath().normalize().toString());
-        if (Files.exists(luceneDir)) {
-            long size = ApiUtils.sizeOfDirectory(luceneDir);
-            indexProperties.put("index.size", "" + size); // lucene + Shapefile
-            // if exist
-        }
-        indexProperties.put("index.lucene.config", context.getBean(LuceneConfig.class).toString());
+        EsSearchManager esSearchManager = context.getBean(EsSearchManager.class);
+
+        indexProperties.put("es.url", esSearchManager.getClient().getServerUrl());
+        indexProperties.put("es.version", esSearchManager.getClient().getServerVersion());
+        indexProperties.put("es.index", esSearchManager.getDefaultIndex());
     }
 
     /**
@@ -193,6 +181,21 @@ public class SiteInformation {
             connection = context.getBean(DataSource.class).getConnection();
             dbURL = connection.getMetaData().getURL();
             databaseProperties.put("db.openattempt", "Database Opened Successfully");
+            try {
+                databaseProperties.put("db.type", connection.getMetaData().getDatabaseProductName());
+                databaseProperties.put("db.version", connection.getMetaData().getDatabaseProductVersion());
+                databaseProperties.put("db.driver", connection.getMetaData().getDriverName());
+                databaseProperties.put("db.driverVersion", connection.getMetaData().getDriverVersion());
+                databaseProperties.put("db.username", connection.getMetaData().getUserName());
+                databaseProperties.put("db.name", connection.getCatalog());
+                // Put "db.schema" field last as getSchema() has a known issues with the jetty jndi h2 drivers which is most likely related to a driver mismatch issue.
+                //    Receiver class org.apache.commons.dbcp.PoolingDataSource$PoolGuardConnectionWrapper does not define or inherit an implementation of the resolved method 'abstract java.lang.String getSchema()' of interface java.sql.Connection.
+                databaseProperties.put("db.schema", connection.getSchema());
+            } catch (AbstractMethodError e) {
+                // Most likely driver mismatch
+                //    https://stackoverflow.com/questions/17969365/why-i-am-getting-java-lang-abstractmethoderror-errors
+                Log.warning(Geonet.GEONETWORK, "Failed to get db properties. " + e.getMessage());
+            }
 
             if (connection instanceof BasicDataSource) {
                 BasicDataSource basicDataSource = (BasicDataSource) connection;
@@ -207,7 +210,7 @@ public class SiteInformation {
 
         } catch (Exception e) {
             databaseProperties.put("db.openattempt",
-                    "Failed to open database connection, Check config.xml db file configuration. Error" + " is: " + e.getMessage());
+                "Failed to open database connection, Check config.xml db file configuration. Error" + " is: " + e.getMessage());
         } finally {
             if (connection != null) {
                 connection.close();
@@ -219,7 +222,7 @@ public class SiteInformation {
     /**
      * Compute information about git commit.
      */
-    private void loadVersionInfo(ServiceContext context) {
+    private void loadVersionInfo() {
         Properties prop = new Properties();
 
         try (InputStream input = getClass().getResourceAsStream("/git.properties")) {

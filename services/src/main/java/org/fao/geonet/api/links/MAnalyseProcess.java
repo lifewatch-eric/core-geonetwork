@@ -29,22 +29,38 @@ import static jeeves.transaction.TransactionManager.TransactionRequirement.CREAT
 public class MAnalyseProcess implements SelfNaming {
 
     private final ApplicationContext appContext;
-    private LinkRepository linkRepository;
+    private final LinkRepository linkRepository;
 
-    private MetadataRepository metadataRepository;
+    private final MetadataRepository metadataRepository;
 
-    private UrlAnalyzer urlAnalyser;
+    private final UrlAnalyzer urlAnalyser;
 
     private ObjectName probeName;
     private int metadataToAnalyseCount = -1;
     private int metadataAnalysed = 0;
     private int metadataNotAnalysedInError = 0;
     private int urlToCheckCount = -1;
-    private AtomicInteger urlChecked = new AtomicInteger(0);
+    private final AtomicInteger urlChecked = new AtomicInteger(0);
     private long deleteAllDate = Long.MAX_VALUE;
     private long analyseMdDate = Long.MAX_VALUE;
     private long testLinkDate = Long.MAX_VALUE;
 
+
+    public MAnalyseProcess(String catalogueId,
+                           LinkRepository linkRepository,
+                           MetadataRepository metadataRepository,
+                           UrlAnalyzer urlAnalyser,
+                           ApplicationContext appContext) {
+        this.linkRepository = linkRepository;
+        this.metadataRepository = metadataRepository;
+        this.urlAnalyser = urlAnalyser;
+        this.appContext = appContext;
+        try {
+            this.probeName = new ObjectName(String.format("geonetwork-%s:name=url-check,idx=%s", catalogueId, this.hashCode()));
+        } catch (MalformedObjectNameException e) {
+            e.printStackTrace();
+        }
+    }
 
     @ManagedAttribute
     public int getMetadataToAnalyseCount() {
@@ -91,18 +107,6 @@ public class MAnalyseProcess implements SelfNaming {
         return this.probeName;
     }
 
-    public MAnalyseProcess(LinkRepository linkRepository, MetadataRepository metadataRepository, UrlAnalyzer urlAnalyser, ApplicationContext appContext) {
-        this.linkRepository = linkRepository;
-        this.metadataRepository = metadataRepository;
-        this.urlAnalyser = urlAnalyser;
-        this.appContext = appContext;
-        try {
-            this.probeName = new ObjectName(String.format("geonetwork:name=url-check,idx=%s", this.hashCode()));
-        } catch (MalformedObjectNameException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void deleteAll() {
         runInNewTransaction("manalyseprocess-deleteall", new TransactionTask<Object>() {
             @Override
@@ -119,7 +123,7 @@ public class MAnalyseProcess implements SelfNaming {
         analyseMdDate = System.currentTimeMillis();
         for (int i : ids) {
             try {
-                Metadata metadata = metadataRepository.findOne(i);
+                Metadata metadata = metadataRepository.findById(i).get();
                 Element xmlData = metadata.getXmlData(false);
                 runInNewTransaction("manalyseprocess-process-metadata", new TransactionTask<Object>() {
                     @Override
@@ -139,23 +143,35 @@ public class MAnalyseProcess implements SelfNaming {
                 e.printStackTrace();
             }
         }
-
-
         if (testLink) {
-            runInNewTransaction("manalyseprocess-testlink", new TransactionTask<Object>() {
-                @Override
-                public Object doInTransaction(TransactionStatus transaction) throws Throwable {
-                    testLinkDate = System.currentTimeMillis();
-                    List<Link> all = linkRepository.findAll();
-                    urlToCheckCount = all.size();
-                    all.parallelStream().peek(urlAnalyser::testLink).forEach(x -> urlChecked.getAndIncrement());
-                    return null;
-                }
-            });
+            testLink(null);
         }
     }
 
+
+    public void testLink(List<String> links) throws JDOMException, IOException {
+        List<Link> linkList;
+        if (links == null) {
+            linkList = linkRepository.findAll();
+        } else {
+            linkList = linkRepository.findAllByUrlIn(links);
+        }
+        urlToCheckCount = linkList.size();
+        runInNewTransaction("manalyseprocess-testlink", new TransactionTask<Object>() {
+            @Override
+            public Object doInTransaction(TransactionStatus transaction) throws Throwable {
+                testLinkDate = System.currentTimeMillis();
+                urlToCheckCount = linkList.size();
+                linkList
+                    .parallelStream()
+                    .peek(urlAnalyser::testLink)
+                    .forEach(x -> urlChecked.getAndIncrement());
+                return null;
+            }
+        });
+    }
+
     private final void runInNewTransaction(String name, TransactionTask<Object> transactionTask) {
-        TransactionManager.runInTransaction(name, appContext, CREATE_NEW,  ALWAYS_COMMIT, false, transactionTask);
+        TransactionManager.runInTransaction(name, appContext, CREATE_NEW, ALWAYS_COMMIT, false, transactionTask);
     }
 }

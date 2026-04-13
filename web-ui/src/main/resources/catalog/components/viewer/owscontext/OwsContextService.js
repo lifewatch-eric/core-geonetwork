@@ -21,36 +21,30 @@
  * Rome - Italy. email: geonetwork@osgeo.org
  */
 
-(function() {
-  goog.provide('gn_owscontext_service');
+(function () {
+  goog.provide("gn_owscontext_service");
 
+  goog.require("Filter_1_0_0");
+  goog.require("GML_2_1_2");
+  goog.require("OWC_0_3_1");
+  goog.require("OWS_1_0_0");
+  goog.require("SLD_1_0_0");
+  goog.require("XLink_1_0");
+  goog.require("gn_wfsfilter_service");
 
-
-
-
-
-
-  goog.require('Filter_1_0_0');
-  goog.require('GML_2_1_2');
-  goog.require('OWC_0_3_1');
-  goog.require('OWS_1_0_0');
-  goog.require('SLD_1_0_0');
-  goog.require('XLink_1_0');
-  goog.require('gn_wfsfilter_service');
-
-  var module = angular.module('gn_owscontext_service', []);
+  var module = angular.module("gn_owscontext_service", []);
 
   // OWC Client
   // Jsonix wrapper to read or write OWS Context
   var context = new Jsonix.Context(
-      [XLink_1_0, OWS_1_0_0, Filter_1_0_0, GML_2_1_2, SLD_1_0_0, OWC_0_3_1],
-      {
-        namespacePrefixes: {
-          'http://www.w3.org/1999/xlink': 'xlink',
-          'http://www.opengis.net/ows': 'ows'
-        }
+    [XLink_1_0, OWS_1_0_0, Filter_1_0_0, GML_2_1_2, SLD_1_0_0, OWC_0_3_1],
+    {
+      namespacePrefixes: {
+        "http://www.w3.org/1999/xlink": "xlink",
+        "http://www.opengis.net/ows": "ows"
       }
-      );
+    }
+  );
   var unmarshaller = context.createUnmarshaller();
   var marshaller = context.createMarshaller();
 
@@ -67,24 +61,40 @@
    * The `gnOwsContextService` service provides tools to load and store OWS
    * Context.
    */
-  module.service('gnOwsContextService', [
-    'gnMap',
-    'gnOwsCapabilities',
-    '$http',
-    'gnViewerSettings',
-    '$translate',
-    '$q',
-    '$filter',
-    '$rootScope',
-    '$timeout',
-    'gnGlobalSettings',
-    'wfsFilterService',
-    function(gnMap, gnOwsCapabilities, $http, gnViewerSettings,
-             $translate, $q, $filter, $rootScope, $timeout, gnGlobalSettings,
-             wfsFilterService) {
-
-
+  module.service("gnOwsContextService", [
+    "gnMap",
+    "gnOwsCapabilities",
+    "$http",
+    "gnViewerSettings",
+    "gnViewerService",
+    "$translate",
+    "$q",
+    "$filter",
+    "$rootScope",
+    "$timeout",
+    "gnGlobalSettings",
+    "wfsFilterService",
+    function (
+      gnMap,
+      gnOwsCapabilities,
+      $http,
+      gnViewerSettings,
+      gnViewerService,
+      $translate,
+      $q,
+      $filter,
+      $rootScope,
+      $timeout,
+      gnGlobalSettings,
+      wfsFilterService
+    ) {
       var firstLoad = true;
+
+      // Regex for matching type and layer in context layer name attribute.
+      // eg. name="{type=arcgis,name=0,1,2,3,4}"
+      var reT = /type=([^,}|^]*)/;
+      var reL = /name=([^}]*)\}?\s*$/;
+      var dimensions = ["TIME", "ELEVATION"];
 
       /**
        * @ngdoc method
@@ -99,16 +109,23 @@
        * @param {owsContextLayer} additionalLayers these layers will be added
        *  after the context layers (used to add layers from the map settings)
        */
-      this.loadContext = function(text, map, additionalLayers) {
+      this.loadContext = function (text, map, additionalLayers) {
         // broadcast context load
-        $rootScope.$broadcast('owsContextLoaded');
+        $rootScope.$broadcast("owsContextLoaded");
 
+        var uiConfig = {};
+        var mapConfig = gnMap.getMapConfig();
         var context = unmarshaller.unmarshalString(text).value;
+        var mapType = map.get("type");
+        if (mapType && mapConfig) {
+          uiConfig = mapConfig["map-" + mapType];
+        }
+        var isMainViewer = mapType === "viewer";
         // first remove any existing layer
         var layersToRemove = [];
-        map.getLayers().forEach(function(layer) {
+        map.getLayers().forEach(function (layer) {
           if (layer.displayInLayerManager) {
-            if (!(layer.get('fromUrlParams') && firstLoad)) {
+            if (!(layer.get("fromUrlParams") && firstLoad)) {
               layersToRemove.push(layer);
             }
           }
@@ -117,48 +134,63 @@
           map.removeLayer(layersToRemove[i]);
         }
 
-        // -- set the Map view (extent/projection)
+        // Set the Map view (extent/projection) from the context
         var bbox = context.general.boundingBox.value;
         var ll = bbox.lowerCorner;
         var ur = bbox.upperCorner;
         var projection = bbox.crs;
 
-        // -- check if projection is available in ol
-        if (!ol.proj.get(projection)){
-         console.warn('Projection '+ projection +' is not available, map will be projected in a spherical mercator projection');
-         projection='EPSG:3857';
-         ll=[-10026376,-15048966];
-         ur=[10026376,15048966];
-       }
+        // Check if projection is available in ol
+        if (!ol.proj.get(projection)) {
+          console.warn(
+            "Projection " +
+              projection +
+              " is not available, map will be projected in a spherical mercator projection"
+          );
+          projection = "EPSG:3857";
+          ll = [-10026376, -15048966];
+          ur = [10026376, 15048966];
+        }
 
-        if (projection == 'EPSG:4326') {
+        if (projection == "EPSG:4326") {
+          // WGS84 expects lat-lon (y,x) not lon-lat (x,y)
           ll.reverse();
           ur.reverse();
         }
 
         var extent = ll.concat(ur);
-        gnViewerSettings.initialExtent = extent;
 
-        // save this extent for later use (for example if the map
-        // is not currently visible)
-        map.set('lastExtent', extent);
+        // Apply extent override from UI settings, if any
+        if (
+          uiConfig &&
+          uiConfig.extent &&
+          ol.extent.getWidth(uiConfig.extent) &&
+          ol.extent.getHeight(uiConfig.extent)
+        ) {
+          extent = uiConfig.extent;
+          // Extent should be specified in the default map projection:
+          // reproject to context projection, if this is not the case already
+          if (mapConfig.projection !== projection) {
+            extent = ol.proj.transformExtent(extent, mapConfig.projection, projection, 8);
+          }
+        }
+
+        gnViewerSettings.initialExtent = extent;
 
         if (map.getView().getProjection().getCode() != projection) {
           var view = new ol.View({
-            extent: extent,
             projection: projection
           });
           map.setView(view);
         }
 
-        var loadPromise = map.get('sizePromise');
+        var loadPromise = map.get("sizePromise");
         if (loadPromise) {
-          loadPromise.then(function() {
-            map.getView().fit(extent, map.getSize(), { nearest: true });
-          })
-        }
-        else {
-          console.warn('Map must be created by mapsManager');
+          loadPromise.then(function () {
+            map.getView().fit(extent, map.getSize());
+          });
+        } else {
+          console.warn("Map must be created by mapsManager");
         }
 
         // load the resources & add additional layers if available
@@ -172,15 +204,14 @@
         var promises = [];
         var overlays = [];
         if (angular.isArray(layers)) {
-
           // ----  Clean bg layers
           if (map.getLayers().getLength() > 0) {
             map.getLayers().removeAt(0);
           }
           var bgLoadingLayer = new ol.layer.Image({
             loading: true,
-            label: 'loading',
-            url: '',
+            label: "loading",
+            url: "",
             visible: false
           });
           map.getLayers().insertAt(0, bgLoadingLayer);
@@ -188,146 +219,236 @@
           if (!gnViewerSettings.bgLayers) {
             gnViewerSettings.bgLayers = [];
           }
-          gnViewerSettings.bgLayers.length = 0;
+          if (isMainViewer) {
+            gnViewerSettings.bgLayers.length = 0;
+          }
+
           var bgLayers = gnViewerSettings.bgLayers;
           bgLayers.fromCtx = true;
-          var isFirstBgLayer = false;
+          var isFirstActiveBgLayer = false;
           // -------
 
           for (i = 0; i < layers.length; i++) {
-            var type, layer = layers[i];
-            if (layer.name) {
-              if (layer.group == 'Background layers') {
-
-                // {type=bing_aerial} (mapquest, osm ...)
-                var re = this.getREForPar('type');
-                type = layer.name.match(re) ? re.exec(layer.name)[1] : null;
-                if (type && type != 'wmts' && type != 'wms') {
-                  var opt;
-                  re = this.getREForPar('name');
-                  if (layer.name.match(re)) {
-                    var lyr = re.exec(layer.name)[1];
-
-                    if (layer.server) {
-                      var server = layer.server[0];
-                      var res = server.onlineResource[0].href;
-                    }
-                    opt = {name: lyr,
-                            url: res};
+            var type,
+              layer = layers[i];
+            if (layer.group == "Background layers") {
+              var layerAttributionArray;
+              if (layer.vendorExtension && layer.vendorExtension.attribution) {
+                layerAttributionArray = [];
+                for (var a = 0; a < layer.vendorExtension.attribution.length; a++) {
+                  var attribution = layer.vendorExtension.attribution[a];
+                  var layerAttribution = attribution.title;
+                  // If href exist then make the title a link
+                  if (attribution.onlineResource && attribution.onlineResource[0].href) {
+                    var link = document.createElement("a");
+                    link.href = attribution.onlineResource[0].href;
+                    link.innerHTML = layerAttribution;
+                    layerAttribution = link.outerHTML;
                   }
-                  var olLayer =
-                      gnMap.createLayerForType(type, opt, layer.title);
-                  if (olLayer) {
-                    olLayer.displayInLayerManager = false;
-                    olLayer.background = true;
-                    olLayer.set('group', 'Background layers');
-                    olLayer.setVisible(!layer.hidden);
-                    bgLayers.push(olLayer);
-
-                    if (!layer.hidden && !isFirstBgLayer) {
-                      isFirstBgLayer = true;
-                      map.getLayers().setAt(0, olLayer);
-                    }
-                  }
-                }
-
-                // {type=wmts,name=Ocean_Basemap} or WMS
-                else {
-
-                  // to push in bgLayers not in the map
-                  var loadingLayer = new ol.layer.Image({
-                    loading: true,
-                    label: 'loading',
-                    url: '',
-                    visible: false
-                  });
-
-                  if (!layer.hidden && !isFirstBgLayer) {
-                    isFirstBgLayer = true;
-                    loadingLayer.set('bgLayer', true);
-                  }
-
-                  var layerIndex = bgLayers.push(loadingLayer) - 1;
-                  var p = self.createLayer(layer, map, 'do not add');
-
-                  (function(idx, loadingLayer) {
-                    p.then(function(layer) {
-                      if (!layer) {
-                        return;
-                      }
-                      bgLayers[idx] = layer;
-
-                      layer.displayInLayerManager = false;
-                      layer.background = true;
-
-                      if (loadingLayer.get('bgLayer')) {
-                        map.getLayers().setAt(0, layer);
-                      }
-                    });
-                  })(layerIndex, loadingLayer);
+                  layerAttributionArray.push(layerAttribution);
                 }
               }
-              // WMS layer not in background
-              else if (layer.server) {
-                var server = layer.server[0];
-                var currentStyle;
 
-                // load extension content (JSON)
-                if (layer.extension && layer.extension.any) {
-                  var extension = JSON.parse(layer.extension.any);
-                  var loadingId = layer.name;
-                  if (extension.style) {
-                    currentStyle = {Name: extension.style};
-                    loadingId += ' ' + extension.style;
+              // Function to set the attribution on the layer
+              // Parameter :
+              //   ol layer to apply the attributions to.
+              //   layerAttributionArray containing attributions to be added.
+              var setLayerAttribution = function (olLayer, layerAttributionArray) {
+                if (layerAttributionArray) {
+                  // Only apply the layer if there is a source.
+                  if (olLayer.getSource()) {
+                    var attributionLike = olLayer.getSource().getAttributions();
+                    if (typeof attributionLike === "function") {
+                      attributionLike = attributionLike();
+                    }
+                    if (typeof attributionLike === "string") {
+                      attributionLike = [attributionLike];
+                    }
+                    if (
+                      typeof attributionLike === "object" &&
+                      Array.isArray(attributionLike)
+                    ) {
+                      attributionLike.push.apply(attributionLike, layerAttributionArray);
+                    } else {
+                      attributionLike = layerAttributionArray;
+                    }
+                    olLayer.getSource().setAttributions(attributionLike);
+                  } else {
+                    console.log(
+                      "Warning: Cannot add attributions to map as source is not defined"
+                    );
+                  }
+                }
+              };
+
+              // {type=bing_aerial} (mapquest, osm ...)
+              // {type=arcgis,name=0,1,2}
+              // type=wms,name=lll
+              type = layer.name && layer.name.match(reT) ? reT.exec(layer.name)[1] : null;
+              if (type && type != "wmts" && type != "wms" && type != "arcgis") {
+                var opt;
+                if (layer.name && layer.name.match(reL)) {
+                  var lyr = reL.exec(layer.name)[1];
+
+                  if (layer.server) {
+                    var server = layer.server[0];
+                    var res = server.onlineResource[0].href;
+                  }
+                  opt = { name: lyr, url: res };
+                }
+                var olLayer = gnMap.createLayerForType(type, opt, layer.title, map);
+                if (olLayer) {
+                  olLayer.displayInLayerManager = false;
+                  olLayer.background = true;
+                  olLayer.set("group", "Background layers");
+                  olLayer.setVisible(!layer.hidden);
+                  setLayerAttribution(olLayer, layerAttributionArray);
+
+                  if (isMainViewer) {
+                    bgLayers.push(olLayer);
                   }
 
-                  // import saved filters if available
-                  if (extension.filters && extension.wfsUrl) {
-                    var url = extension.wfsUrl;
-
-                    // get ES object and save filters on it
-                    // (will be used by the WfsFilterDirective
-                    // when initializing)
-                    var esObj =
-                        wfsFilterService.registerEsObject(url, layer.name);
-                    esObj.initialFilters = extension.filters;
+                  if (!layer.hidden && !isFirstActiveBgLayer) {
+                    isFirstActiveBgLayer = true;
+                    map.getLayers().setAt(0, olLayer);
                   }
+                }
+              }
 
-                  // this object holds the WPS input values
-                  var defaultInputs = extension.processInputs || {};
+              // {type=wmts,name=Ocean_Basemap} or WMS or arcgis
+              else {
+                // to push in bgLayers not in the map
+                var loadingLayer = new ol.layer.Image({
+                  loading: true,
+                  label: "loading",
+                  url: "",
+                  visible: false
+                });
+
+                if (!layer.hidden && !isFirstActiveBgLayer) {
+                  isFirstActiveBgLayer = true;
+                  loadingLayer.set("bgLayer", true);
                 }
 
-                // create WMS layer
-                if (server.service == 'urn:ogc:serviceType:WMS') {
+                var layerIndex;
+                if (isMainViewer) {
+                  layerIndex = bgLayers.push(loadingLayer) - 1;
+                }
+                var p = self.createLayer(layer, map, "do not add");
 
-                  var loadingLayer = new ol.layer.Image({
-                    loading: true,
-                    label: loadingId || 'loading',
-                    url: '',
-                    visible: false,
-                    group: layer.group
+                (function (idx, loadingLayer) {
+                  p.then(function (layer) {
+                    if (!layer) {
+                      return;
+                    }
+                    if (layerIndex) {
+                      bgLayers[idx] = layer;
+                    }
+
+                    layer.displayInLayerManager = false;
+                    layer.background = true;
+
+                    setLayerAttribution(layer, layerAttributionArray);
+
+                    if (loadingLayer.get("bgLayer")) {
+                      map.getLayers().setAt(0, layer);
+                    }
                   });
+                })(layerIndex, loadingLayer);
+              }
+            }
+            // WMS layer not in background
+            else if (layer.server) {
+              var server = layer.server[0];
+              var currentStyle;
 
-                  loadingLayer.displayInLayerManager = true;
+              // load extension content (JSON)
+              var extension =
+                layer.extension && layer.extension.any
+                  ? // Formatted XML may contains extra space and line feed
+                    JSON.parse(layer.extension.any.replaceAll(/\n +/g, " "))
+                  : {};
 
-                  var layerIndex = map.getLayers().push(loadingLayer) - 1;
-                  var p = self.createLayer(layer, map, undefined, i, currentStyle);
-                  loadingLayer.set('index', layerIndex);
+              var loadingId = extension.label ? extension.label : layer.name;
+              if (extension.style) {
+                currentStyle = { Name: extension.style };
+                loadingId += " " + extension.style;
+              }
 
-                  (function(idx, loadingLayer) {
-                    p.then(function(layer) {
-                      if (layer) {
-                        map.getLayers().setAt(idx, layer);
-                      }
-                      else {
-                        loadingLayer.set('errors', ['load failed']);
-                      }
-                    });
-                  })(layerIndex, loadingLayer);
+              // import saved filters if available
+              if (extension.filters && extension.wfsUrl) {
+                var url = extension.wfsUrl;
+
+                // get ES object and save filters on it
+                // (will be used by the WfsFilterDirective
+                // when initializing)
+                var esObj = wfsFilterService.registerEsObject(url, layer.name);
+                esObj.initialFilters = extension.filters;
+              }
+
+              // this object holds the WPS input values
+              var defaultInputs = extension.processInputs || {};
+
+              // create WMS layer
+              if (server.service == "urn:ogc:serviceType:WMS") {
+                var loadingLayer = new ol.layer.Image({
+                  loading: true,
+                  label: loadingId + "...",
+                  url: "",
+                  visible: false,
+                  group: layer.group
+                });
+
+                loadingLayer.displayInLayerManager = true;
+
+                if (extension.label) {
+                  layer.title = extension.label;
                 }
+                if (extension.uuid) {
+                  layer.metadataUuid = extension.uuid;
+                }
+                if (extension.enabled) {
+                  layer.enabled = extension.enabled;
+                }
+
+                dimensions.forEach(function (dimension) {
+                  if (extension[dimension.toLowerCase() + "DimensionValue"]) {
+                    layer[dimension.toLowerCase() + "DimensionValue"] =
+                      extension[dimension.toLowerCase() + "DimensionValue"];
+                  }
+                });
+
+                var layerIndex = map.getLayers().push(loadingLayer) - 1;
+                var p = self.createLayer(layer, map, undefined, i, currentStyle);
+                loadingLayer.set("index", layerIndex);
+
+                (function (idx, loadingLayer) {
+                  p.then(function (layer) {
+                    if (layer) {
+                      map.getLayers().setAt(idx, layer);
+                    } else {
+                      loadingLayer.set("errors", ["load failed"]);
+                    }
+                  });
+                })(layerIndex, loadingLayer);
               }
             }
             firstLoad = false;
+          }
+          if (!isFirstActiveBgLayer && bgLayers.length > 0) {
+            console.warn(
+              "Map context does not contain any active background layer. \n" +
+                "Set the hidden parameter to false to at least one layer of the group Background layers. \n" +
+                "Setting the first one in the group as active."
+            );
+            bgLayers[0].set("bgLayer", true);
+            map.getLayers().setAt(0, bgLayers[0]);
+          }
+
+          if (gnGlobalSettings.gnCfg.mods.map.defaultToolAfterMapLoad) {
+            gnViewerService.openTool(
+              gnGlobalSettings.gnCfg.mods.map.defaultToolAfterMapLoad
+            );
           }
         }
       };
@@ -344,33 +465,46 @@
        * @param {owsContextLayer} additionalLayers these layers will be added
        *  after the context layers (used to add layers from the map settings)
        */
-      this.loadContextFromUrl = function(url, map, additionalLayers) {
+      this.loadContextFromUrl = function (url, map, additionalLayers) {
         var self = this;
         //        if (/^(f|ht)tps?:\/\//i.test(url)) {
         //          url = gnGlobalSettings.proxyUrl + encodeURIComponent(url);
         //        }
-        return $http.get(url, {headers: {accept: 'application/xml'}})
-            .then(function(r) {
-              if (r.data === '') {
-                var msg = $translate.instant('emptyMapLoadError', {
-                  url: url
-                });
-                $rootScope.$broadcast('StatusUpdated', {
-                  msg: msg,
-                  timeout: 0,
-                  type: 'danger'});
-              }
-
-              self.loadContext(r.data, map, additionalLayers);
-            }, function(r) {
-              var msg = $translate.instant('mapLoadError', {
+        return $http.get(url, { headers: { accept: "application/xml" } }).then(
+          function (r) {
+            if (r.data === "") {
+              var msg = $translate.instant("emptyMapLoadError", {
                 url: url
               });
-              $rootScope.$broadcast('StatusUpdated', {
+              $rootScope.$broadcast("StatusUpdated", {
                 msg: msg,
                 timeout: 0,
-                type: 'danger'});
-            });
+                type: "danger"
+              });
+            }
+
+            self.loadContext(r.data, map, additionalLayers);
+          },
+          function (r) {
+            var contextUsingLanguage =
+              gnViewerSettings.defaultContext.indexOf("{lang}") > -1;
+
+            if (r.status == 404 && contextUsingLanguage) {
+              // Check to load the context file for the default language
+              var newUrl = gnViewerSettings.defaultContext.replace("{lang}", "eng");
+              self.loadContextFromUrl(newUrl, map, additionalLayers);
+            } else {
+              var msg = $translate.instant("mapLoadError", {
+                url: url
+              });
+              $rootScope.$broadcast("StatusUpdated", {
+                msg: msg,
+                timeout: 0,
+                type: "danger"
+              });
+            }
+          }
+        );
       };
 
       /**
@@ -383,15 +517,14 @@
        *    into XML
        * @param {ol.Map} context object
        */
-      this.writeContext = function(map) {
-
+      this.writeContext = function (map) {
         var extent = map.getView().calculateExtent(map.getSize());
 
         var general = {
           boundingBox: {
             name: {
-              'namespaceURI': 'http://www.opengis.net/ows',
-              'localPart': 'BoundingBox'
+              namespaceURI: "http://www.opengis.net/ows",
+              localPart: "BoundingBox"
             },
             value: {
               crs: map.getView().getProjection().getCode(),
@@ -407,7 +540,7 @@
 
         // add the background layers
         // todo: grab this from config
-        angular.forEach(gnViewerSettings.bgLayers, function(layer) {
+        angular.forEach(gnViewerSettings.bgLayers, function (layer) {
           // skip if no valid layer (ie: layer still loading)
           if (!layer) {
             return;
@@ -418,33 +551,69 @@
           var params = {
             hidden: map.getLayers().getArray().indexOf(layer) < 0,
             opacity: layer.getOpacity(),
-            title: layer.get('title'),
-            group: layer.get('group')
+            title: layer.get("title"),
+            group: layer.get("group")
           };
 
           if (source instanceof ol.source.OSM) {
-            name = '{type=osm}';
+            name = "{type=osm}";
           } else if (source instanceof ol.source.BingMaps) {
-            name = '{type=bing_aerial}';
-          } else if (source instanceof ol.source.Stamen) {
-            name = '{type=stamen,name=' + layer.getSource().get('type') + '}';
+            name = "{type=bing_aerial}";
           } else if (source instanceof ol.source.WMTS) {
-            name = '{type=wmts,name=' + layer.get('name') + '}';
-            params.server = [{
-              onlineResource: [{
-                href: layer.get('urlCap')
-              }],
-              service: 'urn:ogc:serviceType:WMS'
-            }];
-          } else if (source instanceof ol.source.ImageWMS ||
-              source instanceof ol.source.TileWMS) {
-            name = layer.get('name');
-            params.server = [{
-              onlineResource: [{
-                href: layer.get('url')
-              }],
-              service: 'urn:ogc:serviceType:WMS'
-            }];
+            name = "{type=wmts,name=" + layer.get("name") + "}";
+            params.server = [
+              {
+                onlineResource: [
+                  {
+                    href: layer.get("urlCap")
+                  }
+                ],
+                service: "urn:ogc:serviceType:WMS"
+              }
+            ];
+          } else if (source instanceof ol.source.ImageArcGISRest) {
+            name =
+              "{type=arcgis,name=" +
+              layer.getSource().getParams().LAYERS.replace("show:", "") +
+              "}";
+            params.server = [
+              {
+                onlineResource: [
+                  {
+                    href: layer.get("url")
+                  }
+                ],
+                service: "urn:ogc:serviceType:WMS"
+              }
+            ];
+          } else if (
+            source instanceof ol.source.ImageWMS ||
+            source instanceof ol.source.TileWMS
+          ) {
+            name = layer.get("name");
+            params.server = [
+              {
+                onlineResource: [
+                  {
+                    href: layer.get("url")
+                  }
+                ],
+                service: "urn:ogc:serviceType:WMS"
+              }
+            ];
+          } else if (source instanceof ol.source.TileImage) {
+            name = "{type=tms,name=" + layer.get("name") + "}";
+
+            params.server = [
+              {
+                onlineResource: [
+                  {
+                    href: layer.getSource().getUrls()[0]
+                  }
+                ],
+                service: "urn:ogc:serviceType:WMTS"
+              }
+            ];
           } else {
             return;
           }
@@ -452,9 +621,10 @@
           resourceList.layer.push(params);
         });
 
-        map.getLayers().forEach(function(layer) {
+        map.getLayers().forEach(function (layer) {
           var source = layer.getSource();
-          var url = '', version = null;
+          var url = "",
+            version = null;
           var name;
 
           // background layers already taken into account
@@ -466,19 +636,25 @@
             name = source.getParams().LAYERS;
             version = source.getParams().VERSION;
             url = gnGlobalSettings.getNonProxifiedUrl(source.getUrl());
-          } else if (source instanceof ol.source.TileWMS ||
-              source instanceof ol.source.ImageWMS) {
+          } else if (
+            source instanceof ol.source.TileWMS ||
+            source instanceof ol.source.ImageWMS
+          ) {
             name = source.getParams().LAYERS;
-            url = gnGlobalSettings.getNonProxifiedUrl(layer.get('url'));
+            url = gnGlobalSettings.getNonProxifiedUrl(layer.get("url"));
           } else if (source instanceof ol.source.WMTS) {
-            name = '{type=wmts,name=' + layer.get('name') + '}';
-            url = gnGlobalSettings.getNonProxifiedUrl(layer.get('urlCap'));
+            name = "{type=wmts,name=" + layer.get("name") + "}";
+            url = gnGlobalSettings.getNonProxifiedUrl(layer.get("urlCap"));
+          } else if (source instanceof ol.source.ImageArcGISRest) {
+            var layerId = layer.getSource().getParams().LAYERS;
+            name = "{type=arcgis,name=" + (layerId || "") + "}";
+            url = layer.get("url");
           } else {
             return;
           }
 
           // fetch current filters state (the whole object will be saved)
-          var esObj = layer.get('indexObject');
+          var esObj = layer.get("indexObject");
           if (esObj) {
             var filters = null;
             if (esObj && esObj.getState()) {
@@ -487,15 +663,15 @@
           }
 
           // add processes inputs if available
-          var processes = layer.get('processes');
+          var processes = layer.get("processes");
           var processInputs = null;
           if (processes) {
-            processes.forEach(function(process) {
-              if (!process.processDescription ||
-                  !process.processDescription.dataInputs) { return; }
+            processes.forEach(function (process) {
+              if (!process.processDescription || !process.processDescription.dataInputs) {
+                return;
+              }
               processInputs = processInputs || {};
-              processInputs[process.name] =
-                  process.processDescription.dataInputs.input;
+              processInputs[process.name] = process.processDescription.dataInputs.input;
             });
           }
 
@@ -503,60 +679,77 @@
             hidden: !layer.getVisible(),
             opacity: layer.getOpacity(),
             name: name,
-            title: layer.get('title'),
-            group: layer.get('group'),
-            groupcombo: layer.get('groupcombo'),
-            server: [{
-              onlineResource: [{
-                href: url
-              }],
-              service: 'urn:ogc:serviceType:WMS'
-            }]
+            title: layer.get("title"),
+            group: layer.get("group"),
+            groupcombo: layer.get("groupcombo"),
+            server: [
+              {
+                onlineResource: [
+                  {
+                    href: url
+                  }
+                ],
+                service: "urn:ogc:serviceType:WMS"
+              }
+            ]
           };
           if (version) {
             layerParams.server[0].version = version;
           }
 
-
           // apply filters & processes inputs in extension if needed
-          if (layer.get('currentStyle') || filters || processInputs) {
-            var extension = {};
+          var extension = {};
 
-            if (layer.get('currentStyle')) {
-              extension.style = layer.get('currentStyle').Name;
-            }
-
-            if (esObj) {
-              var wfsUrl = esObj.config.params.wfsUrl;
-              if (wfsUrl) {
-                extension.filters = filters;
-                extension.wfsUrl = wfsUrl;
-              }
-            }
-            if (processInputs) { extension.processInputs = processInputs; }
-
-            layerParams.extension = {
-              name: 'Extension',
-              any: JSON.stringify(extension)
-            };
+          if (layer.get("md") && layer.get("md")._id) {
+            extension.uuid = layer.get("md")._id;
+            extension.label = layer.get("label");
           }
+
+          if (layer.get("currentStyle")) {
+            extension.style = layer.get("currentStyle").Name;
+          }
+
+          if (esObj) {
+            var wfsUrl = esObj.config.params.wfsUrl;
+            if (wfsUrl) {
+              extension.filters = filters;
+              extension.wfsUrl = wfsUrl;
+            }
+          }
+          if (processInputs) {
+            extension.processInputs = processInputs;
+          }
+          if (layer.showInfo) {
+            extension.enabled = true; // Enabled in layer manager
+          }
+          dimensions.forEach(function (dimension) {
+            if (source.getParams()[dimension]) {
+              extension[dimension.toLowerCase() + "DimensionValue"] =
+                source.getParams()[dimension];
+            }
+          });
+
+          layerParams.extension = {
+            name: "Extension",
+            any: JSON.stringify(extension)
+          };
 
           resourceList.layer.push(layerParams);
         });
 
         var context = {
-          version: '0.3.1',
-          id: 'ows-context-ex-1-v3',
+          version: "0.3.1",
+          id: "ows-context-ex-1-v3",
           general: general,
           resourceList: resourceList
         };
 
         var xml = marshaller.marshalDocument({
           name: {
-            localPart: 'OWSContext',
-            namespaceURI: 'http://www.opengis.net/ows-context',
-            prefix: 'ows-context',
-            string: '{http://www.opengis.net/ows-context}ows-context:OWSContext'
+            localPart: "OWSContext",
+            namespaceURI: "http://www.opengis.net/ows-context",
+            prefix: "ows-context",
+            string: "{http://www.opengis.net/ows-context}ows-context:OWSContext"
           },
           value: context
         });
@@ -573,21 +766,21 @@
        *
        * @param {ol.Map} map object
        */
-      this.saveToLocalStorage = function(map) {
+      this.saveToLocalStorage = function (map) {
         // Disable map storage.
-        if (gnViewerSettings.mapConfig.storage === '') {
+        if (gnViewerSettings.mapConfig.storage === "") {
           return;
         }
-        var storage = gnViewerSettings.mapConfig.storage ?
-            window[gnViewerSettings.mapConfig.storage] : window.localStorage;
+        var storage = gnViewerSettings.mapConfig.storage
+          ? window[gnViewerSettings.mapConfig.storage]
+          : window.localStorage;
         if (map.getSize()[0] == 0 || map.getSize()[1] == 0) {
           // don't save a map which has not been rendered yet
           return;
         }
         var xml = this.writeContext(map);
-        var xmlString = (new XMLSerializer()).serializeToString(xml);
-        var key = 'owsContext_' +
-            window.location.host + window.location.pathname;
+        var xmlString = new XMLSerializer().serializeToString(xml);
+        var key = "owsContext_" + window.location.host + window.location.pathname;
         storage.setItem(key, xmlString);
       };
 
@@ -606,91 +799,119 @@
        * dropdown
        * @param {numeric} index of the layer in the tree
        */
-      this.createLayer = function(layer, map, bgIdx, index, style) {
-
-        var server = layer.server[0];
-        var res = server.onlineResource[0];
-        var reT = /type\s*=\s*([^,|^}|^\s]*)/;
-        var reL = /name\s*=\s*([^,|^}|^\s]*)/;
-
+      this.createLayer = function (layer, map, bgIdx, index, style) {
+        var res = { href: "" };
+        if (layer.server) {
+          var server = layer.server[0];
+          res = server.onlineResource[0];
+        }
         var createOnly = angular.isDefined(bgIdx) || angular.isDefined(index);
 
-        if (layer.name.match(reT)) {
+        function setMapLayerProperties(olL, layer) {
+          olL.set("group", layer.group);
+          olL.set("groupcombo", layer.groupcombo);
+          olL.setOpacity(layer.opacity);
+          olL.setVisible(!layer.hidden);
+          var title = layer.title ? layer.title : olL.get("label");
+          olL.set("title", title || "");
+          olL.set("label", title || "");
+          olL.set("metadataUuid", layer.metadataUuid || "");
+          if (bgIdx) {
+            olL.set("bgIdx", bgIdx);
+          } else if (index) {
+            olL.set("tree_index", index);
+          }
+          if (layer.enabled) {
+            olL.showInfo = layer.enabled; // Enabled in layer manager
+          }
+          // WMTS layers for example doesn't have this type of information
+          if (typeof olL.getSource().getParams === "function") {
+            var params = olL.getSource().getParams() || {};
+            dimensions.forEach(function (dimension) {
+              if (layer[dimension.toLowerCase() + "DimensionValue"]) {
+                params[dimension] = layer[dimension.toLowerCase() + "DimensionValue"];
+                olL.getSource().updateParams(params);
+              }
+            });
+          }
+        }
+
+        if (layer.name && layer.name.match(reT)) {
           var type = reT.exec(layer.name)[1];
           var name = reL.exec(layer.name)[1];
           var promise;
 
-          if (type == 'wmts') {
-            promise = gnMap.addWmtsFromScratch(map, res.href, name, createOnly);
+          if (type === "wmts") {
+            promise = gnMap.addWmtsFromScratch(
+              map,
+              res.href,
+              name,
+              createOnly,
+              layer.metadataUuid || null
+            );
+          } else if (type === "arcgis") {
+            promise = gnMap.addEsriRestLayer(
+              map,
+              res.href,
+              name,
+              createOnly,
+              layer.metadataUuid || null
+            );
           }
 
           // if it's not WMTS, let's assume it is wms
           // (so as to be sure to return something)
           else {
-            promise = gnMap.addWmsFromScratch(map, res.href, name, createOnly);
+            promise = gnMap.addWmsFromScratch(
+              map,
+              res.href,
+              name,
+              createOnly,
+              layer.metadataUuid || null
+            );
           }
 
-          return promise.then(function(olL) {
-            olL.set('group', layer.group);
-            olL.set('groupcombo', layer.groupcombo);
-            olL.setOpacity(layer.opacity);
-            olL.setVisible(!layer.hidden);
-            if (layer.title) {
-              olL.set('title', layer.title);
-              olL.set('label', layer.title);
-            }
-            if (bgIdx) {
-              olL.set('bgIdx', bgIdx);
-            } else if (index) {
-              olL.set('tree_index', index);
-            }
-            return olL;
-          }).catch(function() {});
-        }
-        else { // we suppose it's WMS
+          return promise
+            .then(function (olL) {
+              setMapLayerProperties(olL, layer);
+              return olL;
+            })
+            .catch(function (error) {
+              console.error(error);
+            });
+        } else {
+          // we suppose it's WMS
           // TODO: Would be good to attach the MD
           // even when loaded from a context.
-          return gnMap.addWmsFromScratch(
-              map, res.href, layer.name,
-              createOnly, null, server.version, style).
-              then(function(olL) {
-                if (olL) {
-                  try {
-                    // Avoid double encoding
-                    if (layer.group) {
-                      layer.group = decodeURIComponent(escape(layer.group));
-                    }
-                  } catch (e) {}
-                  olL.set('group', layer.group);
-                  olL.set('groupcombo', layer.groupcombo);
-                  olL.set('tree_index', index);
-                  olL.setOpacity(layer.opacity);
-                  olL.setVisible(!layer.hidden);
-                  var title =  layer.title ? layer.title : olL.get('label');
-                  olL.set('title', title || '');
-                  olL.set('label', title || '');
-                  $rootScope.$broadcast('layerAddedFromContext', olL);
-                  return olL;
-                }
+          return gnMap
+            .addWmsFromScratch(
+              map,
+              res.href,
+              layer.name,
+              createOnly,
+              layer.metadataUuid || null,
+              server.version,
+              style
+            )
+            .then(function (olL) {
+              if (olL) {
+                try {
+                  // Avoid double encoding
+                  if (layer.group) {
+                    layer.group = decodeURIComponent(escape(layer.group));
+                  }
+                } catch (e) {}
+                setMapLayerProperties(olL, layer);
+                $rootScope.$broadcast("layerAddedFromContext", olL);
                 return olL;
-              }).catch(function() {});
+              }
+              return olL;
+            })
+            .catch(function (error) {
+              console.error(error);
+            });
         }
       };
-
-      /**
-       * @ngdoc method
-       * @name gnOwsContextService#getREForPar
-       * @methodOf gn_viewer.service:gnOwsContextService
-       *
-       * @description
-       * Creates a regular expression for a given parameter
-       *
-       * * @param {Object} context parameter
-       */
-      this.getREForPar = function(par) {
-        return re = new RegExp(par + '\\s*=\\s*([^,|^}|^\\s]*)');
-      };
-
     }
   ]);
 })();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * Copyright (C) 2001-2021 Food and Agriculture Organization of the
  * United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * and United Nations Environment Programme (UNEP)
  *
@@ -23,67 +23,74 @@
 
 package org.fao.geonet.api.users;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jeeves.server.UserSession;
-import jeeves.server.context.ServiceContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.ApplicationContextHolder;
-import org.fao.geonet.api.API;
 import org.fao.geonet.api.ApiParams;
 import org.fao.geonet.api.ApiUtils;
+import org.fao.geonet.api.tools.i18n.LanguageUtils;
+import org.fao.geonet.api.users.model.PasswordResetDto;
 import org.fao.geonet.api.users.model.UserDto;
-import org.fao.geonet.constants.Params;
+import org.fao.geonet.api.users.validation.PasswordResetDtoValidator;
+import org.fao.geonet.api.users.validation.UserDtoValidator;
 import org.fao.geonet.domain.*;
 import org.fao.geonet.exceptions.UserNotFoundEx;
 import org.fao.geonet.kernel.DataManager;
-import org.fao.geonet.kernel.datamanager.IMetadataManager;
 import org.fao.geonet.kernel.datamanager.IMetadataUtils;
-import org.fao.geonet.repository.GroupRepository;
-import org.fao.geonet.repository.MetadataRepository;
-import org.fao.geonet.repository.SortUtils;
-import org.fao.geonet.repository.UserGroupRepository;
-import org.fao.geonet.repository.UserRepository;
-import org.fao.geonet.repository.UserSavedSelectionRepository;
+import org.fao.geonet.kernel.datamanager.base.BaseMetadataStatus;
+import org.fao.geonet.kernel.security.SecurityProviderConfiguration;
+import org.fao.geonet.kernel.setting.SettingManager;
+import org.fao.geonet.repository.*;
 import org.fao.geonet.repository.specification.MetadataSpecs;
 import org.fao.geonet.repository.specification.UserGroupSpecs;
 import org.fao.geonet.repository.specification.UserSpecs;
 import org.fao.geonet.util.PasswordUtil;
-import org.jdom.Element;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specifications;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
+import javax.imageio.ImageIO;
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.bind.DatatypeConverter;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static org.fao.geonet.kernel.setting.Settings.SYSTEM_SECURITY_PASSWORD_ALLOWADMINRESET;
+import static org.fao.geonet.kernel.setting.Settings.SYSTEM_USERS_IDENTICON;
 import static org.fao.geonet.repository.specification.UserGroupSpecs.hasProfile;
 import static org.fao.geonet.repository.specification.UserGroupSpecs.hasUserId;
-import static org.springframework.data.jpa.domain.Specifications.where;
+import static org.fao.geonet.repository.specification.UserGroupSpecs.hasUserIdAndProfile;
+import static org.springframework.data.jpa.domain.Specification.where;
 
 @RequestMapping(value = {
-    "/{portal}/api/users",
-    "/{portal}/api/" + API.VERSION_0_1 +
-        "/users"
+    "/{portal}/api/users"
 })
-@Api(value = "users",
-    tags = "users",
+@Tag(name = "users",
     description = "User operations")
 @Controller("users")
 public class UsersApi {
+
+    @Autowired
+    SettingManager settingManager;
 
     @Autowired
     UserRepository userRepository;
@@ -95,16 +102,31 @@ public class UsersApi {
     UserGroupRepository userGroupRepository;
 
     @Autowired
+    BaseMetadataStatus baseMetadataStatus;
+
+    @Autowired
     UserSavedSelectionRepository userSavedSelectionRepository;
 
     @Autowired
     DataManager dataManager;
 
+    @Autowired
+    LanguageUtils languageUtils;
 
-    @ApiOperation(
-        value = "Get users",
-        notes = "",
-        nickname = "getUsers")
+    @Autowired(required=false)
+    SecurityProviderConfiguration securityProviderConfiguration;
+
+    private BufferedImage pixel;
+
+    public UsersApi() {
+        pixel = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        pixel.setRGB(0, 0, (0xFF));
+    }
+
+
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Get users",
+        description = "")
     @RequestMapping(
         produces = MediaType.APPLICATION_JSON_VALUE,
         method = RequestMethod.GET)
@@ -112,29 +134,33 @@ public class UsersApi {
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public List<User> getUsers(
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpSession httpSession
     ) throws Exception {
         UserSession session = ApiUtils.getUserSession(httpSession);
         Profile profile = session.getProfile();
 
-        if (profile == Profile.Administrator) {
+        if (Profile.Administrator.equals(profile)) {
+            // Get all users
             return userRepository.findAll(SortUtils.createSort(User_.name));
-        } else if (profile != Profile.UserAdmin) {
+        } else if (!Profile.UserAdmin.equals(profile)) {
+            // Return only the current user
             return userRepository.findAll(UserSpecs.hasUserId(session.getUserIdAsInt()));
-        } else if (profile == Profile.UserAdmin) {
+        } else if (Profile.UserAdmin.equals(profile)) {
+            // Return all the users belonging to a group where the current user is UserAdmin
             int userId = session.getUserIdAsInt();
-            final List<Integer> userGroupIds =
-                getGroupIds(userId);
+            final List<Integer> userGroupIds = getGroupIdsWhereUserIsUserAdmin(userId);
 
             List<User> allUsers = userRepository.findAll(SortUtils.createSort(User_.name));
 
-            // Filter users which are not in current user admin groups
-            allUsers.removeIf(u -> !userGroupIds.containsAll(getGroupIds(u.getId())) ||
-                u.getProfile().equals(Profile.Administrator));
-//              TODO-API: Check why there was this check on profiles ?
-//                    if (!profileSet.contains(profile))
-//                        alToRemove.add(elRec);
+            // Filter users that are not in current userAdmin groups or are administrators
+            allUsers.removeIf(u ->
+                    userGroupIds.stream().noneMatch(getGroupIds(u.getId())::contains) ||
+                    u.getProfile().equals(Profile.Administrator));
+
+            // TODO-API: Check why there was this check on profiles ?
+            //  if (!profileSet.contains(profile))
+            //  alToRemove.add(elRec);
 
             return allUsers;
         }
@@ -143,10 +169,9 @@ public class UsersApi {
     }
 
 
-    @ApiOperation(
-        value = "Get user",
-        notes = "",
-        nickname = "getUser")
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Get user",
+        description = "")
     @RequestMapping(
         value = "/{userIdentifier}",
         produces = MediaType.APPLICATION_JSON_VALUE,
@@ -155,12 +180,12 @@ public class UsersApi {
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public User getUser(
-        @ApiParam(
-            value = "User identifier."
+        @Parameter(
+            description = "User identifier."
         )
         @PathVariable
             Integer userIdentifier,
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpSession httpSession
 
     ) throws Exception {
@@ -170,9 +195,9 @@ public class UsersApi {
 
         if (myProfile.equals(Profile.Administrator) || myProfile.equals(Profile.UserAdmin) ||
             myUserId.equals(Integer.toString(userIdentifier))) {
-            User user = userRepository.findOne(userIdentifier);
+            Optional<User> user = userRepository.findById(userIdentifier);
 
-            if (user == null) {
+            if (!user.isPresent()) {
                 throw new UserNotFoundEx(Integer.toString(userIdentifier));
             }
 
@@ -187,32 +212,86 @@ public class UsersApi {
                 }
             }
 
-            return user;
+            return user.get();
         } else {
             throw new IllegalArgumentException("You don't have rights to do this");
         }
 
     }
 
-    @ApiOperation(
-        value = "Delete a user",
-        notes = "Deletes a catalog user by identifier.",
-        nickname = "deleteUser")
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Get user identicon",
+        description = "")
+    @RequestMapping(
+        value = "/{userIdentifier}.png",
+        produces = MediaType.IMAGE_PNG_VALUE,
+        method = RequestMethod.GET)
+    @ResponseBody
+    public void getUserIdenticon(
+        @Parameter(
+            description = "User identifier."
+        )
+        @PathVariable
+            Integer userIdentifier,
+        @Parameter(
+            description = "Size."
+        )
+        @RequestParam(defaultValue = "18")
+            Integer size,
+        @Parameter(hidden = true)
+            HttpServletResponse response
+    ) throws IOException {
+        String identiconType = settingManager.getValue(SYSTEM_USERS_IDENTICON);
+        if (identiconType != null && identiconType.startsWith("gravatar")) {
+            try {
+                Optional<User> user = userRepository.findById(userIdentifier);
+
+                if (!user.isPresent()) {
+                    throw new UserNotFoundEx(Integer.toString(userIdentifier));
+                }
+
+                String[] config = identiconType.split(":");
+                String dParameter = config.length > 1 ? config[1] : null;
+                String fParameter = config.length == 3 ? config[2] : null;
+
+                String email = user.get().getEmail() != null ? user.get().getEmail() : "";
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                byte[] hash = md.digest(email.getBytes());
+                URL url = new URL("https://gravatar.com/avatar/" +
+                    DatatypeConverter.printHexBinary(hash).toLowerCase() +
+                    "?s=" + size +
+                    (dParameter ==  null ? "" : "&d=" + dParameter) +
+                    (fParameter ==  null ? "" : "&f=" + fParameter)
+                );
+                BufferedImage image = ImageIO.read(url);
+                response.setStatus(HttpStatus.OK.value());
+                ImageIO.write(image, "PNG", response.getOutputStream());
+            } catch (NoSuchAlgorithmException e) {
+                ImageIO.write(pixel, "PNG", response.getOutputStream());
+            }
+        } else {
+            ImageIO.write(pixel, "PNG", response.getOutputStream());
+        }
+    }
+
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Delete a user",
+        description = "Deletes a catalog user by identifier.")
     @RequestMapping(value = "/{userIdentifier}",
         produces = MediaType.APPLICATION_JSON_VALUE,
         method = RequestMethod.DELETE)
     @ResponseStatus(value = HttpStatus.OK)
-    @PreAuthorize("hasRole('UserAdmin') or hasRole('Administrator')")
+    @PreAuthorize("hasAuthority('UserAdmin') or hasRole('Administrator')")
     @ResponseBody
     public ResponseEntity<String> deleteUser(
-        @ApiParam(
-            value = "User identifier."
+        @Parameter(
+            description = "User identifier."
         )
         @PathVariable
             Integer userIdentifier,
-        @ApiIgnore
+        @Parameter(hidden = true)
             ServletRequest request,
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpSession httpSession
     ) throws Exception {
         UserSession session = ApiUtils.getUserSession(httpSession);
@@ -244,7 +323,7 @@ public class UsersApi {
         // this is the case
         if (dataManager.isUserMetadataOwner(userIdentifier)) {
             IMetadataUtils metadataRepository = ApplicationContextHolder.get().getBean(IMetadataUtils.class);
-            final long numUserRecords =  metadataRepository.count(MetadataSpecs.isOwnedByUser(userIdentifier));
+            final long numUserRecords = metadataRepository.count(MetadataSpecs.isOwnedByUser(userIdentifier));
             throw new IllegalArgumentException(
                 String.format(
                     "Cannot delete a user that is also metadata owner of %d record(s) (can be records, templates, subtemplates). Change owner of those records or remove them first.",
@@ -252,8 +331,14 @@ public class UsersApi {
         }
 
         if (dataManager.isUserMetadataStatus(userIdentifier)) {
-            throw new IllegalArgumentException(
-                "Cannot delete a user that has set a metadata status");
+            Optional<User> nobody = userRepository.findById(0);
+            if (nobody.isPresent()) {
+                baseMetadataStatus.transferMetadataStatusOwnership(userIdentifier,
+                    nobody.get().getId());
+            } else {
+              throw new IllegalArgumentException(
+                "Cannot delete a user that has set a metadata status. Check in database to transfer those status to another user or create a user nobody with id = 0.");
+            }
         }
 
         userGroupRepository.deleteAllByIdAttribute(UserGroupId_.userId,
@@ -262,7 +347,7 @@ public class UsersApi {
         userSavedSelectionRepository.deleteAllByUser(userIdentifier);
 
         try {
-            userRepository.delete(userIdentifier);
+            userRepository.deleteById(userIdentifier);
         } catch (org.springframework.dao.EmptyResultDataAccessException ex) {
             throw new UserNotFoundEx(Integer.toString(userIdentifier));
         }
@@ -270,32 +355,32 @@ public class UsersApi {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @ApiOperation(
-        value = "Check if a user property already exist",
-        notes = "",
-        authorizations = {
-            @Authorization(value = "basicAuth")
-        },
-        nickname = "checkUserPropertyExist")
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Check if a user property already exist",
+        description = ""
+        //       authorizations = {
+        //           @Authorization(value = "basicAuth")
+        //      })
+    )
     @RequestMapping(
         value = "/properties/{property}",
         method = RequestMethod.GET
     )
     @ResponseStatus(value = HttpStatus.OK)
-    @PreAuthorize("hasRole('UserAdmin')")
+    @PreAuthorize("hasAuthority('UserAdmin')")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Property does not exist."),
-        @ApiResponse(code = 404, message = "A property with that value already exist."),
-        @ApiResponse(code = 403, message = ApiParams.API_RESPONSE_NOT_ALLOWED_ONLY_USER_ADMIN)
+        @ApiResponse(responseCode = "200", description = "Property does not exist."),
+        @ApiResponse(responseCode = "404", description = "A property with that value already exist."),
+        @ApiResponse(responseCode = "403", description = ApiParams.API_RESPONSE_NOT_ALLOWED_ONLY_USER_ADMIN)
     })
     public ResponseEntity<HttpStatus> checkUserPropertyExist(
-        @ApiParam(
-            value = "The user property to check"
+        @Parameter(
+            description = "The user property to check"
         )
         @PathVariable
             String property,
-        @ApiParam(
-            value = "The value to search"
+        @Parameter(
+            description = "The value to search"
         )
         @RequestParam
             String exist) {
@@ -314,32 +399,44 @@ public class UsersApi {
     }
 
 
-    @ApiOperation(
-        value = "Creates a user",
-        notes = "Creates a catalog user.",
-        nickname = "createUser")
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Creates a user",
+        description = "Creates a catalog user.")
     @RequestMapping(
         produces = MediaType.APPLICATION_JSON_VALUE,
         method = RequestMethod.PUT)
     @ResponseStatus(value = HttpStatus.OK)
-    @PreAuthorize("hasRole('UserAdmin') or hasRole('Administrator')")
+    @PreAuthorize("hasAuthority('UserAdmin') or hasRole('Administrator')")
     @ResponseBody
     public ResponseEntity<String> createUser(
-        @ApiParam(
+        @Parameter(
             name = "user"
         )
         @RequestBody
             UserDto userDto,
-        @ApiIgnore
+        @Parameter(hidden = true)
+            BindingResult bindingResult,
+        @Parameter(hidden = true)
             ServletRequest request,
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpSession httpSession
     ) throws Exception {
-        Profile profile = Profile.findProfileIgnoreCase(userDto.getProfile());
+        Locale locale = languageUtils.parseAcceptLanguage(request.getLocales());
+        ResourceBundle messages = ResourceBundle.getBundle("org.fao.geonet.api.Messages", locale);
+
         UserSession session = ApiUtils.getUserSession(httpSession);
         Profile myProfile = session.getProfile();
 
-        if (profile == Profile.Administrator) {
+        // Allow administrator to modify the user profile as they may need to manually pre-create users via api in certain cases (i.e. migration)
+        if (securityProviderConfiguration != null &&
+            !securityProviderConfiguration.isUserProfileUpdateEnabled() &&
+            !Profile.Administrator.equals(myProfile)) {
+            return new ResponseEntity<>(messages.getString("security_provider_unsupported_functionality"), HttpStatus.PRECONDITION_FAILED);
+        }
+
+        Profile profile = Profile.findProfileIgnoreCase(userDto.getProfile());
+
+        if (Profile.Administrator.equals(profile)) {
             checkIfAtLeastOneAdminIsEnabled(userDto, userRepository);
         }
 
@@ -351,10 +448,19 @@ public class UsersApi {
                     + " max profile permitted is: " + myProfile);
         }
 
-        if (StringUtils.isEmpty(userDto.getUsername())) {
-            throw new IllegalArgumentException(Params.USERNAME
-                + " is a required parameter for "
-                + Params.Operation.NEWUSER + " " + "operation");
+        // Validate userDto data
+        UserDtoValidator userValidator = new UserDtoValidator();
+        userValidator.validate(userDto, bindingResult);
+        String errorMessage = ApiUtils.processRequestValidation(bindingResult, messages);
+        if (StringUtils.isNotEmpty(errorMessage)) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+
+        // If userProfileUpdateEnabled is not enabled, the user password are managed by the security provider so allow null passwords.
+        // Otherwise the password cannot be null.
+        if (userDto.getPassword() == null
+            && (securityProviderConfiguration == null || securityProviderConfiguration.isUserProfileUpdateEnabled())) {
+            throw new IllegalArgumentException("Users password must be supplied");
         }
 
         List<User> existingUsers = userRepository.findByUsernameIgnoreCase(userDto.getUsername());
@@ -371,9 +477,11 @@ public class UsersApi {
         groups.addAll(processGroups(userDto.getGroupsUserAdmin(), Profile.UserAdmin));
 
         User user = new User();
-        user.getSecurity().setPassword(
-            PasswordUtil.encoder(ApplicationContextHolder.get()).encode(
-                userDto.getPassword()));
+        if (userDto.getPassword() != null) {
+            user.getSecurity().setPassword(
+                PasswordUtil.encoder(ApplicationContextHolder.get()).encode(
+                    userDto.getPassword()));
+        }
 
         fillUserFromParams(user, userDto);
 
@@ -383,10 +491,9 @@ public class UsersApi {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @ApiOperation(
-        value = "Update a user",
-        notes = "Updates a catalog user.",
-        nickname = "updateUser")
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Update a user",
+        description = "Updates a catalog user.")
     @RequestMapping(value = "/{userIdentifier}",
         produces = MediaType.APPLICATION_JSON_VALUE,
         method = RequestMethod.PUT)
@@ -394,21 +501,23 @@ public class UsersApi {
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public ResponseEntity<String> updateUser(
-        @ApiParam(
-            value = "User identifier."
+        @Parameter(
+            description = "User identifier."
         )
         @PathVariable
             Integer userIdentifier,
-        @ApiParam(
+        @Parameter(
             name = "user"
         )
         @RequestBody
             UserDto userDto,
-        @ApiIgnore
+        @Parameter(hidden = true)
             ServletRequest request,
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpSession httpSession
     ) throws Exception {
+        Locale locale = languageUtils.parseAcceptLanguage(request.getLocales());
+        ResourceBundle messages = ResourceBundle.getBundle("org.fao.geonet.api.Messages", locale);
 
         Profile profile = Profile.findProfileIgnoreCase(userDto.getProfile());
 
@@ -416,17 +525,17 @@ public class UsersApi {
         Profile myProfile = session.getProfile();
         String myUserId = session.getUserId();
 
-        if (myProfile != Profile.Administrator && myProfile != Profile.UserAdmin && !myUserId.equals(Integer.toString(userIdentifier))) {
+        if (!Profile.Administrator.equals(myProfile) && !Profile.UserAdmin.equals(myProfile) && !myUserId.equals(Integer.toString(userIdentifier))) {
             throw new IllegalArgumentException("You don't have rights to do this");
         }
 
-        if (profile == Profile.Administrator) {
+        if (Profile.Administrator.equals(profile)) {
             checkIfAtLeastOneAdminIsEnabled(userDto, userRepository);
         }
 
         // TODO: CheckAccessRights
 
-        User user = userRepository.findOne(userIdentifier);
+        User user = userRepository.findById(userIdentifier).get();
         if (user == null) {
             throw new IllegalArgumentException("No user found with id: "
                 + userDto.getId());
@@ -459,13 +568,27 @@ public class UsersApi {
 
         //If it is a useradmin updating,
         //maybe we don't know all the groups the user is part of
-        if (!myProfile.equals(Profile.Administrator)) {
-            List<Integer> myUserAdminGroups = userGroupRepository.findGroupIds(Specifications.where(
+        if (!Profile.Administrator.equals(myProfile)) {
+            List<Integer> myUserAdminGroups = userGroupRepository.findGroupIds(Specification.where(
                 hasProfile(myProfile)).and(hasUserId(Integer.parseInt(myUserId))));
 
             List<UserGroup> usergroups =
-                userGroupRepository.findAll(Specifications.where(
+                userGroupRepository.findAll(Specification.where(
                     hasUserId(Integer.parseInt(userDto.getId()))));
+
+            List<Integer> userToUpdateGroupIds = usergroups.stream()
+                .map(ug -> ug.getId().getGroupId())
+                .collect(Collectors.toList());
+
+            Set<Integer> groupsInCommon = myUserAdminGroups.stream()
+                .distinct()
+                .filter(userToUpdateGroupIds::contains)
+                .collect(Collectors.toSet());
+
+            // UserAdmin can't update users that are not in the groups administered
+            if (groupsInCommon.isEmpty()) {
+                throw new IllegalArgumentException("You don't have rights to do this");
+            }
 
             //keep unknown groups as is
             for (UserGroup ug : usergroups) {
@@ -476,18 +599,33 @@ public class UsersApi {
             }
         }
 
-        fillUserFromParams(user, userDto);
+        // Allow administrator to modify the user profile as they may need to manually modify users via api in certain cases (i.e. migration)
+        if (securityProviderConfiguration != null &&
+            !securityProviderConfiguration.isUserProfileUpdateEnabled() &&
+            !Profile.Administrator.equals(myProfile)) {
+            // If profile update is not enabled then the only thing that can be changed it enabling/disabling the user.
+            user.setEnabled(userDto.isEnabled());
+        } else {
+            fillUserFromParams(user, userDto);
+        }
 
         user = userRepository.save(user);
-        setUserGroups(user, groups);
+
+        if (securityProviderConfiguration == null || securityProviderConfiguration.isUserGroupUpdateEnabled()) {
+            setUserGroups(user, groups);
+        }
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @ApiOperation(
-        value = "Resets user password",
-        notes = "Resets the user password.",
-        nickname = "resetUserPassword")
+    private boolean isUserAllowedToResetWithoutOldPassword(Profile myProfile) {
+        boolean isAdminAllowed = settingManager.getValueAsBool(SYSTEM_SECURITY_PASSWORD_ALLOWADMINRESET, false);
+        return isAdminAllowed && Profile.Administrator.equals(myProfile);
+    }
+
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Resets user password",
+        description = "Resets the user password.")
     @RequestMapping(value = "/{userIdentifier}/actions/forget-password",
         produces = MediaType.APPLICATION_JSON_VALUE,
         method = RequestMethod.POST)
@@ -495,55 +633,73 @@ public class UsersApi {
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public ResponseEntity<String> resetUserPassword(
-        @ApiParam(
-            value = "User identifier."
+        @Parameter(
+            description = "User identifier."
         )
         @PathVariable
             Integer userIdentifier,
-        @ApiParam(
-            value = "Password to change."
-        )
-        @RequestParam(value = Params.PASSWORD) String password,
-        @ApiParam(
-            value = "Password to change (repeat)."
-        )
-        @RequestParam(value = Params.PASSWORD + "2") String password2,
-        @ApiIgnore
+        @RequestBody
+            PasswordResetDto passwordResetDto,
+        @Parameter(hidden = true)
+            BindingResult bindingResult,
+        @Parameter(hidden = true)
             ServletRequest request,
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpSession httpSession
     ) throws Exception {
 
-        if (!password.equals(password2)) {
-            throw new IllegalArgumentException("Passwords should be equal");
+        Locale locale = languageUtils.parseAcceptLanguage(request.getLocales());
+        ResourceBundle messages = ResourceBundle.getBundle("org.fao.geonet.api.Messages", locale);
+
+        if (securityProviderConfiguration != null && !securityProviderConfiguration.isUserProfileUpdateEnabled()) {
+            return new ResponseEntity<>(messages.getString("security_provider_unsupported_functionality"), HttpStatus.PRECONDITION_FAILED);
+        }
+
+        // Validate passwordResetDto data
+        PasswordResetDtoValidator passwordResetValidator = new PasswordResetDtoValidator();
+        passwordResetValidator.validate(passwordResetDto, bindingResult);
+        String errorMessage = ApiUtils.processRequestValidation(bindingResult, messages);
+        if (StringUtils.isNotEmpty(errorMessage)) {
+            throw new IllegalArgumentException(errorMessage);
         }
 
         UserSession session = ApiUtils.getUserSession(httpSession);
         Profile myProfile = session.getProfile();
         String myUserId = session.getUserId();
 
-        if (myProfile != Profile.Administrator && myProfile != Profile.UserAdmin && !myUserId.equals(Integer.toString(userIdentifier))) {
+        if (!Profile.Administrator.equals(myProfile) 
+            && !Profile.UserAdmin.equals(myProfile) 
+            && !myUserId.equals(Integer.toString(userIdentifier))) {
             throw new IllegalArgumentException("You don't have rights to do this");
         }
 
-        User user = userRepository.findOne(userIdentifier);
-        if (user == null) {
+        Optional<User> user = userRepository.findById(userIdentifier);
+        if (!user.isPresent()) {
             throw new UserNotFoundEx(Integer.toString(userIdentifier));
         }
 
+        PasswordEncoder encoder = PasswordUtil.encoder(ApplicationContextHolder.get());
+
+        if (isUserAllowedToResetWithoutOldPassword(myProfile) == false
+            && (passwordResetDto.getPasswordOld() == null
+            || !encoder.matches(
+            passwordResetDto.getPasswordOld(),
+            user.get().getPassword()))) {
+            throw new IllegalArgumentException("The old password is not valid.");
+        }
+
         String passwordHash = PasswordUtil.encoder(ApplicationContextHolder.get()).encode(
-            password);
-        user.getSecurity().setPassword(passwordHash);
-        user.getSecurity().getSecurityNotifications().remove(UserSecurityNotification.UPDATE_HASH_REQUIRED);
-        userRepository.save(user);
+            passwordResetDto.getPassword());
+        user.get().getSecurity().setPassword(passwordHash);
+        user.get().getSecurity().getSecurityNotifications().remove(UserSecurityNotification.UPDATE_HASH_REQUIRED);
+        userRepository.save(user.get());
 
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @ApiOperation(
-        value = "Retrieve user groups",
-        notes = "Retrieve the user groups.",
-        nickname = "retrieveUserGroups")
+    @io.swagger.v3.oas.annotations.Operation(
+        summary = "Retrieve user groups",
+        description = "Retrieve the user groups.")
     @RequestMapping(value = "/{userIdentifier}/groups",
         produces = MediaType.APPLICATION_JSON_VALUE,
         method = RequestMethod.GET
@@ -552,23 +708,23 @@ public class UsersApi {
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public List<UserGroup> retrieveUserGroups(
-        @ApiParam(
-            value = "User identifier."
+        @Parameter(
+            description = "User identifier."
         )
         @PathVariable
             Integer userIdentifier,
-        @ApiIgnore
+        @Parameter(hidden = true)
             ServletRequest request,
-        @ApiIgnore
+        @Parameter(hidden = true)
             HttpSession httpSession
     ) throws Exception {
         UserSession session = ApiUtils.getUserSession(httpSession);
         Profile myProfile = session.getProfile();
         String myUserId = session.getUserId();
 
-        if (myProfile == Profile.Administrator || myProfile == Profile.UserAdmin || myUserId.equals(Integer.toString(userIdentifier))) {
+        if (Profile.Administrator.equals(myProfile) || Profile.UserAdmin.equals(myProfile) || myUserId.equals(Integer.toString(userIdentifier))) {
             // -- get the profile of the user id supplied
-            User user = userRepository.findOne(userIdentifier);
+            User user = userRepository.findById(userIdentifier).get();
             if (user == null) {
                 throw new IllegalArgumentException("user " + userIdentifier + " doesn't exist");
             }
@@ -577,7 +733,7 @@ public class UsersApi {
 
             List<UserGroup> userGroups;
 
-            if (myProfile == Profile.Administrator && userProfile.equals(Profile.Administrator.name())) {
+            if (Profile.Administrator.equals(myProfile) && userProfile.equals(Profile.Administrator.name())) {
                 // Return all groups for administrator.
                 // TODO: Check if a better option returning instead of UserGroup a customised GroupDTO
                 // containing all group properties and user profile
@@ -622,8 +778,13 @@ public class UsersApi {
     }
 
     private List<Integer> getGroupIds(int userId) {
-        return  userGroupRepository.findGroupIds(hasUserId(userId));
+        return userGroupRepository.findGroupIds(hasUserId(userId));
     }
+
+    private List<Integer> getGroupIdsWhereUserIsUserAdmin(int userId) {
+        return userGroupRepository.findGroupIds(hasUserIdAndProfile(userId, Profile.UserAdmin));
+    }
+
 
     private void setUserGroups(final User user, List<GroupElem> userGroups)
         throws Exception {
@@ -635,9 +796,7 @@ public class UsersApi {
         Set<String> listOfAddedProfiles = new HashSet<String>();
         for (UserGroup ug : all) {
             String key = ug.getProfile().name() + ug.getGroup().getId();
-            if (!listOfAddedProfiles.contains(key)) {
-                listOfAddedProfiles.add(key);
-            }
+            listOfAddedProfiles.add(key);
         }
 
         // We start removing all old usergroup objects. We will remove the
@@ -652,7 +811,7 @@ public class UsersApi {
         // updated.
         for (GroupElem element : userGroups) {
             Integer groupId = element.getId();
-            Group group = groupRepository.findOne(groupId);
+            Group group = groupRepository.findById(groupId).get();
             String profile = element.getProfile();
             // The user has a new group and profile
 
@@ -697,10 +856,10 @@ public class UsersApi {
         }
 
         // Remove deprecated usergroups (if any)
-        userGroupRepository.delete(toRemove);
+        userGroupRepository.deleteAll(toRemove);
 
         // Add only new usergroups (if any)
-        userGroupRepository.save(toAdd);
+        userGroupRepository.saveAll(toAdd);
 
     }
 
@@ -778,7 +937,7 @@ public class UsersApi {
         // Check at least 1 administrator is enabled
         if (StringUtils.isNotEmpty(userDto.getId()) && (!userDto.isEnabled())) {
             List<User> adminEnabledList = userRepository.findAll(
-                Specifications.where(UserSpecs.hasProfile(Profile.Administrator)).and(UserSpecs.hasEnabled(true)));
+                Specification.where(UserSpecs.hasProfile(Profile.Administrator)).and(UserSpecs.hasEnabled(true)));
             if (adminEnabledList.size() == 1) {
                 User adminUser = adminEnabledList.get(0);
                 if (adminUser.getId() == Integer.parseInt(userDto.getId())) {
@@ -793,8 +952,8 @@ public class UsersApi {
 
 class GroupElem {
 
-    private String profile;
-    private Integer id;
+    private final String profile;
+    private final Integer id;
 
     public GroupElem(String profile, Integer id) {
         this.id = id;

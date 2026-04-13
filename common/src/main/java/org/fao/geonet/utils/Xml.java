@@ -18,7 +18,7 @@
 //===	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //===
 //===	Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
-//===	Rome - Italy. email: GeoNetwork@fao.org
+//===	Rome - Italy. email: geonetwork@osgeo.org
 //==============================================================================
 
 package org.fao.geonet.utils;
@@ -31,27 +31,15 @@ import net.sf.json.xml.XMLSerializer;
 import net.sf.saxon.Configuration;
 import net.sf.saxon.Controller;
 import net.sf.saxon.FeatureKeys;
-import org.apache.commons.io.IOUtils;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.xml.resolver.tools.CatalogResolver;
 import org.fao.geonet.exceptions.XSDValidationErrorEx;
 import org.fao.geonet.utils.nio.NioPathAwareEntityResolver;
 import org.fao.geonet.utils.nio.NioPathHolder;
 import org.fao.geonet.utils.nio.PathStreamSource;
-import org.jdom.Attribute;
-import org.jdom.Content;
-import org.jdom.DocType;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Namespace;
-import org.jdom.Text;
+import org.jdom.*;
 import org.jdom.filter.ElementFilter;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
@@ -69,27 +57,14 @@ import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
+import javax.xml.transform.*;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.ValidatorHandler;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.StringReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -100,19 +75,11 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -128,14 +95,23 @@ public final class Xml {
     public static final Namespace xsiNS = Namespace.getNamespace("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
     public static final NioPathAwareEntityResolver PATH_RESOLVER = new NioPathAwareEntityResolver();
 
-    //--------------------------------------------------------------------------
+    // http://www.w3.org/TR/REC-xml/#charsets
+    public static final String XML10_ILLEGAL_CHAR_PATTERN = "[^"
+        + "\u0009\r\n"
+        + "\u0020-\uD7FF"
+        + "\uE000-\uFFFD"
+        + "\ud800\udc00-\udbff\udfff"
+        + "]";
+    public static final String XML_VERSION_HEADER = "<\\?xml version=['\"]1.0['\"] encoding=['\"].*['\"]\\?>\\s*";
 
-    /**
-     *
-     * @param validate
-     * @return
-     */
-    private static SAXBuilder getSAXBuilder(boolean validate, Path base) {
+    public static SAXBuilder getSAXBuilder(boolean validate) {
+        SAXBuilder builder = getSAXBuilderWithPathXMLResolver(validate, null);
+        Resolver resolver = ResolverWrapper.getInstance();
+        builder.setEntityResolver(resolver.getXmlResolver());
+        return builder;
+    }
+
+    public static SAXBuilder getSAXBuilder(boolean validate, Path base) {
         SAXBuilder builder = getSAXBuilderWithPathXMLResolver(validate, base);
         Resolver resolver = ResolverWrapper.getInstance();
         builder.setEntityResolver(resolver.getXmlResolver());
@@ -145,6 +121,10 @@ public final class Xml {
     private static SAXBuilder getSAXBuilderWithPathXMLResolver(boolean validate, Path base) {
         SAXBuilder builder = new SAXBuilder(validate);
         builder.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        builder.setFeature("http://apache.org/xml/features/allow-java-encodings", true);
+
+        // To avoid CVE-2021-33813
+        builder.setExpandEntities(false);
 
         if (base != null) {
             NioPathHolder.setBase(base);
@@ -386,6 +366,9 @@ public final class Xml {
     public static Element transform(Element xml, Path styleSheetPath, Map<String, Object> params) throws Exception {
         JDOMResult resXml = new JDOMResult();
         transform(xml, styleSheetPath, resXml, params);
+        if (resXml.getDocument() == null) {
+            throw new NullPointerException("Failed to create a Document for " + resXml.getResult());
+        }
         return (Element) resXml.getDocument().getRootElement().detach();
     }
     //--------------------------------------------------------------------------
@@ -393,22 +376,16 @@ public final class Xml {
     /**
      * Transforms an xml tree putting the result to a stream (uses a stylesheet on disk).
      */
+    public static void transform(Element xml, Path styleSheetPath, Map<String, Object> params, OutputStream out) throws Exception {
+        StreamResult resStream = new StreamResult(out);
+        transform(xml, styleSheetPath, resStream, params);
+        out.flush();
+    }
+
     public static void transform(Element xml, Path styleSheetPath, OutputStream out) throws Exception {
-        StreamResult resStream = new StreamResult(out);
-        transform(xml, styleSheetPath, resStream, null);
-        out.flush();
+        transform(xml, styleSheetPath, new HashMap<>(), out);
     }
 
-
-    public static void transformXml(Element xml, Path styleSheetPath, OutputStream out) throws Exception {
-        StreamResult resStream = new StreamResult(out);
-        Map<String, Object> map = new HashMap<>();
-        map.put("geonet-force-xml", "xml");
-        transform(xml, styleSheetPath, resStream, map);
-        out.flush();
-    }
-
-    //--------------------------------------------------------------------------
 
     /**
      * Transforms an xml tree putting the result to a stream  - no parameters.
@@ -474,6 +451,9 @@ public final class Xml {
 
     /**
      * Transforms an xml tree putting the result to a stream with optional parameters.
+     * <p>
+     * Add a geonet-force-xml parameter to force the formatting to be xml.
+     * The preferred method is to define it using xsl:output.
      */
     public static void
     transform(Element xml, Path styleSheetPath, Result result, Map<String, Object> params) throws Exception {
@@ -505,13 +485,13 @@ public final class Xml {
                         t.setParameter(param.getKey(), param.getValue());
                     }
 
-                if (params.containsKey("geonet-force-xml")) {
-                    ((Controller) t).setOutputProperty("indent", "yes");
-                    ((Controller) t).setOutputProperty("method", "xml");
-                    ((Controller) t).setOutputProperty("{http://saxon.sf.net/}indent-spaces", "3");
+                    if (params.containsKey("geonet-force-xml")) {
+                        ((Controller) t).setOutputProperty("indent", "yes");
+                        ((Controller) t).setOutputProperty("method", "xml");
+                        ((Controller) t).setOutputProperty("{http://saxon.sf.net/}indent-spaces", "2");
+                    }
                 }
 
-                }
                 t.transform(srcXml, result);
             }
         }
@@ -1106,6 +1086,10 @@ public final class Xml {
 
     /**
      * return true if the String passed in is something like XML
+     * Check for XML header first.
+     * Then use a Regular expression to see if it starts and ends with
+     * the same element or it's a self-closing element.
+     * Regex can be slow on large document.
      *
      * @param inXMLStr a string that might be XML
      * @return true of the string is XML, false otherwise
@@ -1116,21 +1100,45 @@ public final class Xml {
         Pattern pattern;
         Matcher matcher;
 
-        // Regular expression to see if it starts and ends with the same element
-        final String XML_PATTERN_STR = "<(\\S+?)(.*?)>(.*?)</\\1>";
+        if (inXMLStr.startsWith("<?xml")) {
+            return true;
+        }
+        inXMLStr = inXMLStr.replaceFirst(XML_VERSION_HEADER, "");
+
+        // Regular expression to see if it starts and ends with the same element or
+        // it's a self-closing element.
+        final String XML_PATTERN_STR = "<(\\S+?)(.*?)>(.*?)</\\1>|<(\\S+?)(.*?)/>";
 
         if (inXMLStr != null && inXMLStr.trim().length() > 0) {
-            if (inXMLStr.trim().startsWith("<")) {
+            String trimedString = inXMLStr.trim();
+            if (trimedString.startsWith("<")) {
                 pattern = Pattern.compile(XML_PATTERN_STR,
                     Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
 
-                matcher = pattern.matcher(inXMLStr);
+                matcher = pattern.matcher(trimedString);
                 retBool = matcher.matches();
             }
         }
 
         return retBool;
     }
+
+    /**
+     * Check if is XML and the first tag local name
+     * is rdf or something like a DCAT feed.
+     */
+    public static boolean isRDFLike(String inXMLStr) {
+        boolean retBool = false;
+        if (isXMLLike(inXMLStr)) {
+            String xml = inXMLStr.replaceFirst(XML_VERSION_HEADER, ""),
+            firstTag = xml
+                .substring(0, xml.indexOf(" "))
+                .toLowerCase();
+            retBool = firstTag.matches("<.*:(rdf|catalog|catalogrecord)\\n?");
+        }
+        return retBool;
+    }
+
 
     private static class JeevesURIResolver implements URIResolver {
 

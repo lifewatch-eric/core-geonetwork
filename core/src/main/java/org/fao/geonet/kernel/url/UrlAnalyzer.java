@@ -22,16 +22,13 @@
 //==============================================================================
 package org.fao.geonet.kernel.url;
 
-import org.fao.geonet.domain.AbstractMetadata;
-import org.fao.geonet.domain.Link;
-import org.fao.geonet.domain.LinkStatus;
-import org.fao.geonet.domain.Link_;
-import org.fao.geonet.domain.MetadataLink;
-import org.fao.geonet.domain.MetadataLink_;
+import org.fao.geonet.domain.*;
 import org.fao.geonet.kernel.SchemaManager;
 import org.fao.geonet.kernel.schema.LinkAwareSchemaPlugin;
 import org.fao.geonet.kernel.schema.LinkPatternStreamer.ILinkBuilder;
 import org.fao.geonet.kernel.schema.SchemaPlugin;
+import org.fao.geonet.kernel.setting.SettingManager;
+import org.fao.geonet.kernel.setting.Settings;
 import org.fao.geonet.repository.LinkRepository;
 import org.fao.geonet.repository.LinkStatusRepository;
 import org.fao.geonet.repository.MetadataLinkRepository;
@@ -47,12 +44,16 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import static java.util.Objects.isNull;
+import java.util.Optional;
+
 
 public class UrlAnalyzer {
 
     @Autowired
     protected SchemaManager schemaManager;
+
+    @Autowired
+    protected SettingManager settingManager;
 
     @Autowired
     protected MetadataRepository metadataRepository;
@@ -107,7 +108,7 @@ public class UrlAnalyzer {
                     link.getRecords().add(metadataLink);
                     linkRepository.save(link);
                 }
-            }).processAllRawText(element, md);
+            }, settingManager.getValue(Settings.METADATA_LINK_EXCLUDEPATTERN)).processAllRawText(element, md);
             entityManager.flush();
         }
     }
@@ -153,7 +154,9 @@ public class UrlAnalyzer {
     }
 
     private boolean isReferencingAnUnknownMetadata(MetadataLink metadatalink) {
-        return isNull(metadataRepository.findOne(metadatalink.getMetadataId()));
+        Optional<Metadata> metadata = metadataRepository.findById(metadatalink.getMetadataId());
+
+        return !metadata.isPresent();
     }
 
 

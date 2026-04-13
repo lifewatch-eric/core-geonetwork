@@ -27,22 +27,18 @@
   <parent>
     <artifactId>geonetwork</artifactId>
     <groupId>org.geonetwork-opensource</groupId>
-    <version>3.11.0-SNAPSHOT</version>
+    <version>4.2.11-0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>domain</artifactId>
+  <artifactId>gn-domain</artifactId>
   <name>GeoNetwork domain</name>
 
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>common</artifactId>
+      <artifactId>gn-common</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.locationtech.jts</groupId>
@@ -53,17 +49,12 @@
       <artifactId>guava</artifactId>
     </dependency>
     <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-jpamodelgen</artifactId>
-      <version>1.2.0.Final</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
+      <artifactId>hibernate-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -119,7 +110,14 @@
       <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.jasypt</groupId>
+      <artifactId>jasypt</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jasypt</groupId>
+      <artifactId>jasypt-hibernate5</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -216,6 +214,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
+              <excludedGroups>org.fao.geonet.repository.AbstractSpringDataTest</excludedGroups>
               <systemPropertyVariables>
                 <postgresqlPerformanceTest>true</postgresqlPerformanceTest>
               </systemPropertyVariables>
@@ -238,6 +237,72 @@
           <scope>test</scope>
         </dependency>
       </dependencies>
+    </profile>
+    <profile>
+      <id>it</id> <!-- Profile to enable integration tests-->
+      <properties>
+        <skipIT>false</skipIT>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <version>3.0.0-M4</version>
+            <configuration>
+              <groups>org.fao.geonet.repository.AbstractSpringDataTest</groups>
+              <includes>
+                <include>**/*.java</include>
+              </includes>
+              <runOrder>alphabetical</runOrder>
+              <forkCount>${system.numCores}</forkCount>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integration-test</id>
+                <goals>
+                  <goal>integration-test</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>verify</id>
+                <goals>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>com.github.alexcojocaru</groupId>
+            <artifactId>elasticsearch-maven-plugin</artifactId>
+            <version>${es.maven.plugin.version}</version>
+            <configuration>
+              <version>${es.version}</version>
+              <downloadUrl>https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${es.version}-${es.platform}.${es.installer.extension}</downloadUrl>
+              <clusterName>test</clusterName>
+              <transportPort>9300</transportPort>
+              <httpPort>9200</httpPort>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-elasticsearch</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>runforked</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-elasticsearch</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
   <properties>

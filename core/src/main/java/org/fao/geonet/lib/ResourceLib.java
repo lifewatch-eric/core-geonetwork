@@ -1,5 +1,5 @@
 //=============================================================================
-//===	Copyright (C) 2001-2007 Food and Agriculture Organization of the
+//===	Copyright (C) 2001-2024 Food and Agriculture Organization of the
 //===	United Nations (FAO-UN), United Nations World Food Programme (WFP)
 //===	and United Nations Environment Programme (UNEP)
 //===
@@ -36,6 +36,7 @@ import org.fao.geonet.kernel.AccessManager;
 import org.fao.geonet.kernel.GeonetworkDataDirectory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.Set;
@@ -44,17 +45,19 @@ import java.util.Set;
  * Utility class to deal with data and removed directory. Also provide user privileges checking
  * method.
  */
+@Component
 public class ResourceLib {
+
     /**
      * Get metadata public or private data directory
      *
-     * @param access The type of data directory. {@link org.fao.geonet.constants.Params.Access#PUBLIC}
-     *               or {@link org.fao.geonet.constants.Params.Access#PRIVATE}
+     * @param access The type of data directory. {@link Params.Access#PUBLIC}
+     *               or {@link Params.Access#PRIVATE}
      * @param id     The metadata identifier
-     * @return The data directory
+     * @return The metadata directory
      */
-    public Path getDir(ServiceContext context, String access, int id) {
-        Path mdDir = getMetadataDir(context.getBean(GeonetworkDataDirectory.class), id);
+    public Path getDir(String access, int id) {
+        Path mdDir = getMetadataDir(ApplicationContextHolder.get().getBean(GeonetworkDataDirectory.class), id);
         String subDir = (access != null && access.equals(Params.Access.PUBLIC)) ? Params.Access.PUBLIC
             : Params.Access.PRIVATE;
         return mdDir.resolve(subDir);
@@ -109,7 +112,7 @@ public class ResourceLib {
         denyAccess(context);
     }
 
-    public void denyAccess(ServiceContext context) throws Exception {
+    public void denyAccess(ServiceContext context) throws AccessDeniedException, OperationNotAllowedEx {
         if (context.getUserSession().isAuthenticated()) {
             throw new AccessDeniedException("User is not permitted to access this resource");
         } else {
@@ -130,21 +133,6 @@ public class ResourceLib {
     /**
      * @return the absolute path of the folder choosen to store all deleted metadata
      */
-    @Deprecated
-    public Path getRemovedDir(ServiceContext context) {
-        GeonetContext gc = (GeonetContext) context
-            .getHandlerContext(Geonet.CONTEXT_NAME);
-        return gc.getBean(GeonetworkDataDirectory.class).getBackupDir();
-    }
-
-    /**
-     * See {@link #getRemovedDir(Path, String)}
-     */
-    @Deprecated
-    public Path getRemovedDir(ServiceContext context, String id) {
-        return getRemovedDir(getRemovedDir(context), id);
-    }
-
     public Path getRemovedDir(int id) {
         ApplicationContext appContext = ApplicationContextHolder.get();
         GeonetworkDataDirectory dataDirectory = appContext.getBean(GeonetworkDataDirectory.class);
@@ -168,10 +156,10 @@ public class ResourceLib {
     // ---
     // -----------------------------------------------------------------------------
 
-    private String pad(int group, int lenght) {
+    private String pad(int group, int length) {
         String text = Integer.toString(group);
 
-        while (text.length() < lenght)
+        while (text.length() < length)
             text = "0" + text;
 
         return text;

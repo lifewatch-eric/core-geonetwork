@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2017 Food and Agriculture Organization of the
+ * Copyright (C) 2001-2023 Food and Agriculture Organization of the
  * United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * and United Nations Environment Programme (UNEP)
  *
@@ -23,12 +23,13 @@
 
 package org.fao.geonet.util;
 
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.MultiPolygon;
+import com.google.common.io.Files;
+import com.neovisionaries.i18n.LanguageCode;
 import jeeves.component.ProfileManager;
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
@@ -36,28 +37,37 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.lucene.search.join.ScoreMode;
+import org.elasticsearch.action.search.MultiSearchRequest;
+import org.elasticsearch.action.search.MultiSearchResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.fao.geonet.ApplicationContextHolder;
-import org.fao.geonet.NodeInfo;
 import org.fao.geonet.SystemInfo;
+import org.fao.geonet.api.records.attachments.FilesystemStore;
+import org.fao.geonet.api.records.attachments.FilesystemStoreResourceContainer;
+import org.fao.geonet.api.records.attachments.Store;
 import org.fao.geonet.constants.Geonet;
-import org.fao.geonet.domain.IsoLanguage;
-import org.fao.geonet.domain.LinkStatus;
-import org.fao.geonet.domain.Source;
-import org.fao.geonet.domain.UiSetting;
-import org.fao.geonet.domain.User;
-import org.fao.geonet.kernel.DataManager;
-import org.fao.geonet.kernel.SchemaManager;
-import org.fao.geonet.kernel.ThesaurusManager;
+import org.fao.geonet.domain.*;
+import org.fao.geonet.index.es.EsRestClient;
+import org.fao.geonet.kernel.*;
+import org.fao.geonet.kernel.datamanager.base.BaseMetadataUtils;
 import org.fao.geonet.kernel.search.CodeListTranslator;
-import org.fao.geonet.kernel.search.LuceneSearcher;
+import org.fao.geonet.kernel.search.EsSearchManager;
 import org.fao.geonet.kernel.search.Translator;
-import org.fao.geonet.kernel.security.shibboleth.ShibbolethUserConfiguration;
-import org.fao.geonet.kernel.security.shibboleth.ShibbolethUserUtils;
+import org.fao.geonet.kernel.security.SecurityProviderConfiguration;
 import org.fao.geonet.kernel.setting.SettingInfo;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.kernel.url.UrlChecker;
@@ -70,46 +80,61 @@ import org.fao.geonet.repository.UserRepository;
 import org.fao.geonet.schema.iso19139.ISO19139Namespaces;
 import org.fao.geonet.utils.Log;
 import org.fao.geonet.utils.Xml;
+import org.geotools.geojson.geom.GeometryJSON;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.xsd.Parser;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import org.jdom.output.DOMOutputter;
+import org.jsoup.Jsoup;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.operation.valid.IsValidOp;
+import org.locationtech.jts.precision.GeometryPrecisionReducer;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.owasp.esapi.errors.EncodingException;
 import org.owasp.esapi.reference.DefaultEncoder;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import javax.annotation.Nonnull;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.imageio.ImageIO;
+import javax.xml.parsers.ParserConfigurationException;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.fao.geonet.kernel.search.spatial.SpatialIndexWriter.parseGml;
-import static org.fao.geonet.kernel.setting.Settings.SYSTEM_SITE_ORGANIZATION;
+import static org.fao.geonet.kernel.setting.Settings.*;
 import static org.fao.geonet.utils.Xml.getXmlFromJSON;
+
+
 
 /**
  * These are all extension methods for calling from xsl docs.  Note:  All params are objects because
@@ -119,6 +144,140 @@ import static org.fao.geonet.utils.Xml.getXmlFromJSON;
  * @author jesse
  */
 public final class XslUtil {
+    public static MultiPolygon parseGml(Parser parser, String gml) throws IOException, SAXException,
+        ParserConfigurationException {
+        Object value = parser.parse(new StringReader(gml));
+        if (value instanceof HashMap) {
+            @SuppressWarnings("rawtypes")
+            HashMap map = (HashMap) value;
+            List<Polygon> geoms = new ArrayList<Polygon>();
+            for (Object entry : map.values()) {
+                addToList(geoms, entry);
+            }
+            if (geoms.isEmpty()) {
+                return null;
+            } else if (geoms.size() > 1) {
+                GeometryFactory factory = geoms.get(0).getFactory();
+                return factory.createMultiPolygon(geoms.toArray(new Polygon[0]));
+            } else {
+                return toMultiPolygon(geoms.get(0));
+            }
+
+        } else if (value == null) {
+            return null;
+        } else {
+            return toMultiPolygon((Geometry) value);
+        }
+    }
+
+    public static String gmlToGeoJson(String gml,
+                                      Boolean applyPrecisionModel,
+                                      Integer numberOfDecimals) {
+        if (applyPrecisionModel == null) {
+            applyPrecisionModel = true;
+        }
+        if (numberOfDecimals == null) {
+            numberOfDecimals = 5;
+        }
+
+        try {
+            if (StringUtils.isNotEmpty(gml)) {
+                Element geomElement = Xml.loadString(gml, false);
+                Parser parser = GMLParsers.create(geomElement);
+                Geometry geom = parseGml(parser, gml);
+
+                if (geom == null) {
+                    return "Warning: GML geometry is null.";
+                }
+
+                Object userData = geom.getUserData();
+                if (userData instanceof DefaultProjectedCRS) {
+                    geom = JTS.transform(
+                        geom,
+                        CRS.findMathTransform((DefaultProjectedCRS) userData,
+                            CRS.decode("EPSG:4326", true), true)
+                    );
+                }
+                else if (userData instanceof DefaultGeographicCRS) {
+                    geom = JTS.transform(
+                        geom,
+                        CRS.findMathTransform((DefaultGeographicCRS) userData,
+                            CRS.decode("EPSG:4326", true), true)
+                    );
+                }
+
+                if (!geom.isValid()) {
+                    IsValidOp isValidOp = new IsValidOp(geom);
+                    return String.format(
+                        "Warning: GML geometry is not valid. %s",
+                        isValidOp.getValidationError().toString());
+                }
+
+                Geometry reducedGeom = null;
+                // An issue here is that GeometryJSON conversion may over simplify
+                // the geometry by truncating coordinates based on numberOfDecimals
+                // which on default constructor is set to 4. This may lead to
+                // invalid geometry and Elasticsearch will fail parsing the GeoJSON
+                // with the following type of error:
+                // Caused by: org.locationtech.spatial4j.exception.InvalidShapeException:
+                // Provided shape has duplicate
+                // consecutive coordinates at: (-3.9997, 48.7463, NaN)
+                //
+                // To avoid this, it may be relevant to apply the reduction model
+                // preserving topology.
+                if (applyPrecisionModel) {
+                    PrecisionModel precisionModel =
+                        new PrecisionModel(Math.pow(10, numberOfDecimals - 1));
+                    reducedGeom = GeometryPrecisionReducer.reduce(geom, precisionModel);
+
+                    if (reducedGeom.isEmpty()) {
+                        int numberOfDecimalsForSmallGeom = 10;
+
+                        precisionModel =
+                            new PrecisionModel(Math.pow(10, numberOfDecimalsForSmallGeom - 1));
+                        reducedGeom = GeometryPrecisionReducer.reduce(geom, precisionModel);
+                        return new GeometryJSON(numberOfDecimalsForSmallGeom).toString(reducedGeom);
+//                    return String.format(
+//                        "Warning: Empty geometry after applying precision reducer with %d decimals.",
+//                        numberOfDecimals);
+                    }
+                }
+                return new GeometryJSON(numberOfDecimals).toString(reducedGeom);
+            }
+        } catch (Exception e) {
+            return String.format("Error: %s, %s parsing %s to GeoJSON",
+                e.getClass().getSimpleName(), e.getMessage(), gml);
+        }
+        return "";
+    }
+
+
+
+    public static void addToList(List<Polygon> geoms, Object entry) {
+        if (entry instanceof Polygon) {
+            geoms.add((Polygon) entry);
+        } else if (entry instanceof Collection) {
+            @SuppressWarnings("rawtypes")
+            Collection collection = (Collection) entry;
+            for (Object object : collection) {
+                geoms.add((Polygon) object);
+            }
+        }
+    }
+
+    public static MultiPolygon toMultiPolygon(Geometry geometry) {
+        if (geometry instanceof Polygon) {
+            Polygon polygon = (Polygon) geometry;
+
+            return geometry.getFactory().createMultiPolygon(
+                new Polygon[]{polygon});
+        } else if (geometry instanceof MultiPolygon) {
+            return (MultiPolygon) geometry;
+        }
+        String message = geometry.getClass() + " cannot be converted to a polygon. Check Metadata";
+        Log.error(Geonet.INDEX_ENGINE, message);
+        throw new IllegalArgumentException(message);
+    }
 
     private static final char TS_DEFAULT = ' ';
     private static final char CS_DEFAULT = ',';
@@ -205,22 +364,27 @@ public final class XslUtil {
         SourceRepository sourceRepository= ApplicationContextHolder.get().getBean(SourceRepository.class);
         UiSettingsRepository uiSettingsRepository = ApplicationContextHolder.get().getBean(UiSettingsRepository.class);
 
-        org.fao.geonet.domain.Source portal = sourceRepository.findOne(nodeId);
+        Optional<org.fao.geonet.domain.Source> portalOpt = sourceRepository.findById(nodeId);
+        org.fao.geonet.domain.Source portal = null;
+        if (portalOpt.isPresent()) {
+            portal = portalOpt.get();
+        }
 
         if (uiSettingsRepository != null) {
+            Optional<UiSetting> oneOpt = null;
             UiSetting one = null;
             if (portal != null && StringUtils.isNotEmpty(portal.getUiConfig())) {
-                one = uiSettingsRepository.findOne(portal.getUiConfig());
+                oneOpt = uiSettingsRepository.findById(portal.getUiConfig());
             }
             else if (StringUtils.isNotEmpty(key)) {
-                one = uiSettingsRepository.findOne(key);
+                oneOpt = uiSettingsRepository.findById(key);
             }
-            else if (one == null) {
-                one = uiSettingsRepository.findOne(org.fao.geonet.NodeInfo.DEFAULT_NODE);
+            else if (oneOpt == null) {
+                oneOpt = uiSettingsRepository.findById(org.fao.geonet.NodeInfo.DEFAULT_NODE);
             }
 
-            if (one != null) {
-                return one.getConfiguration();
+            if (oneOpt.isPresent()) {
+                return oneOpt.get().getConfiguration();
             } else {
                 return "{}";
             }
@@ -284,22 +448,60 @@ public final class XslUtil {
      * If the main one, then get the name on the source table with the site id.
      * If a sub portal, use the sub portal key.
      *
-     * @param key   Sub portal key
+     * @param key   Sub portal key or UUID
      * @return
      */
     public static String getNodeName(String key, String lang, boolean withOrganization) {
         SettingManager settingsMan = ApplicationContextHolder.get().getBean(SettingManager.class);
-        if (StringUtils.isEmpty(key)) {
-            key =  ApplicationContextHolder.get().getBean(NodeInfo.class).getId();
+        Optional<Source> source = getSource(key);
+        return source.isPresent() ? source.get().getLabel(lang) : settingsMan.getSiteName()
+            + (withOrganization ? " - " + settingsMan.getValue(SYSTEM_SITE_ORGANIZATION) : "");
+    }
+
+
+    /**
+     * Return the ID of the current node (catalog or subportal).
+     * If the main one, then srv.
+     * If a sub portal, use the sub portal key.
+     *
+     * @return
+     */
+    public static String getNodeId() {
+        return ApplicationContextHolder.get().getBean(org.fao.geonet.NodeInfo.class).getId();
+    }
+
+
+    public static String getNodeLogo(String key) {
+        Optional<Source> source = getSource(key);
+        return source.isPresent() ? source.get().getLogo() : "";
+    }
+
+    public static String getDiscoveryServiceUuid(String key) {
+        Optional<Source> source = getSource(key);
+        if (source.isPresent() && source.get().getType() == SourceType.subportal) {
+            return source.get().getServiceRecord();
+        } else {
+            SettingManager settingsMan = ApplicationContextHolder.get().getBean(SettingManager.class);
+            String uuid = settingsMan.getValue(SYSTEM_CSW_CAPABILITY_RECORD_UUID);
+            return "-1".equals(uuid) ? "" : uuid;
         }
-        if (NodeInfo.DEFAULT_NODE.equals(key)) {
-            key = settingsMan.getSiteId();
+    }
+
+    private static Optional<Source> getSource(String idOrUuid) {
+        SettingManager settingsMan = ApplicationContextHolder.get().getBean(SettingManager.class);
+        if (StringUtils.isEmpty(idOrUuid)) {
+            idOrUuid =  ApplicationContextHolder.get().getBean(org.fao.geonet.NodeInfo.class).getId();
+        }
+        if (org.fao.geonet.NodeInfo.DEFAULT_NODE.equals(idOrUuid)) {
+            idOrUuid = settingsMan.getSiteId();
         }
         SourceRepository sourceRepository = ApplicationContextHolder.get().getBean(SourceRepository.class);
-        Source source = sourceRepository.findOne(key);
+        Optional<Source> source = sourceRepository.findById(idOrUuid);
 
-        return source != null ? source.getLabel(lang) : settingsMan.getSiteName()
-            + (withOrganization ? " - " + settingsMan.getValue(SYSTEM_SITE_ORGANIZATION) : "");
+        if (!source.isPresent()) {
+            source = Optional.ofNullable(sourceRepository.findOneByUuid(idOrUuid));
+        }
+        return source;
     }
 
 
@@ -328,7 +530,7 @@ public final class XslUtil {
                 }
             }
         } catch (Exception e) {
-            Log.error(Geonet.GEONETWORK,"XslUtil getJsonSettingValue error: " + e.getMessage(), e);
+            Log.error(Geonet.GEONETWORK,"XslUtil getJsonSettingValue '" + key + "' error: " + e.getMessage(), e);
         }
         return "";
     }
@@ -352,28 +554,124 @@ public final class XslUtil {
     }
 
     /**
-     * Check if bean is defined in the context
-     *
-     * @param beanId id of the bean to look up
+     * Check if user is authenticated.
      */
-    public static boolean existsBean(String beanId) {
-        return ProfileManager.existsBean(beanId);
+    public static boolean isAuthenticated() throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || AnonymousAuthenticationToken.class.isAssignableFrom(authentication.getClass())) {
+            return false;
+        }
+        return authentication.isAuthenticated();
     }
 
-	/**
-	 * Check if Shibboleth should show login
-	 *
-	 * @param beanId
-	 *            id of the bean to look up
+
+    /**
+	 * Check if security provider require login form
 	 */
-	public static boolean shibbolethHideLogin() {
-		if (existsBean("shibbolethConfiguration")) {
-			ServiceContext serviceContext = ServiceContext.get();
-			ShibbolethUserConfiguration shib = serviceContext.getBean(ShibbolethUserConfiguration.class);
-			return shib.getHideLogin();
-		}
-		return false;
+	public static boolean isDisableLoginForm() {
+        SecurityProviderConfiguration securityProviderConfiguration = SecurityProviderConfiguration.get();
+
+        if (securityProviderConfiguration != null) {
+            // No login form if providing a link or autologin
+            return securityProviderConfiguration.getLoginType().equals(SecurityProviderConfiguration.LoginType.AUTOLOGIN.toString().toLowerCase())
+                || securityProviderConfiguration.getLoginType().equals(SecurityProviderConfiguration.LoginType.LINK.toString().toLowerCase());
+        }
+        // If we cannot find SecurityProviderConfiguration then default to false.
+        return false;
 	}
+
+    /**
+     * Check if security provider require login link
+     */
+    public static boolean isShowLoginAsLink() {
+        SecurityProviderConfiguration securityProviderConfiguration = SecurityProviderConfiguration.get();
+
+        if (securityProviderConfiguration != null) {
+            return securityProviderConfiguration.getLoginType().equals(SecurityProviderConfiguration.LoginType.LINK.toString().toLowerCase());
+        }
+        // If we cannot find SecurityProviderConfiguration then default to false.
+        return false;
+    }
+
+    /**
+     * Check if user profile update is enabled.
+     */
+    public static boolean isUserProfileUpdateEnabled() {
+        SecurityProviderConfiguration securityProviderConfiguration = SecurityProviderConfiguration.get();
+
+        if (securityProviderConfiguration != null) {
+            return securityProviderConfiguration.isUserProfileUpdateEnabled();
+        }
+        return true;
+    }
+
+    /**
+     * Check if user group update is enabled.
+     */
+    public static boolean isUserGroupUpdateEnabled() {
+        SecurityProviderConfiguration securityProviderConfiguration = SecurityProviderConfiguration.get();
+
+        if (securityProviderConfiguration != null) {
+            return securityProviderConfiguration.isUserGroupUpdateEnabled();
+        }
+        return true;
+    }
+
+    /**
+     * get security provider
+     */
+    public static String getSecurityProvider() {
+        SecurityProviderConfiguration securityProviderConfiguration = SecurityProviderConfiguration.get();
+
+        if (securityProviderConfiguration != null) {
+            return securityProviderConfiguration.getSecurityProvider();
+        }
+        // If we cannot find SecurityProviderConfiguration then default to empty string.
+        return "";
+    }
+
+    /**
+     * get external manager url for resource.
+     *
+     * @param metadataUuid uuid of the record
+     * @param approved is metadata approved
+     * @return url to access the resource. Or null if not supported
+     */
+    public static MetadataResourceContainer getResourceContainerDescription(String metadataUuid, Boolean approved) throws Exception {
+        Store store = BeanFactoryAnnotationUtils.qualifiedBeanOfType(ApplicationContextHolder.get().getBeanFactory(), Store.class, "filesystemStore");
+
+        if (store != null) {
+            try {
+                if (store.getResourceManagementExternalProperties() != null && store.getResourceManagementExternalProperties().isFolderEnabled()) {
+                    ServiceContext context = ServiceContext.get();
+                    return store.getResourceContainerDescription(ServiceContext.get(), metadataUuid, approved);
+                } else {
+                    // Return an empty object which should not be used because the folder is not enabled.
+                    return new FilesystemStoreResourceContainer(metadataUuid, -1, null, null, null, approved);
+                }
+            } catch (RuntimeException e) {
+                Log.error(Geonet.RESOURCES, "Could not locate resource in getResourceContainerDescription due to runtime exception", e);
+                return null;
+            }
+
+        }
+        Log.error(Geonet.RESOURCES, "Could not locate a Store bean in getResourceContainerDescription");
+        return null;
+    }
+
+    /**
+     * get resource management external properties.
+     *
+     * @return the windows parameters to be used.
+     */
+    public static Store.ResourceManagementExternalProperties getResourceManagementExternalProperties() {
+        Store store = BeanFactoryAnnotationUtils.qualifiedBeanOfType(ApplicationContextHolder.get().getBeanFactory(), Store.class, "filesystemStore");
+        if (store != null) {
+            return store.getResourceManagementExternalProperties();
+        }
+        Log.error(Geonet.RESOURCES,"Could not locate a Store bean in getResourceManagementExternalProperties");
+        return null;
+    }
 
     /**
      * Optimistically check if user can access a given url.  If not possible to determine then the
@@ -416,6 +714,27 @@ public final class XslUtil {
             Log.error(Geonet.GEONETWORK, "XMLtoJSON conversion I/O error. Error is " + e.getMessage() + ". XML is " + xml.toString());
         }
         return "";
+    }
+
+    /**
+     * Try to preserve some HTML layout to text layout.
+     *
+     * Replace br tag by new line, li by new line with leading *.
+     */
+    public static String htmlElement2textReplacer(String html) {
+        return html
+            .replaceAll("<br */?>", System.getProperty("line.separator"))
+            .replaceAll("<li>(.*)</li>", System.getProperty("line.separator") + "* $1");
+    }
+    public static String html2text(String html) {
+        return Jsoup.parse(html).wholeText();
+    }
+    public static String html2text(String html, boolean substituteHtmlToTextLayoutElement) {
+        return html2text(
+            substituteHtmlToTextLayoutElement ? htmlElement2textReplacer(html) : html);
+    }
+    public static String html2textNormalized(String html) {
+        return Jsoup.parse(html).text();
     }
 
     /**
@@ -484,6 +803,43 @@ public final class XslUtil {
         return results.toString();
     }
 
+    public static String wktGeomToBbox(Object WKT) throws Exception {
+        String ret = "";
+        try {
+            String wktString = (String) WKT;
+            if (wktString != null && wktString.length() > 0) {
+                WKTReader reader = new WKTReader();
+                Geometry geometry = reader.read(wktString);
+                if (geometry != null) {
+                    final Envelope envelope = geometry.getEnvelopeInternal();
+                    // Use Locale.US to make Java use dot "." as decimal separator
+                    return
+                        String.format(Locale.US, "%f|%f|%f|%f",
+                            envelope.getMinX(), envelope.getMinY(),
+                            envelope.getMaxX(), envelope.getMaxY());
+                }
+            }
+        } catch (Throwable e) {
+        }
+        return ret;
+    }
+
+    public static String geoJsonGeomToBbox(Object WKT) throws Exception {
+        String ret = "";
+        try {
+            Geometry geometry = new GeometryJSON().read(WKT);
+            if (geometry != null) {
+                final Envelope envelope = geometry.getEnvelopeInternal();
+                return
+                    String.format("%f|%f|%f|%f",
+                        envelope.getMinX(), envelope.getMinY(),
+                        envelope.getMaxX(), envelope.getMaxY());
+            }
+        } catch (Throwable e) {
+        }
+        return ret;
+    }
+
     /**
      * Get field value for metadata identified by uuid.
      *
@@ -497,29 +853,31 @@ public final class XslUtil {
         String id = uuid.toString();
         String fieldname = field.toString();
         String language = (lang.toString().equals("") ? null : lang.toString());
+        final ConfigurableApplicationContext applicationContext = ApplicationContextHolder.get();
+        final EsSearchManager searchManager = applicationContext.getBean(EsSearchManager.class);
+
         try {
-            String fieldValue = LuceneSearcher.getMetadataFromIndex(language, id, fieldname);
-            if (fieldValue == null) {
-                return getIndexFieldById(appName, uuid, field, lang);
-            } else {
-                return fieldValue;
-            }
+            Set<String> fields = new HashSet<>();
+            fields.add(fieldname);
+            final Map<String, String> values = searchManager.getFieldsValues(id, fields, language);
+            return values.get(fieldname);
         } catch (Exception e) {
-            Log.error(Geonet.GEONETWORK, "Failed to get index field value caused by " + e.getMessage());
-            return "";
+            Log.error(Geonet.GEONETWORK, "Failed to get index field '" + fieldname + "' value on '" + id + "', caused by " + e.getMessage());
         }
+        return "";
     }
 
     public static String getIndexFieldById(Object appName, Object id, Object field, Object lang) {
         String fieldname = field.toString();
         String language = (lang.toString().equals("") ? null : lang.toString());
-        try {
-            String fieldValue = LuceneSearcher.getMetadataFromIndexById(language, id.toString(), fieldname);
-            return fieldValue == null ? "" : fieldValue;
-        } catch (Exception e) {
-            Log.error(Geonet.GEONETWORK, "Failed to get index field value caused by " + e.getMessage());
-            return "";
-        }
+        throw new NotImplementedException("getIndexFieldById not implemented in ES");
+//        try {
+//            String fieldValue = LuceneSearcher.getMetadataFromIndexById(language, id.toString(), fieldname);
+//            return fieldValue == null ? "" : fieldValue;
+//        } catch (Exception e) {
+//            Log.error(Geonet.GEONETWORK, "Failed to get index field value caused by " + e.getMessage());
+//            return "";
+//        }
     }
 
     /**
@@ -553,6 +911,30 @@ public final class XslUtil {
     }
 
     /**
+     * Convert the iso639_2B to iso639_2T
+     *
+     * @param iso639_2B The 3 iso lang code B
+     * @return The iso639_2T lang code
+     */
+    public static
+    @Nonnull
+    String iso639_2B_to_iso639_2T(String iso639_2B) {
+        return IsoLanguagesMapper.iso639_2B_to_iso639_2T(iso639_2B);
+    }
+
+    /**
+     * Convert the iso639_2T to iso639_2B
+     *
+     * @param iso639_2T The 3 iso lang code T
+     * @return The iso639_2B lang code
+     */
+    public static
+    @Nonnull
+    String iso639_2T_to_iso639_2B(String iso639_2T) {
+        return IsoLanguagesMapper.iso639_2T_to_iso639_2B(iso639_2T);
+    }
+
+    /**
      * Return 2 iso lang code from a 3 iso lang code. If any error occurs return "".
      *
      * @param iso3LangCode The 2 iso lang code
@@ -565,7 +947,7 @@ public final class XslUtil {
     }
 
     /**
-     * Return 2 iso lang code from a 3 iso lang code. If any error occurs return "".
+     * Return 2 char iso lang code from a 3 iso lang code.
      *
      * @param iso3LangCode The 2 iso lang code
      * @return The related 3 iso lang code
@@ -577,44 +959,29 @@ public final class XslUtil {
             if (defaultValue != null) {
                 return defaultValue;
             } else {
-                return twoCharLangCode(Geonet.DEFAULT_LANGUAGE);
+                iso3LangCode = Geonet.DEFAULT_LANGUAGE;
             }
+        }
+        String iso2LangCode = null;
+
+        // Catch language entries longer than 3 characters with a semicolon
+        if (iso3LangCode.length() > 3 && (iso3LangCode.indexOf(';') != -1)) {
+            //This will extract text similar to the following "fr;CAN", "fra;CAN", "fr ;CAN"
+            //In the case of "fr;CAN",  fr would be extracted even though it is not a 3 char code - but that is ok because LanguageCode.getByCode supports 2 and 3 char codes.
+            iso3LangCode = iso3LangCode.split(";")[0].trim();
+        }
+
+        LanguageCode languageCode = LanguageCode.getByCode(iso3LangCode.toLowerCase());
+        if (languageCode != null) {
+            iso2LangCode = languageCode.name();
+        }
+
+        // Triggers when the language can't be matched to a code
+        if (iso2LangCode == null) {
+            Log.info(Geonet.GEONETWORK, "Cannot convert " + iso3LangCode + " to 2 char iso lang code", new Error());
+            return iso3LangCode.substring(0, 2);
         } else {
-            if (iso3LangCode.equalsIgnoreCase("FRA")) {
-                return "FR";
-            }
-
-            if (iso3LangCode.equalsIgnoreCase("DEU")) {
-                return "DE";
-            }
-            String iso2LangCode = null;
-
-            try {
-                final IsoLanguagesMapper mapper = ApplicationContextHolder.get().getBean(IsoLanguagesMapper.class);
-                /*if the language  is 2 characters long...*/
-                if (iso3LangCode.length() == 2) {
-                    iso2LangCode = iso3LangCode;
-                    /*Catch language entries longer than 3 characters with a semicolon*/
-                } else if (iso3LangCode.length() > 3 && (iso3LangCode.indexOf(';') != -1)) {
-                    iso2LangCode = mapper.iso639_2_to_iso639_1(iso3LangCode.substring(0, 3));
-                    /** This final else works properly for languages with exactly three characters, so
-                     * an exception will occur if gmd:language has more than 3 characters but
-                     * does not have a semicolon.
-                     */
-                } else {
-                    iso2LangCode = mapper.iso639_2_to_iso639_1(iso3LangCode);
-                }
-            } catch (Exception ex) {
-                Log.error(Geonet.GEONETWORK, "Failed to get iso 2 language code for " + iso3LangCode + " caused by " + ex.getMessage());
-
-            }
-            /* Triggers when the language can't be matched to a code */
-            if (iso2LangCode == null) {
-                Log.error(Geonet.GEONETWORK, "Cannot convert " + iso3LangCode + " to 2 char iso lang code", new Error());
-                return iso3LangCode.substring(0, 2);
-            } else {
-                return iso2LangCode;
-            }
+            return iso2LangCode;
         }
     }
 
@@ -667,7 +1034,13 @@ public final class XslUtil {
         String contactDetails = "";
         int contactId = Integer.parseInt((String) contactIdentifier);
 
-        User user = ApplicationContextHolder.get().getBean(UserRepository.class).findOne(contactId);
+        Optional<User> userOpt = ApplicationContextHolder.get().getBean(UserRepository.class).findById(contactId);
+        User user = null;
+
+        if (userOpt.isPresent()) {
+            user = userOpt.get();
+        }
+
         if (user != null) {
             contactDetails = Xml.getString(user.asXml());
         }
@@ -737,13 +1110,7 @@ public final class XslUtil {
             String srs = geomElement.getAttributeValue("srsName");
             CoordinateReferenceSystem geomSrs = DefaultGeographicCRS.WGS84;
             if (srs != null && !(srs.equals(""))) geomSrs = CRS.decode(srs);
-            Parser[] parsers = GMLParsers.create();
-            Parser parser = null;
-            if (geomElement.getNamespace().equals(Geonet.Namespaces.GML32)) {
-              parser = parsers[1];
-            } else {
-              parser = parsers[0];
-            }
+            Parser parser = GMLParsers.create(geomElement);
             MultiPolygon jts = parseGml(parser, gml);
 
 
@@ -770,18 +1137,36 @@ public final class XslUtil {
      * does not make any security checks.
      */
     public static Node getRecord(String uuid) {
+        return getRecord(uuid, null);
+    }
+    public static Node getRecord(String uuid, String schema) {
         ApplicationContext applicationContext = ApplicationContextHolder.get();
         DataManager dataManager = applicationContext.getBean(DataManager.class);
         try {
             String id = dataManager.getMetadataId(uuid);
             if (id != null) {
                 Element metadata = dataManager.getMetadata(id);
+                String metadataSchema = dataManager.getMetadataSchema(id);
 
+                if (StringUtils.isNotEmpty(schema)
+                    && !metadataSchema.equals(schema)) {
+                    final Path styleSheet = dataManager
+                        .getSchemaDir(metadataSchema)
+                        .resolve(String.format( "formatter/%s/view.xsl", schema));
+                    final boolean exists = java.nio.file.Files.exists(styleSheet);
+                    if (!exists) {
+                        Log.warning(Geonet.GEONETWORK,String.format(
+                            "XslUtil getRecord warning: Can't retrieve record %s (schema %s) in schema %s. A formatter is required for this conversion.",
+                            uuid, metadataSchema, schema));
+
+                    };
+                    metadata = Xml.transform(metadata, styleSheet);
+                }
                 DOMOutputter outputter = new DOMOutputter();
                 return outputter.output(new Document(metadata));
             }
         } catch (Exception e) {
-            Log.error(Geonet.GEONETWORK,"XslUtil getRecord error: " + e.getMessage(), e);
+            Log.error(Geonet.GEONETWORK,"XslUtil getRecord '" + uuid + "' error: " + e.getMessage(), e);
         }
         return null;
     }
@@ -810,7 +1195,7 @@ public final class XslUtil {
 
             return e.evaluate();
         } catch (Exception e) {
-            Log.error(Geonet.GEONETWORK,"XslUtil evaluate error: " + e.getMessage(), e);
+            Log.error(Geonet.GEONETWORK,"XslUtil evaluate '" + formula + "' error: " + e.getMessage(), e);
             return null;
         }
     }
@@ -824,13 +1209,97 @@ public final class XslUtil {
         return si.getSiteUrl() + (!baseUrl.startsWith("/") ? "/" : "") + baseUrl;
     }
 
+    public static String getPermalink(String uuid, String language) {
+        BaseMetadataUtils metadataUtils = ApplicationContextHolder.get().getBean(BaseMetadataUtils.class);
+        return metadataUtils.getPermalink(uuid, language);
+    }
+
+    public static String getDefaultUrl(String uuid, String language) {
+        BaseMetadataUtils metadataUtils = ApplicationContextHolder.get().getBean(BaseMetadataUtils.class);
+        return metadataUtils.getDefaultUrl(uuid, language);
+    }
+
+    /**
+     * Return default iso lang code.
+     *
+     * @return The default 3 char iso lang code
+     */
+    public static
+    @Nonnull
+    String getDefaultLangCode() {
+        return Geonet.DEFAULT_LANGUAGE;
+    }
+
     public static String getLanguage() {
         ServiceContext context = ServiceContext.get();
         if (context != null) {
             return context.getLanguage();
         } else {
-            return "eng";
+            return Geonet.DEFAULT_LANGUAGE;
         }
+    }
+
+    /**
+     * Build data URL like data:image/png;base64, iVBORw...
+     */
+    public static String buildDataUrl(String url, Integer size) {
+        StringBuilder sb = new StringBuilder("data:");
+        String supportedExtension = "jpg|jpeg|png|gif|tif|tiff";
+
+        String extension = Files.getFileExtension(url).toLowerCase();
+        if (extension.matches(supportedExtension)) {
+
+            InputStream in = null;
+            try {
+                SettingManager settingManager = ApplicationContextHolder.get().getBean(SettingManager.class);
+                Matcher m = Pattern.compile(settingManager.getNodeURL() + "api/records/(.*)/attachments/(.*)$").matcher(url);
+                BufferedImage image;
+                if (m.find()) {
+                    Store store = ApplicationContextHolder.get().getBean(FilesystemStore.class);
+                    try (Store.ResourceHolder file = store.getResourceInternal(
+                        m.group(1),
+                        MetadataResourceVisibility.PUBLIC,
+                        m.group(2), true)) {
+                        image = ImageIO.read(file.getPath().toFile());
+                    }
+                } else {
+                    URL imageUrl = new URL(url);
+                    URLConnection con = imageUrl.openConnection();
+                    con.setConnectTimeout(1000);
+                    con.setReadTimeout(10000);
+                    in = con.getInputStream();
+                    image = ImageIO.read(in);
+                }
+
+                if (image != null) {
+                    BufferedImage resized = ImageUtil.resize(image, size != null ? size : 140);
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    ImageIO.write(resized, "png", output);
+                    output.flush();
+                    byte[] imagesB = output.toByteArray();
+                    output.close();
+
+                    sb.append("image/png;base64, ");
+                    sb.append(Base64.getEncoder().encodeToString(imagesB));
+                    return sb.toString();
+                } else {
+                    Log.info(Geonet.GEONETWORK, String.format(
+                        "Image '%s' is null and can't be converted to Data URL.",
+                        url));
+                }
+            } catch (Exception e) {
+                Log.info(Geonet.GEONETWORK, String.format(
+                    "Image '%s' is not accessible or can't be converted to Data URL. Error is: %s",
+                    url, e.getMessage()));
+            } finally {
+                IOUtils.closeQuietly(in);
+            }
+        } else {
+            Log.info(Geonet.GEONETWORK, String.format(
+                "Image '%s' is not of one supported type %s and can't be encoded as a data URL.",
+                url, supportedExtension));
+        }
+        return "";
     }
 
     public static String encodeForJavaScript(String str) {
@@ -849,7 +1318,7 @@ public final class XslUtil {
         try {
             return DefaultEncoder.getInstance().encodeForURL(str);
         } catch (EncodingException ex) {
-            Log.error(Geonet.GEONETWORK,"XslUtil encode for URL error: " + ex.getMessage(), ex);
+            Log.error(Geonet.GEONETWORK,"XslUtil encode for URL '" + str + "' error: " + ex.getMessage(), ex);
             return str;
         }
     }
@@ -872,11 +1341,13 @@ public final class XslUtil {
             URL url = new URL(surl);
             URLConnection conn = Lib.net.setupProxy(context, url);
 
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-
             is = conn.getInputStream();
-            res = db.parse(is);
+
+            SAXBuilder builder = Xml.getSAXBuilder(false);
+            Document jdoc = builder.build(is);
+
+            DOMOutputter outputter = new DOMOutputter();
+            return outputter.output(jdoc);
 
         } catch (Throwable e) {
             Log.error(Geonet.GEONETWORK, "Failed fetching url: " + surl, e);
@@ -891,7 +1362,7 @@ public final class XslUtil {
         try {
             return java.net.URLDecoder.decode(str, "UTF-8");
         } catch (Exception ex) {
-            Log.error(Geonet.GEONETWORK,"XslUtil decodeURLParameter error: " + ex.getMessage(), ex);
+            Log.error(Geonet.GEONETWORK,"XslUtil decodeURLParameter '" + str + "' error: " + ex.getMessage(), ex);
             return str;
         }
     }
@@ -915,28 +1386,40 @@ public final class XslUtil {
         return max;
     }
 
-    private static final Cache<String, Boolean> URL_VALIDATION_CACHE;
+    private static final Cache<String, Integer> URL_VALIDATION_CACHE;
 
     static {
-        URL_VALIDATION_CACHE = CacheBuilder.<String, Boolean>newBuilder().
+        URL_VALIDATION_CACHE = CacheBuilder.<String, Integer>newBuilder().
             maximumSize(100000).
             expireAfterAccess(25, TimeUnit.HOURS).
             build();
     }
 
-    public static boolean validateURL(final String urlString) throws ExecutionException {
-        return URL_VALIDATION_CACHE.get(urlString, new Callable<Boolean>() {
+    public static Integer getURLStatus(final String urlString) throws ExecutionException {
+        return URL_VALIDATION_CACHE.get(urlString, new Callable<Integer>() {
             @Override
-            public Boolean call() throws Exception {
+            public Integer call() throws Exception {
                 try {
-                    return (Integer.parseInt(getUrlStatus(urlString)) / 100 == 2);
+                    return Integer.parseInt(getUrlStatus(urlString));
                 } catch (Exception e) {
-                    return false;
+                    Log.info(Geonet.GEONETWORK,"validateURL: exception - ",e);
+                    return -1;
                 }
             }
         });
     }
 
+    public static String getURLStatusAsString(final String urlString) throws ExecutionException {
+        Integer status = getURLStatus(urlString);
+        return status == -1 ? "UNKNOWN" :
+            String.format("%s (%d)",
+                HttpStatus.valueOf(status).name(), status);
+    }
+
+    public static boolean validateURL(final String urlString) throws ExecutionException {
+        Integer status = getURLStatus(urlString);
+        return status == -1 ? false : status / 100 == 2;
+    }
 
     /**
      * Utility method to retrieve the thesaurus dir from xsl processes.
@@ -957,6 +1440,14 @@ public final class XslUtil {
         ThesaurusManager thesaurusManager = applicationContext.getBean(ThesaurusManager.class);
 
         return thesaurusManager.getThesauriDirectory().toString();
+    }
+
+    public static String getThesaurusIdByTitle(String title) {
+        ApplicationContext applicationContext = ApplicationContextHolder.get();
+        ThesaurusManager thesaurusManager = applicationContext.getBean(ThesaurusManager.class);
+        Thesaurus thesaurus = thesaurusManager.getThesaurusByTitle(title);
+
+        return thesaurus == null ? "" : "geonetwork.thesaurus." + thesaurus.getKey();
     }
 
 
@@ -989,5 +1480,239 @@ public final class XslUtil {
         }
 
         return languageLabel;
+    }
+
+
+    public static List<String> getKeywordHierarchy(String keyword, String thesaurusId, String langCode) {
+        List<String> res = new ArrayList<String>();
+        if (StringUtils.isEmpty(thesaurusId)) {
+            return res;
+        }
+
+        try {
+            ApplicationContext applicationContext = ApplicationContextHolder.get();
+            ThesaurusManager thesaurusManager = applicationContext.getBean(ThesaurusManager.class);
+
+            thesaurusId = thesaurusId.replaceAll("geonetwork.thesaurus.", "");
+            Thesaurus thesaurus = thesaurusManager.getThesaurusByName(thesaurusId);
+
+            if (thesaurus != null) {
+                res = thesaurus.getKeywordHierarchy(keyword, langCode);
+            }
+            return res;
+        } catch (Exception ex) {
+        }
+        return res;
+    }
+
+    public static String getKeywordValueByUri(String uri, String thesaurusId, String langCode) {
+        if (StringUtils.isEmpty(thesaurusId)) {
+            return "";
+        }
+
+        try {
+            ApplicationContext applicationContext = ApplicationContextHolder.get();
+            ThesaurusManager thesaurusManager = applicationContext.getBean(ThesaurusManager.class);
+
+            thesaurusId = thesaurusId.replaceAll("geonetwork.thesaurus.", "");
+            Thesaurus thesaurus = thesaurusManager.getThesaurusByName(thesaurusId);
+
+            if (thesaurus != null) {
+                KeywordBean keywordBean = thesaurus.getKeyword(uri, langCode);
+                if (keywordBean != null) {
+                    return keywordBean.getPreferredLabel(langCode);
+                }
+            }
+            return "";
+        } catch (Exception ex) {
+        }
+        return "";
+    }
+
+
+    public static String getKeywordUri(String keyword, String thesaurusId, String langCode) {
+        if (StringUtils.isEmpty(thesaurusId)) {
+            return "";
+        }
+
+        try {
+            ApplicationContext applicationContext = ApplicationContextHolder.get();
+            ThesaurusManager thesaurusManager = applicationContext.getBean(ThesaurusManager.class);
+
+            thesaurusId = thesaurusId.replaceAll("geonetwork.thesaurus.", "");
+            Thesaurus thesaurus = thesaurusManager.getThesaurusByName(thesaurusId);
+
+            if (thesaurus != null) {
+                KeywordBean keywordBean = thesaurus.getKeywordWithLabel(keyword, langCode);
+                if (keywordBean != null) {
+                    return keywordBean.getUriCode();
+                }
+            }
+            return "";
+        } catch (Exception ex) {
+        }
+        return "";
+    }
+
+    /**
+     * Associated resource like
+     * <ul>
+     * <li>parent</li>
+     * <li>source</li>
+     * <li>dataset (for service record)</li>
+     * <li>siblings</li>
+     * <li>feature catalogue</li>
+     * </ul>
+     * are stored in current records
+     * BUT
+     * some other relations are stored in the other side of the relation record ie.
+     * <ul>
+     * <li>service operatingOn current = +recordOperateOn:currentUuid</li>
+     * <li>siblings of current = +recordLink.type:siblings +recordLink.to:currentUuid</li>
+     * <li>children of current = +parentUuid:currentUuid</li>
+     * <li>brothersAndSisters = +parentUuid:currentParentUuid</li>
+     * </ul>
+     * Instead of relying on related API, it can make sense to index all relations
+     * (including bidirectional links) at indexing time to speed up rendering of
+     * associated resources which is slow task on search results.
+     *
+     * MetadataUtils#getRelated has the logic to search for all associated resources
+     * and also takes into account privileges in case of target record is not visible
+     * to current user.
+     *
+     * BTW in some cases, all records are public (or it is not an issue to only display
+     * a title of a private record) and a more direct approach can be used.
+     *
+     * @param uuid
+     * @return
+     */
+    public static Element getTargetAssociatedResources(String uuid, String parentUuid) {
+        EsRestClient client = ApplicationContextHolder.get().getBean(EsRestClient.class);
+        EsSearchManager searchManager = ApplicationContextHolder.get().getBean(EsSearchManager.class);
+        Element recordLinks = new Element("recordLinks");
+
+        try {
+            MultiSearchRequest request = new MultiSearchRequest();
+
+
+            SearchRequest serviceRequest = new SearchRequest(searchManager.getDefaultIndex());
+            SearchSourceBuilder serviceSearchSourceBuilder = new SearchSourceBuilder();
+            serviceSearchSourceBuilder.fetchSource(
+                    new String[]{"resourceTitleObject.default"},
+                    null
+            );
+            serviceSearchSourceBuilder.query(QueryBuilders.matchQuery(
+                    "recordOperateOn", uuid));
+            serviceRequest.source(serviceSearchSourceBuilder);
+            request.add(serviceRequest);
+
+
+            SearchRequest childrenRequest = new SearchRequest(searchManager.getDefaultIndex());
+            SearchSourceBuilder childrenSearchSourceBuilder = new SearchSourceBuilder();
+            childrenSearchSourceBuilder.fetchSource(
+                    new String[]{"resourceTitleObject.default"},
+                    null
+            );
+            childrenSearchSourceBuilder.query(QueryBuilders.matchQuery(
+                    "parentUuid", uuid));
+            childrenRequest.source(childrenSearchSourceBuilder);
+            request.add(childrenRequest);
+
+
+            SearchRequest siblingsRequest = new SearchRequest(searchManager.getDefaultIndex());
+            SearchSourceBuilder siblingsSearchSourceBuilder = new SearchSourceBuilder();
+            siblingsSearchSourceBuilder.fetchSource(
+                    new String[]{"resourceTitleObject.default"},
+                    null
+            );
+            BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+            List<QueryBuilder> must = boolQuery.must();
+            must.add(QueryBuilders.matchQuery("recordLink.type", "siblings"));
+            must.add(QueryBuilders.matchQuery("recordLink.to", uuid));
+            siblingsSearchSourceBuilder.query(
+                    QueryBuilders.nestedQuery(
+                            Geonet.IndexFieldNames.RECORDLINK,
+                            boolQuery,
+                            ScoreMode.Avg));
+            siblingsRequest.source(siblingsSearchSourceBuilder);
+            request.add(siblingsRequest);
+
+
+
+            boolean hasParent = StringUtils.isNotEmpty(parentUuid);
+            if (hasParent) {
+                SearchRequest brothersAndSistersRequest = new SearchRequest(searchManager.getDefaultIndex());
+                SearchSourceBuilder brothersAndSistersSearchSourceBuilder = new SearchSourceBuilder();
+                brothersAndSistersSearchSourceBuilder.fetchSource(
+                        new String[]{"resourceTitleObject.default"},
+                        null
+                );
+                brothersAndSistersSearchSourceBuilder.query(QueryBuilders.matchQuery(
+                        "parentUuid", parentUuid));
+                brothersAndSistersRequest.source(brothersAndSistersSearchSourceBuilder);
+                request.add(brothersAndSistersRequest);
+            }
+
+
+            MultiSearchResponse response = client.getClient().msearch(request, RequestOptions.DEFAULT);
+            recordLinks.addContent(buildRecordLink(response.getResponses()[0].getResponse().getHits(), "services"));
+            recordLinks.addContent(buildRecordLink(response.getResponses()[1].getResponse().getHits(), "children"));
+            recordLinks.addContent(buildRecordLink(response.getResponses()[2].getResponse().getHits(), "siblings"));
+
+            if (hasParent) {
+                recordLinks.addContent(buildRecordLink(response.getResponses()[3].getResponse().getHits(), "brothersAndSisters"));
+            }
+        } catch (Exception e) {
+            Log.error(Geonet.GEONETWORK,
+                    "Get related document '" + uuid + "' error: " + e.getMessage(), e);
+        }
+        return recordLinks;
+    }
+
+    public static Node getTargetAssociatedResourcesAsNode(String uuid, String parentUuid) {
+        DOMOutputter outputter = new DOMOutputter();
+        try {
+            return outputter.output(
+                    new Document(
+                            getTargetAssociatedResources(uuid, parentUuid)));
+        } catch (Exception e) {
+            Log.error(Geonet.GEONETWORK,
+                    "Get related document '" + uuid + "' error: " + e.getMessage(), e);
+        }
+        return null;
+    }
+
+    private static List<Element> buildRecordLink(SearchHits hits, String type) {
+        ObjectMapper mapper = new ObjectMapper();
+        SettingManager settingManager = ApplicationContextHolder.get().getBean(SettingManager.class);
+        String recordUrlPrefix = settingManager.getNodeURL() + "api/records/";
+        ArrayList<Element> listOfLinks = new ArrayList<>();
+        hits.forEach(record -> {
+            Element recordLink = new Element("recordLink");
+            recordLink.setAttribute("type", "object");
+            ObjectNode recordLinkProperties = mapper.createObjectNode();
+
+            recordLinkProperties.put("to", record.getId());
+            recordLinkProperties.put("origin", "catalog");
+            recordLinkProperties.put("created", "bySearch");
+            Map<String, String> titleObject = (Map<String, String>) record.getSourceAsMap().get("resourceTitleObject");
+            if (titleObject != null) {
+                recordLinkProperties.put("title", titleObject.get("default"));
+            }
+            recordLinkProperties.put("url", recordUrlPrefix + record.getId());
+            recordLinkProperties.put("type", type);
+
+            try {
+                recordLink.setText(mapper.writeValueAsString(recordLinkProperties));
+                listOfLinks.add(recordLink);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        });
+        return listOfLinks;
+    }
+
+    public static String escapeForJson(String value) {
+        return StringEscapeUtils.escapeJson(value);
     }
 }

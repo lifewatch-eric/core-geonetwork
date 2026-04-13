@@ -94,7 +94,6 @@ public class EditLib {
 
     public EditLib(SchemaManager scm) {
         this.scm = scm;
-        htVersions.clear();
     }
 
     /**
@@ -290,7 +289,7 @@ public class EditLib {
 
     public void addXMLFragments(String schema, Element md, Map<String, String> xmlInputs) throws Exception {
         // Loop over each XML fragments to insert or replace
-        HashMap<String, Element> nodeRefToElem = new HashMap<>();
+        Map<String, Element> nodeRefToElem = new HashMap<>();
         for (Map.Entry<String, String> entry : xmlInputs.entrySet()) {
             String[] nodeConfig = entry.getKey().split("_");
             String nodeRef = nodeConfig[0];
@@ -397,7 +396,7 @@ public class EditLib {
 
             if (isReplaceAllMode) {
                 // Remove all
-                AddElemValue propertyValueToProcess = new AddElemValue("<gn_delete></gn_delete>");
+                AddElemValue propertyValueToProcess = new AddElemValue(new Element("gn_delete"));
 
                 addElementOrFragmentFromXpath(metadataRecord, metadataSchema, xpathProperty, propertyValueToProcess,
                     createXpathNodeIfNotExist);
@@ -501,13 +500,6 @@ public class EditLib {
                 value.getNodeValue().getName()
                     .equals(SpecialUpdateTags.CREATE);
 
-            if (isValueXml &&
-                xpathProperty.matches(".*@[^/\\]]+")) {
-                throw new AssertionError(String.format(
-                    "Cannot set Xml on an attribute. Xpath:'%s' value: '%s'.",
-                    xpathProperty, Xml.getString(value.getNodeValue())
-                ));
-            }
             LOGGER_ADD_ELEMENT.debug("Inserting at location {} the snippet or value {}", xpathProperty, value);
 
             xpathProperty = cleanRootFromXPath(xpathProperty, metadataRecord);
@@ -517,7 +509,8 @@ public class EditLib {
 
             // If a property is not found in metadata,
             // or in create mode, create it...
-            if ( (nodeList.isEmpty() && createXpathNodeIfNotExist) || isCreateMode) {
+            if (((nodeList.isEmpty() && createXpathNodeIfNotExist) || isCreateMode)
+                && !isDeleteMode) {
                 int indexOfRequiredPortion = -1;
                 // Extract the XPath for the element to match. For:
                 //  * Relative XPath (*//gmd:RS_Identifier)[2]/gmd:code/gco:CharacterString
@@ -656,8 +649,28 @@ public class EditLib {
                         propEl.addContent(child);
                     } else if (childHasSameTypeAsTarget) {
                         Element parent = propEl.getParentElement();
-                        int index = parent.indexOf(propEl);
-                        parent.addContent(index, child);
+                        if (parent == null) {
+                            LOGGER_ADD_ELEMENT.error(String.format(
+                                " > adding fragment from XPath in element %s which has no parent. This usually means that the element is not allowed in the XSD. Check this element in the metadata record.",
+                                propEl.getName()
+                            ));
+                        } else {
+                            int index = parent.indexOf(propEl);
+
+                            // Non existing element already created
+                            // eg. Insert xpath
+                            // mdb:distributionInfo/mrd:MD_Distribution/mrd:distributor
+                            // with snippet <mrd:distributor
+                            // and record does not contain mrd:distributor.
+                            // It was created on xpath analysis step above.
+                            // In this case, insert the fragment at the target
+                            // Check on children size may not be strict enough
+                            if (propEl.getChildren().size() == 0) {
+                                parent.setContent(index, child);
+                            } else {
+                                parent.addContent(index, child);
+                            }
+                        }
                     } else {
                         // Add an element of same type in the target node
                         final Element newElement = addElement(metadataSchema, propEl, child.getQualifiedName());
@@ -668,9 +681,11 @@ public class EditLib {
                         }
                     }
                 } else if (o instanceof Text) {
-                    propEl.addContent((Content)(new Text(((Text) o).getText())));
+                    propEl.addContent((Content) (new Text(((Text) o).getText())));
                 }
             }
+        } else if (newValue.getName().equals(SpecialUpdateTags.DELETE)) {
+            // Ignore the node
         } else if (newValue.getName().equals(propEl.getName()) &&
             newValue.getNamespace().equals(propEl.getNamespace())) {
             // If the target element has the same name as the element to add
@@ -793,6 +808,12 @@ public class EditLib {
             currentToken = xpathParser.getNextToken();
         }
 
+        if (value.isXml() && isAttribute) {
+            throw new AssertionError(String.format(
+                "Cannot set Xml on an attribute. Xpath:'%s' value: '%s'.",
+                xpathProperty, Xml.getString(value.getNodeValue())
+            ));
+        }
         // The current node is an existing node or newly created one
         // Insert the XML value
         if (value.isXml()) {
@@ -808,6 +829,7 @@ public class EditLib {
             // when adding the fragment child nodes or suggestion may also be added.
             // In this case, the snippet only has to be inserted
             currentNode.removeContent();
+
             doAddFragmentFromXpath(metadataSchema, value.getNodeValue(), currentNode);
         } else {
             if (isAttribute) {
@@ -903,6 +925,15 @@ public class EditLib {
             LOGGER_ADD_ELEMENT.warn("An illegal xpath was used to locate an element: {}", xpathProperty);
             return SelectResult.ERROR;
         }
+    }
+
+    /**
+     * Removes the version of the edit session for a metadata. Used when the edit session is finished.
+     *
+     * @param id
+     */
+    public void clearVersion(String id) {
+        htVersions.remove(id);
     }
 
     //--------------------------------------------------------------------------

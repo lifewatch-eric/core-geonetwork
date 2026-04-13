@@ -21,57 +21,55 @@
  * Rome - Italy. email: geonetwork@osgeo.org
  */
 
-(function() {
-  goog.provide('gn_csw_settings_controller');
+(function () {
+  goog.provide("gn_csw_settings_controller");
 
-
-  var module = angular.module('gn_csw_settings_controller',
-      []);
-
-
-  module.controller('GnCSWSearchServiceRecordController', [
-    '$scope', 'gnGlobalSettings',
-    function($scope, gnGlobalSettings) {
-      $scope.searchObj = {
-        internal: true,
-        any: '',
-        defaultParams: {
-          any: '',
-          from: 1,
-          to: 50,
-          type: 'service',
-          sortBy: 'title',
-          sortOrder: 'reverse'
-        }
-      };
-      $scope.searchObj.params = angular.extend({},
-        $scope.searchObj.defaultParams);
-      $scope.updateParams = function() {
-        $scope.searchObj.params.any =
-          '*' + $scope.searchObj.any + '*';
-      };
-    }]);
+  var module = angular.module("gn_csw_settings_controller", []);
 
   /**
    * GnCSWSettingsController provides management interface
    * for CSW settings.
    *
    */
-  module.controller('GnCSWSettingsController', [
-    '$scope', '$http', '$rootScope', '$translate', 'gnUtilityService',
-    function($scope, $http, $rootScope, $translate, gnUtilityService) {
-      var cswSettings = ['system/csw/capabilityRecordUuid'];
-      var cswBooleanSettings = [
-        'system/csw/enable',
-        'system/csw/enabledWhenIndexing',
-        'system/csw/metadataPublic',
-        'system/csw/transactionUpdateCreateXPath'];
-
+  module.controller("GnCSWSettingsController", [
+    "$scope",
+    "$http",
+    "$rootScope",
+    "$translate",
+    "gnUtilityService",
+    "gnESClient",
+    "Metadata",
+    function (
+      $scope,
+      $http,
+      $rootScope,
+      $translate,
+      gnUtilityService,
+      gnESClient,
+      Metadata
+    ) {
       /**
        * CSW properties
        */
       $scope.cswSettings = {};
-      $scope.cswServiceRecord = null;
+
+      $scope.serviceRecordSearchObj = {
+        internal: true,
+        any: "",
+        defaultParams: {
+          any: "",
+          from: 1,
+          to: 50,
+          isTemplate: "n",
+          type: "service",
+          sortBy: "resourceTitleObject.default.sort",
+          sortOrder: "asc"
+        }
+      };
+      $scope.serviceRecordSearchObj.params = angular.extend(
+        {},
+        $scope.serviceRecordSearchObj.defaultParams
+      );
 
       /**
        * CSW element set name (an array of xpath).
@@ -81,7 +79,7 @@
       /**
        * The filter for field column
        */
-      $scope.cswFieldFilterValue = '';
+      $scope.cswFieldFilterValue = "";
 
       /**
        * The filter value for language
@@ -98,162 +96,119 @@
        */
       $scope.cswFields = {};
 
-
       /**
-         * Load catalog settings and extract CSW settings
-         */
+       * Load catalog settings and extract CSW settings
+       */
       function loadSettings() {
-        $http.get('admin.config.list?_content_type=json&asTree=false')
-            .success(function(data) {
-              for (var i = 0; i < data.length; i++) {
-                var setting = data[i];
-                if (cswBooleanSettings.indexOf(setting['@name']) !== -1) {
-                  var value = setting['#text'].toLowerCase();
-                  $scope.cswSettings[setting['@name']] =
-                      (value == 'true' || value == 'on');
-                } else if (cswSettings.indexOf(setting['@name']) !== -1) {
-                  $scope.cswSettings[setting['@name']] = setting['#text'];
-                }
-              }
-              loadServiceRecords();
-            }).error(function(data) {
-              // TODO
-            });
-      }
-
-      function loadServiceRecords() {
-        var id = $scope.cswSettings['system/csw/capabilityRecordUuid'];
-        if (angular.isDefined(id) && id != -1){
-          $http.get('qi?_content_type=json&fast=index&_uuid=' + id,
-            {cache: true}).then(function(r) {
-            $scope.cswServiceRecord = r.data.metadata;
-          });
-        }
-      }
-      $scope.$watchCollection('cswSettings', function(n, o){
-        if (n != o) {
-          loadServiceRecords();
-        }
-      });
-
-
-      function loadCSWConfig() {
-        $http.get('admin.config.csw?_content_type=json&').
-            success(function(data) {
-              $scope.cswConfig = data;
-              angular.forEach($scope.cswConfig.capabilitiesInfoFields,
-                  function(value, key) {
-                    $scope.cswLanguages[$scope.cswConfig.
-                        capabilitiesInfoFields[key].langId] = true;
-                    $scope.cswFields[$scope.cswConfig.
-                        capabilitiesInfoFields[key].fieldName] = true;
-                  });
-              loadSettings();
-            }).error(function(data) {
-              // TODO
-            });
+        $http.get("../api/site/settings?set=CSW").then(
+          function (response) {
+            $scope.cswSettings = response.data;
+          },
+          function (response) {
+            // TODO
+          }
+        );
       }
 
       function loadCSWElementSetName() {
-        $http.get('admin.config.csw.customelementset?_content_type=json&')
-            .success(function(data) {
-              if (data) {
-                $scope.cswElementSetName =
-                    $.isArray(data.xpaths) ? data.xpaths : [data.xpaths];
-              } else {
-                $scope.cswElementSetName = [];
-              }
-            });
+        $http
+          .get("admin.config.csw.customelementset?_content_type=json&")
+          .then(function (response) {
+            var data = response.data;
+
+            if (data) {
+              $scope.cswElementSetName = $.isArray(data.xpaths)
+                ? data.xpaths
+                : [data.xpaths];
+            } else {
+              $scope.cswElementSetName = [];
+            }
+          });
       }
-      $scope.addCSWElementSetName = function() {
-        $scope.cswElementSetName.push(['']);
+      $scope.addCSWElementSetName = function () {
+        $scope.cswElementSetName.push([""]);
       };
-      $scope.deleteElementSetName = function(e) {
+      $scope.deleteElementSetName = function (e) {
         var index = $.inArray(e, $scope.cswElementSetName);
         $scope.cswElementSetName.splice(index, 1);
       };
-      $scope.saveCSWElementSetName = function(formId) {
+      $scope.saveCSWElementSetName = function (formId) {
         $http({
-          method: 'POST',
-          url: 'admin.config.csw.customelementset.save',
-          data: '_content_type=json&' + $(formId).serialize(),
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-        })
-            .success(function(data) {
-              loadCSWElementSetName();
-            });
+          method: "POST",
+          url: "admin.config.csw.customelementset.save",
+          data: "_content_type=json&" + $(formId).serialize(),
+          headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        }).then(function (response) {
+          loadCSWElementSetName();
+        });
       };
 
       /**
        * Save the form containing all settings. When saved,
        * broadcast success or failure status.
        */
-      $scope.saveSettings = function(formId) {
-        saveSettings(formId, 'admin.config.save');
-      };
-      /**
-       * Save the form containing all capabilities properties. When saved,
-       * broadcast success or failure status.
-       */
-      $scope.saveProperties = function(formId) {
-        saveSettings(formId, 'admin.config.csw.save');
-      };
-      var saveSettings = function(formId, service) {
-
-        $http({
-          method: 'POST',
-          url: service,
-          data: gnUtilityService.serialize(formId),
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-        })
-            .success(function(data) {
-              $rootScope.$broadcast('StatusUpdated', {
-                msg: $translate.instant('settingsUpdated'),
+      $scope.saveSettings = function (formId) {
+        $http
+          .post("../api/site/settings", gnUtilityService.serialize(formId), {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+          })
+          .then(
+            function (response) {
+              $rootScope.$broadcast("StatusUpdated", {
+                msg: $translate.instant("settingsUpdated"),
                 timeout: 2,
-                type: 'success'});
-            })
-            .error(function(data) {
-                  $rootScope.$broadcast('StatusUpdated', {
-                    title: $translate.instant('settingsUpdateError'),
-                    error: data,
-                    timeout: 0,
-                    type: 'danger'});
-                });
+                type: "success"
+              });
+            },
+            function (response) {
+              $rootScope.$broadcast("StatusUpdated", {
+                title: $translate.instant("settingsUpdateError"),
+                error: response.data,
+                timeout: 0,
+                type: "danger"
+              });
+            }
+          );
       };
 
       /**
        * Filter CSW settings by language and/or field
        */
-      $scope.cswFilter = function(items) {
+      $scope.cswFilter = function (items) {
         var result = [];
         var field = $scope.cswFieldFilterValue;
         var lang = $scope.cswLanguageFilterValue;
 
         if (items) {
-          angular.forEach(items.capabilitiesInfoFields, function(value, key) {
+          angular.forEach(items.capabilitiesInfoFields, function (value, key) {
             var selected = false;
             // Filter only by lang
-            if (lang !== '' &&
-                field === '' &&
-                items.capabilitiesInfoFields[key].langId === lang) {
+            if (
+              lang !== "" &&
+              field === "" &&
+              items.capabilitiesInfoFields[key].langId === lang
+            ) {
               selected = true;
             }
             //Filter only by field
-            if (field !== '' &&
-                lang === '' &&
-                items.capabilitiesInfoFields[key].fieldName === field) {
+            if (
+              field !== "" &&
+              lang === "" &&
+              items.capabilitiesInfoFields[key].fieldName === field
+            ) {
               selected = true;
             }
             // Filter by both
-            if (field !== '' &&
-                lang !== '' &&
-                items.capabilitiesInfoFields[key].langId === lang &&
-                items.capabilitiesInfoFields[key].fieldName === field) {
+            if (
+              field !== "" &&
+              lang !== "" &&
+              items.capabilitiesInfoFields[key].langId === lang &&
+              items.capabilitiesInfoFields[key].fieldName === field
+            ) {
               selected = true;
             }
             // All
-            if (field === '' &&
-                lang === '') {
+            if (field === "" && lang === "") {
               selected = true;
             }
             if (selected) {
@@ -265,9 +220,7 @@
       };
 
       loadSettings();
-      loadCSWConfig();
       loadCSWElementSetName();
-
-    }]);
-
+    }
+  ]);
 })();

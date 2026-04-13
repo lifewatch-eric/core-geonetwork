@@ -32,17 +32,22 @@ import org.fao.geonet.domain.Metadata;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Data Access object for the {@link Metadata} entities.
- * 
+ *
  * The use of this class is discouraged, you should use IMetadataUtils or IMetadataManager instead.
  *
  * @author Jesse
  */
-public interface MetadataRepository extends GeonetRepository<Metadata, Integer>, MetadataRepositoryCustom<Metadata>,
-    JpaSpecificationExecutor<Metadata> {
+public interface MetadataRepository extends GeonetRepository<Metadata, Integer>, MetadataRepositoryCustom,
+    JpaSpecificationExecutor<Metadata>, StreamableJpaSpecificationRepository<Metadata> {
+
+    @Nullable
+    Metadata findOneById(int id);
+
     /**
      * Find one metadata by the metadata's uuid.
      *
@@ -51,8 +56,8 @@ public interface MetadataRepository extends GeonetRepository<Metadata, Integer>,
      */
     @Nullable
     Metadata findOneByUuid(@Nonnull String uuid);
-    
-    
+
+
     /**
      * Find all metadata by the metadata's uuid.
     *
@@ -71,13 +76,30 @@ public interface MetadataRepository extends GeonetRepository<Metadata, Integer>,
     @Nonnull
     List<Metadata> findAllByHarvestInfo_Uuid(@Nonnull String uuid);
 
-    /**
-     * Increment popularity of metadata by 1.
-     *
-     * @param mdId the id of the metadata
-     */
-    @Modifying
-    @Transactional
-    @Query("UPDATE " + Metadata.TABLENAME + " m SET m.dataInfo.popularity = m.dataInfo.popularity + 1 WHERE m.id = ?1")
-    void incrementPopularity(int mdId);
+
+
+    @Query(value = "SELECT replace(data, :search, :replace) FROM metadata m " +
+        "WHERE uuid = :uuid",
+        nativeQuery = true)
+    String selectOneWithSearchAndReplace(
+        @Param("uuid") String uuid,
+        @Param("search") String search,
+        @Param("replace") String replace);
+
+    @Query(value = "SELECT regexp_replace(data, :pattern, :replace) FROM metadata m " +
+        "WHERE uuid = :uuid",
+        nativeQuery = true)
+    String selectOneWithRegexSearchAndReplace(
+        @Param("uuid") String uuid,
+        @Param("pattern") String search,
+        @Param("replace") String replace);
+
+    @Query(value = "SELECT regexp_replace(data, :pattern, :replace, :flags) FROM metadata m " +
+        "WHERE uuid = :uuid",
+        nativeQuery = true)
+    String selectOneWithRegexSearchAndReplaceWithFlags(
+        @Param("uuid") String uuid,
+        @Param("pattern") String search,
+        @Param("replace") String replace,
+        @Param("flags") String flags);
 }

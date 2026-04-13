@@ -22,14 +22,18 @@
   ~ Rome - Italy. email: geonetwork@osgeo.org
   -->
 
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:gmd="http://www.isotc211.org/2005/gmd"
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:gmd="http://www.isotc211.org/2005/gmd"
                 xmlns:gco="http://www.isotc211.org/2005/gco"
                 xmlns:srv="http://www.isotc211.org/2005/srv"
                 xmlns:gmx="http://www.isotc211.org/2005/gmx"
+                xmlns:gn-fn-index="http://geonetwork-opensource.org/xsl/functions/index"
                 xmlns:gn="http://www.fao.org/geonetwork"
+                xmlns:util="java:org.fao.geonet.util.XslUtil"
                 version="2.0"
                 exclude-result-prefixes="#all">
 
+  <xsl:import href="common/index-utils.xsl"/>
   <xsl:include href="utility-tpl-multilingual.xsl"/>
 
   <xsl:template name="get-iso19139-is-service">
@@ -41,6 +45,15 @@
     <xsl:value-of select="$metadata/gmd:identificationInfo/*/gmd:citation/*/gmd:title/gco:CharacterString"/>
   </xsl:template>
 
+  <xsl:template mode="get-formats-as-json" match="gmd:MD_Metadata">
+    [
+    <xsl:for-each select="gmd:distributionInfo/*/gmd:distributionFormat/*/gmd:name/*/text()">{
+      "value": "WWW:DOWNLOAD:<xsl:value-of select="util:escapeForJson(.)"/>",
+      "label": "<xsl:value-of select="util:escapeForJson(.)"/>"}
+      <xsl:if test="position() != last()">,</xsl:if>
+    </xsl:for-each>
+    ]
+  </xsl:template>
 
   <xsl:template name="get-iso19139-extents-as-json">[
     <xsl:for-each select="//gmd:geographicElement/gmd:EX_GeographicBoundingBox[
@@ -70,9 +83,10 @@
     <config>
       <xsl:for-each select="$metadata/descendant::gmd:onLine[
         matches(
-        gmd:CI_OnlineResource/gmd:protocol/gco:CharacterString,
+        gmd:CI_OnlineResource/gmd:protocol/*/text(),
         $pattern) and
         normalize-space(gmd:CI_OnlineResource/gmd:linkage/gmd:URL) != '']">
+
         <xsl:variable name="protocol"
                       select="string(gmd:CI_OnlineResource/gmd:protocol)"/>
         <xsl:variable name="fileName">
@@ -117,7 +131,7 @@
               gmd:identificationInfo/*/gmd:abstract)"/>
             </abstract>
             <protocol>
-              <xsl:value-of select="gmd:CI_OnlineResource/gmd:protocol/gco:CharacterString"/>
+              <xsl:value-of select="gmd:CI_OnlineResource/gmd:protocol/*/text()"/>
             </protocol>
           </resource>
         </xsl:if>

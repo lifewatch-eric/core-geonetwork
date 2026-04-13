@@ -1,11 +1,6 @@
-INSERT INTO Languages (id, name, isinspire, isdefault) VALUES ('ara','العربية', 'n', 'n');
+INSERT INTO Languages (id, name, isinspire) VALUES ('ara','العربية', 'n');
 
 -- Take care to table ID (related to other loc files)
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (41, 'ara', 'title', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (42, 'ara', 'abstract', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (43, 'ara', 'fees', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (44, 'ara', 'accessConstraints', '');
-
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (1,'ara','Maps & graphics');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (2,'ara','Datasets');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (3,'ara','Interactive resources');
@@ -535,6 +530,7 @@ INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (59,'ara','Status cha
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (60,'ara','Record updated by process {{h.item1}}.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (61,'ara','Record deleted.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (62,'ara','Record imported.');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (63,'ara','Record restored.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (100,'ara','DOI creation requested.');
 
 

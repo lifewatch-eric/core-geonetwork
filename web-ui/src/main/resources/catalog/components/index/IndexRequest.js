@@ -21,41 +21,28 @@
  * Rome - Italy. email: geonetwork@osgeo.org
  */
 
-(function() {
-  goog.provide('gn_index_request');
+(function () {
+  goog.provide("gn_index_request");
 
-  var module = angular.module('gn_index_request', []);
+  var module = angular.module("gn_index_request", []);
 
   var indexRequestEvents = {
-    search: 'search'
-  };
-
-  Array.prototype.unique = function() {
-    var a = this.concat();
-    for (var i = 0; i < a.length; ++i) {
-      for (var j = i + 1; j < a.length; ++j) {
-        if (a[i] === a[j])
-          a.splice(j--, 1);
-      }
-    }
-
-    return a;
+    search: "search"
   };
 
   var ROWS = 20;
   var MAX_ROWS = 2000;
   var FACET_TREE_ROWS = 1000;
   var FACET_RANGE_COUNT = 5;
-  var FACET_RANGE_DELIMITER = ' - ';
+  var FACET_RANGE_DELIMITER = " - ";
 
-  geonetwork.gnIndexRequest = function(config, $injector) {
+  geonetwork.gnIndexRequest = function (config, $injector) {
+    this.ES_URL = config.url + "?_=_search";
 
-    this.ES_URL = config.url + '?_=_search';
-
-    this.$http = $injector.get('$http');
-    this.$q = $injector.get('$q');
-    this.$translate = $injector.get('$translate');
-    this.gnTreeFromSlash = $injector.get('gnTreeFromSlash');
+    this.$http = $injector.get("$http");
+    this.$q = $injector.get("$q");
+    this.$translate = $injector.get("$translate");
+    this.gnFacetTree = $injector.get("gnFacetTree");
 
     this.config = config;
 
@@ -88,7 +75,7 @@
      * and document identifier fq param.
      *
      * ex:
-     * "../api/0.1/search/query?wt=json&
+     * "../api/search/query?wt=json&
      *    fq=featureTypeId:http://server/wfs/#LAYER"
      */
     this.baseUrl;
@@ -137,10 +124,12 @@
     this.initialParams = {};
 
     // Initialize all events
-    angular.forEach(indexRequestEvents, function(k) {
-      this.eventsListener[k] = [];
-    }.bind(this));
-
+    angular.forEach(
+      indexRequestEvents,
+      function (k) {
+        this.eventsListener[k] = [];
+      }.bind(this)
+    );
   };
 
   /**
@@ -148,7 +137,7 @@
    *
    * @param {object} options
    */
-  geonetwork.gnIndexRequest.prototype.init = function(options) {
+  geonetwork.gnIndexRequest.prototype.init = function (options) {
     this.initBaseRequest_(options);
   };
 
@@ -160,98 +149,102 @@
    * @param {string} wfsUrl url of the wfs service
    * @return {httpPromise} return array of field names
    */
-  geonetwork.gnIndexRequest.prototype.getDocTypeInfo = function(options) {
-    var docTypeId = this.config.idDoc(options);
+  geonetwork.gnIndexRequest.prototype.getDocTypeInfo = function (options) {
+    this.config.docTypeId = this.config.idDoc(options);
     var defer = this.$q.defer();
-    this.$http.post(this.ES_URL, {
-      size: 1,
-      'query': {
-        'query_string': {
-          'query': this.config.docTypeIdField + ':"' + docTypeId + '"'
-        }
-      }
-    }).then(angular.bind(this, function(response) {
-      var indexInfos = [];
-      try {
-        var indexInfo = response.data.hits.hits[0]._source;
-        var docF = indexInfo.docColumns_s.split('|');
-        var customF = indexInfo.ftColumns_s.split('|');
-
-        for (var i = 0; i < docF.length; i++) {
-          indexInfos.push({
-            label: customF[i],
-            name: customF[i],
-            idxName: docF[i],
-            isRange: docF[i].endsWith('_d'),
-            isTree: docF[i].endsWith('_tree'),
-            isDateTime: docF[i].endsWith('_dt'),
-            isMultiple: docF[i].endsWith('_ss')
-          });
-        }
-        this.docTypeFieldsInfo = indexInfos;
-        this.filteredDocTypeFieldsInfo = [];
-        indexInfos.forEach(function(field) {
-          var f = field.idxName;
-          var fname = f.toLowerCase();
-
-          // Set geometry field
-          if (['geom', 'the_geom', 'msgeometry'].indexOf(fname) >= 0) {
-            this.geomField = field;
+    this.$http
+      .post(this.ES_URL, {
+        size: 1,
+        query: {
+          query_string: {
+            query: this.config.docTypeIdField + ':"' + this.config.docTypeId + '"'
           }
-          // Set facet fields
-          if ($.inArray(fname, this.config.excludedFields) === -1) {
-            this.filteredDocTypeFieldsInfo.push(field);
-          }
-        }, this);
+        }
+      })
+      .then(
+        angular.bind(this, function (response) {
+          var indexInfos = [];
+          try {
+            var indexInfo = response.data.hits.hits[0]._source;
+            var docF = indexInfo.docColumns_s.split("|");
+            var customF = indexInfo.ftColumns_s.split("|");
 
-        this.totalCount = indexInfo.totalRecords_i;
-        this.initBaseRequest_(options);
-      }
-      catch (e) {
-        var msg = this.$translate.instant('docTypeNotIndexed', {
-          id: docTypeId
-        });
-        defer.reject({statusText: msg});
-      }
-      defer.resolve(indexInfos);
-    }), function(r) {
-      if (r.status === 404) {
-        defer.reject({statusText: this.$translate.instant('indexNotRunning')});
-      } else {
-        defer.reject(r);
-      }
-    });
+            for (var i = 0; i < docF.length; i++) {
+              indexInfos.push({
+                label: customF[i],
+                name: customF[i],
+                idxName: docF[i],
+                isRange: docF[i].endsWith("_d"),
+                isTree: docF[i].endsWith("_tree"),
+                isDateTime: docF[i].endsWith("_dt"),
+                isMultiple: docF[i].endsWith("_ss")
+              });
+            }
+            this.docTypeFieldsInfo = indexInfos;
+            this.filteredDocTypeFieldsInfo = [];
+            indexInfos.forEach(function (field) {
+              var f = field.idxName;
+              var fname = f.toLowerCase();
+
+              // Set geometry field
+              if (["geom", "the_geom", "msgeometry"].indexOf(fname) >= 0) {
+                this.geomField = field;
+              }
+              // Set facet fields
+              if ($.inArray(fname, this.config.excludedFields) === -1) {
+                this.filteredDocTypeFieldsInfo.push(field);
+              }
+            }, this);
+
+            this.totalCount = indexInfo.totalRecords_i;
+            this.isPointOnly = indexInfo.isPointOnly;
+            this.initBaseRequest_(options);
+          } catch (e) {
+            var msg = this.$translate.instant("docTypeNotIndexed", {
+              id: this.config.docTypeId
+            });
+            defer.reject({ statusText: msg });
+          }
+          defer.resolve(indexInfos);
+        }),
+        function (r) {
+          if (r.status === 404) {
+            defer.reject({ statusText: this.$translate.instant("indexNotRunning") });
+          } else {
+            defer.reject(r);
+          }
+        }.bind(this)
+      );
     return defer.promise;
   };
 
-  geonetwork.gnIndexRequest.prototype.searchWithFacets =
-      function(qParams, aggs) {
-
-    if (this.initialParams.stats &&
-        Object.keys(this.initialParams.stats).length > 0) {
-      angular.forEach(this.initialParams.stats, function(value, key) {
-        if (key == 'undefined') {
-          delete this.initialParams.stats[key];
-        }
-      }.bind(this));
+  geonetwork.gnIndexRequest.prototype.searchWithFacets = function (qParams, aggs) {
+    if (this.initialParams.stats && Object.keys(this.initialParams.stats).length > 0) {
+      angular.forEach(
+        this.initialParams.stats,
+        function (value, key) {
+          if (key == "undefined") {
+            delete this.initialParams.stats[key];
+          }
+        }.bind(this)
+      );
       return this.searchQuiet(qParams, this.initialParams.stats).then(
-          function(resp) {
-            var statsP =
-                this.createFacetSpecFromStats_(resp.indexData.aggregations);
+        function (resp) {
+          var statsP = this.createFacetSpecFromStats_(resp.indexData.aggregations);
 
-            var rangeDateP =
-                this.createFacetSpecFromDateRanges_(
-                resp.indexData.aggregations);
+          var rangeDateP = this.createFacetSpecFromDateRanges_(
+            resp.indexData.aggregations,
+            qParams
+          );
 
-            return this.search(qParams, angular.extend(
-                {}, this.initialParams.facets, rangeDateP, statsP, aggs)
-            );
-          }.bind(this));
-    }
-    else {
-      return this.search(
-          qParams,
-          angular.merge({}, this.initialParams.facets, aggs));
+          return this.search(
+            qParams,
+            angular.merge({}, this.initialParams.facets, rangeDateP, statsP, aggs)
+          );
+        }.bind(this)
+      );
+    } else {
+      return this.search(qParams, angular.merge({}, this.initialParams.facets, aggs));
     }
   };
 
@@ -261,14 +254,14 @@
    * @param {Object} override to override es request params.
    * @return {angular.Promise}
    */
-  geonetwork.gnIndexRequest.prototype.search_es = function(override) {
-    var esParams = angular.extend({},this.reqParams, override);
-    return this.$http.post(this.ES_URL, esParams).then(function(response) {
+  geonetwork.gnIndexRequest.prototype.search_es = function (override) {
+    var esParams = angular.extend({}, this.reqParams, override);
+    return this.$http.post(this.ES_URL, esParams).then(function (response) {
       return response.data;
     });
   };
 
-  geonetwork.gnIndexRequest.prototype.search = function(qParams, indexParams) {
+  geonetwork.gnIndexRequest.prototype.search = function (qParams, indexParams) {
     angular.extend(this.requestParams, {
       any: qParams.any,
       qParams: qParams.params,
@@ -284,32 +277,38 @@
    * @param {object} field to get more elements from.
    * @return {promise} The search promise.
    */
-  geonetwork.gnIndexRequest.prototype.getFacetMoreResults = function(field) {
+  geonetwork.gnIndexRequest.prototype.getFacetMoreResults = function (field) {
     var aggs = {};
     var agg = this.reqParams.aggs[field.name];
     agg[field.type].size += ROWS;
     aggs[field.name] = agg;
-    return this.search_({
-      any: this.requestParams.any,
-      params: this.requestParams.qParams,
-      geometry: this.requestParams.geometry
-    }, aggs, false, true);
-  };
 
-  geonetwork.gnIndexRequest.prototype.searchQuiet =
-      function(qParams, indexParams) {
-    return this.search_(qParams, indexParams, true);
-  };
+    var params = angular.copy(this.requestParams.qParams);
+    if (params) delete params[field.name];
 
-  geonetwork.gnIndexRequest.prototype.updateSearch =
-      function(params, any, indexParams) {
     return this.search_(
-        angular.extend(this.requestParams.qParams, params),
-        any,
-        angular.extend(this.requestParams.indexParams, indexParams)
+      {
+        any: this.requestParams.any,
+        params: params,
+        geometry: this.requestParams.geometry
+      },
+      aggs,
+      false,
+      true
     );
   };
 
+  geonetwork.gnIndexRequest.prototype.searchQuiet = function (qParams, indexParams) {
+    return this.search_(qParams, indexParams, true);
+  };
+
+  geonetwork.gnIndexRequest.prototype.updateSearch = function (params, any, indexParams) {
+    return this.search_(
+      angular.extend(this.requestParams.qParams, params),
+      any,
+      angular.extend(this.requestParams.indexParams, indexParams)
+    );
+  };
 
   /**
    * Update index url depending on the current facet ui selection state.
@@ -324,39 +323,45 @@
    * @param {string} any Filter on any field
    * @return {string} the updated url
    */
-  geonetwork.gnIndexRequest.prototype.search_ =
-      function(qParams, aggs, quiet, doNotSaveParams) {
-
+  geonetwork.gnIndexRequest.prototype.search_ = function (
+    qParams,
+    aggs,
+    quiet,
+    doNotSaveParams
+  ) {
     var params = this.buildESParams(qParams, aggs);
 
     if (!doNotSaveParams) this.reqParams = params;
 
-    return this.$http.post(this.ES_URL, params).then(angular.bind(this,
-        function(r) {
-
-          var resp = {
-            indexData: r.data,
-            records: r.data.hits.hits,
-            facets: quiet ? undefined : this.createFacetData_(r.data, params),
-            count: r.data.hits.total.value
-          };
-          if (!quiet) {
-            this.sendEvent('search', angular.extend({}, resp, {
+    return this.$http.post(this.ES_URL, params).then(
+      angular.bind(this, function (r) {
+        var resp = {
+          indexData: r.data,
+          records: r.data.hits.hits,
+          facets: quiet ? undefined : this.createFacetData_(r.data, params),
+          count: r.data.hits.total.value
+        };
+        if (!quiet) {
+          this.sendEvent(
+            "search",
+            angular.extend({}, resp, {
               sender: this
-            }));
-          }
-          return resp;
-        }));
+            })
+          );
+        }
+        return resp;
+      })
+    );
   };
 
-  geonetwork.gnIndexRequest.prototype.next = function() {
+  geonetwork.gnIndexRequest.prototype.next = function () {
     this.page = {
-      from: this.page.start + ROWS,  // TODO: Max on total
+      from: this.page.start + ROWS, // TODO: Max on total
       size: ROWS
     };
     this.search();
   };
-  geonetwork.gnIndexRequest.prototype.previous = function() {
+  geonetwork.gnIndexRequest.prototype.previous = function () {
     this.page = {
       from: Math.max(this.page.start - ROWS, 0),
       size: ROWS
@@ -371,11 +376,11 @@
    * @param {Object} options from IndexRequest object type config.
    * @private
    */
-  geonetwork.gnIndexRequest.prototype.initBaseRequest_ = function(options) {
-    this.initialParams = angular.extend({}, this.initialParams, {filter: ''});
+  geonetwork.gnIndexRequest.prototype.initBaseRequest_ = function (options) {
+    this.initialParams = angular.extend({}, this.initialParams, { filter: "" });
     if (this.config.docIdField) {
-      this.initialParams.filter = '+' + this.config.docIdField +
-          ':\"' + this.config.idDoc(options) + '\"';
+      this.initialParams.filter =
+        "+" + this.config.docIdField + ':"' + this.config.idDoc(options) + '"';
     }
     this.baseUrl = this.ES_URL;
     this.initBaseParams();
@@ -386,68 +391,72 @@
    * All params form the `aggs` request object.
    * It's done on request init, but can be overwritten by application.
    */
-  geonetwork.gnIndexRequest.prototype.initBaseParams = function() {
-
+  geonetwork.gnIndexRequest.prototype.initBaseParams = function () {
     var facetParams = {};
     var statParams = {};
     var rangeDates = {};
 
-    this.filteredDocTypeFieldsInfo.forEach(function(field) {
+    this.filteredDocTypeFieldsInfo.forEach(
+      function (field) {
+        // Not required for hidden fields
+        if (field.hidden) {
+          return;
+        }
 
-      // Comes from application profile
-      if (field.aggs) {
-        field.aggs[Object.keys(field.aggs)[0]].field = field.idxName;
-        facetParams[field.idxName || field.label] = field.aggs;
-      }
-    /*
-      else if (field.isTree) {
+        // Comes from application profile
+        if (field.aggs) {
+          field.aggs[Object.keys(field.aggs)[0]].field = field.idxName;
+          facetParams[field.idxName || field.label] = field.aggs;
+        }
+        /*
+        else if (field.isTree) {
 
-      }
-    */
+        }
+      */
 
-      // Keep info of date range, like field for max and min dates
-      // Also add info in stats to get all date values.
-      else if (field.type == 'rangeDate') {
-        var rangeDate = {};
-        ['minField', 'maxField'].forEach(function(k) {
-          var fObj = this.getIdxNameObj_(field[k]);
-          if (fObj) {
-            statParams[fObj.idxName] = {
+        // Keep info of date range, like field for max and min dates
+        // Also add info in stats to get all date values.
+        else if (field.type == "rangeDate") {
+          var rangeDate = {};
+          ["minField", "maxField"].forEach(
+            function (k) {
+              var fObj = this.getIdxNameObj_(field[k]);
+              if (fObj) {
+                statParams[fObj.idxName] = {
+                  terms: {
+                    field: fObj.idxName,
+                    size: MAX_ROWS
+                  }
+                };
+                rangeDate[k] = fObj.idxName;
+              }
+            }.bind(this)
+          );
+          rangeDates[field.name] = rangeDate;
+        } else if (!field.isRange) {
+          if (angular.isDefined(field.idxName)) {
+            facetParams[field.idxName] = {
               terms: {
-                field: fObj.idxName,
-                size: MAX_ROWS
+                field: field.idxName,
+                size: field.isDateTime ? MAX_ROWS : field.isTree ? FACET_TREE_ROWS : ROWS
               }
             };
-            rangeDate[k] = fObj.idxName;
+            // if (!field.isDateTime) {
+            if (field.idxName.match(/^ft_.*_s$/)) {
+              // ignore empty strings
+              // include/exclude settings as they can only be applied to string fields
+              facetParams[field.idxName].terms["exclude"] = "";
+            }
           }
-        }.bind(this));
-        rangeDates[field.name] = rangeDate;
-      }
-      else if (!field.isRange) {
-        if (angular.isDefined(field.idxName)) {
-          facetParams[field.idxName] = {
-            terms: {
-              field: field.idxName,
-              size: field.isDateTime ? MAX_ROWS :
-                      field.isTree ? FACET_TREE_ROWS : ROWS
+        } else {
+          statParams[field.idxName + "_stats"] = {
+            extended_stats: {
+              field: field.idxName
             }
           };
-          // if (!field.isDateTime) {
-          if (field.idxName.match(/^ft_.*_s$/)) {
-            // ignore empty strings
-            // include/exclude settings as they can only be applied to string fields
-            facetParams[field.idxName].terms['exclude'] = '';
-          }
         }
-      }
-      else {
-        statParams[field.idxName + '_stats'] = {
-          extended_stats: {
-            field: field.idxName
-          }
-        };
-      }
-    }.bind(this));
+      }.bind(this)
+    );
 
     this.initialParams = angular.extend({}, this.initialParams, {
       facets: facetParams,
@@ -455,7 +464,6 @@
       rangeDates: rangeDates
     });
   };
-
 
   /**
    * Retrieve the index field object from the array given from feature type
@@ -466,23 +474,20 @@
    * @param {string} name
    * @return {*}
    */
-  geonetwork.gnIndexRequest.prototype.getIdxNameObj_ = function(name) {
+  geonetwork.gnIndexRequest.prototype.getIdxNameObj_ = function (name) {
     var fields = this.filteredDocTypeFieldsInfo || [];
     for (var i = 0; i < fields.length; i++) {
-      if (fields[i].name == name ||
-          fields[i].idxName == name) {
+      if (fields[i].name == name || fields[i].idxName == name) {
         return fields[i];
       }
     }
 
     fields = this.docTypeFieldsInfo || [];
     for (var i = 0; i < fields.length; i++) {
-      if (fields[i].name == name ||
-          fields[i].idxName == name) {
+      if (fields[i].name == name || fields[i].idxName == name) {
         return fields[i];
       }
     }
-
   };
 
   /**
@@ -494,13 +499,14 @@
    * @return {Array} Facet config
    * @private
    */
-  geonetwork.gnIndexRequest.prototype.createFacetData_ =
-      function(response, requestParam) {
-
+  geonetwork.gnIndexRequest.prototype.createFacetData_ = function (
+    response,
+    requestParam
+  ) {
     var fields = [];
     for (var fieldId in response.aggregations) {
-      if (fieldId.indexOf('_stats') > 0) break;
-      if (fieldId.indexOf('bbox_') === 0) continue;
+      if (fieldId.indexOf("_stats") > 0) break;
+      if (fieldId.indexOf("bbox_") === 0) continue;
       var respAgg = response.aggregations[fieldId];
       var reqAgg = requestParam.aggs[fieldId];
 
@@ -509,27 +515,27 @@
       var facetField = {
         name: fieldId,
         label: fNameObj && fNameObj.label ? fNameObj.label : fieldId,
-        display: fNameObj ? fNameObj.display : '',
+        display: fNameObj ? fNameObj.display : "",
         type: fNameObj ? fNameObj.type : undefined,
         values: [],
         more: respAgg.sum_other_doc_count
       };
 
       // histogram
-      if (reqAgg.hasOwnProperty('histogram')) {
-        facetField.type = 'histogram';
+      if (reqAgg.hasOwnProperty("histogram")) {
+        facetField.type = "histogram";
         var buckets = respAgg.buckets;
-        respAgg.buckets.forEach(function(b, i) {
-          var label = '';
+        respAgg.buckets.forEach(function (b, i) {
+          var label = "";
           if (i == 0 && respAgg.buckets.length > 1) {
-            label = '< ' + respAgg.buckets[i + 1].key.toFixed(2);
-          }
-          else if (i < respAgg.buckets.length - 1) {
-            label = b.key.toFixed(2) + FACET_RANGE_DELIMITER +
-                respAgg.buckets[i + 1].key.toFixed(2);
-          }
-          else {
-            label = '> ' + b.key.toFixed(2);
+            label = "< " + respAgg.buckets[i + 1].key.toFixed(2);
+          } else if (i < respAgg.buckets.length - 1) {
+            label =
+              b.key.toFixed(2) +
+              FACET_RANGE_DELIMITER +
+              respAgg.buckets[i + 1].key.toFixed(2);
+          } else {
+            label = ">= " + b.key.toFixed(2);
           }
           facetField.values.push({
             value: label,
@@ -538,31 +544,29 @@
         });
       }
       // ranges
-      if (reqAgg.hasOwnProperty('range')) {
-        facetField.type = 'range';
-        respAgg.buckets.forEach(function(b, i) {
+      if (reqAgg.hasOwnProperty("range")) {
+        facetField.type = "range";
+        respAgg.buckets.forEach(function (b, i) {
           var label;
           if (b.from && b.to) {
             label = b.from + FACET_RANGE_DELIMITER + b.to;
-          }
-          else if (b.to) {
-            label = '< ' + b.to;
-          }
-          else if (b.from) {
-            label = '> ' + b.from;
+          } else if (b.to) {
+            label = "< " + b.to;
+          } else if (b.from) {
+            label = "> " + b.from;
           }
           facetField.values.push({
             value: label,
             count: b.doc_count
           });
         });
-      }
-      else if (fieldId.endsWith('_tree')) {
-        facetField.tree = this.gnTreeFromSlash.getTree(respAgg.buckets);
+      } else if (fieldId.endsWith("_tree")) {
+        facetField.tree = this.gnFacetTree.getTree(respAgg.buckets);
       }
       // date types
-      else if (fieldId.endsWith('_dt') || facetField.type == 'rangeDate') {
-        if (facetField.type == 'rangeDate') {
+      else if (fieldId.endsWith("_dt") || facetField.type == "rangeDate") {
+        if (facetField.type == "rangeDate") {
+          fNameObj.isDateTime = true;
           var rangebuckets = [];
           for (var p in respAgg.buckets) {
             var b = respAgg.buckets[p];
@@ -570,9 +574,8 @@
             rangebuckets.push(b);
           }
           respAgg.buckets = rangebuckets;
-        }
-        else {
-          facetField.type = 'date';
+        } else {
+          facetField.type = "date";
         }
 
         // no date in bucket: do nothing
@@ -580,19 +583,19 @@
           facetField.dates = [];
           facetField.datesCount = [];
         } else {
-          facetField.display = facetField.display || 'form';
-          var bucketDates = respAgg.buckets.sort(function(a, b) {
+          facetField.display = facetField.display || "form";
+          var bucketDates = respAgg.buckets.sort(function (a, b) {
             return a.key - b.key;
           });
 
           if (!fNameObj.allDates) {
-            fNameObj.allDates = bucketDates.map(function(b) {
+            fNameObj.allDates = bucketDates.map(function (b) {
               return b.key;
             });
           }
           facetField.dates = fNameObj.allDates;
 
-          if (facetField.display == 'graph' && bucketDates.length > 0) {
+          if (facetField.display == "graph" && bucketDates.length > 0) {
             facetField.datesCount = [];
             for (var i = 0; i < bucketDates.length; i++) {
               facetField.datesCount.push({
@@ -605,8 +608,8 @@
         }
       }
       // filters - response bucket is object instead of array
-      else if (reqAgg.hasOwnProperty('filters')) {
-        facetField.type = 'filters';
+      else if (reqAgg.hasOwnProperty("filters")) {
+        facetField.type = "filters";
         var empty = true;
         for (var p in respAgg.buckets) {
           // results are found for this query: add a value to the facet
@@ -630,8 +633,8 @@
       }
 
       // terms
-      else if (reqAgg.hasOwnProperty('terms')) {
-        facetField.type = 'terms';
+      else if (reqAgg.hasOwnProperty("terms")) {
+        facetField.type = "terms";
         facetField.size = reqAgg.terms.size;
         for (var i = 0; i < respAgg.buckets.length; i++) {
           facetField.values.push({
@@ -649,10 +652,11 @@
 
     // Sort facets depending on application profile order if any
     if (this.fieldsOrder_) {
-      fields.sort(function(a, b) {
-        return this.fieldsOrder_.indexOf(a.name) -
-            this.fieldsOrder_.indexOf(b.name);
-      }.bind(this));
+      fields.sort(
+        function (a, b) {
+          return this.fieldsOrder_.indexOf(a.name) - this.fieldsOrder_.indexOf(b.name);
+        }.bind(this)
+      );
     }
     return fields;
   };
@@ -677,16 +681,13 @@
    * @return {{[facet.range]: Array}}
    * @private
    */
-  geonetwork.gnIndexRequest.prototype.createFacetSpecFromStats_ =
-      function(aggs) {
-
+  geonetwork.gnIndexRequest.prototype.createFacetSpecFromStats_ = function (aggs) {
     var histograms = {};
     for (var fieldProp in aggs) {
-      if (fieldProp.indexOf('_stats') > -1) {
+      if (fieldProp.indexOf("_stats") > -1) {
         var fieldName = fieldProp.substr(0, fieldProp.length - 6);
         var field = aggs[fieldProp];
-        var interval = (field.max - field.min) /
-            Math.min(FACET_RANGE_COUNT, field.count);
+        var interval = (field.max - field.min) / Math.min(FACET_RANGE_COUNT, field.count);
 
         if (interval) {
           histograms[fieldName] = {
@@ -695,8 +696,7 @@
               interval: interval
             }
           };
-        }
-        else {
+        } else {
           histograms[fieldName] = {
             terms: {
               field: fieldName,
@@ -713,37 +713,76 @@
    * Build ES aggs params (filters) from both dates values.
    * The params is a filter, where all entries are a combo of 2 single ranges.
    * @param {Object} aggs
+   * @param {Object} params
    * @return {{}}
    * @private
    */
-  geonetwork.gnIndexRequest.prototype.createFacetSpecFromDateRanges_ =
-      function(aggs) {
+  geonetwork.gnIndexRequest.prototype.createFacetSpecFromDateRanges_ = function (
+    aggs,
+    params
+  ) {
     var filters = {};
     var ret = {};
 
-    angular.forEach(this.initialParams.rangeDates, function(v, k) {
+    angular.forEach(this.initialParams.rangeDates, function (v, k) {
       if (v.minField == undefined) return;
+
+      var initialParam = params.params && params.params[k];
 
       var minF = aggs[v.minField];
       var maxF = aggs[v.maxField];
-      var allD = minF.buckets.concat(maxF.buckets).unique();
+      var allDates = minF.buckets
+        .concat(maxF.buckets)
+        .map(function (bucket) {
+          return bucket.key;
+        })
+        .unique();
 
-      allD.forEach(function(b) {
-        var rangeSpec = {
-          bool: {
-            must: [{range: {}}, {range: {}}]
-          }
-        };
-        rangeSpec.bool.must[0].range[v.minField] = {
-          lte: b.key,
-          format: 'epoch_millis'
-        };
-        rangeSpec.bool.must[1].range[v.maxField] = {
-          gte: b.key,
-          format: 'epoch_millis'
-        };
-        filters[b.key] = rangeSpec;
-      }.bind(this));
+      // compute bucket interval
+      var interval = "week";
+      var minDate = initialParam
+        ? moment(initialParam.values.from, "DD-MM-YYYY")
+        : moment(_.min(allDates));
+      var maxDate = initialParam
+        ? moment(initialParam.values.to, "DD-MM-YYYY")
+        : moment(_.max(allDates));
+      var fullRange = maxDate.diff(minDate, "days");
+      if (fullRange > 1000) interval = "month";
+
+      var groupedDates = _.groupBy(allDates, function (date) {
+        return moment(date).startOf(interval).valueOf();
+      });
+      groupedDates = Object.keys(groupedDates)
+        .map(function (key) {
+          return parseInt(key);
+        })
+        .sort(function (a, b) {
+          return Math.sign(a - b);
+        });
+
+      // no available dates: do not add an empty filter
+      if (!groupedDates.length) {
+        return;
+      }
+
+      groupedDates.forEach(
+        function (date, i, array) {
+          var rangeSpec = {
+            bool: {
+              must: [{ range: {} }, { range: {} }]
+            }
+          };
+          rangeSpec.bool.must[0].range[v.minField] = {
+            lte: i < array.length - 1 ? array[i + 1] : date,
+            format: "epoch_millis"
+          };
+          rangeSpec.bool.must[1].range[v.maxField] = {
+            gte: date,
+            format: "epoch_millis"
+          };
+          filters[date] = rangeSpec;
+        }.bind(this)
+      );
 
       ret[k] = {
         filters: {
@@ -766,9 +805,11 @@
    * @param {undefined|object} state of `this.requestParams`
    * @return {string} The merged url
    */
-  geonetwork.gnIndexRequest.prototype.getMergedUrl =
-      function(qParams_, indexParams_, state) {
-
+  geonetwork.gnIndexRequest.prototype.getMergedUrl = function (
+    qParams_,
+    indexParams_,
+    state
+  ) {
     var p = this.getMergedParams_(qParams_, indexParams_, state);
     return this.getRequestUrl_(p.qParams, p.indexParams);
   };
@@ -782,9 +823,11 @@
    * @param {undefined|object} state of `this.requestParams`
    * @return {string} The merged url
    */
-  geonetwork.gnIndexRequest.prototype.getMergedParams_ =
-      function(qParams_, indexParams_, state) {
-
+  geonetwork.gnIndexRequest.prototype.getMergedParams_ = function (
+    qParams_,
+    indexParams_,
+    state
+  ) {
     var baseObj = state || this.requestParams;
     return {
       qParams: this.getMergedQParams_(qParams_, baseObj),
@@ -795,9 +838,7 @@
   //TODO: confusing types, qParams is an object with (params,any,geometry) keys,
   //TODO: while this.requestParams.qParams is just the params object
   //TODO: change the this.requestParams type to reflect all method signatures
-  geonetwork.gnIndexRequest.prototype.getMergedQParams_ =
-      function(qParams_, baseObj) {
-
+  geonetwork.gnIndexRequest.prototype.getMergedQParams_ = function (qParams_, baseObj) {
     return {
       params: angular.extend({}, baseObj.qParams, qParams_.params),
       any: qParams_.any || baseObj.any,
@@ -805,23 +846,21 @@
     };
   };
 
-  geonetwork.gnIndexRequest.prototype.getMergedindexParams_ =
-      function(indexParams_, baseObj) {
+  geonetwork.gnIndexRequest.prototype.getMergedindexParams_ = function (
+    indexParams_,
+    baseObj
+  ) {
     return angular.extend({}, baseObj.indexParams, indexParams_);
   };
 
-  geonetwork.gnIndexRequest.prototype.getRequestUrl_ =
-      function(qParams, indexParams) {
+  geonetwork.gnIndexRequest.prototype.getRequestUrl_ = function (qParams, indexParams) {
     return this.baseUrl + this.buildUrlParams_(qParams, indexParams);
   };
 
-  geonetwork.gnIndexRequest.prototype.buildUrlParams_ =
-      function(qParams, indexParams) {
-    return this.buildQParam_(qParams) +
-        this.parseKeyValue_(indexParams);
+  geonetwork.gnIndexRequest.prototype.buildUrlParams_ = function (qParams, indexParams) {
+    return this.buildQParam_(qParams) + this.parseKeyValue_(indexParams);
   };
-  geonetwork.gnIndexRequest.prototype.getSearchQuery =
-      function(params) {
+  geonetwork.gnIndexRequest.prototype.getSearchQuery = function (params) {
     return this.buildQParam_(params, params.qParams);
   };
 
@@ -829,11 +868,13 @@
    * Put in `fieldsOrder_` the order of the fields to display in facets.
    * This order comes from application profile if not extended.
    */
-  geonetwork.gnIndexRequest.prototype.setFielsdOrder = function() {
+  geonetwork.gnIndexRequest.prototype.setFielsdOrder = function () {
     this.fieldsOrder_ = [];
-    this.filteredDocTypeFieldsInfo.forEach(function(f) {
-      this.fieldsOrder_.push(f.idxName || f.name);
-    }.bind(this));
+    this.filteredDocTypeFieldsInfo.forEach(
+      function (f) {
+        this.fieldsOrder_.push(f.idxName || f.name);
+      }.bind(this)
+    );
   };
 
   /**
@@ -844,79 +885,88 @@
    *     type
    *     values
    */
-  geonetwork.gnIndexRequest.prototype.buildESParams =
-      function(qParams, aggs, start, rows) {
-
+  geonetwork.gnIndexRequest.prototype.buildESParams = function (
+    qParams,
+    aggs,
+    start,
+    rows
+  ) {
     var params = {
       from: start !== undefined ? start : this.page.start,
       size: rows !== undefined ? rows : this.page.rows,
-      aggs: aggs
+      aggs: aggs,
+      track_total_hits: true
     };
 
     params.query = {
-      'bool': {
-        'must': [{
-          'query_string': {
-            query: this.buildQParam_(qParams) || '*:*'
+      bool: {
+        must: [
+          {
+            query_string: {
+              query: this.buildQParam_(qParams) || "*:*"
+            }
           }
-        }]
+        ]
       }
     };
 
     if (qParams.geometry) {
       params.query.bool.filter = {
-        'geo_shape': {
-          'geom': {
-            'shape': {
-              'type': 'envelope',
-              'coordinates': qParams.geometry
+        geo_shape: {
+          geom: {
+            shape: {
+              type: "envelope",
+              coordinates: qParams.geometry
             },
-            'relation': 'intersects'
+            relation: "intersects"
           }
         }
       };
     }
 
-    angular.forEach(qParams.params, function(field, fieldName) {
-      if (field.type == 'date' || field.type == 'rangeDate') {
-        var gte, lte, range = {};
-        var date = field.value || field.values;
-        if (angular.isObject(date)) {
-          gte = date.from;
-          lte = date.to;
+    angular.forEach(
+      qParams.params,
+      function (field, fieldName) {
+        if (field.type == "date" || field.type == "rangeDate") {
+          var gte,
+            lte,
+            range = {};
+          var date = field.value || field.values;
+          if (angular.isObject(date)) {
+            gte = date.from;
+            lte = date.to;
+          } else {
+            gte = lte = date;
+          }
+          if (field.type == "date") {
+            range[fieldName] = {
+              gte: gte,
+              lte: lte,
+              format: "dd-MM-yyyy"
+            };
+            params.query.bool.must.push({
+              range: range
+            });
+          } else {
+            range[this.initialParams.rangeDates[fieldName].minField] = {
+              lte: lte,
+              format: "dd-MM-yyyy"
+            };
+            params.query.bool.must.push({
+              range: range
+            });
+            range = {};
+            range[this.initialParams.rangeDates[fieldName].maxField] = {
+              gte: gte,
+              format: "dd-MM-yyyy"
+            };
+            params.query.bool.must.push({
+              range: range
+            });
+          }
         }
-        else {
-          gte = lte = date;
-        }
-        if (field.type == 'date') {
-          range[fieldName] = {
-            gte: gte,
-            lte: lte,
-            format: 'dd-MM-YYYY'
-          };
-          params.query.bool.must.push({
-            range: range
-          });
-        }
-        else {
-          range[this.initialParams.rangeDates[fieldName].minField] = {
-            lte: lte,
-            format: 'dd-MM-YYYY'
-          };
-          params.query.bool.must.push({
-            range: range
-          });
-          range = {};
-          range[this.initialParams.rangeDates[fieldName].maxField] = {
-            gte: gte,
-            format: 'dd-MM-YYYY'
-          };
-          params.query.bool.must.push({
-            range: range
-          });
-        }
-      }
-    }.bind(this));
+      }.bind(this)
+    );
 
     return params;
   };
@@ -953,70 +1003,76 @@
    * @return {string} the query string
    * @private
    */
-  geonetwork.gnIndexRequest.prototype.buildQParam_ = function(qParams) {
+  geonetwork.gnIndexRequest.prototype.buildQParam_ = function (qParams) {
     var fieldsQ = [],
-        qParam = '',
-        any = qParams.any,
-        geometry = qParams.geometry;
+      qParam = "",
+      any = qParams.any,
+      geometry = qParams.geometry;
 
     // TODO move this in createFacetData_ ? query param
-    angular.forEach(qParams.params, function(field, fieldName) {
+    angular.forEach(qParams.params, function (field, fieldName) {
       var valuesQ = [];
-      if (field.type == 'date' || field.type == 'rangeDate') {
+      if (field.type == "date" || field.type == "rangeDate") {
         return;
       }
+      var value;
       for (var p in field.values) {
         // ignore undefined values
-        if (field.values[p] === undefined) { continue; }
+        if (field.values[p] === undefined) {
+          continue;
+        }
 
-        if (field.type == 'histogram' || field.type == 'range') {
-          var value;
-          if (p.indexOf(FACET_RANGE_DELIMITER) > 0) {
-            value = fieldName +
-                ':[' + p.replace(FACET_RANGE_DELIMITER, ' TO ') + '}';
+        if (field.type == "histogram" || field.type == "range") {
+          if (p.indexOf(FACET_RANGE_DELIMITER) > -1) {
+            value = fieldName + ":[" + p.replace(FACET_RANGE_DELIMITER, " TO ") + "}";
+          } else {
+            value = fieldName + ":" + p.replace(/ /g, "");
           }
-          else {
-            value = fieldName + ':' + p.replace(/ /g, '');
-          }
-        }
-        else if (field.type == 'filters') {
+        } else if (field.type == "filters") {
           value = field.query;
-        }
-        else {
+        } else {
           value = fieldName + ':"' + p + '"';
         }
         valuesQ.push(value);
       }
       if (valuesQ.length) {
-        fieldsQ.push('+(' + valuesQ.join(' ') + ')');
+        fieldsQ.push("+(" + valuesQ.join(" ") + ")");
       }
     });
 
-    angular.forEach(qParams.qParams, function(field, fieldName) {
+    angular.forEach(qParams.qParams, function (field, fieldName) {
       var valuesQ = [];
-      if (field.type == 'date' || field.type == 'rangeDate') {
+      if (field.type == "date" || field.type == "rangeDate") {
         return;
       }
+      var value;
       for (var p in field.values) {
         // ignore undefined values
-        if (field.values[p] === undefined) { continue; }
+        if (field.values[p] === undefined) {
+          continue;
+        }
 
-        if (field.type == 'histogram' || field.type == 'range') {
-          valuesQ.push(fieldName +
-              ':[' + p.replace(FACET_RANGE_DELIMITER, ' TO ') + '}');
+        if (field.type == "histogram" || field.type == "range") {
+          if (p.indexOf(FACET_RANGE_DELIMITER) > 0) {
+            value = fieldName + ":[" + p.replace(FACET_RANGE_DELIMITER, " TO ") + "}";
+          } else {
+            value = fieldName + ":" + p.replace(/ /g, "");
+          }
+        } else if (field.type == "filters") {
+          value = field.query;
+        } else {
+          value = fieldName + ':"' + p + '"';
         }
-        else {
-          valuesQ.push(fieldName + ':"' + p + '"');
-        }
+        valuesQ.push(value);
       }
       if (valuesQ.length) {
-        fieldsQ.push('+(' + valuesQ.join(' ') + ')');
+        fieldsQ.push("+(" + valuesQ.join(" ") + ")");
       }
     });
 
     if (any) {
-      any.split(' ').forEach(function(v) {
-        fieldsQ.push('+*' + v + '*');
+      any.split(" ").forEach(function (v) {
+        fieldsQ.push("+*" + v + "*");
       });
     }
     if (this.initialParams.filter) {
@@ -1024,15 +1080,21 @@
     }
 
     // Search for all if no filter defined
+    var filter;
     if (fieldsQ.length === 0) {
-      fieldsQ.push('*:*');
+      fieldsQ.push("*:*");
+      filter = fieldsQ.join(" ");
+    } else {
+      filter = "(" + fieldsQ.join(") AND (") + ")";
     }
 
+    // FIXME: This sounds useless as we already built filter based on fieldsQ
+    if (this.initialParams.filter != "") {
+      fieldsQ.push(this.initialParams.filter);
+    }
 
-    var filter = fieldsQ.join(' ');
     qParam += filter;
     return qParam;
-
   };
 
   /**
@@ -1050,43 +1112,59 @@
    * @return {string} url param
    * @private
    */
-  geonetwork.gnIndexRequest.prototype.parseKeyValue_ = function(params) {
-    var urlParams = '';
-    angular.forEach(params, function(v, k) {
-
+  geonetwork.gnIndexRequest.prototype.parseKeyValue_ = function (params) {
+    var urlParams = "";
+    angular.forEach(params, function (v, k) {
       if (angular.isArray(v)) {
-        v.forEach(function(f) {
-          urlParams += '&' + k + '=' + f;
+        v.forEach(function (f) {
+          urlParams += "&" + k + "=" + f;
         });
       } else {
-        urlParams += '&' + k + '=' + v;
+        urlParams += "&" + k + "=" + v;
       }
     });
     return urlParams;
   };
 
-
   // === EVENTS LISTENER ====
-  geonetwork.gnIndexRequest.prototype.on = function(key, callback, opt_this) {
-    this.eventsListener[key].push({callback: callback, this: opt_this});
+  geonetwork.gnIndexRequest.prototype.on = function (key, callback, opt_this) {
+    this.eventsListener[key].push({ callback: callback, this: opt_this });
   };
-  geonetwork.gnIndexRequest.prototype.sendEvent = function(key, args) {
-    this.eventsListener[key].forEach(angular.bind(this, function(event) {
-      event.callback.call(event.this || this, args);
-    }));
+  geonetwork.gnIndexRequest.prototype.sendEvent = function (key, args) {
+    this.eventsListener[key].forEach(
+      angular.bind(this, function (event) {
+        event.callback.call(event.this || this, args);
+      })
+    );
   };
 
   // === STATE MANAGEMENT ====
-  geonetwork.gnIndexRequest.prototype.pushState = function(state) {
+  geonetwork.gnIndexRequest.prototype.pushState = function (state) {
     var state_ = state || angular.copy(this.requestParams);
     this.states_.push(state_);
   };
-  geonetwork.gnIndexRequest.prototype.popState = function() {
+  geonetwork.gnIndexRequest.prototype.popState = function () {
     return this.states_.pop();
   };
-  geonetwork.gnIndexRequest.prototype.getState = function(idx) {
+  geonetwork.gnIndexRequest.prototype.getState = function (idx) {
     var idx_ = idx || this.states_.length - 1;
-    return idx_ >= 0 && this.states_[idx_] || null;
+    return (idx_ >= 0 && this.states_[idx_]) || null;
   };
 
+  if (!String.prototype.endsWith) {
+    String.prototype.endsWith = function (searchString, position) {
+      var subjectString = this.toString();
+      if (
+        typeof position !== "number" ||
+        !isFinite(position) ||
+        Math.floor(position) !== position ||
+        position > subjectString.length
+      ) {
+        position = subjectString.length;
+      }
+      position -= searchString.length;
+      var lastIndex = subjectString.lastIndexOf(searchString, position);
+      return lastIndex !== -1 && lastIndex === position;
+    };
+  }
 })();

@@ -60,19 +60,19 @@ public class GeoServerRest {
     public final static String METHOD_GET = "GET";
     public final static String METHOD_PUT = "PUT";
     public final static String METHOD_DELETE = "DELETE";
-    public final static String LOGGER_NAME = "geonetwork.GeoServerRest";
+    public final static String LOGGER_NAME = "geonetwork.geoserver.rest";
 
-    private String password;
-    private String username;
-    private String restUrl;
-    private String baseCatalogueUrl;
-    private String nodeUrl;
-    private String defaultWorkspace;
+    private final String password;
+    private final String username;
+    private final String restUrl;
+    private final String baseCatalogueUrl;
+    private final String nodeUrl;
+    private final String defaultWorkspace;
     private String response = "";
-    private boolean pushStyleInWorkspace;
+    private final boolean pushStyleInWorkspace;
     private int status;
 
-    private GeonetHttpRequestFactory factory;
+    private final GeonetHttpRequestFactory factory;
     private String report = "";
     private String errorCode;
 
@@ -323,20 +323,24 @@ public class GeoServerRest {
     /**
      * @param ws Name of the workspace to put the datastore in
      * @param ds Name of the datastore
-     * @param f  Zip {@link java.io.File} to upload containing a shapefile
+     * @param f  Zip {@link java.io.File} to upload containing a shapefile, or a geopackage
      */
-    public boolean createDatastore(String ws, String ds, Path f) throws IOException {
-        Log.debug(Geonet.GEOPUBLISH, "Creating datastore " + ds + " in workspace " + ws + " from path " + f.toString());
+    public boolean createDatastore(String ws, String ds, Path f, String format) throws IOException {
+        String contentType = "application/x-sqlite3";
+        if (f.getFileName().toString().toLowerCase().endsWith(".zip")) {
+            contentType = "application/zip";
+        }
+        Log.debug(Geonet.GEOPUBLISH, "Creating datastore " + ds + " in workspace " + ws + " from path " + f.toString() + " with format " + format + " & Content-Type " + contentType);
         int status = sendREST(GeoServerRest.METHOD_PUT, "/workspaces/" + ws
-                + "/datastores/" + ds + "/file.shp", null, f,
-            "application/zip", false);
+                + "/datastores/" + ds + "/file." + format, null, f,
+            contentType, false);
 
         return status == 201;
     }
 
     public boolean createDatastore(String ws, String ds, String file) throws IOException {
         String type = "";
-        String extension = file.substring(file.lastIndexOf('.'), file.length());
+        String extension = file.substring(file.lastIndexOf('.'));
         if (file.startsWith("http://")) {
             type = "url";
         } else if (file.startsWith("file://")) {
@@ -354,9 +358,9 @@ public class GeoServerRest {
     /**
      * Create datastore in default workspace
      */
-    public boolean createDatastore(String ds, Path f)
+    public boolean createDatastore(String ds, Path f, String fo)
         throws IOException {
-        return createDatastore(getDefaultWorkspace(), ds, f);
+        return createDatastore(getDefaultWorkspace(), ds, f, fo);
     }
 
     public boolean createDatastore(String ds, String file)
@@ -436,7 +440,7 @@ public class GeoServerRest {
             String body, url;
             int status;
 
-			/* first check if the style exists in geoserver */
+            /* first check if the style exists in geoserver */
             url = "/styles/";
             if (pushStyleInWorkspace)
                 url += ws + ":";
@@ -502,6 +506,7 @@ public class GeoServerRest {
             checkResponseCode(status);
 
         } catch (RuntimeException e) {
+            Log.error(Geonet.GEOPUBLISH, e.getMessage());
             throw e;
 
         } catch (Exception e) {
@@ -669,7 +674,6 @@ public class GeoServerRest {
         } catch (AuthenticationException a) {
             Log.warning(LOGGER_NAME, "Failed to add the authentication Header, error is: " + a.getMessage());
         }
-        ;
 
         final ClientHttpResponse httpResponse = factory.execute(m, new UsernamePasswordCredentials(username, password), AuthScope.ANY);
 

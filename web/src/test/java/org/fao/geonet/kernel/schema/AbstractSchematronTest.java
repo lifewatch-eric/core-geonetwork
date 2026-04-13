@@ -24,7 +24,6 @@
 package org.fao.geonet.kernel.schema;
 
 import com.google.common.collect.Lists;
-
 import org.fao.geonet.AbstractCoreIntegrationTest;
 import org.fao.geonet.Constants;
 import org.fao.geonet.domain.Pair;
@@ -47,12 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.fao.geonet.constants.Geonet.Namespaces.GCO;
-import static org.fao.geonet.constants.Geonet.Namespaces.GEONET;
-import static org.fao.geonet.constants.Geonet.Namespaces.GMD;
-import static org.fao.geonet.constants.Geonet.Namespaces.GML;
-import static org.fao.geonet.constants.Geonet.Namespaces.GMX;
-import static org.fao.geonet.constants.Geonet.Namespaces.SRV;
+import static org.fao.geonet.constants.Geonet.Namespaces.*;
 
 /**
  * Test.
@@ -60,6 +54,7 @@ import static org.fao.geonet.constants.Geonet.Namespaces.SRV;
  * Created by Jesse on 1/31/14.
  */
 public class AbstractSchematronTest {
+    protected static final String INSPIRE_VALID_ISO19139_XML = "inspire-valid-iso19139.xml";
 
     protected static final Namespace SVRL_NAMESPACE = Namespace.getNamespace("svrl", "http://purl.oclc.org/dsdl/svrl");
     protected static final Namespace SCH_NAMESPACE = Namespace.getNamespace("sch", "http://purl.oclc.org/dsdl/schematron");

@@ -21,44 +21,31 @@
  * Rome - Italy. email: geonetwork@osgeo.org
  */
 
-(function() {
-  goog.provide('gn_search');
+(function () {
+  goog.provide("gn_search");
 
+  goog.require("gn_formatter_lib");
+  goog.require("gn_map_field_directive");
+  goog.require("gn_field_duration_directive");
+  goog.require("gn_mdactions");
+  goog.require("gn_mdview");
+  goog.require("gn_module");
+  goog.require("gn_resultsview");
+  goog.require("gn_search_controller");
+  goog.require("gn_viewer");
+  goog.require("gn_es");
 
-  goog.require('gn_formatter_lib');
-  goog.require('gn_map_field_directive');
-  goog.require('gn_field_duration_directive');
-  goog.require('gn_mdactions');
-  goog.require('gn_mdview');
-  goog.require('gn_module');
-  goog.require('gn_resultsview');
-  goog.require('gn_search_controller');
-  goog.require('gn_viewer');
-
-  var module = angular.module('gn_search', [
-    'gn_module',
-    'gn_resultsview',
-    'gn_map_field_directive',
-    'gn_field_duration_directive',
-    'gn_search_controller',
-    'gn_viewer',
-    'gn_mdview',
-    'gn_mdactions',
-    'ui.bootstrap.buttons',
-    'ui.bootstrap.tabs'
+  var module = angular.module("gn_search", [
+    "gn_module",
+    "gn_resultsview",
+    "gn_map_field_directive",
+    "gn_field_duration_directive",
+    "gn_search_controller",
+    "gn_viewer",
+    "gn_mdview",
+    "gn_mdactions",
+    "ui.bootstrap.buttons",
+    "gn_es",
+    "ui.bootstrap.tabs"
   ]);
-
-
-  module.config(['$LOCALES', function($LOCALES) {
-    $LOCALES.push('search');
-    $LOCALES.push('/../api/0.1/tools/i18n/db?' +
-        'type=MetadataCategory&type=Operation&type=Group&type=StatusValue');
-    $LOCALES.push('/../api/0.1/standards/iso19139/' +
-        'codelists/gmd%3AMD_TopicCategoryCode');
-    $LOCALES.push('/../api/0.1/standards/iso19139/' +
-        'codelists/gmd%3ADS_AssociationTypeCode');
-    $LOCALES.push('/../api/0.1/standards/iso19139/' +
-        'codelists/gmd%3ADS_InitiativeTypeCode');
-  }]);
-
 })();

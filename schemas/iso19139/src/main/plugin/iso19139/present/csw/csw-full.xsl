@@ -28,18 +28,19 @@
                 xmlns:dct="http://purl.org/dc/terms/"
                 xmlns:gco="http://www.isotc211.org/2005/gco"
                 xmlns:gmd="http://www.isotc211.org/2005/gmd"
+                xmlns:gmx="http://www.isotc211.org/2005/gmx"
                 xmlns:srv="http://www.isotc211.org/2005/srv"
                 xmlns:geonet="http://www.fao.org/geonetwork"
                 xmlns:ows="http://www.opengis.net/ows"
                 version="1.0"
                 exclude-result-prefixes="gmd srv gco">
 
-  <xsl:param name="displayInfo"/>
   <xsl:param name="lang"/>
 
-  <xsl:include href="../metadata-utils.xsl"/>
+  <xsl:variable name="metadata"
+                select="gmd:MD_Metadata|*[@gco:isoType='gmd:MD_Metadata']"/>
 
-  <!-- ============================================================================= -->
+  <xsl:include href="../../layout/utility-tpl-multilingual.xsl"/>
 
   <xsl:template match="gmd:MD_Metadata|*[@gco:isoType='gmd:MD_Metadata']">
 
@@ -70,8 +71,6 @@
         </dc:date>
       </xsl:for-each>
 
-      <!-- DataIdentification - - - - - - - - - - - - - - - - - - - - - -->
-
       <xsl:for-each select="$identification/gmd:citation/gmd:CI_Citation">
         <xsl:for-each select="gmd:title">
           <dc:title>
@@ -81,8 +80,6 @@
           </dc:title>
         </xsl:for-each>
 
-        <!-- Type - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-
         <xsl:for-each select="../../../../gmd:hierarchyLevel/gmd:MD_ScopeCode/@codeListValue">
           <dc:type>
             <xsl:apply-templates mode="localised" select=".">
@@ -90,8 +87,6 @@
             </xsl:apply-templates>
           </dc:type>
         </xsl:for-each>
-
-        <!-- subject -->
 
         <xsl:for-each
           select="../../gmd:descriptiveKeywords/gmd:MD_Keywords/gmd:keyword[not(@gco:nilReason)]">
@@ -106,9 +101,6 @@
             <xsl:value-of select="."/>
           </dc:subject><!-- TODO : translate ? -->
         </xsl:for-each>
-
-
-        <!-- Distribution - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
         <xsl:for-each select="../../../../gmd:distributionInfo/gmd:MD_Distribution">
           <xsl:for-each select="gmd:distributionFormat/gmd:MD_Format/gmd:name">
@@ -157,8 +149,6 @@
       </xsl:for-each>
 
 
-      <!-- abstract -->
-
       <xsl:for-each select="$identification/gmd:abstract">
         <dct:abstract>
           <xsl:apply-templates mode="localised" select=".">
@@ -171,8 +161,6 @@
           </xsl:apply-templates>
         </dc:description>
       </xsl:for-each>
-
-      <!-- rights -->
 
       <xsl:for-each select="$identification/gmd:resourceConstraints/gmd:MD_LegalConstraints|
         gmd:resourceConstraints/*[@gco:isoType='gmd:MD_LegalConstraints']">
@@ -191,15 +179,11 @@
         </xsl:for-each>
       </xsl:for-each>
 
-      <!-- language -->
-
       <xsl:for-each select="$identification/gmd:language">
         <dc:language>
           <xsl:value-of select="gco:CharacterString|gmd:LanguageCode/@codeListValue"/>
         </dc:language>
       </xsl:for-each>
-
-      <!-- Lineage -->
 
       <xsl:for-each
         select="gmd:dataQualityInfo/gmd:DQ_DataQuality/gmd:lineage/gmd:LI_Lineage/gmd:statement">
@@ -210,16 +194,11 @@
         </dc:source>
       </xsl:for-each>
 
-      <!-- Parent Identifier -->
-
       <xsl:for-each select="gmd:parentIdentifier/gco:CharacterString">
         <dc:relation>
           <xsl:value-of select="."/>
         </dc:relation>
       </xsl:for-each>
-
-
-      <!-- Distribution - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
       <xsl:for-each select="gmd:distributionInfo/gmd:MD_Distribution">
         <xsl:for-each select="gmd:distributionFormat/gmd:MD_Format/gmd:name">
@@ -231,35 +210,18 @@
         </xsl:for-each>
       </xsl:for-each>
 
-      <!-- bounding box -->
-
       <xsl:for-each
         select="$identification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox">
-        <xsl:variable name="rsi" select="/gmd:MD_Metadata/gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/
-          gmd:referenceSystemIdentifier/gmd:RS_Identifier|/gmd:MD_Metadata/gmd:referenceSystemInfo/
-          *[@gco:isoType='MD_ReferenceSystem']/gmd:referenceSystemIdentifier/gmd:RS_Identifier"/>
-        <xsl:variable name="auth" select="$rsi/gmd:codeSpace/gco:CharacterString"/>
-        <xsl:variable name="id" select="$rsi/gmd:code/gco:CharacterString"/>
-        <xsl:variable name="crs" select="concat('urn:ogc:def:crs:', $auth, '::', $id)"/>
-
-        <ows:BoundingBox>
-          <xsl:attribute name="crs">
-            <xsl:choose>
-              <xsl:when test="$crs = 'urn:ogc:def:crs:::'">urn:ogc:def:crs:EPSG:6.6:4326</xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="$crs"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:attribute>
-
+          <ows:BoundingBox crs="urn:ogc:def:crs:EPSG:6.6:4326">
+          
           <ows:LowerCorner>
             <xsl:value-of
-              select="concat(gmd:eastBoundLongitude/gco:Decimal, ' ', gmd:southBoundLatitude/gco:Decimal)"/>
+              select="concat(gmd:southBoundLatitude/gco:Decimal, ' ', gmd:westBoundLongitude/gco:Decimal)"/>
           </ows:LowerCorner>
 
           <ows:UpperCorner>
             <xsl:value-of
-              select="concat(gmd:westBoundLongitude/gco:Decimal, ' ', gmd:northBoundLatitude/gco:Decimal)"/>
+              select="concat(gmd:northBoundLatitude/gco:Decimal, ' ', gmd:eastBoundLongitude/gco:Decimal)"/>
           </ows:UpperCorner>
         </ows:BoundingBox>
       </xsl:for-each>
@@ -317,10 +279,9 @@
             <dc:URI>
               <xsl:if test="gmd:protocol">
                 <xsl:attribute name="protocol">
-                  <xsl:value-of select="gmd:protocol/gco:CharacterString"/>
+                  <xsl:value-of select="gmd:protocol/(gco:CharacterString|gmx:Anchor)" />
                 </xsl:attribute>
               </xsl:if>
-
               <xsl:if test="gmd:name">
                 <xsl:attribute name="name">
                   <xsl:for-each select="gmd:name">
@@ -386,20 +347,11 @@
         </xsl:if>
       </xsl:for-each>
 
-      <!-- GeoNetwork elements added when resultType is equal to results_with_summary -->
-      <xsl:if test="$displayInfo = 'true'">
-        <xsl:copy-of select="$info"/>
-      </xsl:if>
-
     </csw:Record>
   </xsl:template>
-
-  <!-- ============================================================================= -->
 
   <xsl:template match="*">
     <xsl:apply-templates select="*"/>
   </xsl:template>
-
-  <!-- ============================================================================= -->
 
 </xsl:stylesheet>

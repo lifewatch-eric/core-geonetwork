@@ -23,54 +23,57 @@
 
 package org.fao.geonet.api.users;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jeeves.server.context.ServiceContext;
 import org.fao.geonet.ApplicationContextHolder;
 import org.fao.geonet.api.API;
 import org.fao.geonet.api.ApiUtils;
 import org.fao.geonet.api.tools.i18n.LanguageUtils;
+import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.User;
+import org.fao.geonet.kernel.security.SecurityProviderConfiguration;
 import org.fao.geonet.kernel.security.ldap.LDAPConstants;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.kernel.setting.Settings;
+import org.fao.geonet.languages.FeedbackLanguages;
 import org.fao.geonet.repository.UserRepository;
 import org.fao.geonet.util.MailUtil;
 import org.fao.geonet.util.PasswordUtil;
+import org.fao.geonet.util.XslUtil;
+import org.fao.geonet.util.LocalizedEmail;
+import org.fao.geonet.util.LocalizedEmailComponent;
+import org.fao.geonet.util.LocalizedEmailParameter;
+import org.fao.geonet.utils.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.servlet.http.HttpServletRequest;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import jeeves.server.context.ServiceContext;
+import static org.fao.geonet.util.LocalizedEmailComponent.ComponentType.*;
+import static org.fao.geonet.util.LocalizedEmailComponent.KeyType;
+import static org.fao.geonet.util.LocalizedEmailComponent.ReplacementType.*;
+import static org.fao.geonet.util.LocalizedEmailParameter.ParameterType;
 
 @EnableWebMvc
 @Service
 @RequestMapping(value = {
-    "/{portal}/api/user",
-    "/{portal}/api/" + API.VERSION_0_1 +
-        "/user"
+    "/{portal}/api/user"
 })
-@Api(value = "users",
-    tags = "users",
+@Tag(name = "users",
     description = "User operations")
 public class PasswordApi {
+    public static final String LOGGER = Geonet.GEONETWORK + ".api.user";
 
     public static final String DATE_FORMAT = "yyyy-MM-dd";
     @Autowired
@@ -79,10 +82,14 @@ public class PasswordApi {
     UserRepository userRepository;
     @Autowired
     SettingManager sm;
+    @Autowired
+    FeedbackLanguages feedbackLanguages;
 
-    @ApiOperation(value = "Update user password",
-        nickname = "updatePassword",
-        notes = "Get a valid changekey by email first and then update your password.")
+    @Autowired(required=false)
+    SecurityProviderConfiguration securityProviderConfiguration;
+
+    @io.swagger.v3.oas.annotations.Operation(summary = "Update user password",
+        description = "Get a valid changekey by email first and then update your password.")
     @RequestMapping(
         value = "/{username}",
         method = RequestMethod.PATCH,
@@ -90,11 +97,11 @@ public class PasswordApi {
     @ResponseStatus(value = HttpStatus.CREATED)
     @ResponseBody
     public ResponseEntity<String> updatePassword(
-        @ApiParam(value = "The user name",
+        @Parameter(description = "The user name",
             required = true)
         @PathVariable
             String username,
-        @ApiParam(value = "The new password and a valid change key",
+        @Parameter(description = "The new password and a valid change key",
             required = true)
         @RequestBody
             PasswordUpdateParameter passwordAndChangeKey,
@@ -102,23 +109,35 @@ public class PasswordApi {
         throws Exception {
         Locale locale = languageUtils.parseAcceptLanguage(request.getLocales());
         ResourceBundle messages = ResourceBundle.getBundle("org.fao.geonet.api.Messages", locale);
+        Locale[] feedbackLocales = feedbackLanguages.getLocales(locale);
+
+        if (securityProviderConfiguration != null && !securityProviderConfiguration.isUserProfileUpdateEnabled()) {
+            return new ResponseEntity<>(messages.getString("security_provider_unsupported_functionality"), HttpStatus.PRECONDITION_FAILED);
+        }
 
         ServiceContext context = ApiUtils.createServiceContext(request);
 
         User user = userRepository.findOneByUsername(username);
         if (user == null) {
+            Log.warning(LOGGER, String.format("User update password. Can't find user '%s'",
+                username));
+
+            // Return response not providing details about the issue, that should be logged.
             return new ResponseEntity<>(String.format(
-                messages.getString("user_not_found"),
-                username
+                messages.getString("user_password_notchanged"),
+                XslUtil.encodeForJavaScript(username)
             ), HttpStatus.PRECONDITION_FAILED);
         }
         if (LDAPConstants.LDAP_FLAG.equals(user.getSecurity().getAuthType())) {
+            Log.warning(LOGGER, String.format("User '%s' is authenticated using LDAP. Password can't be sent by email.",
+                username));
+
+            // Return response not providing details about the issue, that should be logged.
             return new ResponseEntity<>(String.format(
-                messages.getString("user_from_ldap_cant_get_password"),
-                username
+                messages.getString("user_password_notchanged"),
+                XslUtil.encodeForJavaScript(username)
             ), HttpStatus.PRECONDITION_FAILED);
         }
-
 
         // construct expected change key - only valid today
         String scrambledPassword = user.getPassword();
@@ -131,7 +150,7 @@ public class PasswordApi {
         if (!passwordMatches) {
             return new ResponseEntity<>(String.format(
                 messages.getString("user_password_invalid_changekey"),
-                passwordAndChangeKey.getChangeKey(), username
+                passwordAndChangeKey.getChangeKey(), XslUtil.encodeForJavaScript(username)
             ), HttpStatus.PRECONDITION_FAILED);
         }
 
@@ -139,14 +158,29 @@ public class PasswordApi {
         userRepository.save(user);
 
         String adminEmail = sm.getValue(Settings.SYSTEM_FEEDBACK_EMAIL);
-        String subject = String.format(
-            messages.getString("password_change_subject"),
-            sm.getSiteName());
-        String content = String.format(
-            messages.getString("password_change_message"),
-            sm.getSiteName(),
-            adminEmail,
-            sm.getSiteName());
+
+        LocalizedEmailComponent emailSubjectComponent = new LocalizedEmailComponent(SUBJECT, "password_change_subject", KeyType.MESSAGE_KEY, POSITIONAL_FORMAT);
+        LocalizedEmailComponent emailMessageComponent = new LocalizedEmailComponent(MESSAGE, "password_change_message", KeyType.MESSAGE_KEY, POSITIONAL_FORMAT);
+
+        for (Locale feedbackLocale : feedbackLocales) {
+            emailSubjectComponent.addParameters(
+                feedbackLocale,
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 1, sm.getSiteName())
+            );
+
+            emailMessageComponent.addParameters(
+                feedbackLocale,
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 1, sm.getSiteName()),
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 2, adminEmail),
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 3, sm.getSiteName())
+            );
+        }
+
+        LocalizedEmail localizedEmail = new LocalizedEmail(false);
+        localizedEmail.addComponents(emailSubjectComponent, emailMessageComponent);
+
+        String subject = localizedEmail.getParsedSubject(feedbackLocales);
+        String content = localizedEmail.getParsedMessage(feedbackLocales);
 
         // send change link via email with admin in CC
         if (!MailUtil.sendMail(user.getEmail(),
@@ -159,55 +193,71 @@ public class PasswordApi {
         }
         return new ResponseEntity<>(String.format(
             messages.getString("user_password_changed"),
-            username
+            XslUtil.encodeForJavaScript(username)
         ), HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Send user password reminder by email",
-        nickname = "sendPasswordByEmail",
-        notes = "An email is sent to the requested user with a link to " +
+    @io.swagger.v3.oas.annotations.Operation(summary = "Send user password reminder by email",
+        description = "An email is sent to the requested user with a link to " +
             "reset his password. User MUST have an email to get the link. " +
             "LDAP users will not be able to retrieve their password " +
             "using this service.")
     @RequestMapping(
-        value = "/{username}/actions/forgot-password",
-        method = RequestMethod.GET,
+        value = "/actions/forgot-password",
+        method = RequestMethod.PUT,
         produces = MediaType.TEXT_PLAIN_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
     @ResponseBody
     public ResponseEntity<String> sendPasswordByEmail(
-        @ApiParam(value = "The user name",
+        @Parameter(description = "The user name",
             required = true)
-        @PathVariable
+        @RequestParam
             String username,
         HttpServletRequest request)
         throws Exception {
         Locale locale = languageUtils.parseAcceptLanguage(request.getLocales());
-        String language = locale.getISO3Language();
         ResourceBundle messages = ResourceBundle.getBundle("org.fao.geonet.api.Messages", locale);
+        Locale[] feedbackLocales = feedbackLanguages.getLocales(locale);
+
+        if (securityProviderConfiguration != null && !securityProviderConfiguration.isUserProfileUpdateEnabled()) {
+            return new ResponseEntity<>(messages.getString("security_provider_unsupported_functionality"), HttpStatus.PRECONDITION_FAILED);
+        }
 
         ServiceContext serviceContext = ApiUtils.createServiceContext(request);
 
         final User user = userRepository.findOneByUsername(username);
         if (user == null) {
+            Log.warning(LOGGER, String.format("User reset password. Can't find user '%s'",
+                username));
+
+            // Return response not providing details about the issue, that should be logged.
             return new ResponseEntity<>(String.format(
-                messages.getString("user_not_found"),
-                username
-            ), HttpStatus.PRECONDITION_FAILED);
+                messages.getString("user_password_sent"),
+                XslUtil.encodeForJavaScript(username)
+            ), HttpStatus.CREATED);
         }
+
         if (LDAPConstants.LDAP_FLAG.equals(user.getSecurity().getAuthType())) {
+            Log.warning(LOGGER, String.format("User '%s' is authenticated using LDAP. Password can't be sent by email.",
+                username));
+
+            // Return response not providing details about the issue, that should be logged.
             return new ResponseEntity<>(String.format(
-                messages.getString("user_from_ldap_cant_get_password"),
-                username
-            ), HttpStatus.PRECONDITION_FAILED);
+                messages.getString("user_password_sent"),
+                XslUtil.encodeForJavaScript(username)
+            ), HttpStatus.CREATED);
         }
 
         String email = user.getEmail();
         if (StringUtils.isEmpty(email)) {
+            Log.warning(LOGGER, String.format("User reset password. User '%s' has no email",
+                username));
+
+            // Return response not providing details about the issue, that should be logged.
             return new ResponseEntity<>(String.format(
-                messages.getString("user_has_no_email"),
-                username
-            ), HttpStatus.PRECONDITION_FAILED);
+                messages.getString("user_password_sent"),
+                XslUtil.encodeForJavaScript(username)
+            ), HttpStatus.CREATED);
         }
 
         // get mail settings
@@ -221,17 +271,31 @@ public class PasswordApi {
         String changeKey = PasswordUtil.encode(serviceContext,
             scrambledPassword + todaysDate);
 
-        String subject = String.format(
-            messages.getString("password_forgotten_subject"),
-            sm.getSiteName(),
-            username);
-        String content = String.format(
-            messages.getString("password_forgotten_message"),
-            sm.getSiteName(),
-            sm.getSiteURL(language),
-            username,
-            changeKey,
-            sm.getSiteName());
+        LocalizedEmailComponent emailSubjectComponent = new LocalizedEmailComponent(SUBJECT, "password_forgotten_subject", KeyType.MESSAGE_KEY, POSITIONAL_FORMAT);
+        LocalizedEmailComponent emailMessageComponent = new LocalizedEmailComponent(MESSAGE, "password_forgotten_message", KeyType.MESSAGE_KEY, POSITIONAL_FORMAT);
+
+        for (Locale feedbackLocale : feedbackLocales) {
+            emailSubjectComponent.addParameters(
+                feedbackLocale,
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 1, sm.getSiteName()),
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 2, username)
+            );
+
+            emailMessageComponent.addParameters(
+                feedbackLocale,
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 1, sm.getSiteName()),
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 2, sm.getSiteURL(feedbackLocale.getISO3Language())),
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 3, username),
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 4, changeKey),
+                new LocalizedEmailParameter(ParameterType.RAW_VALUE, 5, sm.getSiteName())
+            );
+        }
+
+        LocalizedEmail localizedEmail = new LocalizedEmail(false);
+        localizedEmail.addComponents(emailSubjectComponent, emailMessageComponent);
+
+        String subject = localizedEmail.getParsedSubject(feedbackLocales);
+        String content = localizedEmail.getParsedMessage(feedbackLocales);
 
         // send change link via email with admin in CC
         if (!MailUtil.sendMail(email,
@@ -244,7 +308,7 @@ public class PasswordApi {
         }
         return new ResponseEntity<>(String.format(
             messages.getString("user_password_sent"),
-            username, email
+            XslUtil.encodeForJavaScript(username)
         ), HttpStatus.CREATED);
     }
 }

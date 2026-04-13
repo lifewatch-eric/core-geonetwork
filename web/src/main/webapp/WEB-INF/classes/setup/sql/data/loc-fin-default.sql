@@ -1,11 +1,6 @@
-INSERT INTO Languages (id, name, isinspire, isdefault) VALUES ('fin','suomi', 'y', 'n');
+INSERT INTO Languages (id, name, isinspire) VALUES ('fin','suomi', 'y');
 
 -- Take care to table ID (related to other loc files)
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (37, 'fin', 'title', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (38, 'fin', 'abstract', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (39, 'fin', 'fees', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (40, 'fin', 'accessConstraints', '');
-
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (1,'fin','Kartat & kuvat');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (2,'fin','Tietoaineistot');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (3,'fin','Vuorovaikutteiset resurssit');
@@ -517,10 +512,10 @@ INSERT INTO OperationsDes  (iddes, langid, label) VALUES (5,'fin','Interactive M
 INSERT INTO OperationsDes  (iddes, langid, label) VALUES (6,'fin','Featured');
 
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (0,'fin','Unknown');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (1,'fin','Draft');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (2,'fin','Approved');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (3,'fin','Retired');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (4,'fin','Submitted');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (1,'fin','Luonnos');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (2,'fin','Hyväksytty');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (3,'fin','Poistettu');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (4,'fin','Lähetetty');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (5,'fin','Rejected');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (50,'fin','Record created.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (51,'fin','Record updated.');
@@ -535,6 +530,7 @@ INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (59,'fin','Status cha
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (60,'fin','Record updated by process {{h.item1}}.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (61,'fin','Record deleted.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (62,'fin','Record imported.');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (63,'fin','Record restored.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (100,'fin','DOI creation requested.');
 
 

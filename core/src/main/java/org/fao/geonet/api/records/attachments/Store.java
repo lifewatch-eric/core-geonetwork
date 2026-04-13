@@ -27,6 +27,7 @@ package org.fao.geonet.api.records.attachments;
 
 import jeeves.server.context.ServiceContext;
 import org.fao.geonet.domain.MetadataResource;
+import org.fao.geonet.domain.MetadataResourceContainer;
 import org.fao.geonet.domain.MetadataResourceVisibility;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +38,9 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A store allows user to upload resources (eg. files) to a metadata record and retrieve them.
@@ -135,6 +139,14 @@ public interface Store {
      * @return The resource
      */
     ResourceHolder getResource(ServiceContext context, String metadataUuid, String resourceId, Boolean approved) throws Exception;
+
+    /**
+     * Retrieve a metadata resource path (for internal use eg. indexing)
+     */
+    ResourceHolder getResourceInternal(String metadataUuid,
+                                       final MetadataResourceVisibility visibility,
+                                       String resourceId,
+                                       Boolean approved) throws Exception;
 
     /**
      * Add a new resource from a file.
@@ -266,11 +278,23 @@ public interface Store {
     /**
      * Delete all resources for a metadata
      *
+     * @deprecated it is possible that the metadata draft was deleted during the transaction. Use
+     * String delResources(ServiceContext context, int metadataId) throws Exception; instead.
+     *
      * @param context
      * @param metadataUuid The metadata UUID
      * @param approved   Return the approved version or not
      */
+    @Deprecated
     String delResources(ServiceContext context, String metadataUuid, Boolean approved) throws Exception;
+
+    /**
+     * Delete all resources for a metadata
+     *
+     * @param context
+     * @param metadataId The metadata ID
+     */
+    String delResources(ServiceContext context, int metadataId) throws Exception;
 
     /**
      * Delete a resource from the metadata store
@@ -315,8 +339,57 @@ public interface Store {
     MetadataResource getResourceDescription(final ServiceContext context, String metadataUuid, MetadataResourceVisibility visibility,
                                             String filename, Boolean approved) throws Exception;
 
+    /**
+     * Get the resource container description.
+     * @param context
+     * @param metadataUuid The metadata UUID
+     * @return The container description or null if the metadata uuid does doesn't exist
+     */
+    MetadataResourceContainer getResourceContainerDescription(final ServiceContext context, final String metadataUuid, Boolean approved) throws Exception;
+
+    /**
+     * Copy all resources from none approved (draft working copy) to approved folder.
+     *
+     *
+     * @param context
+     * @param sourceUuid               The source metadata UUID
+     * @param targetUuid               The target metadata UUID
+     * @param sourceApproved
+     * @param metadataResourceVisibility The type of sharing policy {@link MetadataResourceVisibility}
+     *
+     */
+    void copyResources(ServiceContext context, String sourceUuid, String targetUuid, MetadataResourceVisibility metadataResourceVisibility, boolean sourceApproved, boolean targetApproved) throws Exception;
+
     interface ResourceHolder extends Closeable {
         Path getPath();
         MetadataResource getMetadata();
+    }
+
+    ResourceManagementExternalProperties getResourceManagementExternalProperties();
+
+    interface ResourceManagementExternalProperties {
+        /**
+         * Get the modal setting for the resource management window.
+         * @return boolean to indicate is the external management window should be modal or not.
+         */
+        boolean isEnabled();
+
+        /**
+         * Get the resource management windows parameters based on configuration for the store
+         * @return the javascript windows open parameters. i.e."toolbar=0,width=600,height=600"
+         */
+        String getWindowParameters();
+
+        /**
+         * Get the modal setting for the resource management window.
+         * @return boolean to indicate is the external management window should be modal or not.
+         */
+        boolean isModal();
+
+        /**
+         * Get the folder settings for the resource management window.
+         * @return boolean to indicate is the external management window should be enabled or not for folders.
+         */
+        boolean isFolderEnabled();
     }
 }

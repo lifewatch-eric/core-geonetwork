@@ -32,11 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.Logger;
 import org.fao.geonet.constants.Edit;
 import org.fao.geonet.constants.Geonet;
-import org.fao.geonet.domain.AbstractMetadata;
-import org.fao.geonet.domain.ISODate;
-import org.fao.geonet.domain.Metadata;
-import org.fao.geonet.domain.MetadataCategory;
-import org.fao.geonet.domain.MetadataType;
+import org.fao.geonet.domain.*;
 import org.fao.geonet.kernel.DataManager;
 import org.fao.geonet.kernel.UpdateDatestamp;
 import org.fao.geonet.kernel.datamanager.IMetadataManager;
@@ -45,6 +41,7 @@ import org.fao.geonet.kernel.harvest.AbstractAligner;
 import org.fao.geonet.kernel.harvest.harvester.CategoryMapper;
 import org.fao.geonet.kernel.harvest.harvester.HarvestResult;
 import org.fao.geonet.kernel.harvest.harvester.UUIDMapper;
+import org.fao.geonet.kernel.search.IndexingMode;
 import org.fao.geonet.repository.MetadataCategoryRepository;
 import org.fao.geonet.repository.specification.MetadataCategorySpecs;
 import org.fao.geonet.utils.XmlRequest;
@@ -160,7 +157,7 @@ public class Aligner extends AbstractAligner<GeonetParams> {
                 //--- maybe the metadata was unretrievable
 
                 if (id != null) {
-                    dataMan.indexMetadata(id, true, null);
+                    dataMan.indexMetadata(id, true);
                 }
             }
         }
@@ -215,7 +212,7 @@ public class Aligner extends AbstractAligner<GeonetParams> {
         List<Element> categories = info.getChildren("category");
         addCategories(metadata, categories);
 
-        metadata = metadataManager.insertMetadata(context, metadata, md, true, false, false, UpdateDatestamp.NO, false, false);
+        metadata = metadataManager.insertMetadata(context, metadata, md, IndexingMode.none, false, UpdateDatestamp.NO, false, false);
 
         String id = String.valueOf(metadata.getId());
 
@@ -225,12 +222,6 @@ public class Aligner extends AbstractAligner<GeonetParams> {
 
         return id;
     }
-
-    //--------------------------------------------------------------------------
-    //---
-    //--- Variables
-    //---
-    //--------------------------------------------------------------------------
 
     private void addCategories(AbstractMetadata metadata, List<Element> categ) throws Exception {
         final MetadataCategoryRepository categoryRepository = context.getBean(MetadataCategoryRepository.class);
@@ -300,9 +291,8 @@ public class Aligner extends AbstractAligner<GeonetParams> {
                 //
                 boolean validate = false;
                 boolean ufo = false;
-                boolean index = false;
                 String language = context.getLanguage();
-                metadataManager.updateMetadata(context, id, md, validate, ufo, index, language, changeDate, false);
+                metadataManager.updateMetadata(context, id, md, validate, ufo, language, changeDate, false, IndexingMode.none);
 
                 result.updatedMetadata++;
             }
@@ -379,7 +369,7 @@ public class Aligner extends AbstractAligner<GeonetParams> {
             try {
                 Integer groupIdVal = null;
                 if (StringUtils.isNotEmpty(params.getOwnerIdGroup())) {
-                    groupIdVal = Integer.parseInt(params.getOwnerIdGroup());
+                    groupIdVal = getGroupOwner();
                 }
 
                 params.getValidate().validate(dataMan, context, md, groupIdVal);

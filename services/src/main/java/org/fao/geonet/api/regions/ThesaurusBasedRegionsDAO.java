@@ -23,12 +23,9 @@
 
 package org.fao.geonet.api.regions;
 
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-
 import jeeves.JeevesCacheManager;
 import jeeves.server.context.ServiceContext;
-
+import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.kernel.KeywordBean;
 import org.fao.geonet.kernel.Thesaurus;
 import org.fao.geonet.kernel.ThesaurusManager;
@@ -38,16 +35,14 @@ import org.fao.geonet.kernel.rdf.Selectors;
 import org.fao.geonet.kernel.region.Region;
 import org.fao.geonet.kernel.region.RegionsDAO;
 import org.fao.geonet.kernel.region.Request;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.openrdf.model.Value;
 import org.openrdf.sesame.query.QueryResultsTable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.concurrent.Callable;
 
 public class ThesaurusBasedRegionsDAO extends RegionsDAO {
@@ -63,8 +58,8 @@ public class ThesaurusBasedRegionsDAO extends RegionsDAO {
     private static final String CATEGORY_ID_CACHE_KEY = "CATEGORY_ID_CACHE_KEY";
 
     private final Set<String> localesToLoad;
-    private WeakHashMap<String, Map<String, String>> categoryIdMap = new WeakHashMap<String, Map<String, String>>();
-    private GeometryFactory factory = new GeometryFactory();
+    private final WeakHashMap<String, Map<String, String>> categoryIdMap = new WeakHashMap<String, Map<String, String>>();
+    private final GeometryFactory factory = new GeometryFactory();
     private String thesaurusName = "external.place.regions";
 
     public ThesaurusBasedRegionsDAO(Set<String> localesToLoad) {
@@ -133,14 +128,14 @@ public class ThesaurusBasedRegionsDAO extends RegionsDAO {
     }
 
     public java.util.List<KeywordBean> getRegionTopConcepts(final ServiceContext context) throws Exception {
-        return JeevesCacheManager.findInTenSecondCache(CATEGORY_ID_CACHE_KEY + context.getLanguage(),
+        return JeevesCacheManager.findInTenSecondCache(CATEGORY_ID_CACHE_KEY + context.getLanguage() + thesaurusName,
             new Callable<java.util.List<KeywordBean>>() {
 
                 @Override
                 public java.util.List<KeywordBean> call() throws Exception {
                     Thesaurus thesaurus = getThesaurus(context);
                     if (thesaurus != null) {
-                        return thesaurus.getTopConcepts(context.getLanguage());
+                        return thesaurus.getTopConcepts(context.getLanguage(), Geonet.DEFAULT_LANGUAGE);
                     } else {
                         return null;
                     }

@@ -1,11 +1,6 @@
-INSERT INTO Languages (id, name, isinspire, isdefault) VALUES ('vie','Tiếng Việt', 'n', 'n');
+INSERT INTO Languages (id, name, isinspire) VALUES ('vie','Tiếng Việt', 'n');
 
 -- Take care to table ID (related to other loc files)
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (45, 'vie', 'title', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (46, 'vie', 'abstract', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (47, 'vie', 'fees', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (48, 'vie', 'accessConstraints', '');
-
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (1,'vie','Maps & graphics');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (2,'vie','Datasets');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (3,'vie','Interactive resources');
@@ -535,6 +530,7 @@ INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (59,'vie','Status cha
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (60,'vie','Record updated by process {{h.item1}}.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (61,'vie','Record deleted.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (62,'vie','Record imported.');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (63,'vie','Record restored.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (100,'vie','DOI creation requested.');
 
 INSERT INTO SelectionsDes (iddes, langid, label) VALUES (0,'vie','Preferred records');

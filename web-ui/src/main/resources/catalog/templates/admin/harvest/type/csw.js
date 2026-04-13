@@ -22,12 +22,16 @@ var gnHarvestercsw = {
         "rejectDuplicateResource" : false,
         "xslfilter": [],
         "outputSchema": "http://www.isotc211.org/2005/gmd",
+        "sortBy": "identifier:A",
         "queryScope": "local",
         "hopCount": 2
       },
       "content" : {
         "validate" : "NOVALIDATION",
-        "batchEdits" : ""
+        "batchEdits" : "",
+        "translateContent": false,
+        "translateContentLangs": "",
+        "translateContentFields": ""
       },
       "options" : {
         "every" : "0 0 0 ? * *",
@@ -51,26 +55,42 @@ var gnHarvestercsw = {
       }
     };
   },
-  buildResponseCSWSearch : function($scope) {
+  buildResponseCSWBBOXFilter : function($scope) {
     var body = '';
-    if ($scope.harvesterSelected.searches) {
-      for(var tag in $scope.harvesterSelected.searches[0]) {
-        if($scope.harvesterSelected.searches[0].hasOwnProperty(tag)) {
-          var value = $scope.harvesterSelected.searches[0][tag].value;
-          // Save all values even if empty
-          // XML to JSON does not convert single child to Object but Array
-          // In that situation, saving only one parameter will make this
-          // happen and then search criteria name which is the tag name
-          // will be lost.
-          //                if (value) {
-          body += '<' + tag + '>' +
-            ((tag.indexOf('bbox-') === 0 && isNaN(value)) || value === null ? '' : value) +
-            '</' + tag + '>';
-          //            }
-        }
+
+    if ($scope.harvesterSelected.bboxFilter) {
+
+      if (!isNaN($scope.harvesterSelected.bboxFilter['bbox-xmin']) &&
+          !isNaN($scope.harvesterSelected.bboxFilter['bbox-ymin']) &&
+          !isNaN($scope.harvesterSelected.bboxFilter['bbox-xmax']) &&
+          !isNaN($scope.harvesterSelected.bboxFilter['bbox-ymax'])) {
+        body += '<bboxFilter>' +
+          '<bbox-xmin>' + $scope.harvesterSelected.bboxFilter['bbox-xmin'] + '</bbox-xmin>' +
+          '<bbox-ymin>' + $scope.harvesterSelected.bboxFilter['bbox-ymin'] + '</bbox-ymin>' +
+          '<bbox-xmax>' + $scope.harvesterSelected.bboxFilter['bbox-xmax'] + '</bbox-xmax>' +
+          '<bbox-ymax>' + $scope.harvesterSelected.bboxFilter['bbox-ymax'] + '</bbox-ymax>' +
+          '</bboxFilter>';
       }
     }
-    return '<searches><search>' + body + '</search></searches>';
+
+    return body;
+  },
+  buildResponseCSWFilter : function($scope) {
+    var body = '';
+    if ($scope.harvesterSelected.filters) {
+      for (var i = 0; i < $scope.harvesterSelected.filters.length; i++){
+        var filter = $scope.harvesterSelected.filters[i];
+
+        body += '<filter>' +
+          '<field>' + filter.field + '</field>' +
+          '<operator>' + filter.operator + '</operator>' +
+          '<value>' + filter.value + '</value>' +
+          '<condition>' + filter.condition + '</condition>' +
+          '</filter>';
+      }
+    }
+
+    return '<filters>' + body + '</filters>';
   },
   buildResponse : function(h, $scope) {
     var body = '<node id="' + h['@id'] + '" '
@@ -88,12 +108,14 @@ var gnHarvestercsw = {
       + '      <password>' + h.site.account.password + '</password>'
       + '    </account>'
       + '    <xpathFilter>' + h.site.xpathFilter + '</xpathFilter>'
-      + '    <xslfilter>' + h.site.xslfilter + '</xslfilter>'
+      + '    <xslfilter>' + _.escape(h.site.xslfilter) + '</xslfilter>'
       + '    <outputSchema>' + h.site.outputSchema + '</outputSchema>'
+      + '    <sortBy>' + h.site.sortBy + '</sortBy>'
       + '    <queryScope>' + h.site.queryScope + '</queryScope>'
       + '    <hopCount>' + h.site.hopCount + '</hopCount>'
       + '  </site>'
-      + gnHarvestercsw.buildResponseCSWSearch($scope)
+      + gnHarvestercsw.buildResponseCSWBBOXFilter($scope)
+      + gnHarvestercsw.buildResponseCSWFilter($scope)
       + '  <options>'
       + '    <oneRunOnly>' + h.options.oneRunOnly + '</oneRunOnly>'
       + '    <overrideUuid>' + h.options.overrideUuid + '</overrideUuid>'
@@ -103,6 +125,9 @@ var gnHarvestercsw = {
       + '  <content>'
       + '    <validate>' + h.content.validate + '</validate>'
       + '    <batchEdits><![CDATA[' + (h.content.batchEdits == '' ? '[]' : h.content.batchEdits) + ']]></batchEdits>'
+      + '    <translateContent>' + _.escape(h.content.translateContent) + '</translateContent>'
+      + '    <translateContentLangs>' + _.escape(h.content.translateContentLangs) + '</translateContentLangs>'
+      + '    <translateContentFields>' + _.escape(h.content.translateContentFields) + '</translateContentFields>'
       + '  </content>'
       + $scope.buildResponseGroup(h)
       + $scope.buildResponseCategory(h) + '</node>';

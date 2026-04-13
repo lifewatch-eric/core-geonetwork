@@ -1,12 +1,11 @@
 package org.fao.geonet.api.records.model.related;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -48,6 +47,7 @@ import javax.xml.bind.annotation.XmlType;
     "protocol",
     "description",
     "function",
+    "mimeType",
     "applicationProfile"
 })
 public class RelatedLinkItem
@@ -57,6 +57,7 @@ public class RelatedLinkItem
     @XmlElement(required = true)
     protected RelatedLinkItem.Description description;
     protected String function;
+    protected String mimeType;
     protected String applicationProfile;
 
     /**
@@ -75,6 +76,14 @@ public class RelatedLinkItem
      */
     public void setProtocol(String value) {
         this.protocol = value;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
     }
 
     /**

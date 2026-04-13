@@ -1,11 +1,6 @@
-INSERT INTO Languages (id, name, isinspire, isdefault) VALUES ('eng','English', 'y', 'y');
+INSERT INTO Languages (id, name, isinspire) VALUES ('eng','English', 'y');
 
 -- Take care to table ID (related to other loc files)
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (1, 'eng', 'title', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (2, 'eng', 'abstract', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (3, 'eng', 'fees', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (4, 'eng', 'accessConstraints', '');
-
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (1,'eng','Maps & graphics');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (2,'eng','Datasets');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (3,'eng','Interactive resources');
@@ -535,6 +530,7 @@ INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (59,'eng','Status cha
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (60,'eng','Record updated by process {{h.currentStatus}}.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (61,'eng','Record deleted.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (62,'eng','Record imported.');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (63,'eng','Record restored.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (100,'eng','DOI creation request');
 
 

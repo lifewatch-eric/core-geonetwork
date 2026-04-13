@@ -59,6 +59,15 @@
     </xsl:call-template>
   </xsl:template>
 
+  <!-- Convert a concept to an ISO19139 gmd:MD_Keywords with an XLink which
+    will be resolved by XLink resolver with Anchor encoding. -->
+  <xsl:template name="to-iso19139-keyword-as-xlink-with-anchor">
+    <xsl:call-template name="to-iso19139-keyword">
+      <xsl:with-param name="withXlink" select="true()"/>
+      <xsl:with-param name="withAnchor" select="true()"/>
+    </xsl:call-template>
+  </xsl:template>
+
 
   <!-- Convert a concept to an ISO19139 keywords.
     If no keyword is provided, only thesaurus section is adaded.
@@ -94,6 +103,31 @@
     </xsl:apply-templates>
   </xsl:template>
 
+  <!-- given a thesarus and language, find the most appropriate responsible party name.
+       This will be in the dublin core section as "publisher"-->
+  <xsl:function name="geonet:getThesaurusResponsiblePartyIso19139">
+    <xsl:param name="thesarus" />
+    <xsl:param name="lang1" />
+    <xsl:variable name="lang" select="lower-case($lang1)" />
+    <xsl:variable name="lang_2letter" select="lower-case(util:twoCharLangCode($lang))" />
+
+    <xsl:variable name="thesaurusPublisherMultilingualNode" select="$thesarus/dublinCoreMultilinguals/dublinCoreMultilingual[lower-case(./lang) = $lang and ./tag='publisher']/value" />
+    <xsl:variable name="thesaurusPublisherMultilingualNode_2letter" select="$thesarus/dublinCoreMultilinguals/dublinCoreMultilingual[lower-case(./lang) = $lang_2letter and ./tag='publisher']/value" />
+
+    <xsl:choose>
+      <xsl:when test="$thesaurusPublisherMultilingualNode">
+        <xsl:value-of select="$thesaurusPublisherMultilingualNode"/>
+      </xsl:when>
+      <xsl:when test="$thesaurusPublisherMultilingualNode_2letter">
+        <xsl:value-of select="$thesaurusPublisherMultilingualNode_2letter"/>
+      </xsl:when>
+      <xsl:otherwise>
+        Unknown
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+
+
   <xsl:template mode="to-iso19139-keyword" match="*[not(/root/request/skipdescriptivekeywords)]">
     <xsl:param name="textgroupOnly"/>
     <xsl:param name="listOfLanguage"/>
@@ -118,7 +152,8 @@
                                    if (thesaurus/key) then thesaurus/key else /root/request/thesaurus,
                                   '&amp;id=', encode-for-uri(/root/request/id),
                                   if (/root/request/lang) then concat('&amp;lang=', /root/request/lang) else '',
-                                  if ($textgroupOnly) then '&amp;textgroupOnly' else '')"/>
+                                  if ($textgroupOnly) then '&amp;textgroupOnly' else '',
+                                  if ($withAnchor) then '&amp;transformation=to-iso19139-keyword-with-anchor' else '')"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="to-md-keywords">
@@ -258,12 +293,15 @@
       </xsl:if>
 
       <xsl:copy-of
-        select="geonet:add-thesaurus-info($currentThesaurus, $withAnchor, $withThesaurusAnchor, /root/gui/thesaurus/thesauri, not(/root/request/keywordOnly))"/>
+        select="geonet:add-thesaurus-info($currentThesaurus, $listOfLanguage[1],
+                              $withAnchor, $withThesaurusAnchor,
+                              /root/gui/thesaurus/thesauri, not(/root/request/keywordOnly))"/>
     </gmd:MD_Keywords>
   </xsl:template>
 
   <xsl:function name="geonet:add-thesaurus-info">
     <xsl:param name="currentThesaurus" as="xs:string"/>
+    <xsl:param name="mainLanguage" as="xs:string?"/>
     <xsl:param name="withTitleAnchor" as="xs:boolean"/>
     <xsl:param name="withThesaurusAnchor" as="xs:boolean"/>
     <xsl:param name="thesauri" as="node()"/>
@@ -276,18 +314,28 @@
         codeListValue="{$thesauri/thesaurus[key = $currentThesaurus]/dname}"/>
     </gmd:type>
     <xsl:if test="$thesaurusInfo">
+
+      <xsl:variable name="thesaurusInMainLanguage"
+                    select="$thesauri/thesaurus[key = $currentThesaurus]
+                              /multilingualTitles/multilingualTitle[
+                                lang = util:twoCharLangCode($mainLanguage, '')]/title"/>
+      <xsl:variable name="thesaurusTitle"
+                    select="if ($thesaurusInMainLanguage != '')
+                            then $thesaurusInMainLanguage
+                            else $thesauri/thesaurus[key = $currentThesaurus]/title"/>
+
       <gmd:thesaurusName>
         <gmd:CI_Citation>
           <gmd:title>
             <xsl:choose>
               <xsl:when test="$withTitleAnchor = true()">
                 <gmx:Anchor xlink:href="{$thesauri/thesaurus[key = $currentThesaurus]/defaultNamespace}">
-                  <xsl:value-of select="$thesauri/thesaurus[key = $currentThesaurus]/title"/>
+                  <xsl:value-of select="$thesaurusTitle"/>
                 </gmx:Anchor>
               </xsl:when>
               <xsl:otherwise>
                 <gco:CharacterString>
-                  <xsl:value-of select="$thesauri/thesaurus[key = $currentThesaurus]/title"/>
+                  <xsl:value-of select="$thesaurusTitle"/>
                 </gco:CharacterString>
               </xsl:otherwise>
             </xsl:choose>
@@ -295,20 +343,81 @@
 
           <xsl:variable name="thesaurusDate"
                         select="normalize-space($thesauri/thesaurus[key = $currentThesaurus]/date)"/>
+          <xsl:variable name="thesaurusCreatedDate"
+                        select="normalize-space($thesauri/thesaurus[key = $currentThesaurus]/createdDate)"/>
+          <xsl:variable name="thesaurusIssuedDate"
+                        select="normalize-space($thesauri/thesaurus[key = $currentThesaurus]/issuedDate)"/>
+          <xsl:variable name="thesaurusModifiedDate"
+                        select="normalize-space($thesauri/thesaurus[key = $currentThesaurus]/modifiedDate)"/>
 
-          <xsl:if test="$thesaurusDate != ''">
+          <!-- Publication Date-->
+          <xsl:choose>
+            <xsl:when test="$thesaurusIssuedDate != ''">
+              <gmd:date>
+                <gmd:CI_Date>
+                  <gmd:date>
+                    <xsl:choose>
+                      <xsl:when test="contains($thesaurusIssuedDate, 'T')">
+                        <gco:DateTime>
+                          <xsl:value-of select="$thesaurusIssuedDate"/>
+                        </gco:DateTime>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <gco:Date>
+                          <xsl:value-of select="$thesaurusIssuedDate"/>
+                        </gco:Date>
+                      </xsl:otherwise>
+                    </xsl:choose>
+                  </gmd:date>
+                  <gmd:dateType>
+                    <gmd:CI_DateTypeCode
+                      codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode"
+                      codeListValue="publication"/>
+                  </gmd:dateType>
+                </gmd:CI_Date>
+              </gmd:date>
+            </xsl:when>
+            <xsl:otherwise>
+              <gmd:date>
+                <gmd:CI_Date>
+                  <gmd:date>
+                    <xsl:choose>
+                      <xsl:when test="contains($thesaurusDate, 'T')">
+                        <gco:DateTime>
+                          <xsl:value-of select="$thesaurusDate"/>
+                        </gco:DateTime>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <gco:Date>
+                          <xsl:value-of select="$thesaurusDate"/>
+                        </gco:Date>
+                      </xsl:otherwise>
+                    </xsl:choose>
+                  </gmd:date>
+                  <gmd:dateType>
+                    <gmd:CI_DateTypeCode
+                      codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode"
+                      codeListValue="publication"/>
+                  </gmd:dateType>
+                </gmd:CI_Date>
+              </gmd:date>
+            </xsl:otherwise>
+          </xsl:choose>
+
+          <!--Creation Date-->
+          <xsl:if test="$thesaurusCreatedDate != ''">
             <gmd:date>
               <gmd:CI_Date>
                 <gmd:date>
                   <xsl:choose>
-                    <xsl:when test="contains($thesaurusDate, 'T')">
+                    <xsl:when test="contains($thesaurusCreatedDate, 'T')">
                       <gco:DateTime>
-                        <xsl:value-of select="$thesaurusDate"/>
+                        <xsl:value-of select="$thesaurusCreatedDate"/>
                       </gco:DateTime>
                     </xsl:when>
                     <xsl:otherwise>
                       <gco:Date>
-                        <xsl:value-of select="$thesaurusDate"/>
+                        <xsl:value-of select="$thesaurusCreatedDate"/>
                       </gco:Date>
                     </xsl:otherwise>
                   </xsl:choose>
@@ -316,11 +425,35 @@
                 <gmd:dateType>
                   <gmd:CI_DateTypeCode
                     codeList="http://standards.iso.org/iso/19139/resources/gmxCodelists.xml#CI_DateTypeCode"
-                    codeListValue="publication"/>
+                    codeListValue="creation"/>
                 </gmd:dateType>
               </gmd:CI_Date>
             </gmd:date>
           </xsl:if>
+
+          <!--
+              You can pull in the publisher from the Thesaurus XML.  See Metadata101/iso19139.ca.HNAP
+              NOTE: HNAP only has 2 languages, so this should be modified so it loops through the non-default lanaguages
+                    instead of just using ${altLang}
+              NOTE: This also hard-codes the <gmd:role>, but you can also add this to the RDF and put it in here.
+              NOTE:      <xsl:variable name="currentThesaurusFull" select="$thesauri/thesaurus[key = $currentThesaurus]" />
+
+           <gmd:citedResponsibleParty>
+            <gmd:CI_ResponsibleParty>
+              <gmd:organisationName xsi:type="gmd:PT_FreeText_PropertyType">
+                <gco:CharacterString><xsl:value-of select="geonet:getThesaurusResponsibleParty($currentThesaurusFull,$mdlang)"/></gco:CharacterString>
+                <gmd:PT_FreeText>
+                  <gmd:textGroup>
+                    <gmd:LocalisedCharacterString locale="#{$altLang}"><xsl:value-of select="geonet:getThesaurusResponsiblePartyIso19139($currentThesaurusFull,$altLang)"/></gmd:LocalisedCharacterString>
+                  </gmd:textGroup>
+                </gmd:PT_FreeText>
+              </gmd:organisationName>
+              <gmd:role>
+                <gmd:CI_RoleCode codeListValue="RI_409" codeList="http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_90">custodian; conservateur</gmd:CI_RoleCode>
+              </gmd:role>
+            </gmd:CI_ResponsibleParty>
+          </gmd:citedResponsibleParty>
+          -->
 
           <xsl:if test="$withThesaurusAnchor">
             <gmd:identifier>

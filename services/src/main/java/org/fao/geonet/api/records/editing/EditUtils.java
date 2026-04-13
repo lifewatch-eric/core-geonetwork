@@ -23,11 +23,9 @@
 
 package org.fao.geonet.api.records.editing;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.Lists;
+import jeeves.server.UserSession;
+import jeeves.server.context.ServiceContext;
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.Util;
 import org.fao.geonet.constants.Edit;
@@ -36,27 +34,20 @@ import org.fao.geonet.constants.Params;
 import org.fao.geonet.domain.AbstractMetadata;
 import org.fao.geonet.exceptions.BadParameterEx;
 import org.fao.geonet.exceptions.ConcurrentUpdateEx;
-import org.fao.geonet.kernel.AccessManager;
-import org.fao.geonet.kernel.DataManager;
-import org.fao.geonet.kernel.EditLib;
-import org.fao.geonet.kernel.SchemaManager;
-import org.fao.geonet.kernel.XmlSerializer;
+import org.fao.geonet.kernel.*;
 import org.fao.geonet.kernel.datamanager.IMetadataValidator;
 import org.fao.geonet.kernel.schema.MultilingualSchemaPlugin;
 import org.fao.geonet.kernel.schema.SchemaPlugin;
+import org.fao.geonet.kernel.search.IndexingMode;
 import org.fao.geonet.lib.Lib;
 import org.fao.geonet.utils.Log;
 import org.fao.geonet.utils.Xml;
-import org.jdom.Attribute;
-import org.jdom.Content;
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.Text;
+import org.jdom.*;
 
-import com.google.common.collect.Lists;
-
-import jeeves.server.UserSession;
-import jeeves.server.context.ServiceContext;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -149,13 +140,13 @@ class EditUtils {
      * Updates metadata content.
      */
     public void updateContent(Element params, boolean validate) throws Exception {
-        updateContent(params, validate, false);
+        updateContent(params, validate, false, IndexingMode.full);
     }
 
     /**
      * TODO javadoc.
      */
-    public void updateContent(Element params, boolean validate, boolean embedded) throws Exception {
+    public void updateContent(Element params, boolean validate, boolean embedded, IndexingMode indexingMode) throws Exception {
         String id = Util.getParam(params, Params.ID);
         String version = Util.getParam(params, Params.VERSION);
         String minor = Util.getParam(params, Params.MINOREDIT, "false");
@@ -182,20 +173,18 @@ class EditUtils {
         AbstractMetadata result = null;
         // whether to request automatic changes (update-fixed-info)
         boolean ufo = true;
-        // whether to index on update
-        boolean index = true;
 
         boolean updateDateStamp = !minor.equals("true");
         String changeDate = null;
         if (embedded) {
             Element updatedMetada = new AjaxEditUtils(context).applyChangesEmbedded(id, htChanges, version);
             if (updatedMetada != null) {
-                result = dataManager.updateMetadata(context, id, updatedMetada, false, ufo, index, context.getLanguage(), changeDate, updateDateStamp);
+                result = dataManager.updateMetadata(context, id, updatedMetada, false, ufo, context.getLanguage(), changeDate, updateDateStamp, indexingMode);
             }
         } else {
             Element updatedMetada = applyChanges(id, htChanges, version);
             if (updatedMetada != null) {
-                result = dataManager.updateMetadata(context, id, updatedMetada, validate, ufo, index, context.getLanguage(), changeDate, updateDateStamp);
+                result = dataManager.updateMetadata(context, id, updatedMetada, validate, ufo, context.getLanguage(), changeDate, updateDateStamp, indexingMode);
             }
         }
         if (result == null) {
@@ -344,7 +333,6 @@ class EditUtils {
     }
 
     /**
-     *
      * @param params
      * @throws Exception
      */

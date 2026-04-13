@@ -23,8 +23,14 @@
 
 package org.fao.geonet.kernel.datamanager.base;
 
-import jeeves.server.UserSession;
-import jeeves.server.context.ServiceContext;
+import static org.fao.geonet.kernel.setting.Settings.SYSTEM_METADATA_VALIDATION_REMOVESCHEMALOCATION;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.fao.geonet.constants.Edit;
 import org.fao.geonet.constants.Geonet;
@@ -40,17 +46,14 @@ import org.fao.geonet.exceptions.SchematronValidationErrorEx;
 import org.fao.geonet.exceptions.XSDValidationErrorEx;
 import org.fao.geonet.kernel.SchematronValidator;
 import org.fao.geonet.kernel.SchematronValidatorExternalMd;
-import org.fao.geonet.kernel.ThesaurusManager;
 import org.fao.geonet.kernel.datamanager.IMetadataManager;
 import org.fao.geonet.kernel.datamanager.IMetadataSchemaUtils;
-import org.fao.geonet.kernel.schema.MetadataSchema;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.repository.MetadataValidationRepository;
 import org.fao.geonet.utils.Log;
 import org.fao.geonet.utils.Xml;
 import org.fao.geonet.utils.XmlErrorHandler;
 import org.jdom.Attribute;
-import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
@@ -63,14 +66,12 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import static org.fao.geonet.kernel.setting.Settings.SYSTEM_METADATA_VALIDATION_REMOVESCHEMALOCATION;
+import jeeves.server.UserSession;
+import jeeves.server.context.ServiceContext;
 
 public class BaseMetadataValidator implements org.fao.geonet.kernel.datamanager.IMetadataValidator, BaseErrorHandlerAttachingErrorToElem.ElementDecorator {
     private static final Logger LOGGER = LoggerFactory.getLogger(Geonet.DATA_MANAGER);
@@ -87,9 +88,6 @@ public class BaseMetadataValidator implements org.fao.geonet.kernel.datamanager.
 
     @Autowired
     private MetadataValidationRepository validationRepository;
-
-    @Autowired
-    private ThesaurusManager thesaurusManager;
 
     @Autowired
     @Lazy
@@ -366,14 +364,17 @@ public class BaseMetadataValidator implements org.fao.geonet.kernel.datamanager.
      * @param lang     Language from context
      */
     @Override
-    public boolean doValidate(AbstractMetadata metadata, String lang) {
+    public Pair<Element, Boolean> doValidate(AbstractMetadata metadata, String lang) {
         String schema = metadata.getDataInfo().getSchemaId();
         int metadataId = metadata.getId();
+        Element errorReport = new Element("report", Edit.NAMESPACE);
+        errorReport.setAttribute("id", String.valueOf(metadataId), Edit.NAMESPACE);
+
         Element md;
         try {
             md = metadata.getXmlData(false);
         } catch (IOException | JDOMException e) {
-            return false;
+            return Pair.read(errorReport, false);
         }
 
         List<MetadataValidation> validations = new ArrayList<>();
@@ -388,22 +389,46 @@ public class BaseMetadataValidator implements org.fao.geonet.kernel.datamanager.
             xsdErrorCount = xsdErrors.getContent().size();
         }
         if (xsdErrorCount > 0) {
+            errorReport.addContent(xsdErrors);
             validations.add(new MetadataValidation().setId(new MetadataValidationId(metadataId, "xsd"))
                 .setStatus(MetadataValidationStatus.INVALID).setRequired(true).setNumTests(xsdErrorCount)
                 .setNumFailures(xsdErrorCount));
-            LOGGER.debug("Invalid.");
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("  - XSD error: {}", Xml.getString(xsdErrors));
+            }
             valid = false;
         } else {
             validations.add(new MetadataValidation().setId(new MetadataValidationId(metadataId, "xsd"))
                 .setStatus(MetadataValidationStatus.VALID).setRequired(true).setNumTests(1).setNumFailures(0));
-            LOGGER.debug("Valid.");
+            LOGGER.debug("  - XSD Valid.");
         }
         try {
             metadataManager.getEditLib().enumerateTree(md);
 
             // Apply custom schematron rules
-            Element errors = applyCustomSchematronRules(schema, metadataId, md, lang, validations);
-            valid = valid && errors == null;
+            Element schemaTronReport = applyCustomSchematronRules(schema, metadataId, md, lang, validations);
+            if (valid && schemaTronReport != null) {
+                List<Namespace> theNSs = new ArrayList<Namespace>();
+                theNSs.add(Namespace.getNamespace("geonet", "http://www.fao.org/geonetwork"));
+                theNSs.add(Namespace.getNamespace("svrl", "http://purl.oclc.org/dsdl/svrl"));
+
+                List<?> failedAssert = Xml.selectNodes(schemaTronReport,
+                    "geonet:report[@geonet:required = '" + SchematronRequirement.REQUIRED + "']/svrl:schematron-output/svrl:failed-assert",
+                    theNSs);
+
+                List<?> failedSchematronVerification = Xml.selectNodes(schemaTronReport,
+                    "geonet:report[@geonet:required = '" + SchematronRequirement.REQUIRED + "']/geonet:schematronVerificationError",
+                    theNSs);
+
+                if (failedAssert.size() >  0 || failedSchematronVerification.size() > 0) {
+                    valid = false;
+                    errorReport.addContent(schemaTronReport);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("  - Schematron error: {}", Xml.getString(schemaTronReport));
+                    }
+                }
+            }
         } catch (Exception e) {
             LOGGER.error("Could not run schematron validation on metadata {}.", metadataId);
             LOGGER.error("Could not run schematron validation on metadata, exception", e);
@@ -414,7 +439,7 @@ public class BaseMetadataValidator implements org.fao.geonet.kernel.datamanager.
 
         saveValidationStatus(metadataId, validations);
 
-        return valid;
+        return Pair.read(errorReport, valid);
     }
 
     /**
@@ -514,10 +539,10 @@ public class BaseMetadataValidator implements org.fao.geonet.kernel.datamanager.
      * @param validations the validation reports for each type of validation and schematron validation
      */
     @Transactional
-    private void saveValidationStatus(int id, List<MetadataValidation> validations) {
+    void saveValidationStatus(int id, List<MetadataValidation> validations) {
         try {
-            validationRepository.deleteAllById_MetadataId(id);
-            validationRepository.save(validations);
+            validationRepository.deleteAllInternalValidationById_MetadataId(id);
+            validationRepository.saveAll(validations);
         } catch (Exception e) {
             LOGGER.error("Could not save validation status on metadata {}.", id);
             LOGGER.error("Could not save validation status on metadata, exception: ", e);

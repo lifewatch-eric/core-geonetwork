@@ -1,11 +1,6 @@
-INSERT INTO Languages (id, name, isinspire, isdefault) VALUES ('nor','norsk', 'n', 'n');
+INSERT INTO Languages (id, name, isinspire) VALUES ('nor','norsk', 'n');
 
 -- Take care to table ID (related to other loc files)
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (33, 'nor', 'title', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (34, 'nor', 'abstract', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (35, 'nor', 'fees', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (36, 'nor', 'accessConstraints', '');
-
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (1,'nor','Kart og grafikk');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (2,'nor','Datasett');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (3,'nor','Interakive ressurser');
@@ -535,6 +530,7 @@ INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (59,'nor','Status cha
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (60,'nor','Record updated by process {{h.item1}}.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (61,'nor','Record deleted.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (62,'nor','Record imported.');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (63,'nor','Record restored.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (100,'nor','DOI creation requested.');
 
 

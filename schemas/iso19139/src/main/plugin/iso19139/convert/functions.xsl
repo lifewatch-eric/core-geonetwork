@@ -25,7 +25,7 @@
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:date="http://exslt.org/dates-and-times"
                 xmlns:java="java:org.fao.geonet.util.XslUtil"
-                xmlns:joda="java:org.fao.geonet.domain.ISODate"
+                xmlns:date-util="java:org.fao.geonet.utils.DateUtil"
                 xmlns:mime="java:org.fao.geonet.util.MimeTypeFinder"
                 version="2.0"
                 exclude-result-prefixes="#all">
@@ -137,8 +137,8 @@
     </xsl:variable>
 
     <!-- must be a full ISODateTimeFormat - so parse it and make sure it is
-             returned as a long format using the joda Java Time library -->
-    <xsl:variable name="output" select="joda:parseISODateTimes($value1,$value2)"/>
+         returned as a long format (Check org.fao.geonet.utils.DateUtil.parseIsoDateTimes formatter -->
+    <xsl:variable name="output" select="date-util:parseISODateTimes($value1,$value2)"/>
     <xsl:value-of select="$output"/>
 
   </xsl:template>
@@ -164,13 +164,9 @@
     <xsl:value-of select="normalize-space(string($tmp))"></xsl:value-of>
   </xsl:template>
 
-  <!-- ================================================================== -->
-  <!-- iso3code of default index language -->
-  <xsl:variable name="defaultLang">eng</xsl:variable>
-
   <xsl:template name="langId19139">
     <xsl:param name="md" select="/*[name(.)='gmd:MD_Metadata' or @gco:isoType='gmd:MD_Metadata']"/>
-    <xsl:param name="defaultLanguage" select="$defaultLang"/>
+    <xsl:param name="defaultLanguage" select="java:getDefaultLangCode()"/>
     <xsl:variable name="tmp">
       <xsl:choose>
         <xsl:when test="$md/gmd:language/gmd:LanguageCode/@codeListValue|
@@ -191,8 +187,21 @@
   <xsl:template name="defaultTitle">
     <xsl:param name="isoDocLangId"/>
 
-    <xsl:variable name="poundLangId"
-                  select="concat('#',upper-case(java:twoCharLangCode($isoDocLangId)))"/>
+    <xsl:variable name="poundLangId">
+      <xsl:variable name="langIdFromlocale"
+                    select="/*[name(.)='gmd:MD_Metadata' or
+              name() = 'gmi:MI_Metadata' or
+              @gco:isoType='gmd:MD_Metadata' or
+              @gco:isoType='gmd:MI_Metadata']/gmd:locale/gmd:PT_Locale[gmd:languageCode/gmd:LanguageCode/@codeListValue=$isoDocLangId]/@id"/>
+        <xsl:choose>
+          <xsl:when test="string-length($langIdFromlocale) != 0">
+            <xsl:value-of select="concat('#',$langIdFromlocale)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat('#',upper-case(java:twoCharLangCode($isoDocLangId)))"/>
+          </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
 
     <xsl:variable name="identification" select="/*[name(.)='gmd:MD_Metadata' or
             name() = 'gmi:MI_Metadata' or
@@ -221,8 +230,21 @@
   <xsl:template name="defaultAbstract">
     <xsl:param name="isoDocLangId"/>
 
-    <xsl:variable name="poundLangId"
-                  select="concat('#',upper-case(java:twoCharLangCode($isoDocLangId)))" />
+    <xsl:variable name="poundLangId">
+      <xsl:variable name="langIdFromlocale"
+                    select="/*[name(.)='gmd:MD_Metadata' or
+              name() = 'gmi:MI_Metadata' or
+              @gco:isoType='gmd:MD_Metadata' or
+              @gco:isoType='gmd:MI_Metadata']/gmd:locale/gmd:PT_Locale[gmd:languageCode/gmd:LanguageCode/@codeListValue=$isoDocLangId]/@id"/>
+        <xsl:choose>
+          <xsl:when test="string-length($langIdFromlocale) != 0">
+            <xsl:value-of select="concat('#',$langIdFromlocale)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat('#',upper-case(java:twoCharLangCode($isoDocLangId)))"/>
+          </xsl:otherwise>
+        </xsl:choose>
+    </xsl:variable>
 
     <xsl:variable name="identification"
                   select="/*[name(.)='gmd:MD_Metadata' or @gco:isoType='gmd:MD_Metadata']/gmd:identificationInfo/*[name(.)='gmd:MD_DataIdentification' or @gco:isoType='gmd:MD_DataIdentification' or name(.)='srv:SV_ServiceIdentification' or @gco:isoType='srv:SV_ServiceIdentification']"></xsl:variable>

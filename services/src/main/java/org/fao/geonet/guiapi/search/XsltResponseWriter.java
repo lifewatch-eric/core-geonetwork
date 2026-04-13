@@ -1,6 +1,6 @@
 /*
  * =============================================================================
- * ===	Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * ===	Copyright (C) 2001-2024 Food and Agriculture Organization of the
  * ===	United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * ===	and United Nations Environment Programme (UNEP)
  * ===
@@ -26,6 +26,9 @@
 package org.fao.geonet.guiapi.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.xml.utils.XML11Char;
 import org.fao.geonet.ApplicationContextHolder;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.kernel.GeonetworkDataDirectory;
@@ -33,9 +36,13 @@ import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.utils.Log;
 import org.fao.geonet.utils.Xml;
 import org.jdom.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,10 +50,20 @@ import java.util.Map;
 /**
  * Utility to mimic what Jeeves was doing
  */
+@Component
 public class XsltResponseWriter {
     public static final String TRANSLATIONS = "translations";
+    @Autowired
+    GeonetworkDataDirectory dataDirectory;
     Element xml;
-    public XsltResponseWriter() {
+    Path xsl;
+    Map<String, Object> xslParams = new HashMap<>();
+
+    public XsltResponseWriter(String envTagName, String serviceName) {
+        this(envTagName, serviceName, "eng");
+    }
+
+    public XsltResponseWriter(String envTagName, String serviceName, String lang) {
         SettingManager settingManager = ApplicationContextHolder.get().getBean(SettingManager.class);
         String url = settingManager.getBaseURL();
         Element gui = new Element("gui");
@@ -56,48 +73,64 @@ public class XsltResponseWriter {
         gui.addContent(new Element("nodeUrl").setText(settingManager.getNodeURL()));
         gui.addContent(new Element("baseUrl").setText(settingManager.getBaseURL()));
         gui.addContent(new Element("serverUrl").setText(settingManager.getServerURL()));
-        // TODO: set language based on header
-        gui.addContent(new Element("language").setText("eng"));
+        gui.addContent(new Element("language").setText(lang));
 
 
         Element settings = settingManager.getAllAsXML(true);
-        settings.setName("systemConfig");
+        settings.setName(StringUtils.isNotEmpty(envTagName) ? envTagName : "systemConfig");
         gui.addContent(settings);
-        gui.addContent(new Element("reqService").setText("search"));
+        gui.addContent(new Element("reqService").setText(serviceName));
 
         Element translations = new Element(TRANSLATIONS);
 
         this.xml = new Element("root")
-                        .addContent(gui)
-                        .addContent(translations);
+            .addContent(gui)
+            .addContent(translations);
     }
 
     public XsltResponseWriter withXml(Element xml) {
         this.xml.addContent(xml);
         return this;
     }
-    Path xsl;
+
     public XsltResponseWriter withXsl(String xsl) {
         ApplicationContext applicationContext = ApplicationContextHolder.get();
         GeonetworkDataDirectory dataDirectory = applicationContext.getBean(GeonetworkDataDirectory.class);
-        Path xslt = dataDirectory.getWebappDir().resolve(xsl);
-        this.xsl = xslt;
+        this.xsl = dataDirectory.getWebappDir().resolve(xsl);
         return this;
     }
-    Map<String, Object> xslParams = new HashMap<>();
+
     public XsltResponseWriter withParam(String k, Object v) {
         this.xslParams.put(k, v);
         return this;
     }
+
     public XsltResponseWriter withParams(Map<String, Object> params) {
         this.xslParams.putAll(params);
         return this;
     }
+
     public Element asElement() throws Exception {
         return Xml.transform(xml, xsl, xslParams);
     }
+
     public String asHtml() throws Exception {
         return Xml.getString(asElement());
+    }
+
+    public void asPdf(HttpServletResponse response, String fileName) throws Exception {
+        GeonetworkDataDirectory dataDirectory = ApplicationContextHolder.get().getBean(GeonetworkDataDirectory.class);
+        Path file = Xml.transformFOP(dataDirectory.getUploadDir(), xml, xsl.toString());
+        try {
+            response.setContentType("application/pdf");
+            response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
+            response.setContentLength((int) file.toFile().length());
+            response.getOutputStream().write(Files.readAllBytes(file));
+            response.getOutputStream().flush();
+        } finally {
+            FileUtils.deleteQuietly(file.toFile());
+        }
+
     }
 
     public XsltResponseWriter withJson(String json) {
@@ -109,13 +142,23 @@ public class XsltResponseWriter {
         try {
             Map<String, String> values = mapper.readValue(jsonPath.toFile(), Map.class);
             Element element = this.xml.getChild(TRANSLATIONS);
-            values.forEach((k, v) -> element.addContent(new Element(k).setText(v)));
+            values.forEach((k, v) -> {
+                if (XML11Char.isXML11ValidNCName(k)) {
+                    element.addContent(new Element(k).setText(v));
+                } else {
+                    Log.warning(Geonet.GEONETWORK, String.format(
+                        "JSON key '%s' can't be used in XSLT API response. Avoid usage of XML invalid characters in keys if this key is required in XSLT processing.",
+                        k
+                    ));
+                }
+            });
         } catch (IOException e) {
-            Log.warning(Geonet.SEARCH_ENGINE, String.format(
-                "Can't find JSON file '%s'.", jsonPath.toString()
+            Log.warning(Geonet.GEONETWORK, String.format(
+                "Can't find JSON file '%s'.", jsonPath
             ));
         }
 
         return this;
     }
+
 }

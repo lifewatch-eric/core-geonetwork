@@ -1,11 +1,6 @@
-INSERT INTO Languages (id, name, isinspire, isdefault) VALUES ('por','português', 'y', 'n');
+INSERT INTO Languages (id, name, isinspire) VALUES ('por','português', 'y');
 
 -- Take care to table ID (related to other loc files)
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (25, 'por', 'title', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (26, 'por', 'abstract', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (27, 'por', 'fees', '');
-INSERT INTO CswServerCapabilitiesInfo (idfield, langid, field, label) VALUES (28, 'por', 'accessConstraints', '');
-
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (1,'por','Mapas & Graficos');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (2,'por','Datasets');
 INSERT INTO CategoriesDes (iddes, langid, label) VALUES (3,'por','Fontes Interactivas');
@@ -517,11 +512,11 @@ INSERT INTO OperationsDes  (iddes, langid, label) VALUES (5,'por','Mapa Interact
 INSERT INTO OperationsDes  (iddes, langid, label) VALUES (6,'por','Featured');
 
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (0,'por','Unknown');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (1,'por','Draft');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (2,'por','Approved');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (3,'por','Retired');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (4,'por','Submitted');
-INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (5,'por','Rejected');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (1,'por','Rascunho');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (2,'por','Aprovado');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (3,'por','Retirado');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (4,'por','Enviado');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (5,'por','Rejeitado');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (50,'por','Record created.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (51,'por','Record updated.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (52,'por','Attachment {{h.item1}} added.');
@@ -535,6 +530,7 @@ INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (59,'por','Status cha
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (60,'por','Record updated by process {{h.item1}}.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (61,'por','Record deleted.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (62,'por','Record imported.');
+INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (63,'por','Record restored.');
 INSERT INTO StatusValuesDes  (iddes, langid, label) VALUES (100,'por','DOI creation requested.');
 
 

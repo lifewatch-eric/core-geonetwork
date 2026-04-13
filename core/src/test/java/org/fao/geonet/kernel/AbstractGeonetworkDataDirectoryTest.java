@@ -26,6 +26,8 @@ package org.fao.geonet.kernel;
 import jeeves.server.ServiceConfig;
 
 import org.fao.geonet.AbstractCoreIntegrationTest;
+import org.fao.geonet.constants.Geonet;
+import org.fao.geonet.exceptions.BadParameterEx;
 import org.jdom.Element;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Abstract class for GeonetworkDataDirectory tests where the data directory layout is a default
@@ -57,7 +59,7 @@ public abstract class AbstractGeonetworkDataDirectoryTest extends AbstractCoreIn
         // reinitialize data directory so that it uses the defaults
         dataDirectory.setSystemDataDir(null);
         dataDirectory.setConfigDir(null);
-        dataDirectory.setLuceneDir(null);
+        dataDirectory.setIndexConfigDir(null);
         dataDirectory.setMetadataDataDir(null);
         dataDirectory.setMetadataRevisionDir(null);
         dataDirectory.setResourcesDir(null);
@@ -75,10 +77,32 @@ public abstract class AbstractGeonetworkDataDirectoryTest extends AbstractCoreIn
         assertSystemDirSubFolders(expectedDataDir);
     }
 
+    @Test
+    public void testGetXsltConversion() {
+        Path xsltConversion = dataDirectory.getXsltConversion("conversion");
+        assertEquals(dataDirectory.getWebappDir().resolve(Geonet.Path.IMPORT_STYLESHEETS).resolve("conversion.xsl"), xsltConversion);
+        try {
+            dataDirectory.getXsltConversion("../conversion");
+        } catch (BadParameterEx e) {
+            assertEquals("../conversion is not a valid value for: Invalid character found in path.", e.getMessage());
+        }
+
+        xsltConversion = dataDirectory.getXsltConversion("schema:iso19115-3.2018:convert/fromISO19115-3.2014");
+        assertNotNull(xsltConversion);
+        try {
+            dataDirectory.getXsltConversion("schema:notExistingSchema:convert/fromISO19115-3.2014");
+        } catch (BadParameterEx e) {
+            assertEquals("Conversion not found. Schema 'notExistingSchema' is not registered in this catalog.", e.getMessage());
+        }
+        try {
+            dataDirectory.getXsltConversion("schema:iso19115-3.2018:../../custom/path");
+        } catch (BadParameterEx e) {
+            assertEquals("../../custom/path is not a valid value for: Invalid character found in path.", e.getMessage());
+        }
+    }
     private void assertSystemDirSubFolders(Path expectedDataDir) {
         final Path expectedConfigDir = expectedDataDir.resolve("config");
         assertEquals(expectedConfigDir, dataDirectory.getConfigDir());
-        assertEquals(expectedDataDir.resolve("index"), dataDirectory.getLuceneDir());
         assertEquals(expectedDataDir.resolve("data").resolve("metadata_data"), dataDirectory.getMetadataDataDir());
         assertEquals(expectedDataDir.resolve("data").resolve("metadata_subversion"), dataDirectory.getMetadataRevisionDir());
         final Path expectedResourcesDir = expectedDataDir.resolve("data").resolve("resources");

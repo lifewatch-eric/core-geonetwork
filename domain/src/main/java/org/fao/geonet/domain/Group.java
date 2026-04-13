@@ -201,7 +201,7 @@ public class Group extends Localized implements Serializable {
     @ElementCollection(fetch = FetchType.LAZY, targetClass = String.class)
     @CollectionTable(joinColumns = @JoinColumn(name = "idDes"), name = "GroupsDes")
     @MapKeyColumn(name = "langId", length = 5)
-    @Column(name = "label", nullable = false, length = 96)
+    @Column(name = "label", nullable = false, length = 255)
     public Map<String, String> getLabelTranslations() {
         return super.getLabelTranslations();
     }
@@ -341,7 +341,7 @@ public class Group extends Localized implements Serializable {
      * Should we use the enableAllowedCategories list on this group? If false, we allow all
      * categories.
      *
-     * @param enableCategoriesRestriction
+     * @param enableAllowedCategories
      * @return this group entity object
      */
     public Group setEnableAllowedCategories(Boolean enableAllowedCategories) {

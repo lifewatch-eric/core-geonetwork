@@ -1,0 +1,39 @@
+<div>
+    <table class="table table-striped filters-list-table" style="margin: 0;">
+        <tbody>
+            <tr ng-repeat="filter in sortedFilters() track by filter.key"
+                ng-class="(selectedFilter && selectedFilter.key == filter.key) ? 'selected-filter-row' : 'unselected-filter-row'">
+                <td style="width:60%; vertical-align: middle; word-break: break-all;">
+                    {{ filter.label }}
+                    <span class="fa fa-exclamation-circle"
+                        ng-if="filter.label.length == 0"
+                        style="color: #C40202D6"></span>
+                </td>
+                <td style="width:10%; vertical-align: middle;">
+                    <button type="button" class="btn btn-primary"
+                        data-ng-click="onFilterEdit(filter.key)">
+                        <span class="fa fa-pencil"></span>
+                    </button>
+                </td>
+                <td style="width:10%; vertical-align: middle;">
+                    <button type="button" class="btn btn-primary"
+                        data-ng-click="onFilterDelete(filter.key)">
+                        <span class="fa fa-trash"></span>
+                    </button>
+                </td>
+                <td style="width:10%; vertical-align: middle;" ng-show="enabled">
+                    <button type="button" class="btn btn-default" id="sortBtn"
+                        data-ng-click="sortUp(filter.key)" ng-disabled="$first">
+                        <span class="fa fa-angle-up"></span>
+                    </button>
+                </td>
+                <td style="width:10%; vertical-align: middle;" ng-show="enabled">
+                    <button type="button" class="btn btn-default" id="sortBtn"
+                        data-ng-click="sortDown(filter.key)" ng-disabled="$last">
+                        <span class="fa fa-angle-down"></span>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

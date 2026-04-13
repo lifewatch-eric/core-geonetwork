@@ -24,6 +24,7 @@
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:util="java:org.fao.geonet.util.XslUtil"
+                xmlns:keycloakUtil="java:org.fao.geonet.kernel.security.keycloak.KeycloakXslUtil"
                 version="2.0"
                 exclude-result-prefixes="#all">
   <!-- Template to load CSS and Javascript -->
@@ -39,24 +40,23 @@
   </xsl:variable>
 
   <xsl:template name="css-load">
-    <!--
-            TODO : less compilation
-            <link href="style/app.css" rel="stylesheet" media="screen" />
--->
     <link href="{/root/gui/url}/static/gn_fonts.css?v={$buildNumber}&amp;{$minimizedParam}" rel="stylesheet"
-          media="screen"/>
+          media="all"/>
 
     <link href="{/root/gui/url}/static/{$customFilename}.css?v={$buildNumber}&amp;{$minimizedParam}" rel="stylesheet"
-          media="screen"/>
+          media="all"/>
+
+    <link href="{/root/gui/url}/static/gn_print_default.css?v={$buildNumber}&amp;{$minimizedParam}" rel="stylesheet"
+          media="print"/>
 
     <link href="{/root/gui/url}/static/bootstrap-table.min.css?v={$buildNumber}" rel="stylesheet"
-          media="screen"></link>
+          media="all"></link>
 
     <link href="{/root/gui/url}/static/gn_pickers.css?v={$buildNumber}&amp;{$minimizedParam}" rel="stylesheet"
           media="screen"/>
 
     <link href="{/root/gui/url}/static/gn_inspire.css?v={$buildNumber}&amp;{$minimizedParam}" rel="stylesheet"
-          media="screen"/>
+          media="all"/>
 
     <xsl:if test="$withD3">
       <link href="{/root/gui/url}/static/nv.d3.css?v={$buildNumber}&amp;{$minimizedParam}" rel="stylesheet"
@@ -65,12 +65,13 @@
 
     <link href="{/root/gui/url}/static/ng-skos.css?v={$buildNumber}" rel="stylesheet" media="screen"></link>
     <link href="{/root/gui/url}/static/{/root/gui/nodeId}_custom_style.css?v={$buildNumber}&amp;{$minimizedParam}"
-          rel="stylesheet" media="screen"/>
+          rel="stylesheet" media="all"/>
   </xsl:template>
 
   <xsl:template name="css-load-nojs">
     <link href="{/root/gui/url}/static/{$customFilename}.css?v={$buildNumber}&amp;{$minimizedParam}" rel="stylesheet"
           media="screen"/>
+
     <link href="{/root/gui/url}/static/gn_metadata_pdf.css?v={$buildNumber}&amp;{$minimizedParam}" rel="stylesheet"
           media="print"/>
   </xsl:template>
@@ -85,9 +86,23 @@
     </xsl:if>
 
 
-    <xsl:if test="$isRecaptchaEnabled and $service = 'new.account'">
-      <script src="https://www.google.com/recaptcha/api.js"></script>
-    </xsl:if>
+    <!-- Load recaptcha api if recaptcha is enabled:
+          - in the new account service.
+          - in the search application if metadaat user feedback is enabled
+    -->
+    <xsl:choose>
+      <xsl:when test="$isRecaptchaEnabled and ($service = 'new.account' or ($angularApp = 'gn_search' and $metadataUserFeedbackEnabled)  or ($angularApp = 'gn_contact_us' and $userFeedbackEnabled))">
+        <script src="https://www.google.com/recaptcha/api.js"></script>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- Add dummy object to prevent angularjs-recaptcha to load recaptcha api.js file in other cases.
+             If angularjs-recaptcha doesn't find the grecaptcha object with the function render, request the api.js file
+             adding some extra cookies that can cause issues with EU directive.
+        -->
+        <script>var grecaptcha = {render: function() {}};
+        </script>
+      </xsl:otherwise>
+    </xsl:choose>
 
     <xsl:choose>
       <xsl:when test="$isDebugMode">
@@ -95,17 +110,19 @@
         <script src="{$uiResourcesPath}lib/closure/base.js?v={$buildNumber}"></script>
 
         <script src="{$uiResourcesPath}lib/base64.js?v={$buildNumber}"></script>
-        <script src="{$uiResourcesPath}lib/jquery-2.2.4.js?v={$buildNumber}"></script>
+        <script src="{$uiResourcesPath}lib/jquery-3.7.1.js?v={$buildNumber}"></script>
+        <script src="{$uiResourcesPath}lib/jquery-migrate-3.4.1.js?v={$buildNumber}"></script>
 
-        <script src="{$uiResourcesPath}lib/moment+langs.min.js?v={$buildNumber}"></script>
-        <script src="{$uiResourcesPath}lib/moment-timezone-with-data-10-year-range.min.js?v={$buildNumber}"></script>
+        <script src="{$uiResourcesPath}lib/moment-with-locales.min.js?v={$buildNumber}"></script>
+        <script src="{$uiResourcesPath}lib/moment-timezone-with-data-1970-2030.min.js?v={$buildNumber}"></script>
+        <script src="{$uiResourcesPath}lib/franc-min/franc-min.js?v={$buildNumber}"></script>
 
         <script src="{$uiResourcesPath}lib/angular/angular.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/angular/angular-resource.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/angular/angular-route.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/angular/angular-sanitize.js?v={$buildNumber}"></script>
-        <script src="{$uiResourcesPath}lib/angular/angular-gettext.min.js?v={$buildNumber}"/>
         <script src="{$uiResourcesPath}lib/angular/angular-cookies.js?v={$buildNumber}"></script>
+        <script src="{$uiResourcesPath}lib/angular/angular-messages.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/angular-translate.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/angular-md5.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/angular-filter.min.js?v={$buildNumber}"></script>
@@ -126,7 +143,7 @@
         <script src="{$uiResourcesPath}lib/tinycolor.js?v={$buildNumber}"></script>
 
         <script src="{$uiResourcesPath}lib/style/bootstrap/dist/js/bootstrap.js?v={$buildNumber}"></script>
-        <script src="{$uiResourcesPath}lib/jquery.ext/jquery-ui-slider.min.js?v={$buildNumber}"></script>
+        <script src="{$uiResourcesPath}lib/jquery.ext/jquery-ui-slider-1.13.2.min.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/proj4js-compressed.js?v={$buildNumber}"></script>
 
         <xsl:choose>
@@ -147,17 +164,12 @@
           <script src="{$uiResourcesPath}lib/nv.d3.js?v={$buildNumber}"></script>
         </xsl:if>
 
-        <xsl:if test="$angularApp = 'gn_search' or
-                      $angularApp = 'gn_editor' or
-                      $angularApp = 'gn_formatter_viewer' or
-                      $angularApp = 'gn_admin'">
-          <script src="{$uiResourcesPath}lib/zip/zip.js?v={$buildNumber}"></script>
-          <!-- Jsonix resources (OWS Context) -->
-          <script src="{$uiResourcesPath}lib/jsonix/jsonix/Jsonix-all.js?v={$buildNumber}"></script>
-          <script type="text/javascript">
-            zip.workerScriptsPath = "../../catalog/lib/zip/";
-          </script>
-        </xsl:if>
+        <script src="{$uiResourcesPath}lib/zip/zip.js?v={$buildNumber}"></script>
+        <!-- Jsonix resources (OWS Context) -->
+        <script src="{$uiResourcesPath}lib/jsonix/jsonix/Jsonix-all.js?v={$buildNumber}"></script>
+        <script type="text/javascript">
+          zip.workerScriptsPath = "../../catalog/lib/zip/";
+        </script>
 
 
         <!--<xsl:if test="$isEditing">-->
@@ -168,22 +180,64 @@
         <script src="{$uiResourcesPath}lib/jquery.ext/jquery.fileupload-angular.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/jquery.ext/jquery.floatThead-slim.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/bootstrap.ext/typeahead.js/typeahead.bundle.js?v={$buildNumber}"></script>
-        <script
-          src="{$uiResourcesPath}lib/bootstrap.ext/typeahead.js/handlebars-v2.0.0.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/bootstrap.ext/tagsinput/bootstrap-tagsinput.js?v={$buildNumber}"></script>
         <script
           src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.js?v={$buildNumber}"></script>
         <script
-          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.fr.js?v={$buildNumber}"></script>
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.fr.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.nl.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.az.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.ca.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.cs.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.cy.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.da.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.de.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.es.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.fi.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.hy.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.is.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.it.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.ka.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.ko.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.pt.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.ro.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.ru.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.sk.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.sv.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.uk.min.js?v={$buildNumber}"></script>
+        <script
+          src="{$uiResourcesPath}lib/bootstrap.ext/datepicker/bootstrap-datepicker.zh.min.js?v={$buildNumber}"></script>
+
+
         <script src="{$uiResourcesPath}lib/bootstrap-table/dist/bootstrap-table.js?v={$buildNumber}"></script>
-        <script src="{$uiResourcesPath}lib/bootstrap-table/src/extensions/angular/bootstrap-table-angular.js?v={$buildNumber}"></script>
+        <script src="{$uiResourcesPath}lib/bootstrap-table-angular.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/bootstrap-table/src/extensions/export/bootstrap-table-export.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/bootstrap-table/dist/bootstrap-table-locale-all.min.js"></script>
         <script src="{$uiResourcesPath}lib/bootstrap-table/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 
         <!--</xsl:if>-->
 
-        <script src="{$uiResourcesPath}lib/underscore/underscore-min.js?v={$buildNumber}"></script>
+        <script src="{$uiResourcesPath}lib/lodash/lodash.min.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/recaptcha/angular-recaptcha.min.js?v={$buildNumber}"></script>
         <script src="{$uiResourcesPath}lib/geohash.js?v={$buildNumber}"></script>
 
@@ -218,44 +272,69 @@
       </xsl:otherwise>
     </xsl:choose>
 
+    <xsl:if test="$isVegaEnabled or $angularApp = ('gn_editor', 'gn_admin')">
+      <script src="{$uiResourcesPath}lib/vega/vega.js"></script>
+    </xsl:if>
+
+    <script src="{$uiResourcesPath}lib/d3_timeseries/d3.min.js?v={$buildNumber}"></script>
+    <script src="{$uiResourcesPath}lib/timeline/timeline-zoomable.js?v={$buildNumber}"></script>
+    <link rel="stylesheet" href="{$uiResourcesPath}lib/timeline/timeline.css"/>
+    <link rel="stylesheet" href="{$uiResourcesPath}lib/d3_timeseries/nv.d3.min.css"/>
+
     <xsl:variable name="appConfig"
                   select="util:getUiConfiguration(/root/request/ui)"/>
 
-    <xsl:if test="$angularApp = 'gn_search'">
-      <script src="{$uiResourcesPath}lib/d3_timeseries/d3.min.js?v={$buildNumber}"></script>
-      <script src="{$uiResourcesPath}lib/timeline/timeline-zoomable.js?v={$buildNumber}"></script>
-      <link rel="stylesheet" href="{$uiResourcesPath}lib/timeline/timeline.css"/>
-      <link rel="stylesheet" href="{$uiResourcesPath}lib/d3_timeseries/nv.d3.min.css"/>
-      <script type="text/javascript">
-        var module = angular.module('gn_search');
-        module.config(['gnGlobalSettings',
-        function(gnGlobalSettings) {
-        gnGlobalSettings.shibbolethEnabled = <xsl:value-of select="$shibbolethOn"/>;
-        gnGlobalSettings.shibbolethHideLogin = <xsl:value-of select="$shibbolethHideLogin and $shibbolethOn"/>;
-        }]);
-      </script>
-    </xsl:if>
+    <script type="text/javascript">
+      var module = angular.module('<xsl:value-of select="$angularApp"/>');
+    </script>
 
-    <xsl:if test="$angularApp = 'gn_login'">
+    <xsl:if test="$angularApp = 'gn_search' or $angularApp = 'gn_login' or $angularApp = 'gn_admin'">
       <script type="text/javascript">
-        var module = angular.module('gn_login');
         module.config(['gnGlobalSettings',
         function(gnGlobalSettings) {
-        gnGlobalSettings.shibbolethEnabled = <xsl:value-of select="$shibbolethOn"/>;
+        gnGlobalSettings.isDisableLoginForm = <xsl:value-of select="$isDisableLoginForm"/>;
+        gnGlobalSettings.isShowLoginAsLink = <xsl:value-of select="$isShowLoginAsLink"/>;
+        gnGlobalSettings.isUserProfileUpdateEnabled = <xsl:value-of select="$isUserProfileUpdateEnabled"/>;
+        gnGlobalSettings.isUserGroupUpdateEnabled = <xsl:value-of select="$isUserGroupUpdateEnabled"/>;
         }]);
       </script>
+
+      <!-- For keycloak we have to add some extra scripts -->
+      <xsl:if test="util:getSecurityProvider() =  'KEYCLOAK' and keycloakUtil:getClientId()">
+        <xsl:variable name="authServerBaseUrl"  select="keycloakUtil:getAuthServerBaseUrl()"/>
+        <script src="{$authServerBaseUrl}/js/keycloak.js"></script>
+        <script type="text/javascript">
+          var sessionModule = angular.module('gn_session_service');
+          var keycloak = new Keycloak({
+          "realm" : "<xsl:value-of select="keycloakUtil:getRealm()"/>",
+          "url" : "<xsl:value-of select="keycloakUtil:getAuthServerBaseUrl()"/>",
+          "clientId" : "<xsl:value-of select="keycloakUtil:getClientId()"/>"
+          })
+
+          keycloak.init({ onLoad: '<xsl:value-of select="keycloakUtil:getInitOnLoad()"/>',
+          checkLoginIframe: false }).success(function(authenticated) {
+             $(window).load(function() {
+              if (authenticated) {
+                if ($("#signinLink").length) {
+                   window.location.href = $("#signinLink").href;
+                }
+              }
+            })
+          });
+
+        </script>
+      </xsl:if>
     </xsl:if>
 
     <!-- XML highlighter JS dependency. -->
     <xsl:if test="$angularApp = 'gn_editor' or $angularApp = 'gn_admin'">
       <script type="text/javascript" src="{$uiResourcesPath}lib/ace/ace.js?v={$buildNumber}"></script>
+      <script type="text/javascript" src="{$uiResourcesPath}lib/ace/snippets/gn.js?v={$buildNumber}"></script>
+      <script type="text/javascript" src="{$uiResourcesPath}lib/ace/ext-language_tools.js?v={$buildNumber}"></script>
       <script type="text/javascript" src="{$uiResourcesPath}lib/angular.ext/ui-ace.js?v={$buildNumber}"></script>
     </xsl:if>
 
-
     <script type="text/javascript">
-      var module = angular.module('<xsl:value-of select="$angularApp"/>');
-
       // Init GN config which is a dependency of gn
       // in order to be initialized quite early
       var cfgModule = angular.module('gn_config', []);
@@ -263,8 +342,16 @@
       function(gnViewerSettings, gnSearchSettings, gnGlobalSettings) {
       gnGlobalSettings.init(
       <xsl:value-of select="if ($appConfig != '') then $appConfig else '{}'"/>,
-      null, gnViewerSettings, gnSearchSettings);
+      // Relative path is safer as even if settings are wrong, the client app works.
+      null,
+      <xsl:value-of select="if ($nodeUrl != '') then concat('&quot;', $nodeUrl, '&quot;') else 'null'"/>,
+      gnViewerSettings, gnSearchSettings);
       }]);
+
+      // See jQuery.htmlPrefilter changes: https://jquery.com/upgrade-guide/3.5/
+      // Uncomment this line to debug issues with self-closed tags and use the debug mode to get jQuery Migrate warning
+      // about the problematic HTML snippet.
+      //jQuery.migrateEnablePatches( "self-closed-tags" );
     </script>
   </xsl:template>
 </xsl:stylesheet>

@@ -16,6 +16,8 @@
     <xsl:variable name="owner" select="children/owner"/>
     <xsl:variable name="ownerGroup" select="children/ownerGroup"/>
     <xsl:variable name="ownerUser" select="children/ownerUser"/>
+    <xsl:variable name="filters" select="children/filters/children"/>
+    <xsl:variable name="bboxFilter" select="children/bboxFilter/children"/>
 
     <node id="{@id}" type="{value}">
       <owner>
@@ -66,6 +68,15 @@
         <batchEdits>
           <xsl:value-of select="$con/batchEdits/value"/>
         </batchEdits>
+        <translateContent>
+          <xsl:value-of select="$con/translateContent/value"/>
+        </translateContent>
+        <translateContentLangs>
+          <xsl:value-of select="$con/translateContentLangs/value"/>
+        </translateContentLangs>
+        <translateContentFields>
+          <xsl:value-of select="$con/translateContentFields/value"/>
+        </translateContentFields>
       </content>
 
       <options>
@@ -86,6 +97,9 @@
       </options>
 
       <xsl:apply-templates select="." mode="searches"/>
+      <xsl:apply-templates select="$filters" mode="filters"/>
+      <xsl:apply-templates select="$bboxFilter" mode="bboxFilter"/>
+
       <xsl:apply-templates select="$priv" mode="privileges"/>
       <ifRecordExistAppendPrivileges>
         <xsl:value-of select="$opt/ifRecordExistAppendPrivileges/value"/>
@@ -147,6 +161,8 @@
   <xsl:template match="*" mode="site"/>
   <xsl:template match="*" mode="options"/>
   <xsl:template match="*" mode="searches"/>
+  <xsl:template match="*" mode="filters"/>
+  <xsl:template match="*" mode="bboxFilter"/>
   <xsl:template match="*" mode="other"/>
 
   <!-- ============================================================================================= -->

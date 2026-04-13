@@ -51,6 +51,7 @@ import org.fao.geonet.kernel.harvest.BaseAligner;
 import org.fao.geonet.kernel.harvest.harvester.CategoryMapper;
 import org.fao.geonet.kernel.harvest.harvester.GroupMapper;
 import org.fao.geonet.kernel.harvest.harvester.Privileges;
+import org.fao.geonet.kernel.search.IndexingMode;
 import org.fao.geonet.kernel.setting.SettingInfo;
 import org.fao.geonet.repository.MetadataCategoryRepository;
 import org.fao.geonet.repository.OperationAllowedRepository;
@@ -402,14 +403,14 @@ public class FragmentHarvester extends BaseAligner {
 
         addCategories(metadata, params.categories, localCateg, context, null, false);
 
-        metadata = metadataManager.insertMetadata(context, metadata, md, true, false, false, UpdateDatestamp.NO, false, false);
+        metadata = metadataManager.insertMetadata(context, metadata, md, IndexingMode.none, false, UpdateDatestamp.NO, false, false);
 
         String id = String.valueOf(metadata.getId());
 
         // Note: we use fragmentAllPrivs here because subtemplates need to be
         // visible/accessible to all
         addPrivileges(id, fragmentAllPrivs, localGroups, context);
-        dataMan.indexMetadata(id, true, null);
+        dataMan.indexMetadata(id, true);
 
         metadataManager.flush();
 
@@ -564,14 +565,11 @@ public class FragmentHarvester extends BaseAligner {
     private void update(String id, Element template, String title, boolean isSubtemplate) throws Exception {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         Date date = new Date();
-        //
-        // update metadata
-        //
+
         boolean validate = false;
         boolean ufo = false;
-        boolean index = false;
         String language = context.getLanguage();
-        metadataManager.updateMetadata(context, id, template, validate, ufo, index, language, df.format(date), false);
+        metadataManager.updateMetadata(context, id, template, validate, ufo, language, df.format(date), false, IndexingMode.none);
 
         int iId = Integer.parseInt(id);
 
@@ -596,7 +594,7 @@ public class FragmentHarvester extends BaseAligner {
         }
         dataMan.setHarvestedExt(iId, params.uuid, Optional.of(harvestUri));
 
-        dataMan.indexMetadata(id, true, null);
+        dataMan.indexMetadata(id, true);
 
         metadataManager.flush();
     }
@@ -636,7 +634,7 @@ public class FragmentHarvester extends BaseAligner {
             }
             metadata.getCategories().add(metadataCategory);
         }
-        metadata = metadataManager.insertMetadata(context, metadata, template, true, false, false, UpdateDatestamp.NO, false, false);
+        metadata = metadataManager.insertMetadata(context, metadata, template, IndexingMode.none, false, UpdateDatestamp.NO, false, false);
 
         String id = String.valueOf(metadata.getId());
 
@@ -645,7 +643,7 @@ public class FragmentHarvester extends BaseAligner {
         }
         addPrivileges(id, params.privileges, localGroups, context);
 
-        dataMan.indexMetadata(id, true, null);
+        dataMan.indexMetadata(id, true);
 
         if (log.isDebugEnabled()) {
             log.debug("	- Commit " + id);

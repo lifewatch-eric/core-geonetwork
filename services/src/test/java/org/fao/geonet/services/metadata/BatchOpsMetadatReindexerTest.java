@@ -2,7 +2,9 @@ package org.fao.geonet.services.metadata;
 
 import org.fao.geonet.ApplicationContextHolder;
 import org.fao.geonet.kernel.DataManager;
+import org.fao.geonet.kernel.search.EsSearchManager;
 import org.fao.geonet.kernel.search.ISearchManager;
+import org.fao.geonet.kernel.search.index.BatchOpsMetadataReindexer;
 import org.fao.geonet.util.ThreadUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +39,7 @@ public class BatchOpsMetadatReindexerTest {
         Set<Integer> toIndex = createMetadataToIndex();
 
         BatchOpsMetadataReindexer toTest = new BatchOpsMetadataReindexer(mockDataMan, toIndex);
-        toTest.process(false);
+        toTest.process("siteId", false);
 
         ArgumentCaptor<String> metadataIdCaptor = captureIndexationLaunched(mockDataMan);
         assertEquals("1-2-3-4", metadataIdCaptor.getAllValues().stream().collect(Collectors.joining("-")));
@@ -54,7 +56,7 @@ public class BatchOpsMetadatReindexerTest {
         Set<Integer> toIndex = createMetadataToIndex();
 
         BatchOpsMetadataReindexer toTest = new BatchOpsMetadataReindexer(mockDataMan, toIndex);
-        toTest.process(false);
+        toTest.process("siteId", false);
 
         ArgumentCaptor<String> metadataIdCaptor = captureIndexationLaunched(mockDataMan);
         assertEquals("1-2-3-4", metadataIdCaptor.getAllValues().stream().sorted().collect(Collectors.joining("-")));
@@ -70,7 +72,7 @@ public class BatchOpsMetadatReindexerTest {
         Set<Integer> toIndex = createMetadataToIndex();
 
         BatchOpsMetadataReindexer toTest = new BatchOpsMetadataReindexer(mockDataMan, toIndex);
-        toTest.process(true);
+        toTest.process("siteId", true);
 
         ArgumentCaptor<String> metadataIdCaptor = captureIndexationLaunched(mockDataMan);
         assertEquals("1-2-3-4", metadataIdCaptor.getAllValues().stream().sorted().collect(Collectors.joining("-")));
@@ -91,7 +93,7 @@ public class BatchOpsMetadatReindexerTest {
         assertEquals(0, toTest.getProcessed());
         assertEquals(4, toTest.getToProcessCount());
 
-        toTest.wrapAsyncProcess(false);
+        toTest.wrapAsyncProcess("siteId", false);
 
         latch.countDown();
         Thread.sleep(500);
@@ -116,7 +118,7 @@ public class BatchOpsMetadatReindexerTest {
 
         assertEquals(0, toTest.getProcessed());
         assertEquals(4, toTest.getToProcessCount());
-        toTest.wrapAsyncProcess(false);
+        toTest.wrapAsyncProcess("siteId",false);
 
         latch.countDown();
         Thread.sleep(500);
@@ -141,7 +143,7 @@ public class BatchOpsMetadatReindexerTest {
             @Override
             public void run() {
                 try {
-                    toTest.wrapAsyncProcess(true);
+                    toTest.wrapAsyncProcess("siteId",true);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -172,7 +174,8 @@ public class BatchOpsMetadatReindexerTest {
 
         PowerMockito.mockStatic(ApplicationContextHolder.class);
         PowerMockito.when(ApplicationContextHolder.get()).thenReturn(mockAppContext);
-
+        EsSearchManager searchManager = Mockito.mock(EsSearchManager.class);
+        Mockito.when(mockAppContext.getBean(Mockito.eq((EsSearchManager.class)))).thenReturn(searchManager);
 
         PowerMockito.mockStatic(ThreadUtils.class);
         PowerMockito.when(ThreadUtils.getNumberOfThreads()).thenReturn(numberOfAvailableThreads);
@@ -187,7 +190,7 @@ public class BatchOpsMetadatReindexerTest {
                 usedTread.add(Thread.currentThread());
                 return null;
             }
-        }).when(mockDataMan).indexMetadata(Mockito.anyString(), Mockito.eq(true), Mockito.anyObject());
+        }).when(mockDataMan).indexMetadata(Mockito.anyString(), Mockito.anyBoolean());
         return mockDataMan;
     }
 
@@ -201,7 +204,7 @@ public class BatchOpsMetadatReindexerTest {
                 latch.await();
                 return null;
             }
-        }).when(mockDataMan).indexMetadata(Mockito.anyString(), Mockito.eq(true), Mockito.anyObject());
+        }).when(mockDataMan).indexMetadata(Mockito.anyString(), Mockito.anyBoolean());
         return mockDataMan;
     }
 
@@ -219,7 +222,7 @@ public class BatchOpsMetadatReindexerTest {
         ArgumentCaptor<Boolean> forceRefreshCaptor = ArgumentCaptor.forClass(Boolean.class);
         ArgumentCaptor<ISearchManager> isearchManagerCaptor = ArgumentCaptor.forClass(ISearchManager.class);
 
-        Mockito.verify(mockDataMan, Mockito.times(4)).indexMetadata(metadataIdCaptor.capture(), forceRefreshCaptor.capture(), isearchManagerCaptor.capture());
+        Mockito.verify(mockDataMan, Mockito.times(4)).indexMetadata(metadataIdCaptor.capture(), forceRefreshCaptor.capture());
         return metadataIdCaptor;
     }
 }

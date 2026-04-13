@@ -27,12 +27,15 @@ import jeeves.server.context.ServiceContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.fao.geonet.GeonetContext;
+import org.fao.geonet.api.tools.i18n.TranslationPackBuilder;
 import org.fao.geonet.constants.Edit;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.HarvestHistory;
 import org.fao.geonet.domain.ISODate;
 import org.fao.geonet.domain.Metadata;
 import org.fao.geonet.domain.Profile;
+import org.fao.geonet.domain.Source;
+import org.fao.geonet.domain.SourceType;
 import org.fao.geonet.exceptions.BadInputEx;
 import org.fao.geonet.exceptions.JeevesException;
 import org.fao.geonet.exceptions.MissingParameterEx;
@@ -42,23 +45,26 @@ import org.fao.geonet.kernel.DataManager;
 import org.fao.geonet.kernel.HarvestInfoProvider;
 import org.fao.geonet.kernel.harvest.Common.OperResult;
 import org.fao.geonet.kernel.harvest.harvester.AbstractHarvester;
+import org.fao.geonet.kernel.harvest.harvester.AbstractParams;
 import org.fao.geonet.kernel.harvest.harvester.HarversterJobListener;
 import org.fao.geonet.kernel.setting.HarvesterSettingsManager;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.kernel.setting.Settings;
 import org.fao.geonet.repository.HarvestHistoryRepository;
+import org.fao.geonet.repository.SourceRepository;
 import org.fao.geonet.repository.specification.MetadataSpecs;
 import org.fao.geonet.utils.Log;
 import org.fao.geonet.utils.Xml;
 import org.jdom.Element;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.quartz.SchedulerException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -90,6 +96,8 @@ public class HarvestManagerImpl implements HarvestInfoProvider, HarvestManager {
     private Map<String, AbstractHarvester> hmHarvesters = new HashMap<>();
     private Map<String, AbstractHarvester> hmHarvestLookup = new HashMap<>();
 
+    private TranslationPackBuilder translationPackBuilder;
+
     public ConfigurableApplicationContext getApplicationContext() {
         return applicationContext;
     }
@@ -111,6 +119,8 @@ public class HarvestManagerImpl implements HarvestInfoProvider, HarvestManager {
         this.context = context;
         this.dataMan = context.getBean(DataManager.class);
         this.settingMan = context.getBean(HarvesterSettingsManager.class);
+        this.translationPackBuilder = context.getBean(TranslationPackBuilder.class);
+
         applicationContext = context.getApplicationContext();
 
         this.readOnly = isReadOnly;
@@ -125,10 +135,19 @@ public class HarvestManagerImpl implements HarvestInfoProvider, HarvestManager {
 
             if (entries != null) {
                 for (Object o : entries.getChildren()) {
-                    Element node = transform((Element) o);
+                    Element node = null;
+                    try {
+                        node = transform((Element) o);
+                    } catch (Exception oae) {
+                        Log.error(Geonet.HARVEST_MAN, "Cannot read harvester configuration.", oae);
+                    }
+
+                    if (node == null) {
+                        continue;
+                    }
+
                     String type = node.getAttributeValue("type");
                     String id = node.getAttributeValue("id");
-
                     try {
                         AbstractHarvester ah = AbstractHarvester.create(type, context);
                         ah.init(node, context);
@@ -138,7 +157,6 @@ public class HarvestManagerImpl implements HarvestInfoProvider, HarvestManager {
                         Log.error(Geonet.HARVEST_MAN, "Cannot create harvester " + id + " of type \""
                             + type + "\"", oae);
                     }
-
                 }
             }
         }
@@ -309,6 +327,8 @@ public class HarvestManagerImpl implements HarvestInfoProvider, HarvestManager {
         hmHarvesters.put(ah.getID(), ah);
         hmHarvestLookup.put(ah.getParams().getUuid(), ah);
 
+        translationPackBuilder.clearCache();
+
         if (Log.isDebugEnabled(Geonet.HARVEST_MAN)) {
             Log.debug(Geonet.HARVEST_MAN, "Added node with id : \n" + ah.getID());
         }
@@ -333,6 +353,9 @@ public class HarvestManagerImpl implements HarvestInfoProvider, HarvestManager {
         if (Log.isDebugEnabled(Geonet.HARVEST_MAN)) {
             Log.debug(Geonet.HARVEST_MAN, "HarvestManager added node with id: " + ah.getID() + " and uuid: " + ah.getParams().getUuid());
         }
+
+        translationPackBuilder.clearCache();
+
         return ah.getParams().getUuid();
     }
 
@@ -397,6 +420,12 @@ public class HarvestManagerImpl implements HarvestInfoProvider, HarvestManager {
         node.addContent(ownerIdE);
 
         ah.update(node);
+
+        Element site = node.getChild("site");
+        if (site != null && site.getChild(AbstractParams.TRANSLATIONS) != null) {
+            translationPackBuilder.clearCache();
+        }
+
         return true;
     }
 
@@ -425,6 +454,9 @@ public class HarvestManagerImpl implements HarvestInfoProvider, HarvestManager {
                 if (ah != null) {
                     ah.destroy();
                 }
+
+                translationPackBuilder.clearCache();
+
                 return OperResult.OK;
             } else {
                 return OperResult.NOT_FOUND;
@@ -613,7 +645,7 @@ public class HarvestManagerImpl implements HarvestInfoProvider, HarvestManager {
         Element historyEl = new Element("result");
         historyEl.addContent(new Element("cleared").
             setAttribute("recordsRemoved", numberOfRecordsRemoved + ""));
-        final String lastRun = new DateTime().withZone(DateTimeZone.forID("UTC")).toString();
+        final String lastRun = OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_DATE_TIME);
         ISODate lastRunDate = new ISODate(lastRun);
 
         HarvestHistoryRepository historyRepository = context.getBean(HarvestHistoryRepository.class);
@@ -633,22 +665,19 @@ public class HarvestManagerImpl implements HarvestInfoProvider, HarvestManager {
 
     @Override
     public void rescheduleActiveHarvesters() {
-        String timeZoneSetting = applicationContext.getBean(SettingManager.class).getValue(Settings.SYSTEM_SERVER_TIMEZONE, true);
-        if (StringUtils.isBlank(timeZoneSetting)) {
-            timeZoneSetting = TimeZone.getDefault().getID();
-        }
+        String defaultTimeZoneId = TimeZone.getDefault().getID();
 
         for (Map.Entry<String, AbstractHarvester> pair : hmHarvesters.entrySet()) {
            AbstractHarvester harvester = pair.getValue();
            if ( Common.Status.ACTIVE.equals(harvester.getStatus())) {
                try {
                    TimeZone triggerTimeZone =  harvester.getTriggerTimezone();
-                   String triggerTimeZoneId = TimeZone.getDefault().getID();
+                   String triggerTimeZoneId = defaultTimeZoneId;
                    if (triggerTimeZone != null) {
                        triggerTimeZoneId = triggerTimeZone.getID();
                    }
 
-                   if (!StringUtils.equals(timeZoneSetting, triggerTimeZoneId)) {
+                   if (!StringUtils.equals(defaultTimeZoneId, triggerTimeZoneId)) {
                        harvester.doReschedule();
                    }
                } catch (SchedulerException e) {

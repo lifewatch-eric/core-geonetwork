@@ -24,16 +24,13 @@
 package org.fao.geonet.component.csw;
 
 import jeeves.server.context.ServiceContext;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.search.Sort;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.constants.Geonet;
-import org.fao.geonet.csw.common.ConstraintLanguage;
-import org.fao.geonet.csw.common.Csw;
-import org.fao.geonet.csw.common.ElementSetName;
-import org.fao.geonet.csw.common.OutputSchema;
-import org.fao.geonet.csw.common.ResultType;
+import org.fao.geonet.csw.common.*;
 import org.fao.geonet.csw.common.exceptions.CatalogException;
 import org.fao.geonet.csw.common.exceptions.InvalidParameterValueEx;
 import org.fao.geonet.csw.common.exceptions.MissingParameterValueEx;
@@ -48,10 +45,9 @@ import org.fao.geonet.kernel.csw.CatalogService;
 import org.fao.geonet.kernel.csw.services.AbstractOperation;
 import org.fao.geonet.kernel.csw.services.getrecords.FieldMapper;
 import org.fao.geonet.kernel.csw.services.getrecords.SearchController;
-import org.fao.geonet.kernel.search.LuceneSearcher;
-import org.fao.geonet.kernel.search.SearchManager;
-import org.fao.geonet.kernel.setting.SettingInfo;
+import org.fao.geonet.kernel.csw.services.getrecords.SortByParser;
 import org.fao.geonet.kernel.setting.SettingManager;
+import org.fao.geonet.kernel.setting.Settings;
 import org.fao.geonet.repository.CustomElementSetRepository;
 import org.fao.geonet.util.xml.NamespaceUtils;
 import org.fao.geonet.utils.Log;
@@ -88,18 +84,21 @@ public class GetRecords extends AbstractOperation implements CatalogService {
     //---
     //---------------------------------------------------------------------------
 
+    @Autowired
     private SearchController _searchController;
+
     @Autowired
     private CatalogConfiguration _catalogConfig;
     @Autowired
     private FieldMapper _fieldMapper;
+    @Autowired
+    private SortByParser _sortByParser;
 
     @Autowired
     private SchemaManager _schemaManager;
 
     @Autowired
     public GetRecords(ApplicationContext context) {
-        _searchController = new SearchController(context);
     }
 
     /**
@@ -163,7 +162,7 @@ public class GetRecords extends AbstractOperation implements CatalogService {
 
         Element query = request.getChild("Query", Csw.NAMESPACE_CSW);
 
-        // one of "hits", "results", "validate" or the GN-specific (invalid) "results_with_summary".
+        // one of "hits", "results", "validate".
         ResultType resultType = ResultType.parse(request.getAttributeValue("resultType"));
 
         // either Record or IsoRecord
@@ -180,8 +179,8 @@ public class GetRecords extends AbstractOperation implements CatalogService {
         // a comma separated list (such as GN's own CSW Harvesting Client), the check assumes a comma-separated list,
         // and checks whether its values are not other than csw:Record or gmd:MD_Metadata. If both are sent,
         // gmd:MD_Metadata is preferred.
-        final SettingInfo settingInfo = context.getBean(SearchManager.class).getSettingInfo();
-        String typeName = checkTypenames(query, settingInfo.getInspireEnabled());
+        final SettingManager settingInfo = context.getBean(SettingManager.class);
+        String typeName = checkTypenames(query, settingInfo.getValueAsBool(Settings.SYSTEM_INSPIRE_ENABLE));
 
         // set of elementnames or null
         Set<String> elemNames = getElementNames(query);
@@ -224,10 +223,7 @@ public class GetRecords extends AbstractOperation implements CatalogService {
             maxHitsInSummary = Integer.parseInt(sMaxRecordsInKeywordSummary);
         }
 
-        Sort sort = getSortFields(request, context);
-
         Element response;
-
         if (resultType == ResultType.VALIDATE) {
             //String schema = context.getAppPath() + Geonet.Path.VALIDATION + "csw/2.0.2/csw-2.0.2.xsd";
             Path schema = context.getAppPath().resolve(Geonet.Path.VALIDATION).resolve("csw202_apiso100/csw/2.0.2/CSW-discovery.xsd");
@@ -248,6 +244,8 @@ public class GetRecords extends AbstractOperation implements CatalogService {
 
             response.addContent(echoedRequest);
         } else {
+            List<SortBuilder<FieldSortBuilder>> sort = _sortByParser.parseSortBy(request);
+
             response = new Element(getName() + "Response", Csw.NAMESPACE_CSW);
 
             Attribute schemaLocation = new Attribute("schemaLocation", "http://www.opengis.net/cat/csw/2.0.2 http://schemas.opengis.net/csw/2.0.2/CSW-discovery.xsd", Csw.NAMESPACE_XSI);
@@ -258,17 +256,10 @@ public class GetRecords extends AbstractOperation implements CatalogService {
 
             response.addContent(status);
 
-            String cswServiceSpecificContraint = request.getChildText(Geonet.Elem.FILTER);
+            Element search = _searchController.search(context, startPos, maxRecords, resultType, outSchema,
+                setName, filterExpr, filterVersion, sort, elemNames, typeName, maxHitsInSummary, elementnameStrategy);
 
-            Pair<Element, Element> search = _searchController.search(context, startPos, maxRecords, resultType, outSchema,
-                setName, filterExpr, filterVersion, sort, elemNames, typeName, maxHitsInSummary, cswServiceSpecificContraint, elementnameStrategy);
-
-            // Only add GeoNetwork summary on results_with_summary option
-            if (resultType == ResultType.RESULTS_WITH_SUMMARY) {
-                response.addContent(search.one());
-            }
-
-            response.addContent(search.two());
+            response.addContent(search);
         }
         return response;
     }
@@ -369,8 +360,10 @@ public class GetRecords extends AbstractOperation implements CatalogService {
                 Element sortProp = new Element("SortProperty", Csw.NAMESPACE_OGC);
                 sortBy.addContent(sortProp);
 
-                Element propName = new Element("PropertyName", Csw.NAMESPACE_OGC).setText(field);
-                Element sortOrder = new Element("SortOrder", Csw.NAMESPACE_OGC).setText(ascen ? "ASC" : "DESC");
+                Element propName = new Element("PropertyName", Csw.NAMESPACE_OGC)
+                    .setText(field);
+                Element sortOrder = new Element("SortOrder", Csw.NAMESPACE_OGC)
+                    .setText(ascen ? "ASC" : "DESC");
 
                 sortProp.addContent(propName);
                 sortProp.addContent(sortOrder);
@@ -696,77 +689,6 @@ public class GetRecords extends AbstractOperation implements CatalogService {
             throw new InvalidParameterValueEx("maxRecords", max);
         }
     }
-
-    /**
-     * a return value >= 0 means that a distributed search was requested, otherwise the method returns -1.
-     *
-     * TODO unused method
-     *
-     * @param request
-     * @return
-     * @throws InvalidParameterValueEx
-     */
-//    private int getHopCount(Element request) throws InvalidParameterValueEx {
-//        Element ds = request.getChild("DistributedSearch", Csw.NAMESPACE_CSW);
-//        if (ds == null) {
-//            return -1;
-//        }
-//        String hopCount = ds.getAttributeValue("hopCount");
-//        if (hopCount == null) {
-//            return 2;
-//        }
-//        try {
-//            int value = Integer.parseInt(hopCount);
-//            if (value >= 0) {
-//                return value;
-//            }
-//        }
-//        catch (NumberFormatException ignored) {
-//            throw new InvalidParameterValueEx("hopCount", hopCount);
-//        }
-//        throw new InvalidParameterValueEx("hopCount", hopCount);
-//    }
-
-    /**
-     * TODO javadoc.
-     */
-    private Sort getSortFields(Element request, ServiceContext context) {
-        Element query = request.getChild("Query", Csw.NAMESPACE_CSW);
-        if (query == null) {
-            return null;
-        }
-
-        Element sortBy = query.getChild("SortBy", Csw.NAMESPACE_OGC);
-        if (sortBy == null) {
-            return null;
-        }
-
-        @SuppressWarnings("unchecked")
-        List<Element> list = sortBy.getChildren();
-        List<Pair<String, Boolean>> sortFields = new ArrayList<Pair<String, Boolean>>();
-        for (Element el : list) {
-            String field = el.getChildText("PropertyName", Csw.NAMESPACE_OGC);
-            String order = el.getChildText("SortOrder", Csw.NAMESPACE_OGC);
-
-            // Map CSW search field to Lucene for sorting. And if not mapped assumes the field is a Lucene field.
-            String luceneField = _fieldMapper.map(field);
-            if (luceneField != null) {
-                sortFields.add(Pair.read(luceneField, "DESC".equals(order)));
-            } else {
-                sortFields.add(Pair.read(field, "DESC".equals(order)));
-            }
-        }
-
-        GeonetContext gc = (GeonetContext) context.getHandlerContext(Geonet.CONTEXT_NAME);
-        SearchManager sm = gc.getBean(SearchManager.class);
-        boolean requestedLanguageOnTop = sm.getSettingInfo().getRequestedLanguageOnTop();
-
-        String preferredLanguage = LuceneSearcher.determineLanguage(context, request, sm.getSettingInfo()).presentationLanguage;
-
-        // we always want to keep the relevancy as part of the sorting mechanism
-        return LuceneSearcher.makeSort(sortFields, preferredLanguage, requestedLanguageOnTop);
-    }
-
 
     /**
      * Returns the values of ElementNames in the query, or null if there are none.

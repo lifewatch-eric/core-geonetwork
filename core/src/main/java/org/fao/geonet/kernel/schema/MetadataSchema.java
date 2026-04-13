@@ -64,6 +64,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -93,6 +94,7 @@ public class MetadataSchema {
     private String schemaName;
     private Path schemaDir;
     private String standardUrl;
+    private String version;
     private String appMinorVersionSupported;
     private String appMajorVersionSupported;
     private Map<String, String> titles = new HashMap<>();
@@ -513,7 +515,7 @@ public class MetadataSchema {
                 updated.add(schematron);
             }
         }
-        this.schemaRepo.save(updated);
+        this.schemaRepo.saveAll(updated);
     }
 
     public void setOperationFilters(Map<String, Pair<String, Element>> operationFilters) {
@@ -581,6 +583,14 @@ public class MetadataSchema {
         this.standardUrl = standardUrl;
     }
 
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     public String getAppMinorVersionSupported() {
         return appMinorVersionSupported;
     }
@@ -643,7 +653,8 @@ public class MetadataSchema {
         if (query == null) {
             throw new ResourceNotFoundException(String.format(
                 "Saved query '%s' for schema '%s' not found. Available queries are '%s'.",
-                savedQuery, getName(), schemaPlugin.getSavedQueries()));
+                savedQuery, getName(),
+                schemaPlugin.getSavedQueries().stream().map(SavedQuery::getId).collect(Collectors.joining(", "))));
         }
 
         String xpath = query.getXpath();
@@ -657,6 +668,3 @@ public class MetadataSchema {
             getNamespaces());
     }
 }
-
-//==============================================================================
-

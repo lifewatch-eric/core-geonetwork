@@ -25,6 +25,7 @@ package org.fao.geonet.kernel.harvest.harvester.arcsde;
 import com.google.common.collect.Sets;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
+import org.fao.geonet.ApplicationContextHolder;
 import org.fao.geonet.Logger;
 import org.fao.geonet.arcgis.ArcSDEConnection;
 import org.fao.geonet.constants.Geonet;
@@ -33,26 +34,23 @@ import org.fao.geonet.domain.ISODate;
 import org.fao.geonet.domain.Metadata;
 import org.fao.geonet.domain.MetadataType;
 import org.fao.geonet.exceptions.NoSchemaMatchesException;
+import org.fao.geonet.kernel.GeonetworkDataDirectory;
 import org.fao.geonet.kernel.UpdateDatestamp;
 import org.fao.geonet.kernel.harvest.BaseAligner;
 import org.fao.geonet.kernel.harvest.harvester.AbstractHarvester;
 import org.fao.geonet.kernel.harvest.harvester.CategoryMapper;
 import org.fao.geonet.kernel.harvest.harvester.GroupMapper;
 import org.fao.geonet.kernel.harvest.harvester.HarvestResult;
+import org.fao.geonet.kernel.search.IndexingMode;
 import org.fao.geonet.repository.MetadataRepository;
 import org.fao.geonet.repository.OperationAllowedRepository;
 import org.fao.geonet.repository.specification.MetadataSpecs;
 import org.fao.geonet.schema.iso19139.ISO19139Namespaces;
-import org.fao.geonet.utils.BinaryFile;
 import org.fao.geonet.utils.Xml;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -70,7 +68,7 @@ import java.util.Set;
 public class ArcSDEHarvester extends AbstractHarvester<HarvestResult, ArcSDEParams> {
 
     private static final String ARC_TO_ISO19115_TRANSFORMER = "ArcCatalog8_to_ISO19115.xsl";
-    private static final String ISO19115_TO_ISO19139_TRANSFORMER = "ISO19115-to-ISO19139.xsl";
+    private static final String ISO19115_TO_ISO19139_TRANSFORMER = "fromISO19115.xsl";
 
     @Override
     protected void storeNodeExtra(ArcSDEParams params, String path, String siteId, String optionsId) throws SQLException {
@@ -137,9 +135,11 @@ public class ArcSDEHarvester extends AbstractHarvester<HarvestResult, ArcSDEPara
 
         metadataManager.flush();
 
-
-        Path ArcToISO19115Transformer = context.getAppPath().resolve(Geonet.Path.STYLESHEETS).resolve("conversion/import").resolve(ARC_TO_ISO19115_TRANSFORMER);
-        Path ISO19115ToISO19139Transformer = context.getAppPath().resolve(Geonet.Path.STYLESHEETS).resolve("conversion/import").resolve(ISO19115_TO_ISO19139_TRANSFORMER);
+        GeonetworkDataDirectory dataDirectory = ApplicationContextHolder.get().getBean(GeonetworkDataDirectory.class);
+        Path ArcToISO19115Transformer =
+            dataDirectory.getXsltConversion("schema:iso19139:convert/" + ARC_TO_ISO19115_TRANSFORMER);
+        Path ISO19115ToISO19139Transformer =
+            dataDirectory.getXsltConversion("schema:iso19139:convert/" + ISO19115_TO_ISO19139_TRANSFORMER);
 
 
         List<Integer> idsForHarvestingResult = new ArrayList<Integer>();
@@ -192,20 +192,23 @@ public class ArcSDEHarvester extends AbstractHarvester<HarvestResult, ArcSDEPara
 
                 // Check if the ESRI metadata has an embedded iso19139 metadata
                 boolean hasIso19139Embedded = false;
-                if (iso19139Element != null) {
-                    try {
-                        schema = dataMan.autodetectSchema(iso19139Element, null);
-                    } catch (NoSchemaMatchesException ex) {
-                        // Ignore
-                    }
+                if (schema == null) {
 
-                    hasIso19139Embedded = (schema != null);
+                    if (iso19139Element != null) {
+                        try {
+                            schema = dataMan.autodetectSchema(iso19139Element, null);
+                        } catch (NoSchemaMatchesException ex) {
+                            // Ignore
+                        }
+
+                        hasIso19139Embedded = (schema != null);
+
+                        log.info("Metadata has ISO13139 embedded - " + hasIso19139Embedded);
+                    }
                 }
 
-                log.info("Metadata has ISO13139 embedded - " + hasIso19139Embedded);
-
-                // No schema detected or not iso19139 embedded, try to convert from default ESRI md to ISO1939
-                if ((schema == null) || !hasIso19139Embedded) {
+                // No schema detected, try to convert from default ESRI md to ISO1939
+                if (schema == null) {
                     log.info("Convert metadata to ISO19139 - start");
 
                     // Extract picture if available
@@ -303,7 +306,7 @@ public class ArcSDEHarvester extends AbstractHarvester<HarvestResult, ArcSDEPara
         // not in this harvesting result
         //
         Set<Integer> idsResultHs = Sets.newHashSet(idsForHarvestingResult);
-        List<Integer> existingMetadata = context.getBean(MetadataRepository.class).findAllIdsBy((Specification<Metadata>) MetadataSpecs.hasHarvesterUuid(params.getUuid()));
+        List<Integer> existingMetadata = context.getBean(MetadataRepository.class).findIdsBy((Specification<Metadata>) MetadataSpecs.hasHarvesterUuid(params.getUuid()));
         for (Integer existingId : existingMetadata) {
 
             if (cancelMonitor.get()) {
@@ -325,7 +328,6 @@ public class ArcSDEHarvester extends AbstractHarvester<HarvestResult, ArcSDEPara
         //
         boolean validate = false;
         boolean ufo = false;
-        boolean index = false;
         String language = context.getLanguage();
 
         String changeDate = null;
@@ -338,8 +340,8 @@ public class ArcSDEHarvester extends AbstractHarvester<HarvestResult, ArcSDEPara
             changeDate = new ISODate().toString();
         }
 
-        final AbstractMetadata metadata = metadataManager.updateMetadata(context, id, xml, validate, ufo, index, language, changeDate,
-            true);
+        final AbstractMetadata metadata = metadataManager.updateMetadata(context, id, xml, validate, ufo, language, changeDate,
+            true, IndexingMode.none);
 
         OperationAllowedRepository operationAllowedRepository = context.getBean(OperationAllowedRepository.class);
         operationAllowedRepository.deleteAllByMetadataId(Integer.parseInt(id));
@@ -350,7 +352,7 @@ public class ArcSDEHarvester extends AbstractHarvester<HarvestResult, ArcSDEPara
 
         metadataManager.flush();
 
-        dataMan.indexMetadata(id, true, null);
+        dataMan.indexMetadata(id, true);
     }
 
     /**
@@ -394,13 +396,13 @@ public class ArcSDEHarvester extends AbstractHarvester<HarvestResult, ArcSDEPara
 
         aligner.addCategories(metadata, params.getCategories(), localCateg, context, null, false);
 
-        metadata = metadataManager.insertMetadata(context, metadata, xml, true, false, false, UpdateDatestamp.NO, false, false);
+        metadata = metadataManager.insertMetadata(context, metadata, xml, IndexingMode.none, false, UpdateDatestamp.NO, false, false);
 
         String id = String.valueOf(metadata.getId());
 
         aligner.addPrivileges(id, params.getPrivileges(), localGroups, context);
 
-        dataMan.indexMetadata(id, true, null);
+        dataMan.indexMetadata(id, true);
 
         return id;
     }
@@ -408,44 +410,14 @@ public class ArcSDEHarvester extends AbstractHarvester<HarvestResult, ArcSDEPara
     private void loadMetadataThumbnail(String thumbnail, String metadataId, String uuid) {
         log.info("  - Creating thumbnail for metadata uuid: " + uuid);
 
-        org.fao.geonet.services.thumbnail.Set s = new org.fao.geonet.services.thumbnail.Set();
-
         try {
             String filename = uuid + ".png";
             Path dir = context.getUploadDir();
 
             byte[] thumbnailImg =  Base64.decodeBase64(thumbnail);
-
-            try (OutputStream fo = Files.newOutputStream(dir.resolve(filename));
-                 InputStream in = new ByteArrayInputStream(thumbnailImg);) {
-                BinaryFile.copy(in, fo);
-            }
-
-
-            if (log.isDebugEnabled()) log.debug("  - File: " + filename);
-
-            Element par = new Element("request");
-            par.addContent(new Element("id").setText(metadataId));
-            par.addContent(new Element("version").setText("10"));
-            par.addContent(new Element("type").setText("large"));
-
-            Element fname = new Element("fname").setText(filename);
-            fname.setAttribute("content-type", "image/png");
-            fname.setAttribute("type", "file");
-            fname.setAttribute("size", "");
-
-            par.addContent(fname);
-            par.addContent(new Element("add").setText("Add"));
-            par.addContent(new Element("createSmall").setText("on"));
-            par.addContent(new Element("smallScalingFactor").setText("180"));
-            par.addContent(new Element("smallScalingDir").setText("width"));
-
-            // Call the services
-            s.execOnHarvest(par, context, dataMan);
-
-            metadataManager.flush();
-
-            result.thumbnails++;
+            // TODO use FileStore API
+//            metadataManager.flush();
+//            result.thumbnails++;
 
         } catch (Exception e) {
             log.warning("  - Failed to set thumbnail for metadata: " + e.getMessage());

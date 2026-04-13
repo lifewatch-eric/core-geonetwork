@@ -25,7 +25,6 @@ package org.fao.geonet.api.records.formatters.cache;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.kernel.GeonetworkDataDirectory;
 import org.fao.geonet.lib.Lib;
@@ -33,6 +32,9 @@ import org.fao.geonet.utils.IO;
 import org.fao.geonet.utils.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -41,17 +43,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.UUID;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.PreDestroy;
 
 import static org.fao.geonet.constants.Params.Access.PRIVATE;
 import static org.fao.geonet.constants.Params.Access.PUBLIC;
@@ -74,7 +67,7 @@ public class FilesystemStore implements PersistentStore {
     private static final String STATS_TABLE = "stats";
     private static final String NAME = "name";
     private static final String CURRENT_SIZE = "currentsize";
-    private static final String VALUE = "value";
+    private static final String VALUE = "statvalue";
     public static final String QUERY_SETCURRENT_SIZE = "MERGE INTO " + STATS_TABLE + " (" + NAME + ", " + VALUE + ") VALUES ('" + CURRENT_SIZE + "', ?)";
     public static final String QUERY_GETCURRENT_SIZE = "SELECT " + VALUE + " FROM " + STATS_TABLE + " WHERE " + NAME + " = '" + CURRENT_SIZE + "'";
     private static final String QUERY_GET_INFO = "SELECT * FROM " + INFO_TABLE + " WHERE " + KEY + "=?";
@@ -235,7 +228,7 @@ public class FilesystemStore implements PersistentStore {
         long startTime = System.currentTimeMillis();
         try (
             Statement statement = metadataDb.createStatement();
-            ResultSet resultSet = statement.executeQuery(QUERY_GET_INFO_FOR_RESIZE);
+            ResultSet resultSet = statement.executeQuery(QUERY_GET_INFO_FOR_RESIZE)
         ) {
             while (currentSize > targetSize && resultSet.next()) {
                 Path path = IO.toPath(new URI(resultSet.getString(PATH)));

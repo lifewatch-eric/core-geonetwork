@@ -33,12 +33,11 @@
                 version="1.0"
                 exclude-result-prefixes="gmd srv gco">
 
-  <xsl:param name="displayInfo"/>
   <xsl:param name="lang"/>
+  <xsl:variable name="metadata"
+                select="gmd:MD_Metadata|*[@gco:isoType='gmd:MD_Metadata']"/>
 
-  <xsl:include href="../metadata-utils.xsl"/>
-
-  <!-- ============================================================================= -->
+  <xsl:include href="../../layout/utility-tpl-multilingual.xsl"/>
 
   <xsl:template match="gmd:MD_Metadata|*[@gco:isoType='gmd:MD_Metadata']">
 
@@ -85,39 +84,25 @@
       <!-- bounding box -->
       <xsl:for-each select="$identification/gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox|
         $identification/srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox">
-        <xsl:variable name="rsi" select="/gmd:MD_Metadata/gmd:referenceSystemInfo/gmd:MD_ReferenceSystem/
-          gmd:referenceSystemIdentifier/gmd:RS_Identifier|/gmd:MD_Metadata/gmd:referenceSystemInfo/
-          *[contains(@gco:isoType, 'MD_ReferenceSystem')]/gmd:referenceSystemIdentifier/gmd:RS_Identifier"/>
-        <xsl:variable name="auth" select="$rsi/gmd:codeSpace/gco:CharacterString"/>
-        <xsl:variable name="id" select="$rsi/gmd:code/gco:CharacterString"/>
 
-        <ows:BoundingBox crs="{$auth}::{$id}">
+        <ows:BoundingBox crs="urn:ogc:def:crs:EPSG:6.6:4326">
           <ows:LowerCorner>
             <xsl:value-of
-              select="concat(gmd:eastBoundLongitude/gco:Decimal, ' ', gmd:southBoundLatitude/gco:Decimal)"/>
+              select="concat(gmd:southBoundLatitude/gco:Decimal, ' ', gmd:westBoundLongitude/gco:Decimal)"/>
           </ows:LowerCorner>
 
           <ows:UpperCorner>
             <xsl:value-of
-              select="concat(gmd:westBoundLongitude/gco:Decimal, ' ', gmd:northBoundLatitude/gco:Decimal)"/>
+              select="concat(gmd:northBoundLatitude/gco:Decimal, ' ', gmd:eastBoundLongitude/gco:Decimal)"/>
           </ows:UpperCorner>
         </ows:BoundingBox>
       </xsl:for-each>
 
-      <!-- GeoNetwork elements added when resultType is equal to results_with_summary -->
-      <xsl:if test="$displayInfo = 'true'">
-        <xsl:copy-of select="$info"/>
-      </xsl:if>
-
     </csw:BriefRecord>
   </xsl:template>
-
-  <!-- ============================================================================= -->
 
   <xsl:template match="*">
     <xsl:apply-templates select="*"/>
   </xsl:template>
-
-  <!-- ============================================================================= -->
 
 </xsl:stylesheet>

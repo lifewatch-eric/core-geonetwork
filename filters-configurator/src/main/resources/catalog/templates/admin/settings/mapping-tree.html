@@ -1,0 +1,41 @@
+<div class="panel panel-default">
+    <div class="panel-heading ng-scope">Resource/Template Fields</div>
+    <div class="panel panel-body" style="margin-top:0;">
+        <div>
+            <label class="d-block" data-translate="">Resource*</label>
+            <select class="form-control" data-ng-options="t.label for t in types"
+            data-ng-model="selectedType" data-ng-change="onTypeSelected()" ></select>
+        </div>
+        <div>
+            <label class="d-block" style="margin-top:10px" data-translate="">Template*</label>
+            <select class="form-control"
+            data-ng-options="t.label for t in templates[selectedType.key]"
+            data-ng-model="selectedTemplate" data-ng-change="onTemplateSelected()" ></select>
+        </div>
+
+        <label class="d-block" style="margin-top:10px" data-translate="">Metadata List</label>
+        <!-- Display the xml tree if a template is selected, or
+        a message otherwise -->
+        <div id='emptyTemplateTree' data-ng-if="treeData.length == 0">
+            <span ng-show="!loading">
+                Select a Resource Type and a Template to continue
+            </span>
+            <div ng-show="loading" style="width: fit-content; margin: 0 auto;">
+                <span class="loading fa fa-spinner fa-spin"
+                    style="font-size: 32px; background: transparent;">
+                </span>
+            </div>
+        </div>
+        <div id="templateTree" data-ng-if="treeData.length > 0">
+            <xml-tree tree-control="treeController" tree-data="treeData"></xml-tree>
+        </div>
+
+        <div class="btn-toolbar pull-right">
+            <button type="button" class="btn btn-primary"
+            data-ng-disabled="!canAdd()" data-ng-click="onAdd()">
+                <span class="fa fa-plus"></span>
+                {{"add"|translate}}
+            </button>
+        </div>
+    </div>
+</div>

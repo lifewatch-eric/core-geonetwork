@@ -25,15 +25,18 @@
 <beans
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns="http://www.springframework.org/schema/beans"
+  xmlns:util="http://www.springframework.org/schema/util"
   xmlns:context="http://www.springframework.org/schema/context"
   xsi:schemaLocation="
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
     ">
 
-  <context:property-placeholder location="${app.properties}"
-                                file-encoding="UTF-8"
-                                ignore-unresolvable="true" />
+  <context:property-placeholder location="${app.properties},file://#{systemEnvironment['geonetwork_dir']}/config/app.properties"
+                                ignore-unresolvable="true"
+                                ignore-resource-not-found="true"
+                                file-encoding="UTF-8"/>
 
   <context:annotation-config/>
   <bean id="ProfileManager" class="jeeves.component.ProfileManager" lazy-init="true"/>
@@ -44,32 +47,59 @@
         lazy-init="true"/>
   <bean id="ServiceInfo" class="jeeves.server.dispatchers.ServiceInfo" scope="prototype"/>
 
+  <bean id="archiveAllMetadataJob" class="org.fao.geonet.kernel.backup.ArchiveAllMetadataJob" lazy-init="true"/>
 
   <bean id="AccessManager" class="org.fao.geonet.kernel.AccessManager" lazy-init="true"/>
   <bean id="DataManager" class="org.fao.geonet.kernel.DataManager" lazy-init="true"/>
   <bean id="GeonetworkDataDirectory" class="org.fao.geonet.kernel.GeonetworkDataDirectory"
         lazy-init="true"/>
 
-  <bean id="luceneConfig" class="org.fao.geonet.kernel.search.LuceneConfig" lazy-init="true">
-    <constructor-arg ref="facets"/>
-    <constructor-arg ref="summaryTypes"/>
+  <bean id="ThesaurusManager" class="org.fao.geonet.kernel.ThesaurusManager" lazy-init="true">
+    <property name="thesaurusCacheMaxSize" value="\${thesaurus.cache.maxsize}"/>
+  </bean>
+
+  <util:list id="allThesaurusExclude">
+    <value>external.theme.access_use_conditions</value>
+  </util:list>
+
+  <bean id="allThesaurus" class="org.fao.geonet.kernel.AllThesaurus" lazy-init="true">
+    <property name="allThesaurusExclude" ref="allThesaurusExclude"/>
   </bean>
 
   <bean id="translatorFactory" class="org.fao.geonet.kernel.search.TranslatorFactory"/>
 
   <bean id="urlAnalyzer" class="org.fao.geonet.kernel.url.UrlAnalyzer" lazy-init="true"/>
-  <bean id="urlChecker" class="org.fao.geonet.kernel.url.UrlChecker" lazy-init="true"/>
-  <bean id="SearchManager" class="org.fao.geonet.kernel.search.SearchManager" lazy-init="true"/>
+
+  <bean id="urlChecker" class="org.fao.geonet.kernel.url.UrlChecker" lazy-init="true">
+    <property name="UserAgent" value="${urlChecker.UserAgent}"/>
+  </bean>
+
   <bean id="SearchLogger" class="org.fao.geonet.kernel.search.log.SearcherLogger" lazy-init="true"/>
-  <bean id="EsSearchManager" class="org.fao.geonet.kernel.search.EsSearchManager" lazy-init="true"/>
-  <bean id="LuceneIndexLanguageTracker"
-        class="org.fao.geonet.kernel.search.index.LuceneIndexLanguageTracker" lazy-init="true"/>
+
+
+  <util:map id="indexList">
+    <entry key="records" value="\${es.index.records}"/>
+    <entry key="features" value="\${es.index.features}"/>
+    <entry key="searchlogs" value="\${es.index.searchlogs}"/>
+  </util:map>
+
+  <bean id="OverviewIndexFieldUpdater"
+        class="org.fao.geonet.kernel.search.index.OverviewIndexFieldUpdater"/>
+  <bean id="EsSearchManager"
+        class="org.fao.geonet.kernel.search.EsSearchManager"
+        lazy-init="false">
+    <property name="indexList" ref="indexList"/>
+    <property name="defaultIndex" value="\${es.index.records}"/>
+  </bean>
+
+
+  <bean id="esClient"
+        class="org.fao.geonet.index.es.EsRestClient"/>
+
   <bean id="HarvesterSettingsManager" class="org.fao.geonet.kernel.setting.HarvesterSettingsManager"
         lazy-init="true"/>
   <bean id="SettingInfo" class="org.fao.geonet.kernel.setting.SettingInfo" lazy-init="true"/>
   <bean id="SettingManager" class="org.fao.geonet.kernel.setting.SettingManager" lazy-init="true"/>
-  <bean id="MetadataNotifierManager" class="org.fao.geonet.notifier.MetadataNotifierManager"
-        lazy-init="true"/>
   <bean id="IsoLanguagesMapper" class="org.fao.geonet.languages.IsoLanguagesMapper"
         lazy-init="true"/>
   <bean id="selectionManager" class="org.fao.geonet.kernel.SelectionManager" lazy-init="true"/>
@@ -79,6 +109,31 @@
         scope="singleton"/>
   <bean id="schematronValidatorExternalMd" class="org.fao.geonet.kernel.SchematronValidatorExternalMd" lazy-init="false"
         scope="singleton"/>
+
+  <bean name="indexStatus"
+        class="org.fao.geonet.index.Status"
+        scope="singleton">
+    <constructor-arg value="index"/>
+  </bean>
+
+  <bean name="indexStatusChecker"
+        class="org.fao.geonet.index.es.EsServerStatusChecker"/>
+
+  <!-- Task for index status checker -->
+  <bean name="indexStatusJob"
+        class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+    <property name="jobClass"
+              value="org.fao.geonet.index.es.EsServerStatusChecker"/>
+  </bean>
+
+  <!-- Scheduling of the index status checker -->
+  <bean id="indexStatusTrigger"
+        class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+    <property name="jobDetail" ref="indexStatusJob"/>
+    <property name="cronExpression" value="${es.index.checker.interval}"/>
+    <property name="startDelay" value="0"/>
+  </bean>
+
 
   <!-- List of records to index in a moment ...-->
   <bean id="indexingList"
@@ -126,6 +181,7 @@
     </property>
     <property name="triggers">
       <list>
+        <ref bean="indexStatusTrigger"/>
         <ref bean="indexingTaskTrigger"/>
         <ref bean="watchListNotificationTaskTrigger"/>
         <ref bean="backupMetadataCronTrigger" />
@@ -146,13 +202,6 @@
         lazy-init="true"
         scope="prototype"/>
 
-  <bean id="MetadataNotifierTask"
-        class="org.fao.geonet.notifier.MetadataNotifierTask"
-        lazy-init="true" scope="prototype"/>
-
-  <bean id="MetadataNotifierClient"
-        class="org.fao.geonet.notifier.MetadataNotifierClient"
-        lazy-init="true" scope="prototype"/>
 
   <bean id="backupMetadataCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
     <property name="jobDetail">
@@ -177,7 +226,9 @@
 
   <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
     <property name="namingStrategy" ref="namingStrategy"/>
+    <property name="registrationPolicy" value="IGNORE_EXISTING"/>
   </bean>
+
   <bean id="namingStrategy"
         class="org.springframework.jmx.export.naming.KeyNamingStrategy">
     <property name="mappings">
@@ -187,33 +238,18 @@
     </property>
   </bean>
 
+  <bean id="FeedbackLanguages" class="org.fao.geonet.languages.FeedbackLanguages"/>
 
-  <bean id="filesystemStore"
-        class="org.fao.geonet.api.records.attachments.FilesystemStore"/>
+  <!-- Resource Storage -->
+  <!-- geonetwork.store.type can be supplied
+  using the -Dgeonetwork.store.type
+  or via env as GEONETWORK_STORE_TYPE
+  If not supplied it will default to default store type.
 
-  <bean id="resourceStore"
-        class="org.fao.geonet.api.records.attachments.ResourceLoggerStore">
-    <constructor-arg index="0" ref="filesystemStore"/>
-  </bean>
-
-  <bean id="resources" class="org.fao.geonet.resources.FileResources"/>
-
-  <!-- If you want data stored in S3, use that instead: -->
-  <!--  <bean id="s3credentials" class="org.fao.geonet.resources.S3Credentials">-->
-  <!--    <property name="region" value="eu-west-1"/>-->
-  <!--    <property name="bucket" value="geonetwork-test"/>-->
-  <!--    <property name="keyPrefix" value="geonetwork"/>-->
-  <!--    &lt;!&ndash; Only needed if you don't have a ~/.aws/credentials &ndash;&gt;-->
-  <!--    <property name="accessKey" value="MyAccessKey"/>-->
-  <!--    <property name="secretKey" value="MySecretKey"/>-->
-  <!--    &lt;!&ndash; Only needed when not using Amazon S3&ndash;&gt;-->
-  <!--    <property name="endpoint" value="sos-ch-dk-2.exo.io"/>-->
-  <!--  </bean>-->
-  <!--  <bean id="filesystemStore" class="org.fao.geonet.api.records.attachments.S3Store" />-->
-  <!--  <bean id="resourceStore"-->
-  <!--        class="org.fao.geonet.api.records.attachments.ResourceLoggerStore">-->
-  <!--    <constructor-arg index="0" ref="filesystemStore"/>-->
-  <!--  </bean>-->
-  <!--  <bean id="resources" class="org.fao.geonet.resources.S3Resources"/>-->
-
+  Option include
+     default - Default file system store
+     s3      - AWS S3 storage (see config-store/config-s3.xml for more details)
+     cmis    - CMIS storage (see config-store/config-cmis.xml for more details)
+  -->
+  <import resource="config-store/config-${geonetwork.store.type:default}.xml"/>
 </beans>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * Copyright (C) 2001-2024 Food and Agriculture Organization of the
  * United Nations (FAO-UN), United Nations World Food Programme (WFP)
  * and United Nations Environment Programme (UNEP)
  *
@@ -23,17 +23,15 @@
 
 package org.fao.geonet.api.processing.report;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.fao.geonet.ApplicationContextHolder;
+import org.fao.geonet.domain.AbstractMetadata;
+import org.fao.geonet.kernel.datamanager.IMetadataUtils;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import java.util.*;
 
 /**
  * A report related to metadata records.
@@ -53,6 +51,11 @@ public abstract class MetadataProcessingReport extends ProcessingReport {
     @XmlAttribute
     protected int processedRecords = 0;
     /**
+     * The number of records processed when the report was generated
+     */
+    @XmlAttribute
+    protected int unchangedRecords = 0;
+    /**
      * The number of records when a null metadata identifier is processed (may happen when a record
      * is in the selection but was deleted after the selection)
      */
@@ -61,26 +64,26 @@ public abstract class MetadataProcessingReport extends ProcessingReport {
     /**
      * The list of record identifiers successfully processed
      */
-    protected Set<Integer> metadata = new HashSet<Integer>();
+    protected Set<Integer> metadata = new HashSet<>();
     /**
      * The list of record identifiers not found (may be deleted)
      */
-    protected Set<Integer> notFound = new HashSet<Integer>();
+    protected Set<Integer> notFound = new HashSet<>();
     /**
      * The list of records identifiers the user who starts the process is not allowed to edit
      */
-    protected Set<Integer> notEditable = new HashSet<Integer>();
+    protected Set<Integer> notEditable = new HashSet<>();
 
     /**
      * The list of records with error and exception details
      */
-    protected Map<Integer, List<Report>> metadataErrors = new HashMap<Integer, List<Report>>();
-    protected Map<Integer, List<InfoReport>> metadataInfos = new HashMap<Integer, List<InfoReport>>();
+    protected Map<Integer, List<Report>> metadataErrors = new HashMap<>();
+    protected Map<Integer, List<InfoReport>> metadataInfos = new HashMap<>();
 
     /**
      * The list of records with error and exception details
      */
-    public MetadataProcessingReport() {
+    protected MetadataProcessingReport() {
         super();
     }
 
@@ -89,24 +92,44 @@ public abstract class MetadataProcessingReport extends ProcessingReport {
         return metadataErrors;
     }
 
-    public synchronized void addMetadataError(int metadataId, Exception error) {
+    public synchronized void addMetadataError(int metadataId, String metadataUUID, boolean draft, boolean approved,
+                                              Exception error) {
+        Report errorReport = new ErrorReport(error);
+        errorReport.setUuid(metadataUUID);
+        errorReport.setDraft(draft);
+        errorReport.setApproved(approved);
         if (this.metadataErrors.get(metadataId) == null) {
             List<Report> errors = new ArrayList<>();
-            errors.add(new ErrorReport(error));
+            errors.add(errorReport);
             this.metadataErrors.put(metadataId, errors);
         } else {
-            this.metadataErrors.get(metadataId).add(new ErrorReport(error));
+            this.metadataErrors.get(metadataId).add(errorReport);
         }
     }
 
-    public synchronized void addMetadataError(int metadataId, String error) {
+    public void addMetadataError(AbstractMetadata metadata, Exception error) {
+        addMetadataError(metadata.getId(), metadata.getUuid(), isMetadataDraft(metadata.getId()),
+            isMetadataApproved(metadata.getId()), error);
+    }
+
+    public synchronized void addMetadataError(int metadataId, String metadataUUID, boolean draft, boolean approved,
+                                              String error) {
+        Report errorReport = new ErrorReport(error);
+        errorReport.setUuid(metadataUUID);
+        errorReport.setDraft(draft);
+        errorReport.setApproved(approved);
         if (this.metadataErrors.get(metadataId) == null) {
             List<Report> errors = new ArrayList<>();
-            errors.add(new ErrorReport(error));
+            errors.add(errorReport);
             this.metadataErrors.put(metadataId, errors);
         } else {
-            this.metadataErrors.get(metadataId).add(new ErrorReport(error));
+            this.metadataErrors.get(metadataId).add(errorReport);
         }
+    }
+
+    public void addMetadataError(AbstractMetadata metadata, String error) {
+        addMetadataError(metadata.getId(), metadata.getUuid(), isMetadataDraft(metadata.getId()),
+            isMetadataApproved(metadata.getId()), error);
     }
 
     @XmlElement(name = "infos")
@@ -114,14 +137,43 @@ public abstract class MetadataProcessingReport extends ProcessingReport {
         return metadataInfos;
     }
 
-    public void addMetadataInfos(int metadataId, String message) {
+    public void addMetadataInfos(int metadataId, String metadataUUID, boolean draft, boolean approved, String message) {
+        InfoReport infoReport = new InfoReport(message);
+        infoReport.setUuid(metadataUUID);
+        infoReport.setDraft(draft);
+        infoReport.setApproved(approved);
         if (this.metadataInfos.get(metadataId) == null) {
             List<InfoReport> infos = new ArrayList<>();
-            infos.add(new InfoReport(message));
+            infos.add(infoReport);
             this.metadataInfos.put(metadataId, infos);
         } else {
-            this.metadataInfos.get(metadataId).add(new InfoReport(message));
+            this.metadataInfos.get(metadataId).add(infoReport);
         }
+    }
+
+    public void addMetadataInfos(AbstractMetadata metadata, String message) {
+        addMetadataInfos(metadata.getId(), metadata.getUuid(), isMetadataDraft(metadata.getId()),
+            isMetadataApproved(metadata.getId()), message);
+    }
+
+    private boolean isMetadataDraft(int metadataId) {
+        boolean metadataDraft = false;
+        try {
+            metadataDraft = ApplicationContextHolder.get().getBean(IMetadataUtils.class).isMetadataDraft(metadataId);
+        } catch (Exception e) {
+            throw new RuntimeException("Error detecting if metadata is draft", e);
+        }
+        return metadataDraft;
+    }
+
+    private boolean isMetadataApproved(int metadataId) {
+        boolean metadataApproved = false;
+        try {
+            metadataApproved = ApplicationContextHolder.get().getBean(IMetadataUtils.class).isMetadataApproved(metadataId);
+        } catch (Exception e) {
+            throw new RuntimeException("Error detecting if metadata is approved", e);
+        }
+        return metadataApproved;
     }
 
     @XmlTransient
@@ -152,6 +204,14 @@ public abstract class MetadataProcessingReport extends ProcessingReport {
 
     public synchronized void incrementProcessedRecords() {
         this.processedRecords++;
+    }
+
+    public synchronized int getNumberOfRecordsUnchanged() {
+        return unchangedRecords;
+    }
+
+    public synchronized void incrementUnchangedRecords() {
+        this.unchangedRecords++;
     }
 
     public synchronized void addMetadataId(int metadataId) {

@@ -22,8 +22,7 @@
   ~ Rome - Italy. email: geonetwork@osgeo.org
   -->
 
-<beans profile="es"
-        xmlns="http://www.springframework.org/schema/beans"
+<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:cm="http://camel.apache.org/schema/spring"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -35,9 +34,10 @@
         http://camel.apache.org/schema/spring
         http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-  <context:property-placeholder location="${app.properties}"
-                                file-encoding="UTF-8"
-                                ignore-unresolvable="true" />
+  <context:property-placeholder location="${app.properties},file://#{systemEnvironment['geonetwork_dir']}/config/app.properties"
+                                ignore-unresolvable="true"
+                                ignore-resource-not-found="true"
+                                file-encoding="UTF-8"/>
 
   <bean id="wfsfeaturesHarvesterRouteBuilder"
         class="org.fao.geonet.harvester.wfsfeatures.worker.WFSHarvesterRouteBuilder">
@@ -46,13 +46,11 @@
   <bean id="WFSFeatureIndexer"
         class="org.fao.geonet.harvester.wfsfeatures.worker.EsWFSFeatureIndexer"
         scope="prototype">
-    <property name="featureCommitInterval" value="${es.index.features.featureCommitInterval}"/>
-    <property name="applyPrecisionModel" value="${es.index.features.applyPrecisionModel}"/>
-    <property name="numberOfDecimals" value="${es.index.features.numberOfDecimals}"/>
+    <property name="featureCommitInterval" value="\${es.index.features.featureCommitInterval}"/>
+    <property name="applyPrecisionModel" value="\${es.index.features.applyPrecisionModel}"/>
+    <property name="numberOfDecimals" value="\${es.index.features.numberOfDecimals}"/>
   </bean>
 
-  <bean id="esClient"
-        class="org.fao.geonet.es.EsClient"/>
 
 
   <cm:camelContext id="harvest-wfs"
